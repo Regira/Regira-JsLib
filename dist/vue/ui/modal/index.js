@@ -1,2 +1,2 @@
-import { n as e, r as t, t as n } from "../../../_chunks/modal-3.0.5.js";
+import { n as e, r as t, t as n } from "../../../_chunks/modal-3.0.6.js";
 export { e as DefaultModal, t as ModalType, n as default, n as plugin };

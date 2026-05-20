@@ -1,4 +1,4 @@
-import { r as e } from "./modal-3.0.5.js";
+import { r as e } from "./modal-3.0.6.js";
 import { Fragment as t, Teleport as n, computed as r, createBlock as i, createCommentVNode as a, createElementBlock as o, createElementVNode as s, createTextVNode as c, createVNode as l, defineComponent as u, normalizeClass as d, openBlock as f, ref as p, renderList as m, renderSlot as h, resolveComponent as g, toDisplayString as _, unref as v, withCtx as y } from "vue";
 //#region src/vue/ui/feedback/Pending.vue?vue&type=script&setup=true&lang.ts
 var b = { class: "bg-light text-info" }, x = /* @__PURE__ */ u({
@@ -81,21 +81,21 @@ var b = { class: "bg-light text-info" }, x = /* @__PURE__ */ u({
 	return e.none = "", e.pending = "Pending", e.success = "Success", e.failed = "Failed", e;
 }({});
 function z({ autoHideDelay: e = 1500 } = {}) {
-	let t = p(R.none), n = p(""), r = p(null), i;
+	let t = p(""), n = p(""), r = p(null), i;
 	function a() {
 		e > 0 && (clearTimeout(i), i = setTimeout(o, e));
 	}
 	function o() {
-		t.value = R.none, n.value = "", r.value = null;
+		t.value = "", n.value = "", r.value = null;
 	}
 	function s(e) {
-		t.value = R.pending, n.value = e, r.value = null;
+		t.value = "Pending", n.value = e, r.value = null;
 	}
 	function c(i) {
-		t.value = R.success, n.value = i, r.value = null, e && a();
+		t.value = "Success", n.value = i, r.value = null, e && a();
 	}
 	function l(e, i) {
-		t.value = R.failed, n.value = e, typeof i == "string" ? n.value = `${n.value}: ${i.split("\n")[0]}` : r.value = i?.message || i;
+		t.value = "Failed", n.value = e, typeof i == "string" ? n.value = `${n.value}: ${i.split("\n")[0]}` : r.value = i?.message || i;
 	}
 	return {
 		status: t,

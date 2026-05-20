@@ -1,12 +1,12 @@
-import { C as e, S as t, g as n, w as r } from "../../_chunks/array-utility-3.0.5.js";
+import { C as e, S as t, g as n, w as r } from "../../_chunks/array-utility-3.0.6.js";
 import { debounceToPromise as i } from "../../utilities/promise-utility.js";
-import { t as a } from "../../_chunks/treelist-3.0.5.js";
-import { t as o } from "../../_chunks/query-3.0.5.js";
-import { i as s } from "../../_chunks/feedback-3.0.5.js";
-import { n as c, t as l } from "../../_chunks/details-3.0.5.js";
-import { a as u, c as d, i as f, l as p, n as m, o as h, r as g, s as _, t as ee } from "../../_chunks/form-3.0.5.js";
-import "../../_chunks/ui-3.0.5.js";
-import { i as te } from "../../_chunks/ioc-3.0.5.js";
+import { t as a } from "../../_chunks/treelist-3.0.6.js";
+import { t as o } from "../../_chunks/query-3.0.6.js";
+import { i as s } from "../../_chunks/feedback-3.0.6.js";
+import { n as c, t as l } from "../../_chunks/details-3.0.6.js";
+import { a as u, c as d, i as f, l as p, n as m, o as h, r as g, s as _, t as ee } from "../../_chunks/form-3.0.6.js";
+import "../../_chunks/ui-3.0.6.js";
+import { i as te } from "../../_chunks/ioc-3.0.6.js";
 import { AxiosError as v } from "axios";
 import { Fragment as ne, computed as y, createCommentVNode as re, createElementBlock as b, createElementVNode as ie, defineComponent as ae, isRef as oe, onMounted as se, openBlock as x, ref as S, renderList as ce, renderSlot as le, toDisplayString as C, toRaw as ue, toRefs as de, unref as w, vModelSelect as fe, watch as pe, withAsyncContext as me, withDirectives as T } from "vue";
 import { useRouter as E } from "vue-router";
@@ -40,6 +40,8 @@ function A(e) {
 //#endregion
 //#region src/vue/entities/abstractions/EntityServiceBase.ts
 var j = class {
+	axios;
+	config;
 	defaultPageSize = 10;
 	constructor(e, t) {
 		this.axios = e, this.config = t, this.defaultPageSize = t.defaultPageSize ?? 10;
@@ -137,6 +139,7 @@ var j = class {
 		return this.toEntity(e || {});
 	}
 }, M = /* @__PURE__ */ new Map(), N = class extends j {
+	key;
 	constructor(e, t, n) {
 		super(e, t), this.key = n;
 	}
@@ -544,6 +547,9 @@ function Oe({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 //#endregion
 //#region src/vue/entities/pooling/PoolService.ts
 var G = class {
+	service;
+	cache;
+	type;
 	constructor(e, t, n) {
 		this.service = e, this.cache = t, this.type = n;
 	}

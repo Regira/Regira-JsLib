@@ -1,5 +1,5 @@
 import { startsWith as e } from "../../utilities/string-utility.js";
-import { t } from "../../_chunks/query-3.0.5.js";
+import { t } from "../../_chunks/query-3.0.6.js";
 import { computed as n, createBlock as r, createCommentVNode as i, createElementBlock as a, createElementVNode as o, createTextVNode as s, createVNode as c, defineComponent as l, guardReactiveProps as u, isRef as d, normalizeProps as f, openBlock as p, ref as m, renderSlot as h, resolveComponent as g, toDisplayString as _, unref as v, vModelText as y, watch as b, withCtx as x, withDirectives as S, withModifiers as C } from "vue";
 import { defineStore as w } from "pinia";
 import { useRouter as T } from "vue-router";
@@ -28,6 +28,8 @@ var E = class {
 		return this.hasClaim("permissions", e);
 	}
 }, D = () => new E(), O = class {
+	axios;
+	tokenManager;
 	options;
 	constructor(e, t, n) {
 		this.axios = e, this.tokenManager = t, this.options = n || {};
@@ -95,6 +97,7 @@ var E = class {
 		return t.$patch({ authRequired: !0 }), !0;
 	});
 }, A = "auth:token", j = class {
+	prefix;
 	constructor(e = "") {
 		this.prefix = e;
 	}
@@ -108,6 +111,7 @@ var E = class {
 		return this.prefix + A;
 	}
 }, ee = class {
+	_token;
 	constructor(e) {
 		this._token = e;
 	}
@@ -118,6 +122,7 @@ var E = class {
 		this._token = e;
 	}
 }, M = class {
+	prefix;
 	constructor(e = "") {
 		this.prefix = e;
 	}

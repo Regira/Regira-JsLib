@@ -76,7 +76,7 @@ export async function getFile(url: string, method: string = "GET", filename?: st
     }
 
     if (type == null) {
-        type = response.headers["content-type"]
+        type = response.headers["content-type"] as string | undefined
     }
 
     const blob = new Blob([response.data], { type })

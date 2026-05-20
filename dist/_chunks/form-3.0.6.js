@@ -1,6 +1,6 @@
-import { F as e, _ as t } from "./array-utility-3.0.5.js";
+import { F as e, _ as t } from "./array-utility-3.0.6.js";
 import { useVModelField as n } from "../vue/vue-helper.js";
-import { i as r } from "./feedback-3.0.5.js";
+import { i as r } from "./feedback-3.0.6.js";
 import { getCurrentInstance as i, onMounted as a, ref as o, unref as s, watch as c } from "vue";
 import { useRouter as l } from "vue-router";
 //#region src/vue/entities/form/form.ts
@@ -11,27 +11,27 @@ var u = /* @__PURE__ */ function(e) {
 	isPopup: !1
 };
 function f({ entityService: t, props: n, emit: i, feedback: s = r() }) {
-	let { readonly: d, isPopup: f } = n, p = o(n.modelValue), m = o();
-	function h() {
+	let { readonly: u, isPopup: d } = n, f = o(n.modelValue), p = o();
+	function m() {
 		i("cancel", {
-			canceled: p.value,
-			original: m.value
-		}), p.value = m.value;
+			canceled: f.value,
+			original: p.value
+		}), f.value = p.value;
 	}
-	function g() {
-		if (d) throw s.fail("Readonly"), Error("Readonly");
+	function h() {
+		if (u) throw s.fail("Readonly"), Error("Readonly");
 	}
-	let _ = l();
-	async function v() {
-		g(), i("changeState", u.pending);
+	let g = l();
+	async function _() {
+		h(), i("changeState", "Pending");
 		try {
 			s.pending("Saving...");
-			let { saved: n, isNew: r } = await t.save(p.value);
+			let { saved: n, isNew: r } = await t.save(f.value);
 			if (i("save", {
 				saved: n,
 				isNew: r
-			}), s.success("Saved"), p.value = t.toEntity(e(n)), m.value = t.toEntity(e(n)), i("update:modelValue", p.value), r && !f) {
-				let e = _.currentRoute.value;
+			}), s.success("Saved"), f.value = t.toEntity(e(n)), p.value = t.toEntity(e(n)), i("update:modelValue", f.value), r && !d) {
+				let e = g.currentRoute.value;
 				delete e.query.src;
 				let t = {
 					name: e.name,
@@ -42,64 +42,64 @@ function f({ entityService: t, props: n, emit: i, feedback: s = r() }) {
 					query: { ...e.query },
 					hash: e.hash
 				};
-				_.replace(t);
+				g.replace(t);
 			}
 		} catch (e) {
 			console.error("Saving failed", { ex: e });
 			let t = e, n = t.response?.status;
-			throw n == 400 ? s.fail("Saving failed", t.response?.data?.errors) : n == 404 ? s.fail("Item not found", t.response?.data?.message || t.message) : s.fail("Server error", t.response?.data?.message || t.message), i("changeState", u.error), e;
+			throw n == 400 ? s.fail("Saving failed", t.response?.data?.errors) : n == 404 ? s.fail("Item not found", t.response?.data?.message || t.message) : s.fail("Server error", t.response?.data?.message || t.message), i("changeState", "Error"), e;
 		} finally {
-			i("changeState", u.saved);
+			i("changeState", "Saved");
 		}
 	}
-	async function y() {
-		g(), i("changeState", u.pending);
+	async function v() {
+		h(), i("changeState", "Pending");
 		try {
-			s.pending("Deleting..."), await t.remove(p.value), s.success("Deleted"), i("remove", p.value);
+			s.pending("Deleting..."), await t.remove(f.value), s.success("Deleted"), i("remove", f.value);
 		} catch (e) {
 			console.error("Deleting failed", {
-				item: p,
+				item: f,
 				ex: e
 			});
 			let t = e;
-			throw s.fail("Deleting failed", t.response?.data?.errors), i("changeState", u.error), e;
+			throw s.fail("Deleting failed", t.response?.data?.errors), i("changeState", "Error"), e;
 		} finally {
-			i("changeState", u.removed);
+			i("changeState", "Removed");
 		}
 	}
-	async function b() {
-		let n = t.toEntity(e(p.value));
-		n.isArchived = !1, i("changeState", u.pending);
+	async function y() {
+		let n = t.toEntity(e(f.value));
+		n.isArchived = !1, i("changeState", "Pending");
 		try {
 			s.pending("Restoring...");
 			let { saved: r, isNew: a } = await t.save(n);
 			i("restore", r), i("save", {
 				saved: r,
 				isNew: a
-			}), s.success("Restored"), p.value = t.toEntity(e(r)), m.value = t.toEntity(e(r)), i("update:modelValue", p.value);
+			}), s.success("Restored"), f.value = t.toEntity(e(r)), p.value = t.toEntity(e(r)), i("update:modelValue", f.value);
 		} catch (e) {
 			console.error("Restoring failed", {
-				item: p,
+				item: f,
 				ex: e
 			});
 			let t = e;
-			throw s.fail("Restoring failed", t.response?.data?.errors), i("changeState", u.error), e;
+			throw s.fail("Restoring failed", t.response?.data?.errors), i("changeState", "Error"), e;
 		} finally {
-			i("changeState", u.saved);
+			i("changeState", "Saved");
 		}
 	}
 	return c(() => n.modelValue, () => {
-		p.value = n.modelValue, m.value = t.toEntity(e(p.value));
+		f.value = n.modelValue, p.value = t.toEntity(e(f.value));
 	}), a(() => {
-		m.value = t.toEntity(e(p.value));
+		p.value = t.toEntity(e(f.value));
 	}), {
-		item: p,
-		original: m,
+		item: f,
+		original: p,
 		feedback: s,
-		handleCancel: h,
-		handleSubmit: v,
-		handleRemove: y,
-		handleRestore: b
+		handleCancel: m,
+		handleSubmit: _,
+		handleRemove: v,
+		handleRestore: y
 	};
 }
 //#endregion

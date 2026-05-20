@@ -1,4 +1,4 @@
-import { i as e } from "./feedback-3.0.5.js";
+import { i as e } from "./feedback-3.0.6.js";
 import { Fragment as t, computed as n, createElementBlock as r, createElementVNode as i, createVNode as a, normalizeClass as o, onMounted as s, openBlock as c, ref as l, renderList as u, resolveComponent as d, toDisplayString as f, watch as p } from "vue";
 import { useRouter as m } from "vue-router";
 //#region src/vue/entities/details/details.ts

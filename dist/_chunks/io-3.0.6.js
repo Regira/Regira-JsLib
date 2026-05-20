@@ -1,6 +1,6 @@
 import { isUrl as e } from "../utilities/string-utility.js";
 import t from "../utilities/file-utility.js";
-import { t as n } from "./image-utility-3.0.5.js";
+import { t as n } from "./image-utility-3.0.6.js";
 import r from "axios";
 //#region src/io/file-helper.ts
 var i = class {
