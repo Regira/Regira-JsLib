@@ -1,0 +1,59 @@
+# Regira Entities (front-end)
+
+The browser-side CRUD client for the **Regira.Entities** API — a Vue 3 + Pinia + vue-router library
+published as `regira_modules/vue/entities`. You describe an entity once (model, service, config, views)
+and get a list/search overview, a details page, a create/edit form, and a filter, all wired through a
+shared HTTP client and a reactive entity cache.
+
+## Core concepts
+
+| Piece | What it is |
+|-------|------------|
+| **Entity** | A model class extending `EntityBase` with `$id` and `$title`. |
+| **Service** | `EntityServiceBase<T>` — issues the HTTP calls; you implement `toEntity`. |
+| **Config** | An `IConfig` object: endpoint URLs, paging, route prefix, titles, icon. |
+| **Store** | A Pinia store wrapping the service in a pooled, reactive cache (`createStore`). |
+| **Views** | Overview / Details / Form / Filter, each driven by a composable. |
+
+## Architecture
+
+```
+Vue view → composable (useSearchView / useForm / useDetails / useFilter)
+         → Pinia store (createStore) → PoolService (entity cache)
+         → IEntityService (resolved from IoC by Entity.name)
+         → shared axios + IConfig.*Url → Regira.Entities Web API
+```
+
+A single axios instance (`initAxios`) is shared across all services; the auth plugin adds the bearer
+token via an interceptor, so every entity request is authenticated. Services are registered in a small
+IoC container keyed by `Entity.name` and resolved with `get()`.
+
+## Quick start
+
+Starting a new app? [../ai/entities.setup.md](../ai/entities.setup.md) is the project template —
+`main.ts`, `App.vue`, router, plugin install order, and the Vite/TypeScript alias.
+
+A complete entity slice lives under `src/entities/<name>/` (model, config, service, store, search
+object, four views, and a `setup.ts` plugin). See the full worked code in
+[../ai/entities.examples.md](../ai/entities.examples.md), or the step list in [checklist.md](checklist.md).
+
+## API contract
+
+The client mirrors the back-end Web endpoints and expects item-wrapped envelopes
+(`{ item }`, `{ items, count }`), with `GET` for reads, `POST`/`PUT` for save, `DELETE` for remove. The
+full table is in [services.md](services.md#http-contract).
+
+## Documentation
+
+For AI agents, the same material is served by the Regira MCP server (package
+`regira_modules.vue.entities`) and authored under [`../ai/`](../ai): `entities.instructions.md`,
+`entities.signatures.md`, `entities.namespaces.md`, `entities.patterns.md`, `entities.examples.md`.
+
+## Overview
+
+1. [Abstractions](abstractions.md) — `IEntity`/`EntityBase`, search/paging/sort, `IConfig`
+2. [Services](services.md) — `EntityServiceBase`, `JSONService`, the HTTP contract
+3. [Config](config.md) — `IConfig` fields, URL derivation, descriptors
+4. [Views](views.md) — overview, details, form, filter composables
+5. [Built-in features](built-in-features.md) — pooling, preloading, navigation, trees, utilities
+6. [Checklist](checklist.md) — add a new entity, step by step

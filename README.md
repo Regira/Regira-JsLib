@@ -1,5 +1,50 @@
 # Regira Modules
 
+`regira_modules` — the Regira front-end library: TypeScript and Vue 3 building blocks (entities/CRUD,
+http, ioc, auth, ui, formatters, …) that pair with the Regira back-end packages.
+
+## Documentation
+
+**Vue modules**
+
+| Module | Developer docs | AI guides |
+|--------|----------------|-----------|
+| Entities (Vue CRUD client) | [src/vue/entities/docs](src/vue/entities/docs/README.md) | [src/vue/entities/ai](src/vue/entities/ai) |
+| HTTP (shared axios + helpers) | [src/vue/http/docs](src/vue/http/docs/README.md) | [src/vue/http/ai](src/vue/http/ai) |
+| IoC (service container) | [src/vue/ioc/docs](src/vue/ioc/docs/README.md) | [src/vue/ioc/ai](src/vue/ioc/ai) |
+| Auth (JWT bearer auth) | [src/vue/auth/docs](src/vue/auth/docs/README.md) | [src/vue/auth/ai](src/vue/auth/ai) |
+| UI (components & plugins) | [src/vue/ui/docs](src/vue/ui/docs/README.md) | [src/vue/ui/ai](src/vue/ui/ai) |
+| App (lifecycle & culture) | [src/vue/app/docs](src/vue/app/docs/README.md) | [src/vue/app/ai](src/vue/app/ai) |
+| Lang (i18n) | [src/vue/lang/docs](src/vue/lang/docs/README.md) | [src/vue/lang/ai](src/vue/lang/ai) |
+| Formatters | [src/vue/formatters/docs](src/vue/formatters/docs/README.md) | [src/vue/formatters/ai](src/vue/formatters/ai) |
+| Directives | [src/vue/directives/docs](src/vue/directives/docs/README.md) | [src/vue/directives/ai](src/vue/directives/ai) |
+| Online (connectivity) | [src/vue/online/docs](src/vue/online/docs/README.md) | [src/vue/online/ai](src/vue/online/ai) |
+| Debug | [src/vue/debug/docs](src/vue/debug/docs/README.md) | [src/vue/debug/ai](src/vue/debug/ai) |
+
+**Core (framework-agnostic)**
+
+| Module | Developer docs | AI guides |
+|--------|----------------|-----------|
+| Utilities | [src/utilities/docs](src/utilities/docs/README.md) | [src/utilities/ai](src/utilities/ai) |
+| Extensions | [src/extensions/docs](src/extensions/docs/README.md) | [src/extensions/ai](src/extensions/ai) |
+| TreeList | [src/treelist/docs](src/treelist/docs/README.md) | [src/treelist/ai](src/treelist/ai) |
+| Events | [src/events/docs](src/events/docs/README.md) | [src/events/ai](src/events/ai) |
+| IO (file/image helpers) | [src/io/docs](src/io/docs/README.md) | [src/io/ai](src/io/ai) |
+
+**For AI agents — the Regira MCP server.** The hosted server at `https://mcp.regira.com/mcp` serves the
+front-end modules alongside the back-end packages. Connect it once and the agent can discover and read
+the guides on demand (front-end ids look like `regira_modules.vue.entities`):
+
+```json
+{ "mcpServers": { "regira": { "url": "https://mcp.regira.com/mcp", "transport": "http" } } }
+```
+
+Then use `list_packages` (filter `vue` or `frontend`), `get_package`, and `get_example`. Each documented
+module ships an `ai/module.json` (catalog metadata) plus `ai/*.md` guides; the knowledge builder reads
+them and the committed `dist/**/*.d.ts` for an exact API map.
+
+> Consuming the library (git install + Vite/TypeScript alias) is covered under **git import** below.
+
 ## Updating
 
 ```bash
@@ -26,12 +71,12 @@ npm run build
 
 ## git import
 
-https://github.com/bverboven/Regira-JsLib
+https://github.com/Regira/Regira-JsLib
 
 *package.json*
 ```json
   "dependencies": {
-    "regira_modules": "github:bverboven/Regira-JsLib"
+    "regira_modules": "github:Regira/Regira-JsLib"
   }
 ```
 

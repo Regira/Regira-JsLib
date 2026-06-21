@@ -1,0 +1,6 @@
+{
+  "id": "regira_modules.vue.entities",
+  "import": "regira_modules/vue/entities",
+  "description": "Front-end Vue 3 CRUD client for the Regira Entities API — entity classes, services (EntityServiceBase), search/paging, and overview/details/form composables.",
+  "tags": ["frontend", "vue", "typescript", "crud", "entities", "regira_modules"]
+}
