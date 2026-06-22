@@ -1,3 +1,3 @@
-import { t as e } from "../../_chunks/query-3.0.6.js";
+import { t as e } from "../../_chunks/query-3.1.0.js";
 import { getFile as t, initAxios as n, upload as r, useAxios as i } from "./axios.js";
 export { e as createQueryString, t as getFile, n as initAxios, r as upload, i as useAxios };

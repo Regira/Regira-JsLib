@@ -1,4 +1,4 @@
-import { r as e } from "./modal-3.0.6.js";
+import { r as e } from "./modal-3.1.0.js";
 import { Fragment as t, Teleport as n, computed as r, createBlock as i, createCommentVNode as a, createElementBlock as o, createElementVNode as s, createTextVNode as c, createVNode as l, defineComponent as u, normalizeClass as d, openBlock as f, ref as p, renderList as m, renderSlot as h, resolveComponent as g, toDisplayString as _, unref as v, withCtx as y } from "vue";
 //#region src/vue/ui/feedback/Pending.vue?vue&type=script&setup=true&lang.ts
 var b = { class: "bg-light text-info" }, x = /* @__PURE__ */ u({
