@@ -19,19 +19,29 @@ Each view is a thin Vue component that delegates to a composable. Exact signatur
 `searchObject`, `pagingInfo`, `items`, `itemsCount`, `isLoading`, `feedback`, `searchHandler`,
 `applySave`, `applyRemove`, `handleSave`, `handleRemove`. `useRouteOverview({ searchObject, pagingInfo,
 handler, defaultPageSize })` keeps those in sync with the URL query and re-searches on navigation,
-returning `updateOverviewRoute`. (`useListView` is the no-search variant; `useOverviewCore` is the
-shared base.)
+returning `updateOverviewRoute`. (`useOverviewCore` is the shared base.)
+
+**`useSearchView` vs `useListView`** — match the back-end controller: use `useSearchView` for **complex**
+controllers that expose `GET /search` → `{ items, count }`, and `useListView` for **simple/lookup**
+controllers that only expose `GET /?q=` → `{ items }` (no counted search). See
+[../ai/entities.instructions.md](../ai/entities.instructions.md#overview-uselistview-vs-usesearchview).
+
+> **Guard the lazy refs.** `items` / `itemsCount` are `undefined` until the first fetch, so bind
+> `v-for="x in items ?? []"` and `:count="itemsCount ?? 0"`. See the
+> [overview gotcha](../ai/entities.instructions.md#gotchas).
 
 ## Details — `useDetails`
 
 `useDetails(service)` loads the item for the route `:id` and returns `item`, `isLoading`, `overviewUrl`,
 `load`, and `feedback`. The Details component renders a nested `<RouterView>` for the Fiche/Form child,
-passing `item`.
+passing `item`. `item` is `null` until the `onMounted` load resolves — gate the child with
+`<RouterView v-if="item" …>`.
 
 ## Form — `useForm` (and `useModalForm`)
 
 `useForm({ entityService, props, emit })` returns `item` plus `handleSubmit`, `handleCancel`,
-`handleRemove`, `handleRestore`, and `feedback`. Define props with `withDefaults(defineProps<FormProps &
+`handleRemove`, `handleRestore`, and `feedback`. Note the form's `handleRemove()` takes **no arguments**
+(it removes the bound `item.value`) — unlike the overview's `handleRemove(item)`. Define props with `withDefaults(defineProps<FormProps &
 …>(), { ...formDefaults })` and emits via `FormEmits<T>`; `FormStates` enumerates pending/saved/removed/
 error. `useModalForm` (alias `useModal`) is the in-modal variant for editing without leaving the page.
 

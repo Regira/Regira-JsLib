@@ -253,6 +253,14 @@ export interface OverviewEmits<T> {
 ```ts
 import { useDetails } from "regira_modules/vue/entities"
 export function useDetails<T extends IEntity>(entityService: IEntityService<T>, feedback?: FeedbackOut): DetailsOut<T>
+export type DetailsOut<T> = {
+    item: Ref<T | null>                          // null until the onMounted load resolves — guard with v-if="item"
+    routeId: ComputedRef<string>; isNew: ComputedRef<boolean>
+    overviewUrl?: RouteRecordRaw | string
+    isForm: ComputedRef<boolean>; isFiche: ComputedRef<boolean>; hasFiche: ComputedRef<boolean>
+    isLoading: Ref<boolean>; feedback: FeedbackOut
+    load(): Promise<void>
+}
 ```
 
 ```ts
@@ -269,7 +277,18 @@ export interface FormEmits<T> {
 export enum FormStates { pending = "Pending", saved = "Saved", removed = "Removed", error = "Error" }
 export const formDefaults: { readonly: boolean; isPopup: boolean }
 export function useForm<T extends IEntity>({ entityService, props, emit, feedback }: FormIn<T>): FormOut<T>
+export interface FormOut<T> {
+    item: Ref<T>; original?: Ref<T>; feedback: FeedbackOut
+    handleCancel(): void
+    handleSubmit(): Promise<void>
+    handleRemove(): Promise<void>      // ⚠ takes NO args — removes item.value
+    handleRestore(): Promise<void>     // unarchive: sets isArchived=false then saves
+}
 ```
+
+> **`handleRemove` arity differs by composable.** The **form**'s `handleRemove()` takes **no arguments**
+> (it removes the bound `item.value`); the **overview**'s `handleRemove(item: T)` takes the row. Don't
+> pass the item to the form's `handleRemove` — it's a common type error.
 
 ```ts
 import { useModalForm, useModal, formModalDefaults } from "regira_modules/vue/entities"
@@ -292,6 +311,22 @@ export interface FilterOut {
     handleToggle(): void; handleFilter(): void; handleUpdate(): void; handleReset(): void
 }
 export function useFilter<SO extends ISearchObject = DefaultSearchObject>({ searchObject, emit, Constructor }: FilterIn<SO>): FilterOut
+```
+
+**Feedback** — the overview / details / form composables each return `feedback: FeedbackOut`
+(from `regira_modules/vue/ui`). Its surface (use these method names — they are not auto-completed elsewhere):
+
+```ts
+import type { FeedbackOut } from "regira_modules/vue/ui"
+export interface FeedbackOut {
+    status: Ref<FeedbackStatus>            // "" | "Pending" | "Success" | "Failed"
+    message: Ref<string>
+    error: Ref<string | Record<string, string> | null>
+    pending(msg: string): void
+    success(msg: string): void
+    fail(msg: string, ex?: string | Record<string, string>): void
+    reset(): void
+}
 ```
 
 Owned child collections (`import { ... } from "regira_modules/vue/entities"`):

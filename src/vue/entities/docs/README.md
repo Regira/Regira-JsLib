@@ -25,17 +25,24 @@ Vue view → composable (useSearchView / useForm / useDetails / useFilter)
 ```
 
 A single axios instance (`initAxios`) is shared across all services; the auth plugin adds the bearer
-token via an interceptor, so every entity request is authenticated. Services are registered in a small
-IoC container keyed by `Entity.name` and resolved with `get()`.
+token via an interceptor, so every entity request is authenticated. **Auth is optional** — see
+[running without authentication](../ai/entities.setup.md#8-running-without-authentication). Services are
+registered in a small IoC container keyed by `Entity.name` and resolved with `get()`.
 
 ## Quick start
 
 Starting a new app? [../ai/entities.setup.md](../ai/entities.setup.md) is the project template —
-`main.ts`, `App.vue`, router, plugin install order, and the Vite/TypeScript alias.
+`main.ts`, `App.vue`, router, plugin install order, **running with or without authentication**, the
+required-vs-optional plugin set, and the npm install (the `@/regira_modules` alias is optional). To type
+the client from the API's OpenAPI, see
+[entities.patterns.md](../ai/entities.patterns.md#type-the-client-from-the-apis-openapi).
 
-A complete entity slice lives under `src/entities/<name>/` (model, config, service, store, search
-object, four views, and a `setup.ts` plugin). See the full worked code in
-[../ai/entities.examples.md](../ai/entities.examples.md), or the step list in [checklist.md](checklist.md).
+A complete entity slice lives under `src/entities/<name>/` with the standard folder set
+(`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`). See the full worked
+code in [../ai/entities.examples.md](../ai/entities.examples.md), or the step list in
+[checklist.md](checklist.md). The app shell (project structure, `components/`, `infrastructure/`,
+`config.json` + `app-config.ts`, and Bootstrap 5 styling) is in
+[../ai/entities.setup.md](../ai/entities.setup.md#2-project-structure).
 
 ## API contract
 
@@ -46,8 +53,9 @@ full table is in [services.md](services.md#http-contract).
 ## Documentation
 
 For AI agents, the same material is served by the Regira MCP server (package
-`regira_modules.vue.entities`) and authored under [`../ai/`](../ai): `entities.instructions.md`,
-`entities.signatures.md`, `entities.namespaces.md`, `entities.patterns.md`, `entities.examples.md`.
+`regira_modules.vue.entities`) and authored under [`../ai/`](../ai): `entities.setup.md`,
+`entities.instructions.md`, `entities.signatures.md`, `entities.namespaces.md`, `entities.patterns.md`,
+`entities.examples.md`.
 
 ## Overview
 

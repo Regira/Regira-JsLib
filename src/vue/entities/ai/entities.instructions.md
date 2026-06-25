@@ -70,6 +70,10 @@ shape the back-end `Regira.Entities.Web` endpoints return.
 `SaveResult` = `{ saved, isNew }`. The `*Url` fields default off `config.api` and are **relative** to the
 axios `baseURL` (set from app config).
 
+> Each `*Url` is a **resource base**, not a literal endpoint: `update` appends `/{$id}` (`PUT {saveUrl}/{$id}`)
+> and `remove` appends `/{$id}` (`DELETE {deleteUrl}/{$id}`). Leave them at `config.api` (or a sub-resource);
+> never set `saveUrl` to a `/save` path or **updates 404 while inserts still pass** — a silent half-working trap.
+
 ### Automatic query behaviour (`list` / `search`)
 
 `fetchItems` builds the query string by merging `config.baseQueryParams` with the search object, then:
@@ -97,6 +101,22 @@ axios `baseURL` (set from app config).
 Set `config.isComplex = true` for entities with child collections / heavier forms (used by navigation
 and routing conventions); simple lookups leave it unset.
 
+## Overview: `useListView` vs `useSearchView`
+
+Pick the overview composable to match what the **back-end controller exposes**:
+
+| Back-end controller | Endpoint it serves | Front-end composable | Notes |
+|---------------------|--------------------|----------------------|-------|
+| **Complex** (full `For<>` with a search object) | `GET /search` → `{ items, count }` | `useSearchView` + `useRouteOverview` | paged search with a total count + filters |
+| **Simple / lookup** (registered as `For<T>` only) | `GET /?q=` → `{ items }`, no counted `/search` | `useListView` | plain list + free-text `q`; point `config.searchUrl` at the list endpoint or rely on `listUrl` |
+
+`useSearchView` calls `service.search()` (expects `{ items, count }`); `useListView` calls
+`service.list()` (expects `{ items }`). Calling `search()` against a simple controller that has no
+`/search` endpoint returns the wrong shape (or 404s) — match the pair above. Both expose the same
+overview surface (`items`, `pagingInfo`, `itemsCount`, `isLoading`, `applySave`, `handleSave`,
+`handleRemove`); only the fetch + handler names differ (`searchHandler` / `debouncedSearchHandler`
+vs `listHandler` / `debouncedListHandler`). Verify in [entities.signatures.md](entities.signatures.md#5-overview-composables).
+
 ## Add an entity — workflow
 
 Create `src/entities/<name>/` with this layout (the demos follow it identically):
@@ -107,13 +127,18 @@ data/Entity.ts          class <Name> extends EntityBase  (+ `export const Entity
 data/EntityService.ts   class EntityService extends EntityServiceBase<Entity> { toEntity }
 data/store.ts           Pinia store: createStore(get(Entity.name)!, Entity.name)
 filter/SearchObject.ts  class extends SearchObjectBase
-overview/Overview.vue   useSearchView + useRouteOverview
+filter/Filter.vue       useFilter
+overview/Overview.vue   useSearchView + useRouteOverview  (useListView for simple entities)
 details/Details.vue     useDetails
 details/Form.vue        useForm
-filter/Filter.vue       useFilter
+selecting/Selector.vue  relation picker for this entity (entities.patterns.md#entity-selector-relation-picker--selecting)
 setup.ts                createRoutes() + addServices() + addIcons() + default install plugin
-index.ts                re-exports
+index.ts                re-exports (config, Entity, service, Selector, plugin)
 ```
+
+> Keep this folder set identical for every entity (`config/ data/ details/ filter/ overview/ selecting/`
+> + `index.ts` + `setup.ts`); lookups keep the folders with thinner files. The full app layout
+> (components, infrastructure, config) is in [entities.setup.md](entities.setup.md#2-project-structure).
 
 1. **Model** — `class Product extends EntityBase` with concrete fields and `override get $id()`
    (return `this.id || "new"`) and `override get $title()`. Export the class, `export const Entity = Product`,
@@ -158,6 +183,12 @@ Order matters: `$services` / `$configs` / `$icons` globals must exist before any
 
 ## Gotchas
 
+- **Overview refs are lazy (undefined until first fetch)** — `items` and `itemsCount` are `undefined`
+  until `searchHandler` / `listHandler` runs (the return type says `Array<T>`, but the initial value is
+  `undefined`). Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`,
+  `(items?.length ?? 0) === 0`. A naive `v-for="x in items"` throws a cryptic null error on first render.
+- **`useDetails().item` is `null` until loaded** — it resolves in `onMounted`, so gate the child view
+  with `v-if="item"` (`<RouterView v-if="item" v-model="item" …>`) or `Fiche`/`Form` receive `null`.
 - **`SaveResult` vs `SavedResult`** — bind to `saved`, not `item` (see signatures).
 - **`new` sentinel** — `save()` treats `$id === "new"` (or `null`) as an insert; new-entity routes use `:id = "new"`.
 - **Archived rows hidden by default** — set `isArchived` on the search object to include them.

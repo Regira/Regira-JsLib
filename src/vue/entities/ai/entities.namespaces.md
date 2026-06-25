@@ -84,6 +84,10 @@ re-exported by the barrel above.
 | `regira_modules/vue/http` | `initAxios`, `useAxios`, `AxiosWithFilesInstance`, `createQueryString` | the shared axios instance + query strings |
 | `regira_modules/vue/auth` | `plugin`, `LocalStorageTokenManager`/`CookieTokenManager`/`MemoryTokenManager`, `useAuthStore`, `useAuth` | bearer-token auth on the shared axios |
 
+> **Date serialization (not under `vue/`):** `import dateExtensions from "regira_modules/extensions/date-extensions"`
+> then call `dateExtensions.use()` once at startup to serialize `Date`s to JSON without a timezone shift.
+> It lives under `extensions/`, not `vue/` — a common wrong guess.
+
 ---
 
 ## By use case (copy-paste)

@@ -80,6 +80,54 @@ export class EntityService extends EntityServiceBase<Entity> {
 }
 ```
 
+**Calling a custom method from a view.** The store's `service` is a **pooled** `PoolService` exposing
+only the `IEntityService` surface — your custom method is *not* on it. Resolve the raw service from IoC
+(it is registered under `Entity.name`):
+
+```ts
+import { get } from "regira_modules/vue/ioc"
+
+const svc = get<EntityService>(Entity.name)!
+const family = await svc.getFamily([1, 2, 3])
+```
+
+Use the pooled store `service` for ordinary CRUD (so views share the reactive cache); reach for the raw
+`get<EntityService>(Entity.name)` only to call bespoke endpoints like this.
+
+## Entity selector (relation picker) — `selecting/`
+
+Each entity ships a thin **`selecting/Selector.vue`** so other entities' forms can pick it (e.g. choosing
+an Article's categories, or a list's shopper). It `v-model`s the related entity and resolves it through
+the **pooled** store, so the picked value shares the reactive cache:
+
+```vue
+<!-- src/entities/categories/selecting/Selector.vue -->
+<script setup lang="ts">
+import { computed } from "vue"
+import type Category from "../data/Entity"
+import useEntityStore from "../data/store"
+
+const model = defineModel<Category | undefined>()
+const { service, fromPool } = useEntityStore()          // pooled service + shared cache
+const selected = computed<Category | undefined>({
+  get: () => fromPool(model.value) as Category | undefined,
+  set: (v) => (model.value = v),
+})
+// back the picker UI with `service.search({ q })`; render the barrel's <Selector> (entity picker)
+// or your own autocomplete that emits the chosen Category into `selected`.
+</script>
+
+<template>
+  <!-- e.g. an autocomplete bound to `selected`, options from service.search({ q }) -->
+  …
+</template>
+```
+
+Re-export it from the slice `index.ts` (`export { default as Selector } from "./selecting/Selector.vue"`)
+so forms do `import { Selector as CategorySelector } from "@/entities/categories"`. For a multi-select
+(an Article's many categories) bind an **array** and push/remove picked entities; mark removed owned rows
+with `_deleted` (see below).
+
 ## Owned (child) collections
 
 For master-detail forms, drive a child collection with `useOwnedCollection` (inline rows) or
@@ -94,12 +142,22 @@ const { items, newItem, handleSort, handleSave } = useOwnedCollection<OrderLine>
 
 ## Hierarchical (tree) entities
 
+`useTree` builds a client-side `TreeList` from a **flat** array. `init(values, data, findParents)`:
+`data` = all rows, `values` = the subset to highlight, and `findParents` (`IFindParents<T>` from
+`regira_modules/treelist`) returns each row's parent reference(s):
+
 ```ts
-const { tree, nodes, ancestors, offspring, family, init } = useTree<Entity>()
-init(values, data, findParents)   // build the TreeList from flat data
+const { tree, nodes, ancestors, offspring, family, init } = useTree<Category>()
+init(allCategories, allCategories, findParents)   // findParents: IFindParents<Category> — see treelist guide
+// render `nodes`: each TreeNode<T> exposes .value, .parent, .getOffspring(), .getAncestors()
 ```
 
-Pair with `useDragDrop` for move/reparent, and `buildNavigationTree` for nav menus.
+Pair with `useDragDrop` for move/reparent and `buildNavigationTree` for nav menus; see the
+[treelist module](../../../treelist/ai/treelist.instructions.md) for `TreeList` / `IFindParents`.
+
+> **If the API already returns the hierarchy** (parent/children via `includes`, or a `parentId` on each
+> row), you usually don't need `useTree` — render the nested `children` (or group by `parentId`) directly
+> from the fetched data. Reach for `useTree` only when you have a flat list and must derive the tree client-side.
 
 ## Static / lookup data — `JSONService`
 
@@ -133,16 +191,73 @@ from that map:
 
 ```ts
 const configs = Object.values(app.config.globalProperties.$configs) as Array<IConfig>
-const dashboard = importDashboard({ /* groups, entities, configs, hasAccess */ })
-const navbar = importNavbar({ /* … */ })
-const tree = buildNavigationTree([...dashboard, ...navbar])
+
+// importDashboard: groups + entities grouped under a group id ([groupId, entityKeys])
+const dashboard = importDashboard({
+  groups: [{ id: "Catalog", title: "catalog", icon: "catalog" }],
+  entities: [["Catalog", ["Article", "Category"]]],     // Array<[groupId, Array<entityKey>]>
+  configs,
+  hasAccess: () => true,                                 // (config: IConfig) => boolean
+})
+// importNavbar: each entry is an entityKey, or [groupId, entityKeys] for a submenu
+const navbar = importNavbar({
+  groups: [{ id: "Catalog", title: "catalog", icon: "catalog" }],
+  entities: ["Article", ["Catalog", ["Category"]]],     // Array<string | [groupId, Array<entityKey>]>
+  configs,
+  hasAccess: () => true,
+})
+const tree = buildNavigationTree([...dashboard, ...navbar])   // → TreeList<INavCore> to render the menu
 ```
+
+> Prefer the lower-level primitives when the importer inputs feel heavy: `createNavGroup({ id, title, icon })`
+> and `createNavItem(config, parentId?)` build `INavCore` items directly, then `buildNavigationTree(items)`.
 
 ## Custom query params (and the `$` rule)
 
 Anything you put on the search object is sent as a query param (arrays → repeated keys). Keys starting
 with **`$`** are stripped by `cleanQueryParams` — use the `$` prefix for client-only/meta values you do
 *not* want on the wire.
+
+## Type the client from the API's OpenAPI
+
+When the back-end already exposes OpenAPI (every Regira `*.Web` API does, at `/openapi/v1.json`),
+generate the **DTO/payload types** from it and feed them into your models. You still hand-write the model
+classes — the client needs real classes with `$id` / `$title` getters and `toEntity` — but their nested
+/related fields and your form payloads then stay in lock-step with the server contract.
+
+```bash
+# run once, or wire it as a "predev" / "prebuild" npm script
+npx openapi-typescript http://localhost:5001/openapi/v1.json -o src/api/schema.d.ts
+```
+
+```ts
+// src/api/types.ts — friendly aliases over the generated schema
+import type { components } from "./schema"
+export type ArticleDto  = components["schemas"]["ArticleDto"]
+export type CategoryDto = components["schemas"]["CategoryDto"]
+```
+
+```ts
+// data/Article.ts — the class the entities layer needs, typed from the DTO
+import { EntityBase } from "regira_modules/vue/entities"
+import type { CategoryDto } from "@/api/types"
+
+export class Article extends EntityBase {
+    id = 0
+    title = ""
+    categories?: CategoryDto[]            // nested shapes come from OpenAPI, in sync with the server
+    override get $id() { return this.id || "new" }
+    override get $title() { return this.title }
+}
+```
+
+> **Flag-enums serialize as numbers.** `includes` / `sortBy` come through `openapi-typescript` as
+> `number`, but Regira APIs accept them **by name** in the query string — pass the enum member name(s),
+> e.g. `includes: ["Categories"]`, not the numeric value. The valid names are the enum members in the
+> OpenAPI schema (what the back-end `EntityIncludes` defines); verify them against your API rather than
+> guessing (an unknown include name returns `400`). Keep a small `const` map on the client for these
+> instead of the generated numeric type. (Run the generator via `npx openapi-typescript` to avoid TS
+> peer-dep conflicts; see the tsconfig note in [entities.setup.md](entities.setup.md#1-install).)
 
 ## See also
 

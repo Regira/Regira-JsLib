@@ -21,6 +21,7 @@ src/entities/products/
   overview/Overview.vue
   details/Details.vue
   details/Form.vue
+  selecting/Selector.vue     # relation picker (see entities.patterns.md)
   setup.ts
   index.ts
 ```
@@ -71,9 +72,11 @@ const config: IConfig = {
     detailsUrl: api,
     listUrl: api,
     searchUrl: api + "/search",     // a dedicated search endpoint; use `api` when there is none
-    saveUrl: api,
-    deleteUrl: api,
+    saveUrl: api,                   // resource BASE: insert = POST {saveUrl}, update = PUT {saveUrl}/{$id}
+    deleteUrl: api,                 // resource BASE: delete = DELETE {deleteUrl}/{$id}
 }
+// All *Url fields are resource BASES (they default off `api`). Do NOT point saveUrl at a literal
+// endpoint like `/products/save` — `update` appends `/{$id}`, so that 404s on edit while insert passes.
 
 export default config
 ```
@@ -163,9 +166,12 @@ const { updateOverviewRoute } = useRouteOverview({
 </script>
 
 <template>
-  <!-- bind Filter v-model="searchObject" @filter="updateOverviewRoute(true)";
-       list `items`; Paging v-model="pagingInfo" :count="itemsCount" @change="updateOverviewRoute()";
-       create link → { name: `${config.key}Details`, params: { id: 'new' } } -->
+  <!-- IMPORTANT: `items` and `itemsCount` are `undefined` until the first search runs — GUARD them,
+       or the template throws a cryptic null error that typechecking does not catch.
+       Filter   v-model="searchObject" @filter="updateOverviewRoute(true)"
+       list     v-for="item in items ?? []"   (empty state: v-if="(items?.length ?? 0) === 0")
+       Paging   v-model="pagingInfo" :count="itemsCount ?? 0" @change="updateOverviewRoute()"
+       create   link → { name: `${config.key}Details`, params: { id: 'new' } } -->
   …
 </template>
 ```
@@ -184,8 +190,8 @@ const { item, isLoading, overviewUrl, load, feedback } = useDetails(service)   /
 </script>
 
 <template>
-  <!-- nested route renders Fiche (DetailsSummary) or Form, passing the loaded item -->
-  <RouterView v-model="item" :overview-url="overviewUrl" />
+  <!-- `item` is null until loaded (onMounted) — guard so Fiche/Form never receive null -->
+  <RouterView v-if="item" v-model="item" :overview-url="overviewUrl" />
 </template>
 ```
 

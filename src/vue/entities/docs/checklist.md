@@ -1,7 +1,10 @@
 # Checklist — add an entity
 
 Step-by-step companion to the worked example ([../ai/entities.examples.md](../ai/entities.examples.md)).
-Create `src/entities/<name>/`.
+Create `src/entities/<name>/` with the standard folder set (keep it identical for every entity):
+`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`. The relation picker in
+`selecting/Selector.vue` is covered in
+[../ai/entities.patterns.md](../ai/entities.patterns.md#entity-selector-relation-picker--selecting).
 
 ## Full entity (with list UI)
 
@@ -30,6 +33,15 @@ Create `src/entities/<name>/`.
 Omit step 6's views and `createRoutes()`. The `install` only calls `addServices`, `addIcons`, and sets
 `$configs[Entity.name]`. `SearchObject` can be empty (`extends SearchObjectBase {}`). For small static
 lists, extend `JSONService` instead of `EntityServiceBase`.
+
+## App-level setup (once per app)
+
+- **Plugins & bootstrap** — `main.ts` / `App.vue`, install order, and the required-vs-optional plugin
+  set: [../ai/entities.setup.md](../ai/entities.setup.md).
+- **No authentication** — omit `authPlugin`, advance `AppStatus` to `Ready` yourself, drop the auth UI:
+  [../ai/entities.setup.md §8](../ai/entities.setup.md#8-running-without-authentication).
+- **Types from OpenAPI** — generate DTO types and feed them into the models:
+  [../ai/entities.patterns.md](../ai/entities.patterns.md#type-the-client-from-the-apis-openapi).
 
 ## Verify
 

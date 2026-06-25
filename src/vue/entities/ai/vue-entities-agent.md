@@ -15,8 +15,10 @@ or by reading these files in full from `src/vue/entities/ai/`:
 2. `entities.signatures.md` — exact TypeScript signatures (always)
 3. `entities.namespaces.md` — exact import specifiers (always)
 
-Load on demand: `entities.patterns.md` (child collections, trees, JSON services, paging) and
-`entities.examples.md` (a full worked slice).
+Load on demand: `entities.patterns.md` (child collections, trees, JSON services, paging, **typing the
+client from OpenAPI**, **calling custom service endpoints from a view**) and `entities.examples.md`
+(a full worked slice). For new-app wiring — **running with or without auth**, the required-vs-optional
+plugin set, and the npm install — load `entities.setup.md`.
 
 ## Your responsibilities
 
@@ -27,9 +29,14 @@ You produce a complete entity slice under `src/entities/<name>/`:
 - `data/EntityService.ts` — `extends EntityServiceBase<Entity>`, implementing `toEntity` (or `JSONService` for lookups)
 - `data/store.ts` — `defineStore(Entity.name, () => createStore(get(Entity.name)!, Entity.name))`
 - `filter/SearchObject.ts` — `extends SearchObjectBase`
-- views — `Overview.vue` (`useSearchView` + `useRouteOverview`), `Details.vue` (`useDetails`), `Form.vue` (`useForm`), `Filter.vue` (`useFilter`)
+- views — `Overview.vue` (`useSearchView`/`useListView` + `useRouteOverview`), `Details.vue` (`useDetails`), `Form.vue` (`useForm`), `Filter.vue` (`useFilter`)
+- `selecting/Selector.vue` — the relation picker for this entity (see entities.patterns.md)
 - `setup.ts` — `createRoutes()` + `addServices()` + `addIcons()` + the default install plugin
 - register the plugin in `src/entities/index.ts`
+
+Keep the folder set identical for every entity: `config/ data/ details/ filter/ overview/ selecting/`
++ `index.ts` + `setup.ts`. The app shell (components, infrastructure, config, styling) is in
+`entities.setup.md` (§2 project structure, §10 app shell).
 
 ## Rules
 
@@ -41,6 +48,11 @@ You produce a complete entity slice under `src/entities/<name>/`:
 - Bind save results to `saved` (`SaveResult`), not `item`.
 - Keep views thin — delegate to composables; do not re-implement list/search/save logic.
 - Match the existing slice layout and local code style; do not introduce new abstractions.
+- **Auth is optional.** When the app runs without a login, follow the *Running without authentication*
+  recipe in `entities.setup.md` (no `authPlugin`; advance `AppStatus` to `Ready` yourself; drop the
+  auth UI from `App.vue`) — do not leave the app stuck on the loading gate.
+- **Choose the overview composable by controller shape:** `useSearchView` for complex controllers
+  (`/search` → `{ items, count }`), `useListView` for simple/lookup controllers (`/?q=` → `{ items }`).
 
 ## Output format
 
