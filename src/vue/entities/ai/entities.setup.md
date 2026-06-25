@@ -265,6 +265,26 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 </template>
 ```
 
+### Typing app globals — `src/shims.d.ts`
+
+The library declares its own globals on `@vue/runtime-core` (`$services`, `$icons`, `$appStatus`/
+`$setAppStatus`, `$feedback`, `$t`/`$tm`, `$auth`, …), so those are typed in templates and `this`
+automatically. **`$configs` is the exception** — each entity `setup.ts` writes to
+`app.config.globalProperties.$configs[Entity.name]`, but the library does not declare its type. Add a
+one-file ambient declaration (TypeScript picks up `src/**/*.d.ts` automatically):
+
+```ts
+// src/shims.d.ts
+import type { IConfig } from "regira_modules/vue/entities"
+
+declare module "@vue/runtime-core" {
+  interface ComponentCustomProperties {
+    $configs: Record<string, IConfig>   // populated by each entity setup.ts
+  }
+}
+export {}
+```
+
 ## 7. Plugins — required vs optional
 
 The entities layer needs only a few globals; install the rest as you actually use them. Install order

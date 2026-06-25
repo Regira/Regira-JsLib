@@ -255,7 +255,8 @@ export class Article extends EntityBase {
 > `number`, but Regira APIs accept them **by name** in the query string — pass the enum member name(s),
 > e.g. `includes: ["Categories"]`, not the numeric value. The valid names are the enum members in the
 > OpenAPI schema (what the back-end `EntityIncludes` defines); verify them against your API rather than
-> guessing (an unknown include name returns `400`). Keep a small `const` map on the client for these
+> guessing (an unknown include name returns `400`) — when unsure, `includes: ["All"]` is the safe
+> catch-all that eager-loads every relation. Keep a small `const` map on the client for these
 > instead of the generated numeric type. (Run the generator via `npx openapi-typescript` to avoid TS
 > peer-dep conflicts; see the tsconfig note in [entities.setup.md](entities.setup.md#1-install).)
 

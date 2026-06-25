@@ -129,6 +129,11 @@ export abstract class SearchObjectBase implements ISearchObject { q?: string }
 export class DefaultSearchObject extends SearchObjectBase {}
 ```
 
+> **Paging is not on the search object.** `SearchObjectBase` carries only `q` (+ your filter fields).
+> `pageSize` / `page` live on `IPagingInfo` and are merged in by the overview composables (or passed
+> inline to `service.search(so)` / `service.list(so)`, whose param is `ISearchObject & IPagingInfo`) —
+> do **not** add `pageSize` to your `SearchObject`.
+
 ```ts
 import { PagingInfo, DEFAULT_PAGESIZE } from "regira_modules/vue/entities"
 export const DEFAULT_PAGESIZE = 10

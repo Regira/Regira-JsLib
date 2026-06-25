@@ -74,6 +74,12 @@ axios `baseURL` (set from app config).
 > and `remove` appends `/{$id}` (`DELETE {deleteUrl}/{$id}`). Leave them at `config.api` (or a sub-resource);
 > never set `saveUrl` to a `/save` path or **updates 404 while inserts still pass** — a silent half-working trap.
 
+> **`includes` may not apply to the Details GET.** The `includes` flags drive eager-loading on
+> `list`/`search`, but the single-item `details(id)` endpoint (`GET {detailsUrl}/{id}`) does not
+> necessarily honor them — nested collections can come back **empty on a detail/edit form** even though
+> `baseQueryParams.includes` is set. If a form needs child data, ensure the API eager-loads it for the
+> Details endpoint (a back-end concern) or fetch the children with a dedicated call.
+
 ### Automatic query behaviour (`list` / `search`)
 
 `fetchItems` builds the query string by merging `config.baseQueryParams` with the search object, then:
