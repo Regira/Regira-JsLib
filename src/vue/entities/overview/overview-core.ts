@@ -11,7 +11,7 @@ export function useOverviewCore<T extends IEntity, SO extends ISearchObject = IS
     const searchObjectRef = ref<SO>(searchObject) as Ref<SO>
     const pagingInfo = ref<IPagingInfo>(new PagingInfo(defaultPageSize || DEFAULT_PAGESIZE))
     const itemsCount = ref<number | undefined>()
-    const items = ref<Array<T> | undefined>() as Ref<Array<T>>
+    const items = ref<Array<T> | undefined>()
     const isLoading = ref<boolean>(false)
     const feedback = useFeedback()
 

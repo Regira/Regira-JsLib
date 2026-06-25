@@ -9,7 +9,7 @@ export declare function createNavGroup(input: {
 }): INavCore;
 export declare function createNavItem(input: IConfig, parentId?: string): INavItem;
 type IGroupedEntities = [string, Array<string>];
-type IImportDashboardInput = {
+export type IImportDashboardInput = {
     groups: Array<{
         id: string;
         title: string;
@@ -20,7 +20,7 @@ type IImportDashboardInput = {
     hasAccess: (config: IConfig) => boolean;
 };
 export declare function importDashboard(input: IImportDashboardInput): Array<INavCore>;
-type IImportNavbarInput = {
+export type IImportNavbarInput = {
     groups?: Array<{
         id: string;
         title: string;

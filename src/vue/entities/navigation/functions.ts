@@ -20,7 +20,7 @@ export function createNavItem(input: IConfig, parentId?: string): INavItem {
 }
 
 type IGroupedEntities = [string, Array<string>]
-type IImportDashboardInput = {
+export type IImportDashboardInput = {
     groups: Array<{ id: string; title: string; icon: string }>
     entities: Array<IGroupedEntities>
     configs: Array<IConfig>
@@ -40,7 +40,7 @@ export function importDashboard(input: IImportDashboardInput): Array<INavCore> {
     const navGroups = input.groups!.filter((g) => navEntities.some((e) => e.parentId == g.id)).map((x) => createNavGroup(x))
     return navGroups.concat(navEntities)
 }
-type IImportNavbarInput = {
+export type IImportNavbarInput = {
     groups?: Array<{ id: string; title: string; icon: string }>
     entities: Array<string | IGroupedEntities>
     configs: Array<IConfig>

@@ -31,7 +31,7 @@ export type OverviewCoreIn<T extends IEntity, SO extends ISearchObject = ISearch
 export type OverviewCoreOut<T extends IEntity, SO extends ISearchObject = ISearchObject> = {
     searchObject: Ref<SO>
     pagingInfo: Ref<IPagingInfo>
-    items: Ref<Array<T>>
+    items: Ref<Array<T> | undefined>
     itemsCount: Ref<number | undefined>
 
     isLoading: Ref<boolean>

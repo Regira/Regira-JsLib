@@ -3,7 +3,7 @@ import LoadingButton from "./LoadingButton.vue"
 import LoadingContainer from "./LoadingContainer.vue"
 import Loading from "./Loading.vue"
 
-type LoadingInput = { img: string }
+export type LoadingInput = { img: string }
 
 export default {
     install(app: App<Element>, options: LoadingInput) {

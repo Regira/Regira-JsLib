@@ -1,5 +1,5 @@
 import type { App } from "vue";
-type LoadingInput = {
+export type LoadingInput = {
     img: string;
 };
 declare const _default: {

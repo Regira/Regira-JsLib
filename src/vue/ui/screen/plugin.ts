@@ -1,4 +1,4 @@
-import { debounce } from "lodash"
+import debounce from "lodash/debounce"
 import type { App } from "vue"
 import useScreen, { SCREEN_SIZES, getWindowSize } from "./screen"
 

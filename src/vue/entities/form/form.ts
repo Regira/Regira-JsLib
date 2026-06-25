@@ -30,7 +30,7 @@ export const formDefaults = {
     isPopup: false,
 }
 
-interface FormIn<T extends IEntity> {
+export interface FormIn<T extends IEntity> {
     entityService: IEntityService<T>
     props: {
         modelValue: T
@@ -40,7 +40,7 @@ interface FormIn<T extends IEntity> {
     emit: FormEmits<T>
     feedback?: FeedbackOut
 }
-interface FormOut<T extends IEntity> {
+export interface FormOut<T extends IEntity> {
     item: Ref<T>
     original?: Ref<T>
     feedback: FeedbackOut

@@ -1,4 +1,4 @@
-export { useForm, type FormEmits, type FormProps, formDefaults, FormStates } from "./form.js";
+export { useForm, type FormEmits, type FormProps, type FormIn, type FormOut, formDefaults, FormStates } from "./form.js";
 export { useModal, type FormModalEmits, type FormModalProps, formModalDefaults } from "./modal.js";
 export { useListInput, useListItemInput } from "./listInput";
 export { useOwnedCollection } from "./ownedCollections";

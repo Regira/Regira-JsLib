@@ -1,5 +1,5 @@
 import { startsWith as e } from "../../utilities/string-utility.js";
-import { t } from "../../_chunks/query-3.1.0.js";
+import { t } from "../../_chunks/query-3.2.0.js";
 import { computed as n, createBlock as r, createCommentVNode as i, createElementBlock as a, createElementVNode as o, createTextVNode as s, createVNode as c, defineComponent as l, guardReactiveProps as u, isRef as d, normalizeProps as f, openBlock as p, ref as m, renderSlot as h, resolveComponent as g, toDisplayString as _, unref as v, vModelText as y, watch as b, withCtx as x, withDirectives as S, withModifiers as C } from "vue";
 import { defineStore as w } from "pinia";
 import { useRouter as T } from "vue-router";
@@ -217,7 +217,7 @@ var V = { async install(e, t) {
 		clientApp: n,
 		loginUrl: r
 	}), f = a ?? R();
-	if (c ? (e.config.globalProperties.$auth = {
+	if (f.$patch({ enabled: c }), c ? (e.config.globalProperties.$auth = {
 		...d,
 		get authData() {
 			return f.authData;
@@ -228,10 +228,7 @@ var V = { async install(e, t) {
 		get isRequired() {
 			return f.authRequired;
 		}
-	}, n && f.$patch({
-		clientApp: n,
-		enabled: c
-	})) : e.config.globalProperties.$auth = { enabled: !1 }, c) {
+	}, n && f.$patch({ clientApp: n })) : e.config.globalProperties.$auth = { enabled: !1 }, c) {
 		z(o, i);
 		let e = 0;
 		b(() => f.isAuthenticated, () => {

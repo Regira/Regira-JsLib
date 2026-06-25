@@ -1,4 +1,4 @@
-import { t as e } from "./event-handler-3.1.0.js";
+import { t as e } from "./event-handler-3.2.0.js";
 //#region src/identity/identity-manager.ts
 var t = class {
 	_service;

@@ -43,6 +43,10 @@ export default {
 
         const store = authStore ?? useAuthStore()
 
+        // keep the store's enabled flag in sync with the plugin option so isRequired
+        // is correct when auth is disabled
+        store.$patch({ enabled })
+
         if (enabled) {
             app.config.globalProperties.$auth = {
                 ...auth,
@@ -58,7 +62,7 @@ export default {
             }
 
             if (clientApp) {
-                store.$patch({ clientApp, enabled })
+                store.$patch({ clientApp })
             }
         } else {
             app.config.globalProperties.$auth = { enabled: false }
