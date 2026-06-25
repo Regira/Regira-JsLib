@@ -1,7 +1,7 @@
 {
     "name": "regira_modules",
     "private": false,
-    "version": "3.2.0",
+    "version": "3.2.1",
     "type": "module",
     "files": [
         "dist"
@@ -269,15 +269,15 @@
     },
     "devDependencies": {
         "@types/lodash": "^4.17.24",
-        "@types/node": "^25.9.1",
+        "@types/node": "^26.0.1",
         "@vitejs/plugin-vue": "^6.0.7",
         "jsdom": "^29.1.1",
-        "prettier": "^3.8.3",
+        "prettier": "^3.8.4",
         "regenerator-runtime": "^0.14.1",
-        "sass-embedded": "^1.99.0",
+        "sass-embedded": "^1.100.0",
         "typescript": "^6.0.3",
-        "vite": "^8.0.13",
-        "vitest": "^4.1.6",
-        "vue-tsc": "^3.3.1"
+        "vite": "^8.1.0",
+        "vitest": "^4.1.9",
+        "vue-tsc": "^3.3.5"
     }
 }

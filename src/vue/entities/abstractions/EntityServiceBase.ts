@@ -153,9 +153,11 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         return new type()
     }
 
+    // an empty item as an instance of T
     async newEntity(values?: Record<string, any>): Promise<T> {
         return this.toEntity(values || {})
     }
+    // creates an instance of T from a plain object
     abstract toEntity(item: Object): T
 }
 
