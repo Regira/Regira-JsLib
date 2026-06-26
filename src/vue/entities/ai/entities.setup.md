@@ -20,11 +20,11 @@ import { EntityBase, EntityServiceBase } from "regira_modules/vue/entities"
 
 Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`, `lodash`.
 
-> **Known-good versions (regira_modules 3.x).** Targets **Vue 3**; install **vue-router 5**, and build
-> with **Vite 7** + **@vitejs/plugin-vue 6** — the jump to vue-router 5 / Vite 7 is easy to miss and a
-> mismatched major can fail to install. The package currently declares an **impossible `lodash ^4.18.1`
-> peer** (the latest lodash is 4.17.21 — an upstream typo), so with npm install using `--legacy-peer-deps`
-> (or use pnpm/yarn) until it's fixed.
+> **Versions.** Targets **Vue 3**. Install the current release of each peer (`vue`, `vue-router`, `pinia`,
+> `axios`, `date-fns`, `lodash`) and build with the current **Vite** + **@vitejs/plugin-vue** — the
+> package's `peerDependencies` in `package.json` is the source of truth for the supported ranges, so let
+> your package manager resolve from there rather than pinning a version here. A mismatched major (e.g. an
+> out-of-date `vue-router` or build toolchain) can fail to install.
 
 > **The snippets below use the demo's `@/regira_modules` alias.** In a plain npm install, drop the `@/`
 > prefix on the library specifier (write `regira_modules/vue/http`, not `@/regira_modules/vue/http`); the
@@ -88,6 +88,11 @@ src/
 
 > A lookup entity with no list UI keeps the same folders; its `setup.ts` registers only the
 > service/icon/config and its views stay minimal.
+
+> **Concrete version.** This tree is abstract; the copy-pasteable app-shell scaffold (tooling, router
+> split, `components/` + `infrastructure/`, navigation wiring, views) is in
+> [entities.template.md](entities.template.md), modeled on the public sample app
+> [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin).
 
 ## 3. Runtime config — `public/config.json`
 
@@ -362,7 +367,9 @@ step list in the [checklist](../docs/checklist.md).
 
 ## 10. App shell — components, infrastructure & styling
 
-Beyond entity slices, keep a small, consistent shell (mirrors the sample apps).
+Beyond entity slices, keep a small, consistent shell (mirrors the sample apps). The tables below describe
+the pieces; for the concrete files (`useNavigation()`, the layout components, `permissions.ts`,
+`user-plugin.ts`, the views) see [entities.template.md](entities.template.md).
 
 ### `src/components/`
 

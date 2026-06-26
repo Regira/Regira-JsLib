@@ -46,7 +46,7 @@ Vue view  ──uses──▶  composable (useSearchView / useForm / useDetails 
 
 | Parameter | Constraint | Role |
 |-----------|------------|------|
-| `T` | `extends IEntity` | the entity model (has `$id`, `$title`) |
+| `T` | `extends IEntity` | the entity model (`$id` = uniform identifier, `$title` = uniform display label) |
 | `SO` | `extends ISearchObject` | the search/filter object (has `q`) |
 | — | `IConfig` | endpoint URLs, paging, route prefix, titles, icon |
 | — | `IPagingInfo` / `ISortByInfo` | paging and sort directives |
@@ -227,4 +227,4 @@ Order matters: `$services` / `$configs` / `$icons` globals must exist before any
 - [entities.setup.md](entities.setup.md) (new-project template) · [entities.namespaces.md](entities.namespaces.md) ·
   [entities.signatures.md](entities.signatures.md) · [entities.patterns.md](entities.patterns.md) ·
   [entities.examples.md](entities.examples.md)
-- Developer docs: [../docs/README.md](../docs/README.md)
+- Developer docs: [../README.md](../README.md)

@@ -18,7 +18,9 @@ or by reading these files in full from `src/vue/entities/ai/`:
 Load on demand: `entities.patterns.md` (child collections, trees, JSON services, paging, **typing the
 client from OpenAPI**, **calling custom service endpoints from a view**) and `entities.examples.md`
 (a full worked slice). For new-app wiring — **running with or without auth**, the required-vs-optional
-plugin set, and the npm install — load `entities.setup.md`.
+plugin set, and the npm install — load `entities.setup.md`; for the complete copy-pasteable app-shell
+scaffold (tooling, router split, `components/`, `infrastructure/`, navigation, views) load
+`entities.template.md`.
 
 ## Your responsibilities
 
@@ -36,7 +38,8 @@ You produce a complete entity slice under `src/entities/<name>/`:
 
 Keep the folder set identical for every entity: `config/ data/ details/ filter/ overview/ selecting/`
 + `index.ts` + `setup.ts`. The app shell (components, infrastructure, config, styling) is in
-`entities.setup.md` (§2 project structure, §10 app shell).
+`entities.setup.md` (§2 project structure, §10 app shell); the concrete copy-pasteable version is
+`entities.template.md`.
 
 ## Rules
 

@@ -2,8 +2,8 @@
 
 `regira_modules/vue/online` — online/offline detection for the app: the `useOnlineChecker` composable
 plus a Vue plugin that keeps one reactive `isOnline` ref in sync with the browser and exposes it
-app-wide as `$isOnline`. Use it to gate calls to the [HTTP layer](../../http/docs/README.md) and
-[entities client](../../entities/docs/README.md) when the network is down.
+app-wide as `$isOnline`. Use it to gate calls to the [HTTP layer](../http/README.md) and
+[entities client](../entities/README.md) when the network is down.
 
 ## What it provides
 
@@ -17,6 +17,6 @@ app-wide as `$isOnline`. Use it to gate calls to the [HTTP layer](../../http/doc
 ## Reference
 
 Exact signatures and usage guidance live in the AI guides:
-[ai/online.signatures.md](../ai/online.signatures.md), [ai/online.instructions.md](../ai/online.instructions.md),
-[ai/online.examples.md](../ai/online.examples.md)
+[ai/online.signatures.md](ai/online.signatures.md), [ai/online.instructions.md](ai/online.instructions.md),
+[ai/online.examples.md](ai/online.examples.md)
 — also served by the Regira MCP server as `regira_modules.vue.online`.

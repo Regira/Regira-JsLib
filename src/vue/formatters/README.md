@@ -2,7 +2,7 @@
 
 `regira_modules/vue/formatters` — a flat set of locale-aware display helpers for dates, times, numbers,
 currency and percentages, plus a few string utilities. All are named exports; use them to render
-[entity](../../entities/docs/README.md) values in Vue templates and computed props.
+[entity](../entities/README.md) values in Vue templates and computed props.
 
 ## What it provides
 
@@ -27,7 +27,7 @@ currency and percentages, plus a few string utilities. All are named exports; us
 ## Reference
 
 Exact signatures and usage notes live in the AI guides:
-[ai/formatters.signatures.md](../ai/formatters.signatures.md),
-[ai/formatters.instructions.md](../ai/formatters.instructions.md), with copy-paste snippets in
-[ai/formatters.examples.md](../ai/formatters.examples.md) — also served by the Regira MCP server as
+[ai/formatters.signatures.md](ai/formatters.signatures.md),
+[ai/formatters.instructions.md](ai/formatters.instructions.md), with copy-paste snippets in
+[ai/formatters.examples.md](ai/formatters.examples.md) — also served by the Regira MCP server as
 `regira_modules.vue.formatters`.

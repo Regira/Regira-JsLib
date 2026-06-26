@@ -28,8 +28,8 @@ Verbatim TypeScript signatures for the front-end CRUD client (`regira_modules/vu
 ```ts
 import type { IEntity } from "regira_modules/vue/entities"
 export interface IEntity {
-    get $id(): number | string
-    get $title(): string | undefined
+    get $id(): number | string        // uniform identifier
+    get $title(): string | undefined  // uniform label used for display
 }
 ```
 

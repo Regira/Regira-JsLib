@@ -2,7 +2,7 @@
 
 `regira_modules/events` — a lightweight event mixin: an `Event` value object and an `EventHandler` whose
 `injectInto(target)` adds a `trigger` / `on` / `once` / `off` API to any object. Regira managers (e.g. the
-[identity manager](../../identity)) inject it to broadcast state changes.
+[identity manager](../identity)) inject it to broadcast state changes.
 
 ## What it provides
 
@@ -18,7 +18,7 @@
 ## Reference
 
 Usage, gotchas and exact signatures live in the AI guides:
-[ai/events.instructions.md](../ai/events.instructions.md),
-[ai/events.signatures.md](../ai/events.signatures.md), with copy-paste snippets in
-[ai/events.examples.md](../ai/events.examples.md) — also served by the Regira MCP server as
+[ai/events.instructions.md](ai/events.instructions.md),
+[ai/events.signatures.md](ai/events.signatures.md), with copy-paste snippets in
+[ai/events.examples.md](ai/events.examples.md) — also served by the Regira MCP server as
 `regira_modules.events`.

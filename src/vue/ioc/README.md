@@ -34,6 +34,6 @@ const service = get<IEntityService<Entity>>(Entity.name)!
 
 ## Reference
 
-Exact signatures and wiring examples are in the AI guides: [ai/ioc.signatures.md](../ai/ioc.signatures.md),
-[ai/ioc.instructions.md](../ai/ioc.instructions.md), [ai/ioc.examples.md](../ai/ioc.examples.md) — also
+Exact signatures and wiring examples are in the AI guides: [ai/ioc.signatures.md](ai/ioc.signatures.md),
+[ai/ioc.instructions.md](ai/ioc.instructions.md), [ai/ioc.examples.md](ai/ioc.examples.md) — also
 served by the Regira MCP server as `regira_modules.vue.ioc`.

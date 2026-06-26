@@ -15,7 +15,7 @@ object (and ships a Vue plugin as its file `default`), so you can register them 
 ## Reference
 
 Exact signatures and usage notes live in the AI guides:
-[ai/directives.signatures.md](../ai/directives.signatures.md),
-[ai/directives.instructions.md](../ai/directives.instructions.md), with copy-paste snippets in
-[ai/directives.examples.md](../ai/directives.examples.md) — also served by the Regira MCP
+[ai/directives.signatures.md](ai/directives.signatures.md),
+[ai/directives.instructions.md](ai/directives.instructions.md), with copy-paste snippets in
+[ai/directives.examples.md](ai/directives.examples.md) — also served by the Regira MCP
 server as `regira_modules.vue.directives`.

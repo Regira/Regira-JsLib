@@ -2,7 +2,7 @@
 
 `regira_modules/treelist` — a generic, framework-agnostic hierarchical data structure: a `TreeList<T>`
 of `TreeNode<T>` items with helpers to navigate ancestors, offspring and roots. Plain TypeScript (no
-Vue, no axios). The [entities tree](../../vue/entities/docs/README.md) composable and `buildNavigationTree`
+Vue, no axios). The [entities tree](../vue/entities/README.md) composable and `buildNavigationTree`
 are both built on it.
 
 ## What it provides
@@ -20,7 +20,7 @@ constructor / `addValue` / `addValues`. Navigate with `getRoots`, `getAncestors`
 ## Reference
 
 Exact signatures and the agent guide live in the AI docs:
-[ai/treelist.signatures.md](../ai/treelist.signatures.md),
-[ai/treelist.instructions.md](../ai/treelist.instructions.md), with copy-paste basics in
-[ai/treelist.examples.md](../ai/treelist.examples.md) — also served by the Regira MCP server as
+[ai/treelist.signatures.md](ai/treelist.signatures.md),
+[ai/treelist.instructions.md](ai/treelist.instructions.md), with copy-paste basics in
+[ai/treelist.examples.md](ai/treelist.examples.md) — also served by the Regira MCP server as
 `regira_modules.treelist`.

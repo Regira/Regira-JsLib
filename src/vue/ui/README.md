@@ -1,6 +1,6 @@
 # Regira UI (front-end)
 
-`regira_modules/vue/ui` — the UI toolkit the [entity views](../../entities/docs/README.md) render with:
+`regira_modules/vue/ui` — the UI toolkit the [entity views](../entities/README.md) render with:
 components, composables, and plugins for paging, loading, feedback, modal, tabs, icons, autocomplete,
 form inputs, and responsive layout.
 
@@ -37,6 +37,6 @@ must run before icons render. Most-used in entity UIs: `Paging`, `LoadingContain
 ## Reference
 
 Exact signatures, component props, and worked examples are in the AI guides:
-[ai/ui.instructions.md](../ai/ui.instructions.md), [ai/ui.signatures.md](../ai/ui.signatures.md),
-[ai/ui.examples.md](../ai/ui.examples.md) — also served by the Regira MCP server as `regira_modules.vue.ui`
+[ai/ui.instructions.md](ai/ui.instructions.md), [ai/ui.signatures.md](ai/ui.signatures.md),
+[ai/ui.examples.md](ai/ui.examples.md) — also served by the Regira MCP server as `regira_modules.vue.ui`
 (use `list_types` / `get_type` for any component prop not in the guides).

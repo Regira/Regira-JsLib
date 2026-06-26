@@ -1,7 +1,7 @@
 # Regira HTTP (front-end)
 
 `regira_modules/vue/http` — the app's single axios instance plus file and query-string helpers. The
-[entities client](../../entities/docs/README.md) and the auth plugin are both built on this instance.
+[entities client](../entities/README.md) and the auth plugin are both built on this instance.
 
 ## What it provides
 
@@ -29,6 +29,6 @@ values are relative paths resolved against the `baseURL` set here.
 ## Reference
 
 Exact signatures and worked examples (download, upload, query strings, startup) live in the AI guides:
-[ai/http.signatures.md](../ai/http.signatures.md), [ai/http.examples.md](../ai/http.examples.md),
-[ai/http.instructions.md](../ai/http.instructions.md) — also served by the Regira MCP server as
+[ai/http.signatures.md](ai/http.signatures.md), [ai/http.examples.md](ai/http.examples.md),
+[ai/http.instructions.md](ai/http.instructions.md) — also served by the Regira MCP server as
 `regira_modules.vue.http`.

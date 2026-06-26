@@ -26,6 +26,6 @@ Requires vue-router (the `$isDebug` getter reads the current route) and a resolv
 ## Reference
 
 Exact signatures and usage guidance live in the AI guides:
-[ai/debug.signatures.md](../ai/debug.signatures.md), [ai/debug.instructions.md](../ai/debug.instructions.md),
-and copy-paste snippets in [ai/debug.examples.md](../ai/debug.examples.md)
+[ai/debug.signatures.md](ai/debug.signatures.md), [ai/debug.instructions.md](ai/debug.instructions.md),
+and copy-paste snippets in [ai/debug.examples.md](ai/debug.examples.md)
 — also served by the Regira MCP server as `regira_modules.vue.debug`.

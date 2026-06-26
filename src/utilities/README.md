@@ -2,7 +2,7 @@
 
 `regira_modules/utilities` — a framework-agnostic helper library exposed as twelve namespaced barrels
 (arrays, strings, files, dates, colors, DOM, HTTP/URLs, images, numbers, objects, promises, clipboard).
-No Vue dependency; used throughout the app and by the [entities client](../../vue/entities/docs/README.md).
+No Vue dependency; used throughout the app and by the [entities client](../vue/entities/README.md).
 
 ## What it provides
 
@@ -28,7 +28,7 @@ object omits — see the reference.
 ## Reference
 
 Exact signatures, usage notes, and gotchas live in the AI guides:
-[ai/utilities.signatures.md](../ai/utilities.signatures.md) and
-[ai/utilities.instructions.md](../ai/utilities.instructions.md), with copy-paste basics in
-[ai/utilities.examples.md](../ai/utilities.examples.md) — also served by the Regira MCP server as
+[ai/utilities.signatures.md](ai/utilities.signatures.md) and
+[ai/utilities.instructions.md](ai/utilities.instructions.md), with copy-paste basics in
+[ai/utilities.examples.md](ai/utilities.examples.md) — also served by the Regira MCP server as
 `regira_modules.utilities`.

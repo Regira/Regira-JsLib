@@ -31,6 +31,6 @@ app.use(plugin, { defaultLang, messages })   →  drives the singleton useLang()
 ## Reference
 
 Exact signatures and agent guidance live in the AI guides:
-[ai/lang.signatures.md](../ai/lang.signatures.md), [ai/lang.instructions.md](../ai/lang.instructions.md),
-and [ai/lang.examples.md](../ai/lang.examples.md) for copy-paste basics
+[ai/lang.signatures.md](ai/lang.signatures.md), [ai/lang.instructions.md](ai/lang.instructions.md),
+and [ai/lang.examples.md](ai/lang.examples.md) for copy-paste basics
 — also served by the Regira MCP server as `regira_modules.vue.lang`.

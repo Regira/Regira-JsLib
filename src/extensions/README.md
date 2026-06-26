@@ -2,7 +2,7 @@
 
 `regira_modules/extensions` — opt-in prototype extensions for `Array`, `Date`, and `Promise`. Nothing is
 patched on import; each is enabled explicitly via a `use()` method, so the app decides when (and whether)
-to touch globals. The array and promise helpers wrap [`regira_modules/utilities`](../../utilities).
+to touch globals. The array and promise helpers wrap [`regira_modules/utilities`](../utilities).
 
 ## What it provides
 
@@ -27,7 +27,7 @@ members that already exist unless `overwrite` is `true`.
 ## Reference
 
 Exact signatures and usage notes live in the AI guides:
-[ai/extensions.signatures.md](../ai/extensions.signatures.md),
-[ai/extensions.instructions.md](../ai/extensions.instructions.md), with copy-paste snippets in
-[ai/extensions.examples.md](../ai/extensions.examples.md) — also served by the Regira MCP server
+[ai/extensions.signatures.md](ai/extensions.signatures.md),
+[ai/extensions.instructions.md](ai/extensions.instructions.md), with copy-paste snippets in
+[ai/extensions.examples.md](ai/extensions.examples.md) — also served by the Regira MCP server
 as `regira_modules.extensions`.

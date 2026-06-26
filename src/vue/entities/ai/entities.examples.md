@@ -348,5 +348,6 @@ app.use(routerFactory([...entityRoutes]))
 
 ## See also
 
+- [entities.template.md](entities.template.md) — the app shell that hosts this slice (tooling, router, navigation, views)
 - [entities.patterns.md](entities.patterns.md) — child collections, trees, JSON services, paging, soft-delete
 - [entities.signatures.md](entities.signatures.md) · [entities.namespaces.md](entities.namespaces.md)
