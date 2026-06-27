@@ -70,10 +70,10 @@ Exact signatures: [../ai/entities.signatures.md §10](../ai/entities.signatures.
 
 ## When you need it
 
-Only complex entities that own files. A basic slice (see [../ai/entities.examples.md](../ai/entities.examples.md))
-has none of the above — no file fields, the plain `AxiosInstance`, and the default `insert`/`update`. Reach
+Only complex entities that own files. The simple/standard slices (see [../ai/entities.examples.md](../ai/entities.examples.md))
+have none of the above — no file fields, the plain `AxiosInstance`, and the default `insert`/`update`. Reach
 for the attachments variant only when the entity actually carries files, and keep everything else identical
-to the basic slice.
+to those slices.
 
 ## Overview
 

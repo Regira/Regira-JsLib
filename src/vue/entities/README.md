@@ -40,8 +40,9 @@ the app-level [entity aggregator](ai/entities.setup.md#add-entities), and the np
 
 A complete entity slice lives under `src/entities/<name>/` with the standard folder set
 (`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`). See the full worked
-code for a basic `Product` slice in [ai/entities.examples.md](ai/entities.examples.md), the complex
-`Vehicle` slice (attachments, link model, owned children, tree) in
+code for the worked slices — a **simple** `UnitType` then a **standard** `Product` — in
+[ai/entities.examples.md](ai/entities.examples.md), the complex
+`Vehicle` slice (attachments, link model, owned children) in
 [ai/entities.advanced.example.md](ai/entities.advanced.example.md), or the step list in
 [checklist.md](docs/checklist.md). The app shell (project structure, `components/`, `infrastructure/`,
 `config.json` + `app-config.ts`, and Bootstrap 5 styling) is in
@@ -66,10 +67,11 @@ For AI agents, the same material is served by the Regira MCP server (package
    slice anatomy, router, `main.ts` / `App.vue`, required-vs-optional plugins, running without auth, app shell.
 3. [`entities.namespaces.md`](ai/entities.namespaces.md) — which import specifier each type comes from.
 4. [`entities.signatures.md`](ai/entities.signatures.md) — exact TypeScript signatures.
-5. [`entities.examples.md`](ai/entities.examples.md) — one complete basic slice (`Product`), copy-pasteable.
-6. [`entities.advanced.example.md`](ai/entities.advanced.example.md) — one complete complex slice
-   (`Vehicle`): attachments + many-to-many link model + owned child collection + tree.
-7. [`entities.patterns.md`](ai/entities.patterns.md) — per-feature recipes (load on demand).
+5. [`entities.examples.md`](ai/entities.examples.md) — worked slices, simplest first: a **simple** (`UnitType`) then a **standard** (`Product`) slice, copy-pasteable.
+6. [`entities.template.md`](ai/entities.template.md) — a blank slice scaffold: the file tree plus a placeholder skeleton for each `(c)` file to fill in.
+7. [`entities.advanced.example.md`](ai/entities.advanced.example.md) — one complete complex slice
+   (`Vehicle`): attachments + many-to-many link model + owned child collection.
+8. [`entities.patterns.md`](ai/entities.patterns.md) — per-feature recipes (load on demand).
 
 ## The module stack
 

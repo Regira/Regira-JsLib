@@ -17,7 +17,7 @@ plus a `Category` lookup — so it lines up with the basic example.
 
 > **Reading order:** [entities.instructions.md](entities.instructions.md) → **entities.setup.md** (this
 > file) → [entities.namespaces.md](entities.namespaces.md) → [entities.signatures.md](entities.signatures.md)
-> → [entities.examples.md](entities.examples.md) (basic slice) /
+> → [entities.examples.md](entities.examples.md) (simple `UnitType` + standard `Product` slices) /
 > [entities.advanced.example.md](entities.advanced.example.md) (complex slice) →
 > [entities.patterns.md](entities.patterns.md) (recipes, load on demand).
 
@@ -212,7 +212,8 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 ```
 
 > `(c)` marks the files you customize per entity; the rest is near-identical boilerplate you copy as-is
-> (full slice code in [entities.examples.md](entities.examples.md)). The build order for these files is the
+> (a blank fill-in scaffold with a placeholder per file is [entities.template.md](entities.template.md);
+> full slice code in [entities.examples.md](entities.examples.md)). The build order for these files is the
 > [Entity Implementation Workflow](entities.instructions.md#entity-implementation-workflow). Everything
 > **around** the slice — the `src/entities/` aggregator ([Add entities](#add-entities)), `components/` and
 > `infrastructure/` ([App shell](#app-shell--components-infrastructure--styling)), the [Router](#router),
@@ -856,7 +857,7 @@ You don't need Bootstrap's JavaScript (the UI components bring their own behavio
   troubleshooting)
 - [entities.namespaces.md](entities.namespaces.md) — import-specifier reference ·
   [entities.signatures.md](entities.signatures.md) — exact TypeScript signatures
-- [entities.examples.md](entities.examples.md) — one complete basic slice (`Product`) ·
+- [entities.examples.md](entities.examples.md) — simple (`UnitType`) + standard (`Product`) slices ·
   [entities.advanced.example.md](entities.advanced.example.md) — one complete complex slice (`Vehicle`)
 - [entities.patterns.md](entities.patterns.md#navigation-from-the-config-map) — per-feature recipes
   (navigation importers, selectors, trees, …)

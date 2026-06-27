@@ -24,9 +24,11 @@ Before writing any code, load the guides — via the MCP server
 Load on demand: `entities.setup.md` (new-app wiring — plugin install order, required-vs-optional plugins,
 running with/without auth, plus the app-shell scaffold + **Entity slice anatomy** + npm install),
 `entities.patterns.md` (child collections, trees, JSON services, paging, union search, navigation, custom
-endpoints, typing the client from OpenAPI), `entities.examples.md` (a complete basic slice — `Product`),
-and `entities.advanced.example.md` (a complex slice — `Vehicle`: attachments, many-to-many, child
-collection, tree).
+endpoints, typing the client from OpenAPI), `entities.template.md` (a **blank slice scaffold** — file tree
++ a placeholder skeleton per `(c)` file to fill in), `entities.examples.md` (worked slices, simplest first
+— a **simple** `UnitType` then a **standard** `Product`),
+and `entities.advanced.example.md` (a complex slice — `Vehicle`: attachments, many-to-many, owned child
+collection).
 
 ## Your responsibilities
 

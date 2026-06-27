@@ -8,14 +8,15 @@ omits. Where the basic example is fully self-contained, this file is self-contai
 boilerplate files it points back to the Product slice rather than reprinting them.
 
 > **Reading order** (use everywhere): `instructions` → `setup` (new app) → `namespaces` → `signatures` →
-> `examples` (basic slice) / **`advanced.example`** (this file) → `patterns` (recipes, load on demand).
-> Read [entities.examples.md](entities.examples.md) first if you have not built a slice before — this file
-> assumes the boilerplate it establishes.
+> `examples` (simple `UnitType` + standard `Product` slices) / **`advanced.example`** (this file) →
+> `patterns` (recipes, load on demand). Read [entities.examples.md](entities.examples.md) first if you have
+> not built a slice before — this file assumes the boilerplate it establishes.
 
-## What this adds over the basic example
+## What this adds over the simpler examples
 
-The `Product` slice covers the minimal per-entity set (config, model, plain service, search object, form,
-list, selectors, setup). `Vehicle` layers on four things a simple slice does not have:
+The simple (`UnitType`) and standard (`Product`) slices in [entities.examples.md](entities.examples.md)
+cover the per-entity set (config, model, plain service, search object, form, list, selectors, setup).
+`Vehicle` layers on the things they don't have:
 
 | Delta | Where, in this file | Mechanism |
 |---|---|---|
@@ -69,7 +70,9 @@ const config: IConfig = {
     api,
     detailsUrl: api,
     listUrl: api,
-    searchUrl: api + "/search",
+    get searchUrl() {
+        return this.isComplex ? api + "/search" : api
+    },
     saveUrl: api,
     deleteUrl: api,
 }
@@ -858,24 +861,24 @@ export default {
 }
 ```
 
-## Boilerplate shared with the basic slice (not reprinted)
+## Boilerplate shared with the example slices (not reprinted)
 
-These files are **byte-identical** to the `Product` slice — the picker components and the details/filter
-shells that carry no Vehicle-specific markup. Copy them from the basic example and only change the slice
-folder they live in:
+These files are **byte-identical** to the slices in [entities.examples.md](entities.examples.md) — the
+picker components and the details/filter shells that carry no Vehicle-specific markup (shown in full under
+the simple `UnitType` slice there). Copy them and only change the slice folder they live in:
 
 | File | Source |
 |---|---|
-| `details/Details.vue` (the `<router-view>` host shell) | identical to the Product slice — see [entities.examples.md](entities.examples.md) |
-| `details/FormModalButton.vue` | identical to the Product slice — see [entities.examples.md](entities.examples.md) |
-| `filter/Filter.vue` · `filter/FilterInline.vue` | identical to the Product slice — see [entities.examples.md](entities.examples.md) |
-| `overview/Overview.vue` | identical to the Product slice — see [entities.examples.md](entities.examples.md) |
-| `selecting/Autocomplete.vue` · `InputSelector.vue` · `Selector.vue` · `SelectorDropdown.vue` · `SelectorSearch.vue` · `SelectorModalButton.vue` | identical to the Product slice — see [entities.examples.md](entities.examples.md) |
-| `data/store.ts` | identical to the Product slice — see [entities.examples.md](entities.examples.md) (the resolved `EntityService` differs, wired in §13) |
+| `details/Details.vue` (the `<router-view>` host shell) | identical — see [entities.examples.md](entities.examples.md) |
+| `details/FormModalButton.vue` | identical — see [entities.examples.md](entities.examples.md) |
+| `filter/Filter.vue` · `filter/FilterInline.vue` | identical — see [entities.examples.md](entities.examples.md) |
+| `overview/Overview.vue` | identical — see [entities.examples.md](entities.examples.md) |
+| `selecting/Autocomplete.vue` · `InputSelector.vue` · `Selector.vue` · `SelectorDropdown.vue` · `SelectorSearch.vue` · `SelectorModalButton.vue` | identical — see [entities.examples.md](entities.examples.md) |
+| `data/store.ts` | identical — see [entities.examples.md](entities.examples.md) (the resolved `EntityService` differs, wired in §13) |
 
 > Only the **Vehicle-specific** picker (`selecting/SelectorList.vue`, §11) and overview list
-> (`overview/List.vue`, §9 / `overview/ListItem.vue`, §10) differ from Product — those are reprinted in
-> full above because their columns are entity-specific.
+> (`overview/List.vue`, §9 / `overview/ListItem.vue`, §10) carry entity-specific columns — those are
+> reprinted in full above.
 
 ## App-level aggregator
 
@@ -886,7 +889,7 @@ single `app.use(...)`. That file is **not** part of the slice — it lives with 
 
 ## See also
 
-- [entities.examples.md](entities.examples.md) — the **basic** `Product` slice + all shared boilerplate (read this first)
+- [entities.examples.md](entities.examples.md) — the **simple** (`UnitType`) + **standard** (`Product`) slices + all shared boilerplate (read these first)
 - [entities.setup.md](entities.setup.md) — app scaffolding, the [Entity slice anatomy](entities.setup.md#entity-slice-anatomy), router, bootstrap, app shell
 - [entities.patterns.md](entities.patterns.md) — per-feature recipes: [owned (child) collections](entities.patterns.md#owned-child-collections), [hierarchical (tree) entities](entities.patterns.md#hierarchical-tree-entities) (links the `treelist` module), [navigation from the config map](entities.patterns.md#navigation-from-the-config-map), custom endpoints, soft-delete, paging, JSON services
 - [entities.signatures.md](entities.signatures.md) · [entities.namespaces.md](entities.namespaces.md) — exact signatures and import specifiers

@@ -12,8 +12,8 @@ full code.
 > **Reading order:** this file → [entities.setup.md](entities.setup.md) (new app) →
 > [entities.namespaces.md](entities.namespaces.md) (exact imports) →
 > [entities.signatures.md](entities.signatures.md) (exact signatures) →
-> [entities.examples.md](entities.examples.md) (a complete basic slice) /
-> [entities.advanced.example.md](entities.advanced.example.md) (a complex slice). Load
+> [entities.examples.md](entities.examples.md) (a **simple** `UnitType` slice, then a **standard** `Product`
+> slice) / [entities.advanced.example.md](entities.advanced.example.md) (a **complex** `Vehicle` slice). Load
 > [entities.patterns.md](entities.patterns.md) for individual recipes.
 >
 > **Never guess** an import path, signature, or option name. Verify in namespaces/signatures. If a detail
@@ -71,7 +71,8 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 |------|-------|
 | **Stand up a new app** (deps, `main.ts`, `App.vue`, router, plugin order, app shell) | → [entities.setup.md](entities.setup.md) |
 | **Add an entity** | → [§Entity Implementation Workflow](#entity-implementation-workflow) |
-| **See a complete basic slice** (every file, `Product`) | → [entities.examples.md](entities.examples.md) |
+| **Scaffold a new entity** (blank file tree + placeholder skeletons to fill in) | → [entities.template.md](entities.template.md) |
+| **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`) | → [entities.examples.md](entities.examples.md) |
 | **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`) | → [entities.advanced.example.md](entities.advanced.example.md) |
 | **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing) | → [entities.patterns.md](entities.patterns.md) |
 | **Run without authentication** | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication) |
@@ -222,7 +223,11 @@ every entity** (a lookup keeps every folder, just with thinner files).
 > **→ See:** [entities.setup.md → Entity slice anatomy](entities.setup.md#entity-slice-anatomy) — every
 > file with its one-line purpose and the `(c)` markers for the files you customize per entity.
 >
-> **→ See:** [entities.examples.md](entities.examples.md) — a complete basic slice (`Product`), every file.
+> **→ See:** [entities.template.md](entities.template.md) — a **blank scaffold**: the file tree plus a
+> placeholder skeleton for each `(c)` file to fill in (use this to start a new slice from nothing).
+>
+> **→ See:** [entities.examples.md](entities.examples.md) — start with the **simple** `UnitType` slice
+> (every file), then the **standard** `Product` slice (what a richer entity adds).
 > For the complex case (attachments / many-to-many link / owned child collection) see
 > [entities.advanced.example.md](entities.advanced.example.md) (`Vehicle`); trees and the
 > `useOwnedCollection` composable are recipes in [entities.patterns.md](entities.patterns.md).
@@ -364,7 +369,8 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 
 - [entities.setup.md](entities.setup.md) — new-project template + app shell · [entities.namespaces.md](entities.namespaces.md) — imports ·
   [entities.signatures.md](entities.signatures.md) — signatures
-- [entities.examples.md](entities.examples.md) — complete basic slice (`Product`) ·
+- [entities.template.md](entities.template.md) — blank slice scaffold (placeholders to fill) ·
+  [entities.examples.md](entities.examples.md) — simple (`UnitType`) + standard (`Product`) slices ·
   [entities.advanced.example.md](entities.advanced.example.md) — complex slice (`Vehicle`) ·
   [entities.patterns.md](entities.patterns.md) — feature recipes
 - Developer docs: [../README.md](../README.md)
