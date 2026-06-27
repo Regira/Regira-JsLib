@@ -54,11 +54,17 @@ Start from the Vite `vue-ts` template (`npm create vue@latest`), then add the pe
 npm i bootstrap bootstrap-icons
 ```
 
-> **Versions.** Targets **Vue 3**. Install the current release of each peer (`vue`, `vue-router`, `pinia`,
-> `axios`, `date-fns`, `lodash`) and build with the current **Vite** + **@vitejs/plugin-vue** — the
-> package's `peerDependencies` in `package.json` is the source of truth for the supported ranges, so let
-> your package manager resolve from there rather than pinning a version here. A mismatched major (e.g. an
-> out-of-date `vue-router` or build toolchain) can fail to install.
+> **Versions — known-good majors (`regira_modules@3.2.1`).** Targets **Vue 3**. The library's
+> `peerDependencies` give the supported runtime ranges, so let the package manager resolve them rather than
+> pinning here. Pair them with the build toolchain the library is tested against, and align your app's
+> majors with it — the toolchain moves as a set, so a current `vue-router` wants a current `vite`/
+> `typescript`. The cascade to keep in step: `vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`.
+>
+> | Build tool | Major |
+> |------------|-------|
+> | `vite` · `@vitejs/plugin-vue` | 8 · 6 |
+> | `typescript` · `vue-tsc` | 6 · 3 |
+> | `vitest` · `prettier` | 4 · 3 |
 
 > **The snippets below use the demo's `@/regira_modules` alias.** In a plain npm install, drop the `@/`
 > prefix on the library specifier (write `regira_modules/vue/http`, not `@/regira_modules/vue/http`); the
@@ -672,8 +678,12 @@ disabled), make three changes:
 
 ## App shell — components, infrastructure & styling
 
-Beyond entity slices, keep a small, consistent shell (mirrors the sample apps). The components read from
-the collected `$configs` and the runtime config; data/logic stays in the entity slices and composables.
+Beyond entity slices, the sample apps ship a ready-made shell — a config-driven **dashboard + navbar**
+(`entity-navigation/`), the **layout chrome** (`layout/`), shared **form inputs** including
+`FormButtonsRow` (`input/`), and the **auth UI** (`users/`, when auth is enabled). Copy it from
+[Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin) and adapt rather than hand-rolling. The
+components read from the collected `$configs` and the runtime config; data/logic stays in the entity slices
+and composables. Each folder is detailed in [§ `src/components/`](#srccomponents) below.
 
 ### Add entities
 
@@ -708,9 +718,9 @@ step list in the [checklist](../docs/checklist.md).
 | Folder | Holds | Notes |
 |--------|-------|-------|
 | `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()` | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
-| `input/` | shared form inputs (`DescriptionInput`, `FormButtonsRow`, …) | register the common ones globally in `main.ts` (`app.component(...)`) so every Form can use them |
+| `input/` | shared form inputs — `FormButtonsRow` (the form's Save / Cancel / Delete / Restore row, bound to `handleCancel` / `handleRemove` / `handleRestore`), `DescriptionInput`, … | register the common ones globally in `main.ts` (`app.component(...)`) so every Form can use them |
 | `layout/` | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>` |
-| `users/` | account + auth UI (login, change password, admin list) | **omit when auth is disabled** |
+| `users/` | account + auth UI (login, change password, admin list) | include when auth is enabled; omit on the [no-auth path](#running-without-authentication) |
 
 Give each folder an `index.ts` barrel; keep the components thin and presentational — data/logic stays in
 the entity slices and composables.

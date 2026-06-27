@@ -1,33 +1,33 @@
-import "../../_chunks/ui-3.2.1.js";
-import { C as e, S as t, g as n, w as r } from "../../_chunks/array-utility-3.2.1.js";
+import "../../_chunks/ui-3.2.2.js";
+import { C as e, S as t, g as n, w as r } from "../../_chunks/array-utility-3.2.2.js";
 import { debounceToPromise as i } from "../../utilities/promise-utility.js";
-import { t as a } from "../../_chunks/treelist-3.2.1.js";
-import { t as o } from "../../_chunks/query-3.2.1.js";
-import { i as s } from "../../_chunks/feedback-3.2.1.js";
-import { n as c, t as l } from "../../_chunks/details-3.2.1.js";
-import { a as u, c as d, i as f, l as p, n as m, o as h, r as g, s as _, t as ee } from "../../_chunks/form-3.2.1.js";
-import { i as te } from "../../_chunks/ioc-3.2.1.js";
+import { t as a } from "../../_chunks/treelist-3.2.2.js";
+import { t as o } from "../../_chunks/query-3.2.2.js";
+import { i as s } from "../../_chunks/feedback-3.2.2.js";
+import { n as c, t as l } from "../../_chunks/details-3.2.2.js";
+import { a as u, c as d, i as f, l as p, n as m, o as h, r as g, s as _, t as ee } from "../../_chunks/form-3.2.2.js";
+import { i as te } from "../../_chunks/ioc-3.2.2.js";
 import { AxiosError as v } from "axios";
-import { Fragment as ne, computed as y, createCommentVNode as re, createElementBlock as b, createElementVNode as ie, defineComponent as ae, isRef as oe, onMounted as se, openBlock as x, ref as S, renderList as ce, renderSlot as le, toDisplayString as C, toRaw as ue, toRefs as de, unref as w, vModelSelect as fe, watch as pe, withAsyncContext as me, withDirectives as T } from "vue";
-import { useRouter as E } from "vue-router";
+import { computed as y, onMounted as ne, ref as b, toRaw as x, watch as re } from "vue";
+import { useRouter as S } from "vue-router";
 //#region src/vue/entities/abstractions/IConfig.ts
-var D = /* @__PURE__ */ function(e) {
+var C = /* @__PURE__ */ function(e) {
 	return e.dashboard = "Dashboard", e.navbar = "Navbar", e;
-}({}), he = 10, O = class {
+}({}), w = 10, T = class {
 	page = 1;
 	pageSize = 10;
 	constructor(e = 10, t = 1) {
 		this.pageSize = e, this.page = t;
 	}
-}, ge = class {
+}, ie = class {
 	sortBy = "";
 };
 //#endregion
 //#region src/vue/entities/utilities/query.ts
-function k(e, t) {
+function E(e, t) {
 	return Object.fromEntries(Object.entries(e).filter(([e, t]) => t != null && e[0] != "$" && (e !== "page" || t > 1)));
 }
-function A(e) {
+function D(e) {
 	let { page: t, pageSize: n, ...r } = e;
 	return {
 		searchObject: r,
@@ -39,7 +39,7 @@ function A(e) {
 }
 //#endregion
 //#region src/vue/entities/abstractions/EntityServiceBase.ts
-var j = class {
+var O = class {
 	axios;
 	config;
 	defaultPageSize = 10;
@@ -66,7 +66,7 @@ var j = class {
 		};
 	}
 	async searchUnion(e, t) {
-		let n = o(k({
+		let n = o(E({
 			...this.config.baseQueryParams || {},
 			...t || {}
 		}, this.defaultPageSize)), r = `${this.config.searchUrl}?${n}`, { data: i } = await this.axios.post(r, e).then((e) => e);
@@ -111,7 +111,7 @@ var j = class {
 			...t || {}
 		};
 		!n.pageSize && n.pageSize !== 0 && (n.pageSize = this.defaultPageSize), (!("isArchived" in n) || n.isArchived == null) && (n.isArchived = !1);
-		let r = `${e}?${o(k(n, this.defaultPageSize))}`, { data: i } = await this.axios.get(r).then((e) => e);
+		let r = `${e}?${o(E(n, this.defaultPageSize))}`, { data: i } = await this.axios.get(r).then((e) => e);
 		return i;
 	}
 	processItem(e) {
@@ -138,16 +138,16 @@ var j = class {
 	async newEntity(e) {
 		return this.toEntity(e || {});
 	}
-}, M = /* @__PURE__ */ new Map(), N = class extends j {
+}, k = /* @__PURE__ */ new Map(), A = class extends O {
 	key;
 	constructor(e, t, n) {
 		super(e, t), this.key = n;
 	}
 	get cachedItems() {
-		return M.get(this.key) || null;
+		return k.get(this.key) || null;
 	}
 	set cachedItems(e) {
-		M.set(this.key, e);
+		k.set(this.key, e);
 	}
 	async fetchJSONItems() {
 		return this.cachedItems ??= await super.list(), this.cachedItems;
@@ -197,10 +197,10 @@ var j = class {
 		};
 		return Object.fromEntries(Object.entries(i).filter(([, e]) => e != null));
 	}
-}, P = class {
+}, j = class {
 	constructor() {}
 };
-Object.defineProperty(P.prototype, "entityType", {
+Object.defineProperty(j.prototype, "entityType", {
 	get() {
 		return this.constructor.name;
 	},
@@ -209,9 +209,9 @@ Object.defineProperty(P.prototype, "entityType", {
 });
 //#endregion
 //#region src/vue/entities/abstractions/SearchObjectBase.ts
-var F = class {
+var M = class {
 	q;
-}, I = class extends F {}, L = class {
+}, N = class extends M {}, ae = class {
 	Entity;
 	serviceBuilder;
 	config;
@@ -225,37 +225,9 @@ var F = class {
 	get key() {
 		return this.Entity.name;
 	}
-}, _e = ["value"], ve = ["value"], ye = /* @__PURE__ */ ae({
-	__name: "Selector",
-	props: {
-		modelValue: {},
-		data: {},
-		dataUrl: {},
-		dataFunc: {},
-		idProp: {},
-		titleFunc: {
-			type: Function,
-			default: (e) => (typeof e == "string" ? e : e.$title) || ""
-		},
-		showEmptyOption: {
-			type: Boolean,
-			default: !0
-		},
-		emptyValue: {},
-		emptyText: {}
-	},
-	emits: ["update:modelValue"],
-	async setup(e, { emit: t }) {
-		let n, r, i = e;
-		!i.data && !i.dataFunc && !i.dataUrl && console.error("props data OR dataUrl is required");
-		let a = y(() => i.data || o.value), o = S([]);
-		i.data ?? (o.value = w(([n, r] = me(() => Promise.resolve(i.dataFunc())), n = await n, r(), n)));
-		let { modelValue: s } = de(i);
-		return (t, n) => T((x(), b("select", { "onUpdate:modelValue": n[0] ||= (e) => oe(s) ? s.value = e : null }, [e.showEmptyOption ? le(t.$slots, "default", { key: 0 }, () => [ie("option", { value: e.emptyValue }, C(e.emptyText), 9, _e)]) : re("", !0), (x(!0), b(ne, null, ce(a.value, (t) => (x(), b("option", { value: e.idProp ? t[e.idProp] : t }, C(e.titleFunc(t)), 9, ve))), 256))], 512)), [[fe, w(s)]]);
-	}
-}), R = /* @__PURE__ */ new Map(), z = Symbol();
-function be(e = z) {
-	let t = R.has(e) ? R.get(e) : R.set(e, /* @__PURE__ */ new Map()).get(e);
+}, P = /* @__PURE__ */ new Map(), oe = Symbol();
+function se(e = oe) {
+	let t = P.has(e) ? P.get(e) : P.set(e, /* @__PURE__ */ new Map()).get(e);
 	function n(e, n, r) {
 		t.set(e.key, {
 			config: e,
@@ -277,7 +249,7 @@ function be(e = z) {
 }
 //#endregion
 //#region src/vue/entities/filter/filter.ts
-function xe({ searchObject: e, emit: t, Constructor: n }) {
+function ce({ searchObject: e, emit: t, Constructor: n }) {
 	let r = () => {
 		t("update:modelValue", { ...e.value });
 	}, i = () => {
@@ -285,7 +257,7 @@ function xe({ searchObject: e, emit: t, Constructor: n }) {
 	};
 	return {
 		filterIsActive: y(() => {
-			let t = n ? new n() : new I(), r = Object.keys(t), i = Object.entries(e.value || {}).filter(([, e]) => e != null).map(([e]) => e);
+			let t = n ? new n() : new N(), r = Object.keys(t), i = Object.entries(e.value || {}).filter(([, e]) => e != null).map(([e]) => e);
 			return r.some((e) => i.some((t) => e == t));
 		}),
 		handleToggle: () => t("toggle-adv"),
@@ -300,7 +272,7 @@ function xe({ searchObject: e, emit: t, Constructor: n }) {
 }
 //#endregion
 //#region src/vue/entities/navigation/NavItem.ts
-var B = class {
+var F = class {
 	id;
 	name;
 	icon;
@@ -309,7 +281,7 @@ var B = class {
 	description;
 	initialQuery;
 	parentId;
-}, V = class {
+}, I = class {
 	id;
 	title;
 	parentId;
@@ -317,11 +289,11 @@ var B = class {
 };
 //#endregion
 //#region src/vue/entities/navigation/functions.ts
-function H(e) {
-	return Object.assign(new V(), e);
+function L(e) {
+	return Object.assign(new I(), e);
 }
-function U(e, t) {
-	return Object.assign(new B(), {
+function R(e, t) {
+	return Object.assign(new F(), {
 		id: e.key,
 		parentId: t,
 		icon: e.key ?? e.name,
@@ -331,37 +303,37 @@ function U(e, t) {
 		initialQuery: e.initialQuery ?? {}
 	});
 }
-function Se(e) {
+function z(e) {
 	function t(t) {
 		return e.configs.find((e) => e.key == t);
 	}
-	let n = e.entities.flatMap(([n, r]) => r.map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => U(e, n)));
-	return e.groups.filter((e) => n.some((t) => t.parentId == e.id)).map((e) => H(e)).concat(n);
+	let n = e.entities.flatMap(([n, r]) => r.map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => R(e, n)));
+	return e.groups.filter((e) => n.some((t) => t.parentId == e.id)).map((e) => L(e)).concat(n);
 }
-function Ce(e) {
+function B(e) {
 	function t(t) {
 		return e.configs.find((e) => e.key == t);
 	}
-	let n = e.groups?.map(H);
+	let n = e.groups?.map(L);
 	return e.entities.flatMap((r) => {
 		if (r.length == 2 && Array.isArray(r[1])) {
 			let i = n.find((e) => e.id == r[0]);
-			return [i, ...r[1].map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => U(e, i.id))];
+			return [i, ...r[1].map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => R(e, i.id))];
 		}
 		let i = t(r);
-		return e.hasAccess(i) ? [U(i)] : [];
+		return e.hasAccess(i) ? [R(i)] : [];
 	});
 }
-function we(e) {
+function V(e) {
 	return new a().init(e, (e, t) => t.filter((t) => t.id == e.parentId));
 }
-function Te(e) {
-	return e instanceof B;
+function H(e) {
+	return e instanceof F;
 }
 //#endregion
 //#region src/vue/entities/overview/overview-core.ts
-function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
-	let r = S(t), i = S(new O(n || 10)), a = S(), o = S(), c = S(!1), l = s();
+function U({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
+	let r = b(t), i = b(new T(n || 10)), a = b(), o = b(), c = b(!1), l = s();
 	async function u(t) {
 		c.value = !0;
 		try {
@@ -432,8 +404,8 @@ function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
 }
 //#endregion
 //#region src/vue/entities/overview/search-view.ts
-function Ee({ service: e, searchObject: t, defaultPageSize: n = 10, debounceDelay: r = 250 }) {
-	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = W({
+function W({ service: e, searchObject: t, defaultPageSize: n = 10, debounceDelay: r = 250 }) {
+	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = U({
 		service: e,
 		searchObject: t,
 		defaultPageSize: n
@@ -475,8 +447,8 @@ function Ee({ service: e, searchObject: t, defaultPageSize: n = 10, debounceDela
 }
 //#endregion
 //#region src/vue/entities/overview/list-view.ts
-function De({ service: e, searchObject: t, defaultPageSize: n = 10, debounceDelay: r = 250 }) {
-	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = W({
+function le({ service: e, searchObject: t, defaultPageSize: n = 10, debounceDelay: r = 250 }) {
+	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = U({
 		service: e,
 		searchObject: t,
 		defaultPageSize: n
@@ -514,14 +486,14 @@ function De({ service: e, searchObject: t, defaultPageSize: n = 10, debounceDela
 }
 //#endregion
 //#region src/vue/entities/overview/route-overview.ts
-function Oe({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: r }) {
-	let i = E();
+function ue({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: r }) {
+	let i = S();
 	function a(r = !1) {
 		r && e != null && (e.value = {
 			...e?.value,
 			page: 1
 		});
-		let a = i.currentRoute.value, o = k({
+		let a = i.currentRoute.value, o = E({
 			...a.query,
 			...t.value,
 			...e.value ?? {}
@@ -532,13 +504,13 @@ function Oe({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 		i.push(s);
 	}
 	async function o() {
-		let { searchObject: a, pagingInfo: o } = A(i.currentRoute.value.query);
+		let { searchObject: a, pagingInfo: o } = D(i.currentRoute.value.query);
 		o.page ||= 1, (isNaN(o.pageSize) || o.pageSize == null) && n > 0 && (o.pageSize = n), t.value != null && (t.value = a), e.value != null && (e.value = o), await r();
 	}
-	let s = pe(i.currentRoute, async (e, t) => {
+	let s = re(i.currentRoute, async (e, t) => {
 		e.name === t.name && await o();
 	});
-	return se(o), {
+	return ne(o), {
 		updateOverviewRoute: a,
 		routeSearchHandler: o,
 		routeWatcher: s
@@ -618,7 +590,7 @@ var G = class {
 	}
 	set(e) {
 		let t = this.getEntityMap(e.constructor.name), n = this.get(e.constructor.name, e.$id);
-		return n == null ? n = S(e) : n.value = e, n.timestamp = +/* @__PURE__ */ new Date(), t.set(e.$id, n), n;
+		return n == null ? n = b(e) : n.value = e, n.timestamp = +/* @__PURE__ */ new Date(), t.set(e.$id, n), n;
 	}
 	get(e, t) {
 		return this.getEntityMap(e).get(t);
@@ -635,7 +607,7 @@ var G = class {
 	findReferences(e) {
 		return this.getAll().filter((t) => {
 			function n(t) {
-				return Array.isArray(t) ? t.some((e) => n(e)) : t instanceof P ? t?.constructor?.name === e.constructor.name ? t.$id === e.$id : n(Object.entries(t).map(([, e]) => e).filter((e) => e instanceof P || Array.isArray(e) && e.some((e) => e instanceof P))) : !1;
+				return Array.isArray(t) ? t.some((e) => n(e)) : t instanceof j ? t?.constructor?.name === e.constructor.name ? t.$id === e.$id : n(Object.entries(t).map(([, e]) => e).filter((e) => e instanceof j || Array.isArray(e) && e.some((e) => e instanceof j))) : !1;
 			}
 			return n(t.value);
 		});
@@ -696,7 +668,7 @@ function Y(e, t, n = J, r = !1) {
 }
 //#endregion
 //#region src/vue/entities/pooling/store.ts
-function ke(e, t) {
+function de(e, t) {
 	return Y(e, t);
 }
 //#endregion
@@ -723,12 +695,12 @@ async function $() {
 		t();
 	});
 }
-var Ae = {
+var fe = {
 	install(e) {},
 	preload: Q,
 	ready: $
 };
-function je() {
+function pe() {
 	return {
 		preload: Q,
 		ready: $
@@ -736,13 +708,13 @@ function je() {
 }
 //#endregion
 //#region src/vue/entities/tree/tree.ts
-function Me(e, t) {
+function me(e, t) {
 	return e.$id != null && e.$id == t.$id && e.constructor == t.constructor;
 }
-function Ne(e) {
-	let t = S(), n = S(), r = e?.equals || Me, i = y(() => t.value?.filter((e) => n.value?.some((t) => r(e.value, t))) || []), o = y(() => i.value.flatMap((e) => e.getAncestors())), s = y(() => i.value.flatMap((e) => e.getOffspring())), c = y(() => [...new Set(i.value.flatMap((e) => e.getAncestors()).concat(i.value).concat(i.value.flatMap((e) => e.getOffspring())))]);
+function he(e) {
+	let t = b(), n = b(), r = e?.equals || me, i = y(() => t.value?.filter((e) => n.value?.some((t) => r(e.value, t))) || []), o = y(() => i.value.flatMap((e) => e.getAncestors())), s = y(() => i.value.flatMap((e) => e.getOffspring())), c = y(() => [...new Set(i.value.flatMap((e) => e.getAncestors()).concat(i.value).concat(i.value.flatMap((e) => e.getOffspring())))]);
 	function l(e, r, i) {
-		n.value = e, t.value = new a().init(r.map((e) => ue(e)), i), t.value.filter((e) => e.parent == null ? !1 : e.parent.getOffspring().some((t) => t != e && t.value == e.value)).forEach((e) => t.value.remove(e));
+		n.value = e, t.value = new a().init(r.map((e) => x(e)), i), t.value.filter((e) => e.parent == null ? !1 : e.parent.getOffspring().some((t) => t != e && t.value == e.value)).forEach((e) => t.value.remove(e));
 	}
 	return {
 		tree: t,
@@ -753,8 +725,8 @@ function Ne(e) {
 		init: l
 	};
 }
-function Pe({ emit: e }) {
-	let t = S();
+function ge({ emit: e }) {
+	let t = b();
 	function n(n) {
 		n != null && (t.value = n, e("drag", n));
 	}
@@ -775,4 +747,4 @@ function Pe({ emit: e }) {
 	};
 }
 //#endregion
-export { he as DEFAULT_PAGESIZE, I as DefaultSearchObject, l as DetailsSummary, P as EntityBase, L as EntityDescriptor, j as EntityServiceBase, _ as FormStates, N as JSONService, V as NavGroup, B as NavItem, D as NavTypes, O as PagingInfo, q as PoolCache, G as PoolService, F as SearchObjectBase, ye as Selector, ge as SortByInfo, we as buildNavigationTree, k as cleanQueryParams, H as createNavGroup, U as createNavItem, ke as createStore, J as defaultPoolCache, d as formDefaults, u as formModalDefaults, Se as importDashboard, Ce as importNavbar, Te as isNavItem, A as parseQueryParams, Ae as preloaderPlugin, c as useDetails, Pe as useDragDrop, be as useEntityDescribers, xe as useFilter, p as useForm, g as useListInput, f as useListItemInput, De as useListView, h as useModal, W as useOverviewCore, m as useOwnedCollection, ee as useOwnedModal, Y as usePooling, je as usePreloader, Oe as useRouteOverview, Ee as useSearchView, Ne as useTree };
+export { w as DEFAULT_PAGESIZE, N as DefaultSearchObject, l as DetailsSummary, j as EntityBase, ae as EntityDescriptor, O as EntityServiceBase, _ as FormStates, A as JSONService, I as NavGroup, F as NavItem, C as NavTypes, T as PagingInfo, q as PoolCache, G as PoolService, M as SearchObjectBase, ie as SortByInfo, V as buildNavigationTree, E as cleanQueryParams, L as createNavGroup, R as createNavItem, de as createStore, J as defaultPoolCache, d as formDefaults, u as formModalDefaults, z as importDashboard, B as importNavbar, H as isNavItem, D as parseQueryParams, fe as preloaderPlugin, c as useDetails, ge as useDragDrop, se as useEntityDescribers, ce as useFilter, p as useForm, g as useListInput, f as useListItemInput, le as useListView, h as useModal, U as useOverviewCore, m as useOwnedCollection, ee as useOwnedModal, Y as usePooling, pe as usePreloader, ue as useRouteOverview, W as useSearchView, he as useTree };

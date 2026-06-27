@@ -30,6 +30,10 @@ const config: IConfig = {
 
 `IConfig extends Record<string, any>`, so apps may add extra fields (e.g. `id`, `nav`) without type errors.
 
+`defaultPageSize` seeds each overview's page size; the overview composables fall back to 10 when it is `0`
+or unset, so a pager-less "show all" list uses a large value (the API's max page size). `pageSize: 0` means
+"all rows" only at the service layer (`service.list`/`search`).
+
 ## URL derivation
 
 The `*Url` fields are **relative** paths resolved against the axios `baseURL` (set from app config at

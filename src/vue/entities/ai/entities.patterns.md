@@ -15,6 +15,33 @@ class EntitySearchObject extends SearchObjectBase { isArchived?: boolean }
 
 In a form, `useForm` exposes `handleRestore` alongside `handleRemove` for un-archiving.
 
+## State toggle (activate / deactivate)
+
+A visible status flag like `isActive` differs from archiving: the row stays in lists, just marked. Give it
+its own search-object field for filtering, and flip it through a **dedicated endpoint** so the update
+touches that one field server-side and leaves the entity's other fields intact. The method reuses the
+injected `axios` + `config.api`, like any [custom endpoint](#custom-endpoints-on-a-service):
+
+```ts
+export class EntityService extends EntityServiceBase<Entity> {
+    override toEntity(item: object): Entity { /* … */ }
+
+    async setActive(id: number, isActive: boolean): Promise<void> {
+        await this.axios.post(`${this.config.api}/${id}/${isActive ? "activate" : "deactivate"}`)
+    }
+}
+```
+
+Call it through the **raw** IoC service (the pooled store exposes only the `IEntityService` surface), then
+reload the row:
+
+```ts
+const svc = get<EntityService>(Entity.name)!
+await svc.setActive(item.id, !item.isActive)
+```
+
+`isArchived` / `handleRestore` ([Soft delete](#soft-delete--archived-rows)) stay reserved for true removal.
+
 ## Date hydration
 
 `EntityServiceBase.processItem` converts the server strings **`created`** and **`lastModified`** to
@@ -44,9 +71,11 @@ class OrderLine extends EntityBase { id = 0; _deleted = false; /* … */ }
 ## Paging
 
 Paging is automatic: `pageSize` defaults to `config.defaultPageSize` (`DEFAULT_PAGESIZE` = 10) and
-`page` is omitted from the URL when ≤ 1. Pass `pageSize: 0` to request **all** rows. The overview
-composables expose `pagingInfo` (a `Ref<IPagingInfo>`) and `itemsCount`; bind a `Paging` control to
-them and call the route handler on change:
+`page` is omitted from the URL when ≤ 1. At the **service** layer, `service.list/search({ pageSize: 0 })`
+returns every row. The **overview** composables seed paging from `PagingInfo`, whose fallback is 10, so a
+pager-less "show all" overview sets `defaultPageSize` to a large number (the API's max page size, which the
+API also caps). The overview composables expose `pagingInfo` (a `Ref<IPagingInfo>`) and `itemsCount`; bind
+a `Paging` control to them and call the route handler on change:
 
 ```ts
 const { pagingInfo, itemsCount, searchHandler } = useSearchView({ service, searchObject, defaultPageSize: config.defaultPageSize })
@@ -139,6 +168,79 @@ const { items, newItem, handleSort, handleSave } = useOwnedCollection<OrderLine>
 ```
 
 `useListInput` / `useListItemInput` are the lower-level building blocks for editable lists.
+
+## Form validation & error handling
+
+`useForm` returns the `feedback: FeedbackOut` it drives (`status`/`message`/`error` refs +
+`pending`/`success`/`fail`/`reset`). `handleSubmit` already calls `pending("Saving…")` → `success("Saved")`,
+or on failure `fail(...)` **and re-throws** — so wrap the call. The failure mapping is fixed:
+
+| HTTP status | `feedback.message` | `feedback.error` |
+|-------------|--------------------|------------------|
+| `400` | `"Saving failed"` | the server's **`response.data.errors`** `{ field: message }` map |
+| `404` | `"Item not found"` | a string (`response.data.message` ‖ `error.message`) |
+| other | `"Server error"` | a string |
+
+So only a `400` puts a per-field map on `feedback.error`. Combine **client-side** guards (validate before
+saving) with that **server-side** map; render the summary with `<Feedback>` and the field map per input:
+
+```vue
+<!-- details/Form.vue -->
+<script setup lang="ts">
+import { ref } from "vue"
+import { useForm, formDefaults, type FormEmits } from "regira_modules/vue/entities"
+import { Feedback, FeedbackStatus } from "regira_modules/vue/ui"
+import type Article from "../data/Entity"
+import useEntityStore from "../data/store"
+
+interface Emits extends /* @vue-ignore */ FormEmits<Article> {}
+const emit = defineEmits<Emits>()
+const props = withDefaults(defineProps<{ modelValue: Article; readonly?: boolean }>(), { ...formDefaults })
+
+const { service: entityService } = useEntityStore()
+const { item, feedback, handleSubmit } = useForm<Article>({ entityService, props, emit })
+
+// client-side: validate before hitting the server
+const errors = ref<Record<string, string>>({})
+function validate(): boolean {
+  errors.value = {}
+  if (!item.value.title?.trim()) errors.value.title = "Title is required"
+  if (item.value.price < 0) errors.value.price = "Price cannot be negative"
+  return Object.keys(errors.value).length === 0
+}
+async function submit() {
+  if (!validate()) { feedback.fail("Please fix the highlighted fields", errors.value); return }
+  try { await handleSubmit() } catch { /* feedback already set by useForm; swallow the re-throw */ }
+}
+
+// client errors first, then the server's 400 field map (a Record) on feedback.error
+const fieldError = (name: string) =>
+  errors.value[name] ?? (typeof feedback.error.value === "object" ? feedback.error.value?.[name] : undefined)
+</script>
+
+<template>
+  <form @submit.prevent="submit" novalidate>
+    <Feedback :feedback="feedback" />
+    <div class="mb-2">
+      <label class="form-label">Title</label>
+      <input v-model="item.title" class="form-control" :class="{ 'is-invalid': fieldError('title') }" />
+      <div class="invalid-feedback">{{ fieldError('title') }}</div>
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Price</label>
+      <input v-model.number="item.price" type="number" step="0.01" class="form-control" :class="{ 'is-invalid': fieldError('price') }" />
+      <div class="invalid-feedback">{{ fieldError('price') }}</div>
+    </div>
+    <button type="submit" class="btn btn-primary" :disabled="feedback.status.value === FeedbackStatus.pending">Save</button>
+  </form>
+</template>
+```
+
+> For the per-field map to populate, the API must answer a `400` with body `{ errors: { Field: "message" } }`
+> — Regira's `EntityControllerBase` produces exactly that from an `EntityInputException`'s `InputErrors`. On
+> `404`/`500`, `feedback.error` is a plain string, so lean on the `<Feedback>` summary (`feedback.message`)
+> instead. `FeedbackStatus` (`"" | "Pending" | "Success" | "Failed"`) comes from `regira_modules/vue/ui`;
+> gating the button on `FeedbackStatus.pending` prevents double-submits.
 
 ## Hierarchical (tree) entities
 

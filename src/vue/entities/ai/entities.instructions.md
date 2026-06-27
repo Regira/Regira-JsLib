@@ -70,6 +70,7 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 | Task | Go to |
 |------|-------|
 | **Stand up a new app** (deps, `main.ts`, `App.vue`, router, plugin order, app shell) | → [entities.setup.md](entities.setup.md) |
+| **Build the app shell** (config-driven dashboard + navbar, header/footer chrome, form-action buttons, auth UI) | → [entities.setup.md §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
 | **Add an entity** | → [§Entity Implementation Workflow](#entity-implementation-workflow) |
 | **Scaffold a new entity** (blank file tree + placeholder skeletons to fill in) | → [entities.template.md](entities.template.md) |
 | **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`) | → [entities.examples.md](entities.examples.md) |
@@ -305,6 +306,7 @@ plugin installs; the router must be built **after** the entity plugins have coll
 Load [entities.patterns.md](entities.patterns.md) when implementing one of these:
 
 - **Soft delete / archived rows** — `isArchived` on the search object; `handleRestore` in the form.
+- **State toggle (activate/deactivate)** — a dedicated endpoint + custom service method for a visible status flag.
 - **Date hydration** — convert non-`created`/`lastModified` date fields in `toEntity`.
 - **Transient client-only fields** — `_`-prefixed props (e.g. `_deleted`) stripped before save.
 - **Paging** — `pagingInfo` + `itemsCount`; `pageSize: 0` for all rows.
@@ -350,6 +352,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | New entity not treated as insert | `$id` not `"new"`/`null` | `save()` treats `$id === "new"` (or `null`) as insert; new-entity routes use `:id = "new"`; `$id` getter returns `this.id || "new"` |
 | Updates 404 while inserts pass | `saveUrl` set to a literal `/save` path | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves |
 | Archived rows missing | `isArchived` defaults to `false` | Set `isArchived` on the search object to include them |
+| Pager-less overview shows only 10 rows | The overview composables seed paging from `PagingInfo`, whose fallback is 10 (a `defaultPageSize` of `0` reads as 10) | Set `defaultPageSize` to a large number (the API's max page size); `pageSize: 0` means "all" only at the service layer |
 | Nested collection empty on a detail/edit form | `includes` may not apply to the Details GET | Ensure the API eager-loads it for Details, or fetch children with a dedicated call |
 | Custom service method not found on the store `service` | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface) | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`) |
 | Wrong overview shape / 404 on `/search` | `useSearchView` used against a simple controller (no `/search`) | Match the [composable to the controller](#overview-uselistview-vs-usesearchview) — `useListView` for simple/lookup |

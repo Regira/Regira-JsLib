@@ -126,7 +126,10 @@ export default Vehicle
 
 The join model for the many-to-many `Vehicle`↔`InterventionType` relation. `_deleted` lets the form mark a
 link for removal without dropping it from the array before save; `create()` builds an instance from a plain
-payload. The form (§5) maps this collection to/from a flat list of `InterventionType`.
+payload. The form (§5) maps this collection to/from a flat list of `InterventionType`. This link is
+payload-free (just the two foreign-key ids); for a join that carries its own fields — e.g. a `quantity`
+edited inline rather than flattened to a selector — see `Product`↔`ProductComponent` in
+[entities.examples.md](entities.examples.md).
 
 ```ts
 import type InterventionType from "@/entities/intervention-types/data/Entity";
