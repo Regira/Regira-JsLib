@@ -41,9 +41,9 @@ lists, extend `JSONService` instead of `EntityServiceBase`.
 - **App-shell scaffold** — the concrete tooling, router split, `components/`, `infrastructure/`, and
   views that surround the slices: the public sample app
   [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin), inlined for agents in
-  [../ai/entities.template.md](../ai/entities.template.md).
+  [../ai/entities.setup.md](../ai/entities.setup.md#app-shell--components-infrastructure--styling).
 - **No authentication** — omit `authPlugin`, advance `AppStatus` to `Ready` yourself, drop the auth UI:
-  [../ai/entities.setup.md §8](../ai/entities.setup.md#8-running-without-authentication).
+  [../ai/entities.setup.md](../ai/entities.setup.md#running-without-authentication).
 - **Types from OpenAPI** — generate DTO types and feed them into the models:
   [../ai/entities.patterns.md](../ai/entities.patterns.md#type-the-client-from-the-apis-openapi).
 
@@ -61,4 +61,5 @@ lists, extend `JSONService` instead of `EntityServiceBase`.
 3. [Config](config.md)
 4. [Views](views.md)
 5. [Built-in features](built-in-features.md)
-6. [Checklist](checklist.md)
+6. [Attachments](attachments.md)
+7. [Checklist](checklist.md)

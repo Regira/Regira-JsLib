@@ -1,10 +1,27 @@
-# Regira JsLib — Project Setup
+# Regira JsLib — Project setup & app shell
 
-How to stand up a new `regira_modules` Vue 3 app (Vite + Pinia + vue-router) — the starter `main.ts`,
-`App.vue`, router, and plugin wiring. Kept to the basics; add only what you need. Verify any API in
-[entities.signatures.md](entities.signatures.md) and the per-module guides.
+How to stand up a new `regira_modules` Vue 3 app (Vite + Pinia + vue-router) — install, project
+structure, the **entity slice anatomy**, runtime config, the canonical `main.ts` / `App.vue`, the
+required-vs-optional plugin matrix, running without auth, and the app shell (components, infrastructure,
+styling) that surrounds your entity slices. This is the single app-scaffolding file; it mirrors the public
+sample app [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin). Kept reference-grade and
+copy-pasteable; verify any API in [entities.signatures.md](entities.signatures.md) and the per-module
+guides.
 
-## 1. Install
+The worked app shown throughout is `ShoppingManager` (`clientApp: "shopping-manager"`) — a `Product` slice
+plus a `Category` lookup — so it lines up with the basic example.
+
+> **Pragmatic, not a symlink.** Copy these files into your repo and evolve them — don't symlink or vendor
+> the sample app. They are a starting skeleton, not a dependency; the live reference is the public sample
+> [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin).
+
+> **Reading order:** [entities.instructions.md](entities.instructions.md) → **entities.setup.md** (this
+> file) → [entities.namespaces.md](entities.namespaces.md) → [entities.signatures.md](entities.signatures.md)
+> → [entities.examples.md](entities.examples.md) (basic slice) /
+> [entities.advanced.example.md](entities.advanced.example.md) (complex slice) →
+> [entities.patterns.md](entities.patterns.md) (recipes, load on demand).
+
+## Install
 
 Install from npm — the published package ships a built `dist/` with an `exports` map, so the **plain
 package specifier resolves with no alias or tsconfig path**:
@@ -19,6 +36,23 @@ import { EntityBase, EntityServiceBase } from "regira_modules/vue/entities"
 ```
 
 Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`, `lodash`.
+
+Start from the Vite `vue-ts` template (`npm create vue@latest`), then add the peers the library needs
+(let your package manager resolve the ranges):
+
+```jsonc
+// package.json — peers the library needs
+"dependencies": {
+  "regira_modules": "github:Regira/Regira-JsLib",
+  "vue": "^3.5", "vue-router": "^5", "pinia": "^3",
+  "axios": "^1", "date-fns": "^4", "lodash": "^4",
+  "bootstrap": "^5.3", "bootstrap-icons": "^1.13"
+}
+```
+
+```bash
+npm i bootstrap bootstrap-icons
+```
 
 > **Versions.** Targets **Vue 3**. Install the current release of each peer (`vue`, `vue-router`, `pinia`,
 > `axios`, `date-fns`, `lodash`) and build with the current **Vite** + **@vitejs/plugin-vue** — the
@@ -44,57 +78,147 @@ Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`, `lodash`.
 > "@/*": ["./src/*"]
 > ```
 
+### Tooling — `vite.config.ts`, `tsconfig`, `index.html`, `env.d.ts`
+
+```ts
+// vite.config.ts
+import { fileURLToPath, URL } from "node:url"
+import { defineConfig } from "vite"
+import vue from "@vitejs/plugin-vue"
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
+  define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version) },
+})
+```
+
+```jsonc
+// tsconfig.app.json → compilerOptions
+// On TS 6+ use `paths` WITHOUT `baseUrl` — `vue-tsc -b` (npm run build) errors on baseUrl (TS5101).
+"paths": { "@/*": ["./src/*"] }
+```
+
 > **tsconfig & build note.** On TypeScript 6+ use `paths` **without `baseUrl`** — `vue-tsc -b` (what
 > `npm run build` runs) errors on `baseUrl` (TS5101) even though `vue-tsc --noEmit` tolerates it, so
 > always verify with `npm run build`, not only a `--noEmit` typecheck. If your tsconfig enables
 > `erasableSyntaxOnly` (the current Vite `vue-ts` template default), define enum-like values as `const`
 > objects + a value type instead of `enum`.
 
-## 2. Project structure
+```html
+<!-- index.html — Bootstrap + icons via CDN (or import the npm CSS in main.ts instead) -->
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="app"></div>
+  <div id="modals" class="fixed-top"></div>      <!-- modalPlugin host -->
+  <div id="loginModal" class="fixed-top"></div>  <!-- LoginModal teleport target -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+```
 
-The full template (mirrors the sample apps). Keep the **entity folder set identical for every entity**
-— even a simple lookup keeps the same shape, just with thinner files.
+`env.d.ts` keeps the Vite client types; declare the `__APP_VERSION__` define where `app-config.ts` reads it:
+
+```ts
+// env.d.ts
+/// <reference types="vite/client" />
+declare const __APP_VERSION__: string
+```
+
+The `$configs` type and the rest of the app globals go in `src/shims.d.ts` — see
+[Root component — App.vue → Typing app globals](#typing-app-globals--srcshimsdts).
+
+## Project structure
+
+The full app template (mirrors the sample apps) — the **shell that surrounds your entity slices**. Each
+`entities/<name>/` slice uses the same folder set (a lookup keeps the same folders, just thinner, with no
+list UI); its file-by-file anatomy is [Entity slice anatomy](#entity-slice-anatomy) below.
+
+The concrete, filled-in tree (modeled on [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin)):
 
 ```
+index.html                       # Bootstrap CSS/Icons CDN links + #app / #modals / #loginModal mounts
+vite.config.ts                   # @ → ./src alias
+tsconfig.app.json                # paths: { "@/*": ["./src/*"] }  (no baseUrl — see Install § Tooling)
+env.d.ts                         # /// <reference types="vite/client" />
 public/
-  config.json                 # runtime config (env-keyed api, title, navigation, flags) — §3
-  data/translations.json      # i18n messages (key-first)
+  config.json                    # runtime config (env-keyed api, title, navigation, flags) — see Runtime config
+  data/translations.json         # i18n messages (key-first) — see Runtime config
 src/
-  app-config.ts               # loads + types public/config.json (createConfig / useConfig) — §3
-  main.ts                     # bootstrap (§5)
-  App.vue                     # root shell (§6)
+  shims.d.ts                     # $configs + app-specific globals ($isAdmin) — see Root component
+  app-config.ts                  # loads + types public/config.json (createConfig / useConfig) — see Runtime config
+  main.ts                        # bootstrap — see Bootstrap
+  App.vue                        # root shell — see Root component
+  assets/{base.scss,main.scss,images/}
   router/
-    router.ts                 # routerFactory(entityRoutes)
-    routes.ts                 # static routes (home, error pages, auth pages)
-  views/                      # page-level views (Home, NotFound, Forbidden, account, …)
-  components/                 # shared UI shell — §10
-    entity-navigation/        #   Dashboard / NavBar / NavSearch (built from $configs)
-    input/                    #   shared form inputs (DescriptionInput, FormButtonsRow, …)
-    layout/                   #   Header / Footer / Main / Modal / LangSelector
-    users/                    #   account + auth UI (omit when auth is disabled)
-  infrastructure/             # small app-wide plugins/helpers — §10 (keep it basic)
+    index.ts                     # re-export routerFactory
+    router.ts                    # routerFactory(entityRoutes)
+    routes.ts                    # static routes (home, account/auth, error pages)
+  views/                         # page-level views (HomeView, NotFound, Forbidden, Unauthorized, AccountView, …)
+  components/                    # shared UI shell — see App shell
+    entity-navigation/           #   Dashboard / NavBar / NavSearch (built from $configs) + useNavigation()
+      index.ts  functions.ts
+    input/        index.ts       #   shared form inputs (DescriptionInput, FormButtonsRow, …)
+    layout/                      #   TheHeader / TheFooter / Main / AppModal / LangSelector / Offline
+    users/                       #   account + auth UI (omit when auth is disabled)
+  infrastructure/                # small app-wide plugins/helpers — see App shell (keep it basic)
+    permissions.ts               #   permission constants
+    user-plugin.ts               #   $isAdmin + persists chosen language
   entities/
-    index.ts                  # aggregates every entity plugin + collects routes
-    <name>/                   # one slice per entity — ALWAYS the same folder set:
-      config/                 #   config.ts (IConfig)
-      data/                   #   Entity.ts, EntityService.ts, store.ts
-      details/                #   Details.vue, Form.vue
-      filter/                 #   Filter.vue, SearchObject.ts
-      overview/               #   Overview.vue (list/search)
-      selecting/              #   Selector.vue — relation picker for THIS entity (entities.patterns.md)
-      index.ts                #   barrel (config, Entity, service, Selector, plugin)
-      setup.ts                #   install plugin: addServices + addIcons + $configs (+ routes)
+    index.ts                     # aggregates every entity plugin + collects routes — see Add entities
+    products/                    # full slice — anatomy below, code in entities.examples.md
+    categories/                  # lookup slice — same folders, thinner files
+    <name>/                      # one slice per entity — same folder set for all (anatomy below)
 ```
 
-> A lookup entity with no list UI keeps the same folders; its `setup.ts` registers only the
-> service/icon/config and its views stay minimal.
+## Entity slice anatomy
 
-> **Concrete version.** This tree is abstract; the copy-pasteable app-shell scaffold (tooling, router
-> split, `components/` + `infrastructure/`, navigation wiring, views) is in
-> [entities.template.md](entities.template.md), modeled on the public sample app
-> [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin).
+Each entity is a self-contained vertical slice — the **same folder set for every entity** (a lookup keeps
+every folder, just with thinner files). Create `src/entities/<name>/`:
 
-## 3. Runtime config — `public/config.json`
+```
+src/entities/<name>/             # one entity slice — copy this folder set for every entity
+    config/
+        config.ts (c)            # IConfig object (api URLs, key, paging)
+    data/
+        Entity.ts (c)            # model class — extends EntityBase (fields + $id/$title)
+        EntityService.ts         # extends EntityServiceBase<Entity> { toEntity } + custom endpoints
+        store.ts                 # Pinia store — createStore(get(Entity.name)!, Entity.name)
+    details/
+        Details.vue              # useDetails — loads item by :id, hosts Fiche/Form
+        Form.vue (c)             # useForm — create / edit form
+        FormModalButton.vue      # opens the Form in a modal
+    filter/
+        Filter.vue               # useFilter — filter shell (inline + advanced modal)
+        FilterAdv.vue (c)        # advanced search form
+        FilterInline.vue         # inline keyword search bar
+        SearchObject.ts (c)      # extends SearchObjectBase — filter / query model
+    overview/
+        List.vue (c)             # results table (header + rows)
+        ListItem.vue (c)         # one result row
+        Overview.vue             # useSearchView + useRouteOverview (useListView for simple entities)
+    selecting/
+        Autocomplete.vue         # type-ahead search input
+        InputSelector.vue        # single-item picker
+        Selector.vue             # multi-item picker (chips) — relation picker for this entity
+        SelectorDropdown.vue     # simple <select> from cache
+        SelectorList.vue (c)     # selectable results list
+        SelectorModalButton.vue  # opens the search / select modal
+        SelectorSearch.vue       # search UI inside the selector modal
+    index.ts                     # barrel: re-exports (config, Entity, service, Selector, plugin)
+    setup.ts                     # createRoutes() + addServices() + addIcons() + default install plugin
+```
+
+> `(c)` marks the files you customize per entity; the rest is near-identical boilerplate you copy as-is
+> (full slice code in [entities.examples.md](entities.examples.md)). The build order for these files is the
+> [Entity Implementation Workflow](entities.instructions.md#entity-implementation-workflow). Everything
+> **around** the slice — the `src/entities/` aggregator ([Add entities](#add-entities)), `components/` and
+> `infrastructure/` ([App shell](#app-shell--components-infrastructure--styling)), the [Router](#router),
+> and [Runtime config](#runtime-config--publicconfigjson) — is the project template.
+
+## Runtime config — `public/config.json`
 
 ```json
 { "api": "https://localhost:5001", "culture": "en-US", "clientApp": "my-app", "loginUrl": "https://accounts.example.com/login" }
@@ -146,10 +270,53 @@ export default appConfig
 ```
 
 `main.ts` then does `fetch(\`${appConfig.baseUrl}/config.json\`)` → `createConfig(raw)` →
-`initAxios({ api, includeCredentials })` before installing plugins. The minimal flat `config.json` in §5
+`initAxios({ api, includeCredentials })` before installing plugins. The minimal flat `config.json` above
 still works; `app-config.ts` just adds env-selection and a typed accessor.
 
-## 4. Router — `src/router.ts`
+### Navigation map
+
+Beyond `api`/`title`/`clientApp`, the shell-specific part is the **`navigation`** map that
+`useNavigation()` ([App shell](#app-shell--components-infrastructure--styling)) turns into the dashboard
+and navbar:
+
+```jsonc
+{
+  "clientApp": "shopping-manager",
+  "loginUrl": "https://accounts.example.com/auth/?clientApp={clientApp}",
+  "api": { "development": "https://localhost:7001", "production": "/api" },
+  "includeCredentials": false,
+  "title": { "en": "ShoppingManager", "nl": "ShoppingManager" },
+  "navigation": {
+    "groups": [
+      { "id": "Catalog",   "title": "catalog",   "icon": "catalog" },
+      { "id": "Inventory", "title": "inventory", "icon": "inventory" }
+    ],
+    "dashboard": [
+      ["Catalog",   ["Product", "Category"]],
+      ["Inventory", ["Supplier"]]
+    ],
+    "navbar": ["Product", ["Catalog", ["Category"]]],
+    "search": "Product"
+  }
+}
+```
+
+- `groups` — menu sections (each `id` is referenced by `dashboard`/`navbar`).
+- `dashboard` — `Array<[groupId, entityKeys]>` for the home grid (`importDashboard`).
+- `navbar` — `Array<entityKey | [groupId, entityKeys]>` for the top bar; a tuple becomes a submenu
+  (`importNavbar`).
+- `search` — the entity `key` whose Autocomplete powers the global search bar (read by
+  `useNavigation().searchItemConfig`); omit it if there is no global search.
+
+Entity keys are the `IConfig.key` each slice sets. The shapes are confirmed in
+[entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map).
+
+## Router
+
+Split the static (app-owned) routes from the entity routes the slices push at startup. The minimal form is
+a single `routerFactory`; the full template splits it across `src/router/`.
+
+**Minimal:**
 
 ```ts
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
@@ -164,9 +331,67 @@ export function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
 }
 ```
 
-## 5. Bootstrap — `src/main.ts`
+**Full template — `src/router/`** (static routes split out, account/auth + error pages):
 
-Fetch config first, create the shared axios, then install plugins in this order:
+```ts
+// src/router/index.ts
+export { default, default as routerFactory } from "./router"
+```
+
+```ts
+// src/router/router.ts
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
+import staticRoutes from "./routes"
+
+export default function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
+  return createRouter({
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes: [...staticRoutes, ...entityRoutes],
+    linkActiveClass: "active",
+  })
+}
+```
+
+```ts
+// src/router/routes.ts — home, account/auth, and the error pages
+import type { RouteRecordRaw } from "vue-router"
+import HomeView from "@/views/HomeView.vue"
+import AccountView from "@/views/AccountView.vue"
+import AccountHome from "@/components/users/Home.vue"
+import Login from "@/views/Login.vue"
+import NotFound from "@/views/NotFound.vue"
+import Forbidden from "@/views/Forbidden.vue"
+import Unauthorized from "@/views/Unauthorized.vue"
+
+const routes: Array<RouteRecordRaw> = [
+  { path: "/", name: "home", component: HomeView },
+  {
+    path: "/account",
+    name: "account",
+    component: AccountView,
+    redirect: { name: "accountHome" },
+    children: [
+      { path: "", name: "accountHome", component: AccountHome },
+      { path: "login", name: "login", component: Login, props: (to) => ({ username: to.query?.username }), meta: { allowAnonymous: true } },
+    ],
+  },
+  { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
+  { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
+  { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
+  { path: "/:pathMatch(.*)*", name: "catchAll", redirect: (from) => ({ name: "notFound", query: { url: from.fullPath } }), meta: { allowAnonymous: true } },
+]
+
+export default routes
+```
+
+> `meta: { allowAnonymous: true }` opts a route out of the auth guard. Anything **without** it is treated
+> as protected (the auth store reports it "required"), which is what gates the `LoginModal` in
+> [Root component](#root-component--appvue).
+
+## Bootstrap — main.ts
+
+Fetch config first, create the shared axios, then install plugins in this order. This is the **canonical**
+`main.ts` — the full plugin-install order; do not duplicate it elsewhere.
 
 ```ts
 import { createApp } from "vue"
@@ -237,14 +462,35 @@ fetch("/config.json").then((r) => r.json()).then(async (config) => {
 })
 ```
 
-> **Install order matters:** `servicesPlugin` (axios + `PoolCache`) before any entity plugin; the
-> **router before `authPlugin`** (the auth plugin reads `$router` for its route guard); entity plugins
-> before `routerFactory` (so their routes are collected). See
-> [entities.instructions.md](entities.instructions.md#app-startup-wiring-order).
+> **Install order matters:** the `$services` / `$configs` / `$icons` globals must exist before any entity
+> plugin installs, so install Pinia, `appPlugin`, `servicesPlugin` (axios + `PoolCache`) and `iconPlugin`
+> **first**; then the entity plugins **before** `routerFactory` (so their routes are collected); and the
+> **router before `authPlugin`** (the auth plugin reads `$router` for its route guard).
 
-## 6. Root component — `src/App.vue`
+### Full-shell additions
 
-`$feedback`, `$appStatus`, `$auth`, and `$t` are globals from the plugins above:
+The full app shell adds three things on top of that canonical file, right after the UI plugins (and the
+last one after `authPlugin`):
+
+```ts
+// 1. register the common form inputs globally so every Form.vue can use them without importing
+import DescriptionInput from "@/components/input/DescriptionInput.vue"
+app.component("DescriptionInput", DescriptionInput)
+// (the library's FormSection / DateInput / NullableCheckBox / FormLabel are registered the same way)
+
+// 2. seed icons from a JSON map (group icons referenced by config.json → navigation.groups[].icon)
+const appIcons = await fetch(`${appConfig.baseUrl}/data/app-icons.json`).then((r) => r.json())
+app.use(iconPlugin, { icons: appIcons, source: "bs", clearFirst: false })
+
+// 3. app-wide glue (after authPlugin, since it reads the auth store)
+import { plugin as userPlugin } from "@/infrastructure/user-plugin"
+app.use(userPlugin)
+```
+
+## Root component — App.vue
+
+`$feedback`, `$appStatus`, `$auth`, and `$t` are globals from the plugins above. This is the **canonical**
+(minimal) root shell:
 
 ```vue
 <script setup lang="ts">
@@ -270,6 +516,58 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 </template>
 ```
 
+### Variant — full-chrome App.vue
+
+The full template wraps the same gates in Header / Main / Footer chrome and teleports the login modal to
+`#loginModal`. Use this **instead of** the minimal version above (it is a variant, not a second canonical):
+
+```vue
+<script setup lang="ts">
+import { computed } from "vue"
+import { Feedback, LoadingContainer } from "@/regira_modules/vue/ui"
+import { LoginModal, LoginForm, useAuthStore } from "@/regira_modules/vue/auth"
+import { AppStatus } from "@/regira_modules/vue/app"
+import TheHeader from "@/components/layout/TheHeader.vue"
+import TheFooter from "@/components/layout/TheFooter.vue"
+import Main from "@/components/layout/Main.vue"
+
+const authStore = useAuthStore()
+const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
+</script>
+
+<template>
+  <div class="page">
+    <header class="container-fluid bg-light"><TheHeader /></header>
+
+    <section class="container-fluid position-relative overflow-hidden">
+      <Feedback :feedback="$feedback" :enable-error-popup="true" />
+    </section>
+
+    <main class="container-fluid">
+      <LoadingContainer :is-loading="$appStatus !== AppStatus.Ready && (!$auth.enabled || $auth.isAuthenticated)">
+        <Main />
+      </LoadingContainer>
+    </main>
+
+    <footer class="container-fluid bg-light"><TheFooter /></footer>
+
+    <Teleport to="#loginModal">
+      <LoginModal :is-visible="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
+    </Teleport>
+  </div>
+</template>
+```
+
+`Main.vue` is just the router outlet — keeping it a named layout slot leaves room for a sidebar later:
+
+```vue
+<!-- src/components/layout/Main.vue -->
+<script setup lang="ts">
+import { RouterView } from "vue-router"
+</script>
+<template><RouterView /></template>
+```
+
 ### Typing app globals — `src/shims.d.ts`
 
 The library declares its own globals on `@vue/runtime-core` (`$services`, `$icons`, `$appStatus`/
@@ -290,10 +588,21 @@ declare module "@vue/runtime-core" {
 export {}
 ```
 
-## 7. Plugins — required vs optional
+The full template adds the `user-plugin` global to the same file:
+
+```ts
+// src/shims.d.ts (in addition to the $configs declaration above)
+declare module "@vue/runtime-core" {
+  interface ComponentCustomProperties {
+    $isAdmin: boolean   // provided by infrastructure/user-plugin.ts — see App shell
+  }
+}
+```
+
+## Plugins — required vs optional
 
 The entities layer needs only a few globals; install the rest as you actually use them. Install order
-still matters where dependencies exist (see the [wiring order](entities.instructions.md#app-startup-wiring-order)).
+still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--maints)).
 
 | Plugin | Provides | Status for the entities layer |
 |--------|----------|-------------------------------|
@@ -309,17 +618,18 @@ still matters where dependencies exist (see the [wiring order](entities.instruct
 | `langPlugin` (`vue/lang`) | `$t` i18n | Optional — only if you render translated labels |
 | directives (`focus`, `grow`, `clickOutside`) | template directives | Optional — only where used |
 | `preloaderPlugin` (`vue/entities`) | route preloading | Optional |
-| `authPlugin` (`vue/auth`) | bearer auth + `$auth` | **Optional** — see §8 |
+| `authPlugin` (`vue/auth`) | bearer auth + `$auth` | **Optional** — see [Running without authentication](#running-without-authentication) |
 
 > **Icon fonts aren't bundled.** `iconPlugin({ source: "bs" })` only emits Bootstrap-Icons class names
 > (`bi bi-*`); install the `bootstrap-icons` npm package and import its CSS in `main.ts`
 > (`import "bootstrap-icons/font/bootstrap-icons.css"`) or every icon renders blank. (`source: "fa"` →
 > Font Awesome the same way.)
 
-## 8. Running without authentication
+## Running without authentication
 
-Auth is **optional**. The template in §5/§6 is the auth-on path; to run the SPA without a login
-(internal tools, demos, or while the back-end has auth disabled), make three changes:
+Auth is **optional**. The template in [Bootstrap](#bootstrap--maints) / [Root component](#root-component--appvue)
+is the auth-on path; to run the SPA without a login (internal tools, demos, or while the back-end has auth
+disabled), make three changes:
 
 1. **`main.ts` — don't install `authPlugin`.** Remove its import, its `app.use(authPlugin, …)` block,
    and the `LocalStorageTokenManager` import. Nothing else depends on it.
@@ -357,38 +667,171 @@ Auth is **optional**. The template in §5/§6 is the auth-on path; to run the SP
 > `meta: { allowAnonymous: true }`. In this mode advance to `Ready` from `onAuthenticationChange` (it
 > fires once at startup). For a pure no-auth app, removing the plugin (above) is simpler.
 
-## 9. Add entities
+> Skip `infrastructure/user-plugin.ts` and the `components/users/` folder entirely for a no-auth app.
+
+## App shell — components, infrastructure & styling
+
+Beyond entity slices, keep a small, consistent shell (mirrors the sample apps). The components read from
+the collected `$configs` and the runtime config; data/logic stays in the entity slices and composables.
+
+### Add entities
 
 Create `src/entities/<name>/` slices — each with the full folder set (`config/ data/ details/ filter/
-overview/ selecting/` + `index.ts` + `setup.ts`, see §2) — and an `src/entities/index.ts` aggregator that
-installs them and collects routes. Full code in [entities.examples.md](entities.examples.md); the relation
-picker (`selecting/`) is in [entities.patterns.md](entities.patterns.md#entity-selector-relation-picker--selecting);
+overview/ selecting/` + `index.ts` + `setup.ts`, see [Entity slice anatomy](#entity-slice-anatomy)) — and
+an `src/entities/index.ts` aggregator that installs them and collects routes. It resets `$configs` and
+lets each `setup.ts` push its routes into the shared array:
+
+```ts
+import type { App } from "vue"
+import type { RouteRecordRaw } from "vue-router"
+import { plugin as productPlugin } from "./products"
+import { plugin as categoryPlugin } from "./categories"
+
+// order matters where one entity's selecting/Selector.vue is used inside another's form
+export const plugins = [categoryPlugin, productPlugin]
+
+export default {
+  install(app: App<Element>, { routes }: { routes: Array<RouteRecordRaw> }) {
+    app.config.globalProperties.$configs = {}
+    plugins.forEach((plugin) => app.use(plugin as any, { routes }))
+  },
+}
+```
+
+Full slice code is in [entities.examples.md](entities.examples.md); the relation picker (`selecting/`) is
+in [entities.patterns.md — Entity selector / relation picker](entities.patterns.md#entity-selector-relation-picker--selecting);
 step list in the [checklist](../docs/checklist.md).
-
-## 10. App shell — components, infrastructure & styling
-
-Beyond entity slices, keep a small, consistent shell (mirrors the sample apps). The tables below describe
-the pieces; for the concrete files (`useNavigation()`, the layout components, `permissions.ts`,
-`user-plugin.ts`, the views) see [entities.template.md](entities.template.md).
 
 ### `src/components/`
 
 | Folder | Holds | Notes |
 |--------|-------|-------|
-| `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
+| `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()` | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
 | `input/` | shared form inputs (`DescriptionInput`, `FormButtonsRow`, …) | register the common ones globally in `main.ts` (`app.component(...)`) so every Form can use them |
-| `layout/` | `TheHeader`, `TheFooter`, `Main`, a modal wrapper, `LangSelector` | the chrome around `<RouterView>` |
+| `layout/` | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>` |
 | `users/` | account + auth UI (login, change password, admin list) | **omit when auth is disabled** |
 
 Give each folder an `index.ts` barrel; keep the components thin and presentational — data/logic stays in
 the entity slices and composables.
 
+The one piece worth showing in full is **`useNavigation()`** — it reads `config.json → navigation` and the
+collected `$configs`, then builds the dashboard/navbar trees with the library importers:
+
+```ts
+// src/components/entity-navigation/functions.ts
+import { computed, getCurrentInstance } from "vue"
+import { type IConfig, importDashboard, importNavbar, buildNavigationTree } from "@/regira_modules/vue/entities"
+import { useConfig } from "@/app-config"
+
+export function useNavigation() {
+  const app = getCurrentInstance()!
+  const { navigation: { groups, dashboard, navbar, search } } = useConfig()
+
+  const configs = Object.values(app.appContext.config.globalProperties.$configs) as Array<IConfig>
+  const hasAccess = (_config: IConfig) => true   // gate by permissions here if needed
+
+  const dashboardTree = computed(() => buildNavigationTree(importDashboard({ groups, entities: dashboard, configs, hasAccess })))
+  const navbarTree = computed(() => buildNavigationTree(importNavbar({ groups, entities: navbar, configs, hasAccess })))
+  const searchItemConfig = computed(() => configs.find((c) => c.key === search))
+
+  return { dashboardTree, navbarTree, searchItemConfig }
+}
+```
+
+```ts
+// src/components/entity-navigation/index.ts
+export * from "./functions"
+export { default as Dashboard } from "./dashboard/Dashboard.vue"
+export { default as NavBar } from "./navbar/NavBar.vue"
+export { default as NavSearch } from "./nav-search/NavSearch.vue"
+```
+
+`buildNavigationTree` returns a `TreeList<INavCore>`; render it via its `.roots` (each node has
+`children`). `Dashboard.vue` / `NavBar.vue` are thin wrappers that `v-for` over `tree.roots`.
+
+```ts
+// src/components/input/index.ts
+export { default as DescriptionInput } from "./DescriptionInput.vue"
+export { default as FormButtonsRow } from "./FormButtonsRow.vue"
+```
+
 ### `src/infrastructure/` (keep it basic)
 
-App-wide glue only:
-- `permissions.ts` — a permissions `enum` / constants.
-- a small `*-plugin.ts` — e.g. exposes `$isAdmin` from the auth store and persists the chosen language.
-  Skip it for a no-auth app.
+App-wide glue only — a permission enum and a small plugin that exposes `$isAdmin` from the auth store and
+persists the chosen language. Skip both for a no-auth app.
+
+```ts
+// src/infrastructure/permissions.ts — erasableSyntaxOnly-safe const map (not an enum)
+export const Permissions = { CAN_READ: "can_read", CAN_WRITE: "can_write", ADMIN: "admin" } as const
+export type Permission = (typeof Permissions)[keyof typeof Permissions]
+export default Permissions
+```
+
+```ts
+// src/infrastructure/user-plugin.ts
+import { type App, watch } from "vue"
+import { useAuthStore } from "@/regira_modules/vue/auth"
+import { useLang } from "@/regira_modules/vue/lang"
+import Permissions from "@/infrastructure/permissions"
+
+export const plugin = {
+  install(app: App) {
+    const authStore = useAuthStore()
+    Object.defineProperty(app.config.globalProperties, "$isAdmin", {
+      get: () => authStore.authData.hasPermission(Permissions.ADMIN),
+      enumerable: true,
+      configurable: true,
+    })
+
+    // persist the language choice across reloads
+    const { langCode, setLangCode } = useLang()
+    const last = localStorage.getItem("lang")
+    if (!authStore.isAuthenticated && last && last !== langCode.value) setLangCode(last.substring(0, 2))
+    watch(langCode, (code) => localStorage.setItem("lang", code))
+  },
+}
+
+export default plugin
+```
+
+> Skip `user-plugin.ts` and the `users/` folder entirely for a **no-auth** app
+> ([Running without authentication](#running-without-authentication)).
+
+### `src/views/`
+
+Page-level components the static routes point at. The home page hosts the dashboard built from
+`useNavigation()`; the error pages are presentational.
+
+```vue
+<!-- src/views/HomeView.vue -->
+<script setup lang="ts">
+import appConfig from "@/app-config"
+import { Dashboard } from "@/components/entity-navigation"
+const { title } = appConfig
+</script>
+<template>
+  <section>
+    <h1 class="text-center">{{ $tm(title) }}</h1>
+    <Dashboard />
+  </section>
+</template>
+```
+
+```vue
+<!-- src/views/NotFound.vue -->
+<script setup lang="ts">
+defineProps<{ url?: string }>()
+</script>
+<template>
+  <section>
+    <h1>404 — page not found</h1>
+    <p>Page <router-link :to="url ?? '/'">{{ url }}</router-link> was not found.</p>
+  </section>
+</template>
+```
+
+`Forbidden.vue` / `Unauthorized.vue` follow the same shape (a heading + the offending `url`). `AccountView`
+is a `<RouterView />` wrapper for the `account/*` children in [Router](#router).
 
 ### Styling — Bootstrap 5
 
@@ -409,7 +852,17 @@ You don't need Bootstrap's JavaScript (the UI components bring their own behavio
 
 ## See also
 
-- [entities.instructions.md](entities.instructions.md) · [entities.examples.md](entities.examples.md)
+- [entities.instructions.md](entities.instructions.md) — the spine (module stack, concepts, workflow,
+  troubleshooting)
+- [entities.namespaces.md](entities.namespaces.md) — import-specifier reference ·
+  [entities.signatures.md](entities.signatures.md) — exact TypeScript signatures
+- [entities.examples.md](entities.examples.md) — one complete basic slice (`Product`) ·
+  [entities.advanced.example.md](entities.advanced.example.md) — one complete complex slice (`Vehicle`)
+- [entities.patterns.md](entities.patterns.md#navigation-from-the-config-map) — per-feature recipes
+  (navigation importers, selectors, trees, …)
+- [checklist.md](../docs/checklist.md) — add an entity, step by step
+- [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin) — the public sample app this template is
+  modeled on
 - Module guides: [http](../../http/ai/http.instructions.md) · [ioc](../../ioc/ai/ioc.instructions.md) ·
   [auth](../../auth/ai/auth.instructions.md) · [ui](../../ui/ai/ui.instructions.md) ·
   [app](../../app/ai/app.instructions.md) · [lang](../../lang/ai/lang.instructions.md)

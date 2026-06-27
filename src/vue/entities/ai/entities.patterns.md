@@ -258,7 +258,7 @@ export class Article extends EntityBase {
 > guessing (an unknown include name returns `400`) — when unsure, `includes: ["All"]` is the safe
 > catch-all that eager-loads every relation. Keep a small `const` map on the client for these
 > instead of the generated numeric type. (Run the generator via `npx openapi-typescript` to avoid TS
-> peer-dep conflicts; see the tsconfig note in [entities.setup.md](entities.setup.md#1-install).)
+> peer-dep conflicts; see the tsconfig note in [entities.setup.md](entities.setup.md#install).)
 
 ## See also
 

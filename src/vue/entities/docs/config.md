@@ -66,4 +66,5 @@ approach documented here). Prefer that path unless you are deliberately adopting
 3. [Config](config.md)
 4. [Views](views.md)
 5. [Built-in features](built-in-features.md)
-6. [Checklist](checklist.md)
+6. [Attachments](attachments.md)
+7. [Checklist](checklist.md)

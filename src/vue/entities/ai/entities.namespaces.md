@@ -83,6 +83,13 @@ re-exported by the barrel above.
 | `regira_modules/vue/ioc` | `ServiceProvider`, `get`, `IServiceProvider`, `plugin` | register/resolve services |
 | `regira_modules/vue/http` | `initAxios`, `useAxios`, `AxiosWithFilesInstance`, `createQueryString` | the shared axios instance + query strings |
 | `regira_modules/vue/auth` | `plugin`, `LocalStorageTokenManager`/`CookieTokenManager`/`MemoryTokenManager`, `useAuthStore`, `useAuth` | bearer-token auth on the shared axios |
+| `regira_modules/vue/vue-helper` | `useVModelField`, `createFromComputedPool`, `useEventListener` | v-model field binding + pool-backed computed helpers (used by the advanced example's form) |
+
+> **Deep specifiers in the advanced example.** The verbatim Vehicle slice
+> ([entities.advanced.example.md](entities.advanced.example.md)) reaches two granular paths:
+> `regira_modules/vue/http/axios` for the `AxiosWithFilesInstance` **type** (also re-exported by the
+> `vue/http` barrel above) and `regira_modules/vue/ui/icons` for `IIconProvider`. Prefer the barrel where
+> a symbol is re-exported; these deep paths are only needed for the few symbols that aren't.
 
 > **Date serialization (not under `vue/`):** `import dateExtensions from "regira_modules/extensions/date-extensions"`
 > then call `dateExtensions.use()` once at startup to serialize `Date`s to JSON without a timezone shift.
