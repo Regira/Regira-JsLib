@@ -27,8 +27,8 @@ import { TreeList, type TreeNode } from "@/regira_modules/treelist"
 
 const tree = new TreeList<TreeItem>()
 function add(item: TreeItem, parentNode?: TreeNode<TreeItem>) {
-    const node = tree.addValue(item, parentNode)          // root when parentNode is omitted
-    item.children?.forEach((child) => add(child, node))    // recurse to nest children
+    const node = tree.addValue(item, parentNode) // root when parentNode is omitted
+    item.children?.forEach((child) => add(child, node)) // recurse to nest children
 }
 roots.forEach((item) => add(item))
 ```
@@ -38,13 +38,13 @@ roots.forEach((item) => add(item))
 All `TreeList` navigation helpers default to the whole tree when called with no argument:
 
 ```ts
-tree.getRoots()                          // distinct root ancestors
-tree.getOffspring(tree.roots)            // every descendant under the roots
-const nodes = tree.getNodes()            // every node; or getNodes(value) to look one up
+tree.getRoots() // distinct root ancestors
+tree.getOffspring(tree.roots) // every descendant under the roots
+const nodes = tree.getNodes() // every node; or getNodes(value) to look one up
 
 // from a single node:
-const ancestors = node.getAncestors()    // its parents-of-parents
-const descendants = node.getOffspring()  // everything below it
+const ancestors = node.getAncestors() // its parents-of-parents
+const descendants = node.getOffspring() // everything below it
 ```
 
 ## Re-parent a node
@@ -53,7 +53,7 @@ const descendants = node.getOffspring()  // everything below it
 requires both arguments to be a `TreeNode<T>`:
 
 ```ts
-tree.move(child, parent)   // child and parent are TreeNode<T>
+tree.move(child, parent) // child and parent are TreeNode<T>
 ```
 
 ## Render nodes in a template
@@ -66,12 +66,12 @@ import type { TreeNode } from "@/regira_modules/treelist"
 defineProps<{ node: TreeNode<INavItem> }>()
 </script>
 <template>
-  <li>
-    {{ node.value.title }}
-    <ul v-if="node.children.length">
-      <NavItem v-for="child in node.children" :key="child.value.id" :node="child" />
-    </ul>
-  </li>
+    <li>
+        {{ node.value.title }}
+        <ul v-if="node.children.length">
+            <NavItem v-for="child in node.children" :key="child.value.id" :node="child" />
+        </ul>
+    </li>
 </template>
 ```
 

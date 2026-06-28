@@ -6,8 +6,13 @@ The contracts and value objects every entity slice builds on. Exact signatures:
 ## Entity contract
 
 ```ts
-interface IEntity { get $id(): number | string; get $title(): string | undefined }
-abstract class EntityBase implements IEntity { /* abstract $id, $title */ }
+interface IEntity {
+    get $id(): number | string
+    get $title(): string | undefined
+}
+abstract class EntityBase implements IEntity {
+    /* abstract $id, $title */
+}
 ```
 
 Every model extends `EntityBase` and implements:
@@ -21,8 +26,12 @@ Every model extends `EntityBase` and implements:
 ## Search objects
 
 ```ts
-interface ISearchObject extends Record<string, any> { q?: string }
-abstract class SearchObjectBase implements ISearchObject { q?: string }
+interface ISearchObject extends Record<string, any> {
+    q?: string
+}
+abstract class SearchObjectBase implements ISearchObject {
+    q?: string
+}
 class DefaultSearchObject extends SearchObjectBase {}
 ```
 
@@ -34,9 +43,16 @@ the request, so use them for client-only values.
 
 ```ts
 const DEFAULT_PAGESIZE = 10
-interface IPagingInfo { pageSize?: number; page?: number }
-class PagingInfo implements IPagingInfo { /* page = 1, pageSize = DEFAULT_PAGESIZE */ }
-interface ISortByInfo { sortBy: string | Array<string> }
+interface IPagingInfo {
+    pageSize?: number
+    page?: number
+}
+class PagingInfo implements IPagingInfo {
+    /* page = 1, pageSize = DEFAULT_PAGESIZE */
+}
+interface ISortByInfo {
+    sortBy: string | Array<string>
+}
 class SortByInfo implements ISortByInfo {}
 ```
 
@@ -49,7 +65,7 @@ The service returns these shapes (the client mirror of the API's wrapped respons
 
 ```ts
 type SearchResult<T> = { items: Array<T>; count: number; duration?: number }
-type SaveResult<T>   = { saved: T; isNew: boolean; affected?: number; duration?: number }
+type SaveResult<T> = { saved: T; isNew: boolean; affected?: number; duration?: number }
 ```
 
 Plus `DetailsResult`, `ListResult`, `SavedResult`, `DeleteResult` — see signatures. **Bind save results

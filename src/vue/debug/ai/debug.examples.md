@@ -11,7 +11,7 @@ component is resolvable. Pass `isDebug` from your loaded config:
 ```ts
 import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
 
-app.use(debugPlugin, { isDebug: config.isDebug })   // isDebug defaults to false
+app.use(debugPlugin, { isDebug: config.isDebug }) // isDebug defaults to false
 ```
 
 This registers `<Debug>` globally and installs the `$isDebug` / `$setDebug` global properties.
@@ -23,10 +23,10 @@ slot for debug-only chrome (it renders nothing unless `$isDebug` is true):
 
 ```vue
 <template>
-  <section>
-    <Feedback :feedback="$feedback" />
-    <Debug />
-  </section>
+    <section>
+        <Feedback :feedback="$feedback" />
+        <Debug />
+    </section>
 </template>
 ```
 
@@ -36,10 +36,10 @@ Pass any object/array as `modelValue`; it is pretty-printed as JSON when debug i
 
 ```vue
 <template>
-  <section>
-    <List :items="items" />
-    <Debug :modelValue="items" />
-  </section>
+    <section>
+        <List :items="items" />
+        <Debug :modelValue="items" />
+    </section>
 </template>
 ```
 
@@ -47,13 +47,13 @@ Combine several things into one object to inspect them together:
 
 ```vue
 <template>
-  <Debug
-    :modelValue="{
-      searchObject,
-      pagingInfo,
-      items,
-    }"
-  />
+    <Debug
+        :modelValue="{
+            searchObject,
+            pagingInfo,
+            items,
+        }"
+    />
 </template>
 ```
 
@@ -71,10 +71,10 @@ Use the `$isDebug` getter to show extra markup, and `$setDebug(false)` to switch
 
 ```vue
 <template>
-  <div v-if="$isDebug" class="debug">
-    <span>{{ $router.currentRoute.value.name }}</span>
-    <IconButton icon="close" @click="$setDebug(false)" />
-  </div>
+    <div v-if="$isDebug" class="debug">
+        <span>{{ $router.currentRoute.value.name }}</span>
+        <IconButton icon="close" @click="$setDebug(false)" />
+    </div>
 </template>
 ```
 

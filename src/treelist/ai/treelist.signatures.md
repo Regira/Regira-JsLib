@@ -11,7 +11,7 @@ import { TreeList, TreeNode, type IFindParents } from "regira_modules/treelist"
 
 ```ts
 export type IFindParents<T = any> = (value: T, candidates: Array<T>) => Array<T>
-type IParentNode<T> = TreeNode<T> | null   // not exported
+type IParentNode<T> = TreeNode<T> | null // not exported
 
 export declare class TreeList<T = any> extends Array<TreeNode<T>> {
     roots: Array<TreeNode<T>>

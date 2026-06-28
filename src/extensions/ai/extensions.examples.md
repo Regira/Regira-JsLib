@@ -11,7 +11,7 @@ value the back-end expects (instead of the native UTC conversion):
 
 ```ts
 import dateSerializer from "@/regira_modules/extensions/date-extensions"
-dateSerializer.use()   // overrides Date.prototype.toJSON
+dateSerializer.use() // overrides Date.prototype.toJSON
 ```
 
 ## Enable all three at once
@@ -21,9 +21,9 @@ new prototype members:
 
 ```ts
 import extensions from "@/regira_modules/extensions"
-extensions.useArrayExtensions()    // Array.prototype gains orderBy/groupBy/sum/…
-extensions.useDateExtensions()     // Date.prototype.toJSON (local time)
-extensions.usePromiseExtensions()  // Promise.debounce / Promise.enqueue
+extensions.useArrayExtensions() // Array.prototype gains orderBy/groupBy/sum/…
+extensions.useDateExtensions() // Date.prototype.toJSON (local time)
+extensions.usePromiseExtensions() // Promise.debounce / Promise.enqueue
 ```
 
 ## Use the array helpers in code
@@ -32,9 +32,9 @@ After `useArrayExtensions()`, `array-utility` helpers are available as instance 
 utility with the array as the first argument (`arr.orderBy(fn)` ≡ `orderBy(arr, fn)`):
 
 ```ts
-const byName = vehicles.orderBy(v => v.name)              // T[]
-const total = invoices.sum(i => i.amount)                 // number
-const groups = interventions.groupBy(i => i.supplierId)   // [K, T[]][]
+const byName = vehicles.orderBy((v) => v.name) // T[]
+const total = invoices.sum((i) => i.amount) // number
+const groups = interventions.groupBy((i) => i.supplierId) // [K, T[]][]
 ```
 
 ## Debounce an async call
@@ -45,7 +45,7 @@ call returns a promise that resolves to the final invoked value. The wrapped fun
 
 ```ts
 const search = Promise.debounce((q) => api.search(q as string), 300)
-await search("blue")   // only the last call within 300ms actually runs
+await search("blue") // only the last call within 300ms actually runs
 ```
 
 ## See also

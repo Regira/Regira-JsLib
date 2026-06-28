@@ -18,12 +18,12 @@ The simple (`UnitType`) and standard (`Product`) slices in [entities.examples.md
 cover the per-entity set (config, model, plain service, search object, form, list, selectors, setup).
 `Vehicle` layers on the things they don't have:
 
-| Delta | Where, in this file | Mechanism |
-|---|---|---|
+| Delta                             | Where, in this file                                                                             | Mechanism                                                                                                                                    |
+| --------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Attachments** (upload/download) | §4 service (`getAttachments`/`addAttachment`, `insert`/`update` overrides), §5 form `files` tab | `EntityService` round-trips files via the app-local `entity-attachments` helpers; service constructed with an `AxiosWithFilesInstance` (§13) |
-| **Many-to-many link model** | §3 `VehicleInterventionType`, §5 form (`itemInterventionTypes` computed) | a join entity with `_deleted` + `create()`; the form flattens links to a selector and rebuilds them on write-back |
-| **Owned child collection** | §6 `vehicle-interventions/Overview.vue` (embedded `interventions` tab) | a child list resolved from the IoC container and (re)loaded on save |
-| **Hierarchical tree** | _not in the Vehicle slice_ — see redirect below | `useTree` / `useDragDrop` — recipe in [entities.patterns.md — Hierarchical (tree) entities](entities.patterns.md) |
+| **Many-to-many link model**       | §3 `VehicleInterventionType`, §5 form (`itemInterventionTypes` computed)                        | a join entity with `_deleted` + `create()`; the form flattens links to a selector and rebuilds them on write-back                            |
+| **Owned child collection**        | §6 `vehicle-interventions/Overview.vue` (embedded `interventions` tab)                          | a child list resolved from the IoC container and (re)loaded on save                                                                          |
+| **Hierarchical tree**             | _not in the Vehicle slice_ — see redirect below                                                 | `useTree` / `useDragDrop` — recipe in [entities.patterns.md — Hierarchical (tree) entities](entities.patterns.md)                            |
 
 > **Fidelity note (CONTRACT §6).** Every code block below is reproduced **verbatim** from the reference
 > app — templates included — so both markup and `<script setup>` wiring are normative. Two scope caveats:
@@ -132,8 +132,8 @@ edited inline rather than flattened to a selector — see `Product`↔`ProductCo
 [entities.examples.md](entities.examples.md).
 
 ```ts
-import type InterventionType from "@/entities/intervention-types/data/Entity";
-import { EntityBase } from "@/regira_modules/vue/entities";
+import type InterventionType from "@/entities/intervention-types/data/Entity"
+import { EntityBase } from "@/regira_modules/vue/entities"
 
 export class VehicleInterventionType extends EntityBase {
     id: number = 0
@@ -141,7 +141,7 @@ export class VehicleInterventionType extends EntityBase {
     vehicleId: number
 
     interventionType: InterventionType
-    
+
     _deleted: boolean = false
 
     override get $id(): string | number {
@@ -174,7 +174,13 @@ The "with attachments" variant of the boilerplate service: it overrides `insert`
 ```ts
 import { type AxiosWithFilesInstance, createQueryString } from "@/regira_modules/vue/http"
 import { EntityServiceBase, type ListResult, type IConfig } from "@/regira_modules/vue/entities"
-import { Entity as EntityAttachment, insertWithAttachments, updateWithAttachments, createEntity, save as saveAttachments } from "../../entity-attachments"
+import {
+    Entity as EntityAttachment,
+    insertWithAttachments,
+    updateWithAttachments,
+    createEntity,
+    save as saveAttachments,
+} from "../../entity-attachments"
 import Entity from "./Entity"
 
 export class EntityService extends EntityServiceBase<Entity> {
@@ -238,12 +244,24 @@ existing ids and toggling `_deleted` — on write-back.
     <form @submit.prevent="handleSubmit" :modelValue="item">
         <div class="row form-buttons">
             <div class="col col-md-auto order-1">
-                <FormButtonsRow :item="item" :readonly="readonly" :feedback="feedback" :show-delete="item?.id > 0"
-                    @cancel="handleCancel" @remove="handleRemove" @restore="handleRestore" />
+                <FormButtonsRow
+                    :item="item"
+                    :readonly="readonly"
+                    :feedback="feedback"
+                    :show-delete="item?.id > 0"
+                    @cancel="handleCancel"
+                    @remove="handleRemove"
+                    @restore="handleRestore"
+                />
             </div>
             <div class="col-auto order-2 order-md-3">
-                <RouterLink v-if="isPopup" :to="{ name: `${Entity.name}Details`, params: { id: item.$id } }"
-                    class="btn btn-default py-1" target="_blank" :title="$t('popOut')">
+                <RouterLink
+                    v-if="isPopup"
+                    :to="{ name: `${Entity.name}Details`, params: { id: item.$id } }"
+                    class="btn btn-default py-1"
+                    target="_blank"
+                    :title="$t('popOut')"
+                >
                     <Icon name="popOut" />
                 </RouterLink>
                 <RouterLink v-else-if="overviewUrl" :to="overviewUrl" class="btn btn-info py-1">
@@ -266,22 +284,34 @@ existing ids and toggling `_deleted` — on write-back.
                                         <div class="input-group-text">
                                             <Icon name="code" />
                                         </div>
-                                        <input v-model="item.code" required :readonly="readonly"
-                                            :placeholder="$t('vehicleCodePlaceholder')" class="form-control" />
+                                        <input
+                                            v-model="item.code"
+                                            required
+                                            :readonly="readonly"
+                                            :placeholder="$t('vehicleCodePlaceholder')"
+                                            class="form-control"
+                                        />
                                     </div>
                                     <FormLabel :label="$t('code')" />
                                 </div>
                                 <div class="col-md mb-2">
-                                    <VehicleTypeSelector v-model="item.vehicleType"
-                                        v-model:idValue="item.vehicleTypeId as number" :readonly="readonly"
-                                        :placeholder="$t('selectType')" />
+                                    <VehicleTypeSelector
+                                        v-model="item.vehicleType"
+                                        v-model:idValue="item.vehicleTypeId as number"
+                                        :readonly="readonly"
+                                        :placeholder="$t('selectType')"
+                                    />
                                     <FormLabel :label="$t('type')" />
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md mb-2">
-                                    <BrandSelector v-model="item.brand" v-model:idValue="item.brandId as number"
-                                        :readonly="readonly" :placeholder="$t('selectBrand')" />
+                                    <BrandSelector
+                                        v-model="item.brand"
+                                        v-model:idValue="item.brandId as number"
+                                        :readonly="readonly"
+                                        :placeholder="$t('selectBrand')"
+                                    />
                                     <FormLabel :label="$t('brand')" />
                                 </div>
                                 <div class="col-md mb-2">
@@ -289,8 +319,7 @@ existing ids and toggling `_deleted` — on write-back.
                                         <div class="input-group-text">
                                             <Icon name="title" />
                                         </div>
-                                        <input v-model="item.model" :readonly="readonly" class="form-control"
-                                            :placeholder="$t('modelPlaceholder')" />
+                                        <input v-model="item.model" :readonly="readonly" class="form-control" :placeholder="$t('modelPlaceholder')" />
                                     </div>
                                     <FormLabel :label="$t('model')" />
                                 </div>
@@ -302,9 +331,12 @@ existing ids and toggling `_deleted` — on write-back.
                         <FormSection :title="$t('interventionType')">
                             <div class="row">
                                 <div class="col mb-2">
-                                    <InterventionTypeSelector v-model="itemInterventionTypes"
+                                    <InterventionTypeSelector
+                                        v-model="itemInterventionTypes"
                                         :filter-defaults="{ exclude: itemInterventionTypes?.map((x) => x.id) }"
-                                        :readonly="readonly" :placeholder="$t('selectType')" />
+                                        :readonly="readonly"
+                                        :placeholder="$t('selectType')"
+                                    />
                                     <FormLabel :label="$t('allowedInterventionTypes')" />
                                 </div>
                             </div>
@@ -322,11 +354,13 @@ existing ids and toggling `_deleted` — on write-back.
             </div>
         </div>
 
-        <Debug :modelValue="{
-            ...item,
-            brand: item.brand ? `${item.brand.title} #${item.brand.id}` : undefined,
-            vehicleType: item.vehicleType ? `${item.vehicleType.title} #${item.vehicleType.id}` : undefined,
-        }" />
+        <Debug
+            :modelValue="{
+                ...item,
+                brand: item.brand ? `${item.brand.title} #${item.brand.id}` : undefined,
+                vehicleType: item.vehicleType ? `${item.vehicleType.title} #${item.vehicleType.id}` : undefined,
+            }"
+        />
     </form>
 </template>
 
@@ -350,7 +384,7 @@ import Interventions from "../vehicle-interventions/Overview.vue"
 import { VehicleInterventionType } from "../data/VehicleInterventionType"
 import InterventionType from "@/entities/intervention-types/data/Entity"
 
-interface Emits extends /* @vue-ignore */ FormEmits<Entity> { }
+interface Emits extends /* @vue-ignore */ FormEmits<Entity> {}
 const emit = defineEmits<Emits>()
 const props = withDefaults(
     defineProps<{
@@ -372,11 +406,16 @@ const itemInterventionTypes = computed({
     set: (values: any[]) => {
         item.value = entityService.toEntity({
             ...item.value,
-            interventionTypes: values.map((x) => VehicleInterventionType.create({
-                ...(item.value?.interventionTypes?.find((it) => it.interventionTypeId === x.id)
-                    || { interventionType: x, interventionTypeId: x.id, vehicleId: item.value?.id }),
-                _deleted: x._deleted
-            })),
+            interventionTypes: values.map((x) =>
+                VehicleInterventionType.create({
+                    ...(item.value?.interventionTypes?.find((it) => it.interventionTypeId === x.id) || {
+                        interventionType: x,
+                        interventionTypeId: x.id,
+                        vehicleId: item.value?.id,
+                    }),
+                    _deleted: x._deleted,
+                })
+            ),
         })
     },
 })
@@ -409,7 +448,13 @@ resolves the `interventions` service from the IoC container, loads on mount (and
         <template #title>
             <div class="d-flex justify-content-between">
                 <h3 class="p-2 mb-2">{{ $t("interventions") }}</h3>
-                <InterventionButton v-if="!readonly" :item-defaults="{ vehicle: owner, vehicleId: owner?.id }" class="btn btn-info py-1 my-1" @save="load"><Icon name="new" /></InterventionButton>
+                <InterventionButton
+                    v-if="!readonly"
+                    :item-defaults="{ vehicle: owner, vehicleId: owner?.id }"
+                    class="btn btn-info py-1 my-1"
+                    @save="load"
+                    ><Icon name="new"
+                /></InterventionButton>
             </div>
         </template>
         <LoadingContainer :is-loading="isLoading">
@@ -511,7 +556,12 @@ onMounted(load)
             </div>
             <!-- VehicleType -->
             <div class="col-md mb-2">
-                <VehicleTypeSelector v-model="vehicleType" v-model:idValue="searchObject.vehicleTypeId as number" placeholder="vehicle type" @select="handleUpdate">
+                <VehicleTypeSelector
+                    v-model="vehicleType"
+                    v-model:idValue="searchObject.vehicleTypeId as number"
+                    placeholder="vehicle type"
+                    @select="handleUpdate"
+                >
                     <template #prepend>
                         <div class="input-group-text"><Icon :name="VehicleType.name" /></div>
                     </template>
@@ -870,14 +920,14 @@ These files are **byte-identical** to the slices in [entities.examples.md](entit
 picker components and the details/filter shells that carry no Vehicle-specific markup (shown in full under
 the simple `UnitType` slice there). Copy them and only change the slice folder they live in:
 
-| File | Source |
-|---|---|
-| `details/Details.vue` (the `<router-view>` host shell) | identical — see [entities.examples.md](entities.examples.md) |
-| `details/FormModalButton.vue` | identical — see [entities.examples.md](entities.examples.md) |
-| `filter/Filter.vue` · `filter/FilterInline.vue` | identical — see [entities.examples.md](entities.examples.md) |
-| `overview/Overview.vue` | identical — see [entities.examples.md](entities.examples.md) |
-| `selecting/Autocomplete.vue` · `InputSelector.vue` · `Selector.vue` · `SelectorDropdown.vue` · `SelectorSearch.vue` · `SelectorModalButton.vue` | identical — see [entities.examples.md](entities.examples.md) |
-| `data/store.ts` | identical — see [entities.examples.md](entities.examples.md) (the resolved `EntityService` differs, wired in §13) |
+| File                                                                                                                                            | Source                                                                                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `details/Details.vue` (the `<router-view>` host shell)                                                                                          | identical — see [entities.examples.md](entities.examples.md)                                                      |
+| `details/FormModalButton.vue`                                                                                                                   | identical — see [entities.examples.md](entities.examples.md)                                                      |
+| `filter/Filter.vue` · `filter/FilterInline.vue`                                                                                                 | identical — see [entities.examples.md](entities.examples.md)                                                      |
+| `overview/Overview.vue`                                                                                                                         | identical — see [entities.examples.md](entities.examples.md)                                                      |
+| `selecting/Autocomplete.vue` · `InputSelector.vue` · `Selector.vue` · `SelectorDropdown.vue` · `SelectorSearch.vue` · `SelectorModalButton.vue` | identical — see [entities.examples.md](entities.examples.md)                                                      |
+| `data/store.ts`                                                                                                                                 | identical — see [entities.examples.md](entities.examples.md) (the resolved `EntityService` differs, wired in §13) |
 
 > Only the **Vehicle-specific** picker (`selecting/SelectorList.vue`, §11) and overview list
 > (`overview/List.vue`, §9 / `overview/ListItem.vue`, §10) carry entity-specific columns — those are

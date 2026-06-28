@@ -6,12 +6,12 @@ to touch globals. The array and promise helpers wrap [`regira_modules/utilities`
 
 ## What it provides
 
-| Export | Purpose |
-|--------|---------|
-| `default` (`useArrayExtensions`, `useDateExtensions`, `usePromiseExtensions`) | Convenience enablers for the three prototype extensions. |
-| `arrayExtensions` | `use(overwrite?)` / `injectInto(target, overwrite?)` — adds `array-utility` helpers (`orderBy`, `groupBy`, `distinct`, `sum`, …) onto `Array.prototype`. |
-| `dateExtensions` | `use()` — overrides `Date.prototype.toJSON` with `stringifyDate` (local time, no UTC correction). |
-| `promiseExtensions` | `use()` — adds static `Promise.debounce(func, wait?)` and `Promise.enqueue(arr)`. |
+| Export                                                                        | Purpose                                                                                                                                                  |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default` (`useArrayExtensions`, `useDateExtensions`, `usePromiseExtensions`) | Convenience enablers for the three prototype extensions.                                                                                                 |
+| `arrayExtensions`                                                             | `use(overwrite?)` / `injectInto(target, overwrite?)` — adds `array-utility` helpers (`orderBy`, `groupBy`, `distinct`, `sum`, …) onto `Array.prototype`. |
+| `dateExtensions`                                                              | `use()` — overrides `Date.prototype.toJSON` with `stringifyDate` (local time, no UTC correction).                                                        |
+| `promiseExtensions`                                                           | `use()` — adds static `Promise.debounce(func, wait?)` and `Promise.enqueue(arr)`.                                                                        |
 
 ## How it fits
 

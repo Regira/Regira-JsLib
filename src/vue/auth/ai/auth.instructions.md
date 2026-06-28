@@ -11,9 +11,18 @@ a permission-aware route guard, and login UI. Install it **after** the IoC/http 
 
 ```ts
 import {
-  plugin as authPlugin, useAuthStore, useAuth,
-  LocalStorageTokenManager, CookieTokenManager, MemoryTokenManager,
-  AuthService, LoginModal, LogoutForm, ForgotPasswordModal, useLoginForm, useForgotPasswordForm,
+    plugin as authPlugin,
+    useAuthStore,
+    useAuth,
+    LocalStorageTokenManager,
+    CookieTokenManager,
+    MemoryTokenManager,
+    AuthService,
+    LoginModal,
+    LogoutForm,
+    ForgotPasswordModal,
+    useLoginForm,
+    useForgotPasswordForm,
 } from "regira_modules/vue/auth"
 ```
 
@@ -23,12 +32,12 @@ Install once at startup, passing the **same axios instance** from `initAxios` an
 
 ```ts
 app.use(authPlugin, {
-    axios,                                   // the shared instance (initAxios)
+    axios, // the shared instance (initAxios)
     tokenManager: new LocalStorageTokenManager(),
     clientApp: appConfig.clientApp,
-    loginUrl: appConfig.loginUrl,            // optional; defaults to the "auth" endpoint
-    enableRouteGuard: true,                  // default true
-    enabled: true,                           // default true; pass false to disable auth entirely
+    loginUrl: appConfig.loginUrl, // optional; defaults to the "auth" endpoint
+    enableRouteGuard: true, // default true
+    enabled: true, // default true; pass false to disable auth entirely
     onAuthenticationChange: (authData) => {},
 })
 ```
@@ -42,11 +51,11 @@ token, installs the route guard, and adds the **401 auto-logout response interce
 A token manager (`ITokenManager`: `get/set token`) decides where the JWT lives. Three implementations,
 all keyed by `prefix + "auth:token"`:
 
-| Manager | Storage |
-|---------|---------|
+| Manager                             | Storage                                        |
+| ----------------------------------- | ---------------------------------------------- |
 | `LocalStorageTokenManager(prefix?)` | `localStorage` (persists across tabs/restarts) |
-| `CookieTokenManager(prefix?)` | a cookie (`path=/`) |
-| `MemoryTokenManager(token?)` | in-memory (cleared on reload) |
+| `CookieTokenManager(prefix?)`       | a cookie (`path=/`)                            |
+| `MemoryTokenManager(token?)`        | in-memory (cleared on reload)                  |
 
 The bearer interceptor reads `tokenManager.token`; you never set headers manually.
 
@@ -65,15 +74,15 @@ The Pinia store is the reactive source of truth for components:
 
 URLs are **relative** to the axios `baseURL` (no leading slash):
 
-| Method | HTTP | URL | Body |
-|--------|------|-----|------|
+| Method                      | HTTP | URL                            | Body                                                    |
+| --------------------------- | ---- | ------------------------------ | ------------------------------------------------------- |
 | `login(username, password)` | POST | `auth` (or `options.loginUrl`) | `{ username, password }` → `{ token, isAuthenticated }` |
-| `refresh(queryParams?)` | POST | `auth/refresh/?{query}` | — |
-| `validateToken()` | POST | `auth/validate` | — (only when a token exists; 401 clears it) |
-| `changePassword(input)` | POST | `auth/password` | `{ newPassword, currentPassword }` |
-| `forgotPassword(input)` | POST | `auth/password/recover` | `{ username, siteUrl, siteName? }` |
-| `resetPassword(input)` | POST | `auth/password/reset` | `{ token, password }` |
-| `logout()` | — | — | client-side only: clears the stored token |
+| `refresh(queryParams?)`     | POST | `auth/refresh/?{query}`        | —                                                       |
+| `validateToken()`           | POST | `auth/validate`                | — (only when a token exists; 401 clears it)             |
+| `changePassword(input)`     | POST | `auth/password`                | `{ newPassword, currentPassword }`                      |
+| `forgotPassword(input)`     | POST | `auth/password/recover`        | `{ username, siteUrl, siteName? }`                      |
+| `resetPassword(input)`      | POST | `auth/password/reset`          | `{ token, password }`                                   |
+| `logout()`                  | —    | —                              | client-side only: clears the stored token               |
 
 `authenticate({ token, isAuthenticated })` stores the token and returns an `AuthData`; a falsy
 `isAuthenticated` clears the token.

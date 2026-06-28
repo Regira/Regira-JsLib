@@ -5,13 +5,13 @@ services are registered and resolved through it.
 
 ## What it provides
 
-| Export | Purpose |
-|--------|---------|
-| `ServiceProvider` | Container: `add(key, factory)` to register, `get<T>(key)` to resolve. |
-| `get<T>(key)` | Resolve from the shared default provider (used outside components). |
-| `plugin` | Vue plugin: exposes the provider as `$services` and runs a `configure(sp)` callback. |
-| `IServiceProvider` | The container interface. |
-| default export | The shared `ServiceProvider` singleton. |
+| Export             | Purpose                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| `ServiceProvider`  | Container: `add(key, factory)` to register, `get<T>(key)` to resolve.                |
+| `get<T>(key)`      | Resolve from the shared default provider (used outside components).                  |
+| `plugin`           | Vue plugin: exposes the provider as `$services` and runs a `configure(sp)` callback. |
+| `IServiceProvider` | The container interface.                                                             |
+| default export     | The shared `ServiceProvider` singleton.                                              |
 
 ## Key behaviour
 

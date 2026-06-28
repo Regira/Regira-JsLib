@@ -9,10 +9,10 @@ per entity drives its service, routes, and navigation. Exact shape:
 ```ts
 const api = "/products"
 const config: IConfig = {
-    key: "Product",                 // route-name prefix + icon key
-    routePrefix: "products",        // URL path segment
-    isComplex: true,                // entity with child collections / heavier form
-    baseQueryParams: { includes: ["Facets"] },  // merged into every list/search
+    key: "Product", // route-name prefix + icon key
+    routePrefix: "products", // URL path segment
+    isComplex: true, // entity with child collections / heavier form
+    baseQueryParams: { includes: ["Facets"] }, // merged into every list/search
     initialQuery: { isRoot: true }, // optional default filter
     overviewTitle: "products",
     detailsTitle: "product",
@@ -22,7 +22,7 @@ const config: IConfig = {
     api,
     detailsUrl: api,
     listUrl: api,
-    searchUrl: api + "/search",     // dedicated search endpoint; use `api` when there is none
+    searchUrl: api + "/search", // dedicated search endpoint; use `api` when there is none
     saveUrl: api,
     deleteUrl: api,
 }

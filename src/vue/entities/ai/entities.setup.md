@@ -60,11 +60,11 @@ npm i bootstrap bootstrap-icons
 > majors with it — the toolchain moves as a set, so a current `vue-router` wants a current `vite`/
 > `typescript`. The cascade to keep in step: `vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`.
 >
-> | Build tool | Major |
-> |------------|-------|
+> | Build tool                    | Major |
+> | ----------------------------- | ----- |
 > | `vite` · `@vitejs/plugin-vue` | 8 · 6 |
-> | `typescript` · `vue-tsc` | 6 · 3 |
-> | `vitest` · `prettier` | 4 · 3 |
+> | `typescript` · `vue-tsc`      | 6 · 3 |
+> | `vitest` · `prettier`         | 4 · 3 |
 
 > **The snippets below use the demo's `@/regira_modules` alias.** In a plain npm install, drop the `@/`
 > prefix on the library specifier (write `regira_modules/vue/http`, not `@/regira_modules/vue/http`); the
@@ -73,11 +73,13 @@ npm i bootstrap bootstrap-icons
 > **Alias (optional — demo vendoring only).** The sample apps vendor `dist/` and alias it, so their
 > imports read `@/regira_modules/vue/entities`. You only need this if you vendor `dist/` yourself. To do
 > so, add it in **both** places (order matters — the more specific alias first):
+>
 > ```ts
 > // vite.config.ts → resolve.alias
 > { find: "@/regira_modules", replacement: fileURLToPath(new URL("./node_modules/regira_modules/dist", import.meta.url)) },
 > { find: "@", replacement: fileURLToPath(new URL("./src", import.meta.url)) },
 > ```
+>
 > ```jsonc
 > // tsconfig.app.json → compilerOptions.paths
 > "@/regira_modules/*": ["./node_modules/regira_modules/dist/*"],
@@ -93,9 +95,9 @@ import { defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
 
 export default defineConfig({
-  plugins: [vue()],
-  resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
-  define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version) },
+    plugins: [vue()],
+    resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
+    define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version) },
 })
 ```
 
@@ -114,14 +116,16 @@ export default defineConfig({
 ```html
 <!-- index.html — Bootstrap + icons via CDN (or import the npm CSS in main.ts instead) -->
 <head>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" />
 </head>
 <body>
-  <div id="app"></div>
-  <div id="modals" class="fixed-top"></div>      <!-- modalPlugin host -->
-  <div id="loginModal" class="fixed-top"></div>  <!-- LoginModal teleport target -->
-  <script type="module" src="/src/main.ts"></script>
+    <div id="app"></div>
+    <div id="modals" class="fixed-top"></div>
+    <!-- modalPlugin host -->
+    <div id="loginModal" class="fixed-top"></div>
+    <!-- LoginModal teleport target -->
+    <script type="module" src="/src/main.ts"></script>
 </body>
 ```
 
@@ -232,14 +236,14 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 ```
 
 If you use the language plugin (`$t`), also add `public/data/translations.json`. Its shape is
-**key-first** — `Record<key, Record<langCode, string> | string>` — *not* language-first (a wrong guess
+**key-first** — `Record<key, Record<langCode, string> | string>` — _not_ language-first (a wrong guess
 makes every `$t()` render the raw key):
 
 ```json
 {
-  "signIn": { "en": "Sign in", "nl": "Aanmelden" },
-  "save":   { "en": "Save",    "nl": "Bewaren" },
-  "appName": "ShoppingManager"
+    "signIn": { "en": "Sign in", "nl": "Aanmelden" },
+    "save": { "en": "Save", "nl": "Bewaren" },
+    "appName": "ShoppingManager"
 }
 ```
 
@@ -253,10 +257,10 @@ For anything beyond a toy app, load `config.json` through a small `app-config.ts
 ```jsonc
 // public/config.json — `api` may be a flat string or an object keyed by Vite MODE
 {
-  "clientApp": "shopping-manager",
-  "api": { "development": "https://localhost:7001", "production": "/api" },
-  "includeCredentials": false,
-  "title": { "en": "ShoppingManager" }
+    "clientApp": "shopping-manager",
+    "api": { "development": "https://localhost:7001", "production": "/api" },
+    "includeCredentials": false,
+    "title": { "en": "ShoppingManager" },
 }
 ```
 
@@ -269,16 +273,17 @@ const appConfig: Record<string, any> = { baseUrl: BASE_URL.replace(/\/$/, ""), e
 const pick = (cfg: any, key: string) => cfg[key]?.[appConfig.env] ?? cfg[key]
 
 export function createConfig(raw: Record<string, any>) {
-  for (const key of Object.keys(raw)) appConfig[key] = pick(raw, key)
-  return appConfig
+    for (const key of Object.keys(raw)) appConfig[key] = pick(raw, key)
+    return appConfig
 }
-export function useConfig() { return appConfig }
+export function useConfig() {
+    return appConfig
+}
 export default appConfig
 ```
 
-`main.ts` then does `fetch(\`${appConfig.baseUrl}/config.json\`)` → `createConfig(raw)` →
-`initAxios({ api, includeCredentials })` before installing plugins. The minimal flat `config.json` above
-still works; `app-config.ts` just adds env-selection and a typed accessor.
+`main.ts` then does `fetch(\`${appConfig.baseUrl}/config.json\`)`→`createConfig(raw)`→`initAxios({ api, includeCredentials })`before installing plugins. The minimal flat`config.json`above
+still works;`app-config.ts` just adds env-selection and a typed accessor.
 
 ### Navigation map
 
@@ -288,23 +293,23 @@ and navbar:
 
 ```jsonc
 {
-  "clientApp": "shopping-manager",
-  "loginUrl": "https://accounts.example.com/auth/?clientApp={clientApp}",
-  "api": { "development": "https://localhost:7001", "production": "/api" },
-  "includeCredentials": false,
-  "title": { "en": "ShoppingManager", "nl": "ShoppingManager" },
-  "navigation": {
-    "groups": [
-      { "id": "Catalog",   "title": "catalog",   "icon": "catalog" },
-      { "id": "Inventory", "title": "inventory", "icon": "inventory" }
-    ],
-    "dashboard": [
-      ["Catalog",   ["Product", "Category"]],
-      ["Inventory", ["Supplier"]]
-    ],
-    "navbar": ["Product", ["Catalog", ["Category"]]],
-    "search": "Product"
-  }
+    "clientApp": "shopping-manager",
+    "loginUrl": "https://accounts.example.com/auth/?clientApp={clientApp}",
+    "api": { "development": "https://localhost:7001", "production": "/api" },
+    "includeCredentials": false,
+    "title": { "en": "ShoppingManager", "nl": "ShoppingManager" },
+    "navigation": {
+        "groups": [
+            { "id": "Catalog", "title": "catalog", "icon": "catalog" },
+            { "id": "Inventory", "title": "inventory", "icon": "inventory" },
+        ],
+        "dashboard": [
+            ["Catalog", ["Product", "Category"]],
+            ["Inventory", ["Supplier"]],
+        ],
+        "navbar": ["Product", ["Catalog", ["Category"]]],
+        "search": "Product",
+    },
 }
 ```
 
@@ -329,12 +334,12 @@ a single `routerFactory`; the full template splits it across `src/router/`.
 import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 
 const staticRoutes: Array<RouteRecordRaw> = [
-  { path: "/", name: "home", component: () => import("@/views/Home.vue"), meta: { allowAnonymous: true } },
-  { path: "/forbidden", name: "forbidden", component: () => import("@/views/Forbidden.vue"), meta: { allowAnonymous: true } },
+    { path: "/", name: "home", component: () => import("@/views/Home.vue"), meta: { allowAnonymous: true } },
+    { path: "/forbidden", name: "forbidden", component: () => import("@/views/Forbidden.vue"), meta: { allowAnonymous: true } },
 ]
 
 export function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
-  return createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes: [...staticRoutes, ...entityRoutes] })
+    return createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes: [...staticRoutes, ...entityRoutes] })
 }
 ```
 
@@ -351,11 +356,11 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 import staticRoutes from "./routes"
 
 export default function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
-  return createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes: [...staticRoutes, ...entityRoutes],
-    linkActiveClass: "active",
-  })
+    return createRouter({
+        history: createWebHistory(import.meta.env.BASE_URL),
+        routes: [...staticRoutes, ...entityRoutes],
+        linkActiveClass: "active",
+    })
 }
 ```
 
@@ -371,21 +376,26 @@ import Forbidden from "@/views/Forbidden.vue"
 import Unauthorized from "@/views/Unauthorized.vue"
 
 const routes: Array<RouteRecordRaw> = [
-  { path: "/", name: "home", component: HomeView },
-  {
-    path: "/account",
-    name: "account",
-    component: AccountView,
-    redirect: { name: "accountHome" },
-    children: [
-      { path: "", name: "accountHome", component: AccountHome },
-      { path: "login", name: "login", component: Login, props: (to) => ({ username: to.query?.username }), meta: { allowAnonymous: true } },
-    ],
-  },
-  { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
-  { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
-  { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
-  { path: "/:pathMatch(.*)*", name: "catchAll", redirect: (from) => ({ name: "notFound", query: { url: from.fullPath } }), meta: { allowAnonymous: true } },
+    { path: "/", name: "home", component: HomeView },
+    {
+        path: "/account",
+        name: "account",
+        component: AccountView,
+        redirect: { name: "accountHome" },
+        children: [
+            { path: "", name: "accountHome", component: AccountHome },
+            { path: "login", name: "login", component: Login, props: (to) => ({ username: to.query?.username }), meta: { allowAnonymous: true } },
+        ],
+    },
+    { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
+    { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
+    { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
+    {
+        path: "/:pathMatch(.*)*",
+        name: "catchAll",
+        redirect: (from) => ({ name: "notFound", query: { url: from.fullPath } }),
+        meta: { allowAnonymous: true },
+    },
 ]
 
 export default routes
@@ -418,61 +428,69 @@ import { routerFactory } from "@/router"
 import App from "@/App.vue"
 import loadingImg from "@/assets/loading.gif"
 
-dateExtensions.use()   // serialize dates to JSON without timezone shift
+dateExtensions.use() // serialize dates to JSON without timezone shift
 
-fetch("/config.json").then((r) => r.json()).then(async (config) => {
-  const axios = initAxios({ api: config.api, includeCredentials: config.includeCredentials })
-  const translations = await fetch("/data/translations.json").then((r) => r.json())
+fetch("/config.json")
+    .then((r) => r.json())
+    .then(async (config) => {
+        const axios = initAxios({ api: config.api, includeCredentials: config.includeCredentials })
+        const translations = await fetch("/data/translations.json").then((r) => r.json())
 
-  const app = createApp(App)
-  app.use(createPinia())
-  app.use(appPlugin, { culture: config.culture })
+        const app = createApp(App)
+        app.use(createPinia())
+        app.use(appPlugin, { culture: config.culture })
 
-  // IoC: register the shared axios + the entity pool cache
-  app.use(servicesPlugin, {
-    configure: (sp: IServiceProvider) => sp.add("axios", () => axios).add(PoolCache.name, () => defaultPoolCache),
-  })
+        // IoC: register the shared axios + the entity pool cache
+        app.use(servicesPlugin, {
+            configure: (sp: IServiceProvider) => sp.add("axios", () => axios).add(PoolCache.name, () => defaultPoolCache),
+        })
 
-  // UI plugins
-  app.use(iconPlugin, { source: "bs" })
-  app.use(screenPlugin)
-  app.use(loadingPlugin, { img: loadingImg })
-  app.use(modalPlugin)
-  app.use(feedbackPlugin, { autoHideDelay: 2500 })
-  app.use(langPlugin, { defaultLang: "en", messages: translations })
-  const { setLangCode } = useLang()
+        // UI plugins
+        app.use(iconPlugin, { source: "bs" })
+        app.use(screenPlugin)
+        app.use(loadingPlugin, { img: loadingImg })
+        app.use(modalPlugin)
+        app.use(feedbackPlugin, { autoHideDelay: 2500 })
+        app.use(langPlugin, { defaultLang: "en", messages: translations })
+        const { setLangCode } = useLang()
 
-  // directives
-  app.use(focus); app.use(grow); app.use(clickOutside)
+        // directives
+        app.use(focus)
+        app.use(grow)
+        app.use(clickOutside)
 
-  // entities collect their routes, then build the router
-  const entityRoutes: Array<RouteRecordRaw> = []
-  app.use(entityPlugins, { routes: entityRoutes })
-  app.use(routerFactory([...entityRoutes]))
-  app.use(preloaderPlugin)
+        // entities collect their routes, then build the router
+        const entityRoutes: Array<RouteRecordRaw> = []
+        app.use(entityPlugins, { routes: entityRoutes })
+        app.use(routerFactory([...entityRoutes]))
+        app.use(preloaderPlugin)
 
-  // auth last (needs the router on the app)
-  app.use(authPlugin, {
-    axios,
-    tokenManager: new LocalStorageTokenManager(),
-    clientApp: config.clientApp,
-    loginUrl: config.loginUrl,
-    onAuthenticationChange: (auth) => {
-      app.config.globalProperties.$setAppStatus(auth.isAuthenticated ? AppStatus.Ready : AppStatus.Init)
-      if (auth.isAuthenticated && auth.culture) setLangCode(auth.culture.split("-")[0])
-    },
-  })
+        // auth last (needs the router on the app)
+        app.use(authPlugin, {
+            axios,
+            tokenManager: new LocalStorageTokenManager(),
+            clientApp: config.clientApp,
+            loginUrl: config.loginUrl,
+            onAuthenticationChange: (auth) => {
+                app.config.globalProperties.$setAppStatus(auth.isAuthenticated ? AppStatus.Ready : AppStatus.Init)
+                if (auth.isAuthenticated && auth.culture) setLangCode(auth.culture.split("-")[0])
+            },
+        })
 
-  app.config.globalProperties.$setAppStatus(AppStatus.Mounting)
-  app.mount("#app")
-  await whenAppReady()
-})
+        app.config.globalProperties.$setAppStatus(AppStatus.Mounting)
+        app.mount("#app")
+        await whenAppReady()
+    })
 ```
 
 > **Install order matters:** the `$services` / `$configs` / `$icons` globals must exist before any entity
 > plugin installs, so install Pinia, `appPlugin`, `servicesPlugin` (axios + `PoolCache`) and `iconPlugin`
 > **first**; then the entity plugins **before** `routerFactory` (so their routes are collected); and the
 > **router before `authPlugin`** (the auth plugin reads `$router` for its route guard).
+
+> **Required IoC registration (the #1 wiring pitfall).** The `configure` block above is mandatory: every
+> entity service resolves `axios` from the container, and `EntityServiceBase` throws a descriptive error at
+> construction when it is missing. Register `PoolCache` alongside it for the shared entity cache.
 
 ### Full-shell additions
 
@@ -512,14 +530,14 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 </script>
 
 <template>
-  <Feedback :feedback="$feedback" :enable-error-popup="true" />
-  <LoadingContainer :is-loading="$appStatus !== AppStatus.Ready && (!$auth.enabled || $auth.isAuthenticated)">
-    <RouterView />
-  </LoadingContainer>
+    <Feedback :feedback="$feedback" :enable-error-popup="true" />
+    <LoadingContainer :is-loading="$appStatus !== AppStatus.Ready && (!$auth.enabled || $auth.isAuthenticated)">
+        <RouterView />
+    </LoadingContainer>
 
-  <LoginModal :is-visible="showLogin" :title="$t('signIn')">
-    <LoginForm />
-  </LoginModal>
+    <LoginModal :is-visible="showLogin" :title="$t('signIn')">
+        <LoginForm />
+    </LoginModal>
 </template>
 ```
 
@@ -543,25 +561,25 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 </script>
 
 <template>
-  <div class="page">
-    <header class="container-fluid bg-light"><TheHeader /></header>
+    <div class="page">
+        <header class="container-fluid bg-light"><TheHeader /></header>
 
-    <section class="container-fluid position-relative overflow-hidden">
-      <Feedback :feedback="$feedback" :enable-error-popup="true" />
-    </section>
+        <section class="container-fluid position-relative overflow-hidden">
+            <Feedback :feedback="$feedback" :enable-error-popup="true" />
+        </section>
 
-    <main class="container-fluid">
-      <LoadingContainer :is-loading="$appStatus !== AppStatus.Ready && (!$auth.enabled || $auth.isAuthenticated)">
-        <Main />
-      </LoadingContainer>
-    </main>
+        <main class="container-fluid">
+            <LoadingContainer :is-loading="$appStatus !== AppStatus.Ready && (!$auth.enabled || $auth.isAuthenticated)">
+                <Main />
+            </LoadingContainer>
+        </main>
 
-    <footer class="container-fluid bg-light"><TheFooter /></footer>
+        <footer class="container-fluid bg-light"><TheFooter /></footer>
 
-    <Teleport to="#loginModal">
-      <LoginModal :is-visible="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
-    </Teleport>
-  </div>
+        <Teleport to="#loginModal">
+            <LoginModal :is-visible="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
+        </Teleport>
+    </div>
 </template>
 ```
 
@@ -588,9 +606,9 @@ one-file ambient declaration (TypeScript picks up `src/**/*.d.ts` automatically)
 import type { IConfig } from "regira_modules/vue/entities"
 
 declare module "@vue/runtime-core" {
-  interface ComponentCustomProperties {
-    $configs: Record<string, IConfig>   // populated by each entity setup.ts
-  }
+    interface ComponentCustomProperties {
+        $configs: Record<string, IConfig> // populated by each entity setup.ts
+    }
 }
 export {}
 ```
@@ -600,9 +618,9 @@ The full template adds the `user-plugin` global to the same file:
 ```ts
 // src/shims.d.ts (in addition to the $configs declaration above)
 declare module "@vue/runtime-core" {
-  interface ComponentCustomProperties {
-    $isAdmin: boolean   // provided by infrastructure/user-plugin.ts — see App shell
-  }
+    interface ComponentCustomProperties {
+        $isAdmin: boolean // provided by infrastructure/user-plugin.ts — see App shell
+    }
 }
 ```
 
@@ -611,21 +629,21 @@ declare module "@vue/runtime-core" {
 The entities layer needs only a few globals; install the rest as you actually use them. Install order
 still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--maints)).
 
-| Plugin | Provides | Status for the entities layer |
-|--------|----------|-------------------------------|
-| `createPinia()` | Pinia stores | **Required** (app store, entity stores, auth store) |
-| `appPlugin` (`vue/app`) | `$appStatus` / `$setAppStatus`, `$culture` | **Required** — the startup lifecycle and loading gate |
-| `servicesPlugin` (`vue/ioc`) | `$services` IoC + `get()` | **Required** — register the shared `axios` and `PoolCache` here; services resolve from here |
-| entity plugins (`@/entities`) | routes + service registrations + `$configs` | **Required** — your slices |
-| `routerFactory` (vue-router) | routing | **Required** for multi-view slices |
-| `iconPlugin` (`vue/ui`) | `$icons` | Required if your views/nav render icons (the demos do) |
-| `feedbackPlugin` (`vue/ui`) | `$feedback` | Required if you use the `Feedback` component (the demo `App.vue` does) |
-| `loadingPlugin` (`vue/ui`) | `Loading`/`LoadingContainer` components | Required if you use `LoadingContainer` (the demo `App.vue` does). **Must pass `{ img }`** when installed: `app.use(loadingPlugin, { img })` |
-| `modalPlugin` (`vue/ui`) | modal host | Optional — only if you use modal forms |
-| `langPlugin` (`vue/lang`) | `$t` i18n | Optional — only if you render translated labels |
-| directives (`focus`, `grow`, `clickOutside`) | template directives | Optional — only where used |
-| `preloaderPlugin` (`vue/entities`) | route preloading | Optional |
-| `authPlugin` (`vue/auth`) | bearer auth + `$auth` | **Optional** — see [Running without authentication](#running-without-authentication) |
+| Plugin                                       | Provides                                    | Status for the entities layer                                                                                                               |
+| -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createPinia()`                              | Pinia stores                                | **Required** (app store, entity stores, auth store)                                                                                         |
+| `appPlugin` (`vue/app`)                      | `$appStatus` / `$setAppStatus`, `$culture`  | **Required** — the startup lifecycle and loading gate                                                                                       |
+| `servicesPlugin` (`vue/ioc`)                 | `$services` IoC + `get()`                   | **Required** — register the shared `axios` and `PoolCache` here; services resolve from here                                                 |
+| entity plugins (`@/entities`)                | routes + service registrations + `$configs` | **Required** — your slices                                                                                                                  |
+| `routerFactory` (vue-router)                 | routing                                     | **Required** for multi-view slices                                                                                                          |
+| `iconPlugin` (`vue/ui`)                      | `$icons`                                    | Required if your views/nav render icons (the demos do)                                                                                      |
+| `feedbackPlugin` (`vue/ui`)                  | `$feedback`                                 | Required if you use the `Feedback` component (the demo `App.vue` does)                                                                      |
+| `loadingPlugin` (`vue/ui`)                   | `Loading`/`LoadingContainer` components     | Required if you use `LoadingContainer` (the demo `App.vue` does). **Must pass `{ img }`** when installed: `app.use(loadingPlugin, { img })` |
+| `modalPlugin` (`vue/ui`)                     | modal host                                  | Optional — only if you use modal forms                                                                                                      |
+| `langPlugin` (`vue/lang`)                    | `$t` i18n                                   | Optional — only if you render translated labels                                                                                             |
+| directives (`focus`, `grow`, `clickOutside`) | template directives                         | Optional — only where used                                                                                                                  |
+| `preloaderPlugin` (`vue/entities`)           | route preloading                            | Optional                                                                                                                                    |
+| `authPlugin` (`vue/auth`)                    | bearer auth + `$auth`                       | **Optional** — see [Running without authentication](#running-without-authentication)                                                        |
 
 > **Icon fonts aren't bundled.** `iconPlugin({ source: "bs" })` only emits Bootstrap-Icons class names
 > (`bi bi-*`); install the `bootstrap-icons` npm package and import its CSS in `main.ts`
@@ -644,29 +662,30 @@ disabled), make three changes:
    called `$setAppStatus(AppStatus.Ready)`. With auth gone, **nothing reaches `Ready` on its own**
    (`AppStatus` starts at `Init`), so the app would hang on the loading spinner. Set it after mount:
 
-   ```ts
-   app.config.globalProperties.$setAppStatus(AppStatus.Mounting)
-   app.mount("#app")
-   app.config.globalProperties.$setAppStatus(AppStatus.Ready)   // no auth → advance manually
-   await whenAppReady()
-   ```
+    ```ts
+    app.config.globalProperties.$setAppStatus(AppStatus.Mounting)
+    app.mount("#app")
+    app.config.globalProperties.$setAppStatus(AppStatus.Ready) // no auth → advance manually
+    await whenAppReady()
+    ```
+
 3. **`App.vue` — drop the auth UI.** Remove `LoginModal`, `LoginForm`, `useAuthStore`, and the `$auth`
    reference; gate the loading container on app status alone:
 
-   ```vue
-   <script setup lang="ts">
-   import { RouterView } from "vue-router"
-   import { Feedback, LoadingContainer } from "@/regira_modules/vue/ui"
-   import { AppStatus } from "@/regira_modules/vue/app"
-   </script>
+    ```vue
+    <script setup lang="ts">
+    import { RouterView } from "vue-router"
+    import { Feedback, LoadingContainer } from "@/regira_modules/vue/ui"
+    import { AppStatus } from "@/regira_modules/vue/app"
+    </script>
 
-   <template>
-     <Feedback :feedback="$feedback" :enable-error-popup="true" />
-     <LoadingContainer :is-loading="$appStatus !== AppStatus.Ready">
-       <RouterView />
-     </LoadingContainer>
-   </template>
-   ```
+    <template>
+        <Feedback :feedback="$feedback" :enable-error-popup="true" />
+        <LoadingContainer :is-loading="$appStatus !== AppStatus.Ready">
+            <RouterView />
+        </LoadingContainer>
+    </template>
+    ```
 
 > **Keep the auth scaffolding dormant instead?** Install it with `app.use(authPlugin, { …, enabled: false })`.
 > Then `$auth` is `{ enabled: false }` and the bearer interceptor is off — but the auth **store** still
@@ -702,10 +721,10 @@ import { plugin as categoryPlugin } from "./categories"
 export const plugins = [categoryPlugin, productPlugin]
 
 export default {
-  install(app: App<Element>, { routes }: { routes: Array<RouteRecordRaw> }) {
-    app.config.globalProperties.$configs = {}
-    plugins.forEach((plugin) => app.use(plugin as any, { routes }))
-  },
+    install(app: App<Element>, { routes }: { routes: Array<RouteRecordRaw> }) {
+        app.config.globalProperties.$configs = {}
+        plugins.forEach((plugin) => app.use(plugin as any, { routes }))
+    },
 }
 ```
 
@@ -715,12 +734,12 @@ step list in the [checklist](../docs/checklist.md).
 
 ### `src/components/`
 
-| Folder | Holds | Notes |
-|--------|-------|-------|
-| `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()` | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
-| `input/` | shared form inputs — `FormButtonsRow` (the form's Save / Cancel / Delete / Restore row, bound to `handleCancel` / `handleRemove` / `handleRestore`), `DescriptionInput`, … | register the common ones globally in `main.ts` (`app.component(...)`) so every Form can use them |
-| `layout/` | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>` |
-| `users/` | account + auth UI (login, change password, admin list) | include when auth is enabled; omit on the [no-auth path](#running-without-authentication) |
+| Folder               | Holds                                                                                                                                                                      | Notes                                                                                                                                                                                                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()`                                                                                                                     | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
+| `input/`             | shared form inputs — `FormButtonsRow` (the form's Save / Cancel / Delete / Restore row, bound to `handleCancel` / `handleRemove` / `handleRestore`), `DescriptionInput`, … | register the common ones globally in `main.ts` (`app.component(...)`) so every Form can use them                                                                                                                                                                                             |
+| `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline`                                                                                    | the chrome around `<RouterView>`                                                                                                                                                                                                                                                             |
+| `users/`             | account + auth UI (login, change password, admin list)                                                                                                                     | include when auth is enabled; omit on the [no-auth path](#running-without-authentication)                                                                                                                                                                                                    |
 
 Give each folder an `index.ts` barrel; keep the components thin and presentational — data/logic stays in
 the entity slices and composables.
@@ -735,17 +754,19 @@ import { type IConfig, importDashboard, importNavbar, buildNavigationTree } from
 import { useConfig } from "@/app-config"
 
 export function useNavigation() {
-  const app = getCurrentInstance()!
-  const { navigation: { groups, dashboard, navbar, search } } = useConfig()
+    const app = getCurrentInstance()!
+    const {
+        navigation: { groups, dashboard, navbar, search },
+    } = useConfig()
 
-  const configs = Object.values(app.appContext.config.globalProperties.$configs) as Array<IConfig>
-  const hasAccess = (_config: IConfig) => true   // gate by permissions here if needed
+    const configs = Object.values(app.appContext.config.globalProperties.$configs) as Array<IConfig>
+    const hasAccess = (_config: IConfig) => true // gate by permissions here if needed
 
-  const dashboardTree = computed(() => buildNavigationTree(importDashboard({ groups, entities: dashboard, configs, hasAccess })))
-  const navbarTree = computed(() => buildNavigationTree(importNavbar({ groups, entities: navbar, configs, hasAccess })))
-  const searchItemConfig = computed(() => configs.find((c) => c.key === search))
+    const dashboardTree = computed(() => buildNavigationTree(importDashboard({ groups, entities: dashboard, configs, hasAccess })))
+    const navbarTree = computed(() => buildNavigationTree(importNavbar({ groups, entities: navbar, configs, hasAccess })))
+    const searchItemConfig = computed(() => configs.find((c) => c.key === search))
 
-  return { dashboardTree, navbarTree, searchItemConfig }
+    return { dashboardTree, navbarTree, searchItemConfig }
 }
 ```
 
@@ -786,20 +807,20 @@ import { useLang } from "@/regira_modules/vue/lang"
 import Permissions from "@/infrastructure/permissions"
 
 export const plugin = {
-  install(app: App) {
-    const authStore = useAuthStore()
-    Object.defineProperty(app.config.globalProperties, "$isAdmin", {
-      get: () => authStore.authData.hasPermission(Permissions.ADMIN),
-      enumerable: true,
-      configurable: true,
-    })
+    install(app: App) {
+        const authStore = useAuthStore()
+        Object.defineProperty(app.config.globalProperties, "$isAdmin", {
+            get: () => authStore.authData.hasPermission(Permissions.ADMIN),
+            enumerable: true,
+            configurable: true,
+        })
 
-    // persist the language choice across reloads
-    const { langCode, setLangCode } = useLang()
-    const last = localStorage.getItem("lang")
-    if (!authStore.isAuthenticated && last && last !== langCode.value) setLangCode(last.substring(0, 2))
-    watch(langCode, (code) => localStorage.setItem("lang", code))
-  },
+        // persist the language choice across reloads
+        const { langCode, setLangCode } = useLang()
+        const last = localStorage.getItem("lang")
+        if (!authStore.isAuthenticated && last && last !== langCode.value) setLangCode(last.substring(0, 2))
+        watch(langCode, (code) => localStorage.setItem("lang", code))
+    },
 }
 
 export default plugin
@@ -821,10 +842,10 @@ import { Dashboard } from "@/components/entity-navigation"
 const { title } = appConfig
 </script>
 <template>
-  <section>
-    <h1 class="text-center">{{ $tm(title) }}</h1>
-    <Dashboard />
-  </section>
+    <section>
+        <h1 class="text-center">{{ $tm(title) }}</h1>
+        <Dashboard />
+    </section>
 </template>
 ```
 
@@ -834,10 +855,12 @@ const { title } = appConfig
 defineProps<{ url?: string }>()
 </script>
 <template>
-  <section>
-    <h1>404 — page not found</h1>
-    <p>Page <router-link :to="url ?? '/'">{{ url }}</router-link> was not found.</p>
-  </section>
+    <section>
+        <h1>404 — page not found</h1>
+        <p>
+            Page <router-link :to="url ?? '/'">{{ url }}</router-link> was not found.
+        </p>
+    </section>
 </template>
 ```
 
@@ -852,6 +875,7 @@ Install and import the stylesheets once, at the top of `main.ts`:
 ```bash
 npm i bootstrap bootstrap-icons
 ```
+
 ```ts
 // main.ts — before your own SCSS
 import "bootstrap/dist/css/bootstrap.min.css"

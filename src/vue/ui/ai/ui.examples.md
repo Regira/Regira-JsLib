@@ -10,7 +10,7 @@ import { iconPlugin, feedbackPlugin, loadingPlugin, modalPlugin, pagingPlugin, s
 
 app.use(screenPlugin)
 app.use(feedbackPlugin)
-app.use(iconPlugin, { source: "bs", icons: appIcons })   // register Bootstrap icons
+app.use(iconPlugin, { source: "bs", icons: appIcons }) // register Bootstrap icons
 app.use(loadingPlugin, { img: "/loading.svg" })
 app.use(modalPlugin)
 app.use(pagingPlugin, { defaultPageSize: 10 })
@@ -24,16 +24,19 @@ import { Paging, LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
 import { useSearchView, useRouteOverview } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 const { service } = useEntityStore()
-const { pagingInfo, items, itemsCount, isLoading, feedback, searchHandler } =
-    useSearchView({ service, searchObject: new SearchObject(), defaultPageSize: config.defaultPageSize })
+const { pagingInfo, items, itemsCount, isLoading, feedback, searchHandler } = useSearchView({
+    service,
+    searchObject: new SearchObject(),
+    defaultPageSize: config.defaultPageSize,
+})
 const { updateOverviewRoute } = useRouteOverview({ searchObject, pagingInfo, handler: searchHandler, defaultPageSize: config.defaultPageSize })
 </script>
 <template>
-  <Feedback :feedback="feedback" />
-  <LoadingContainer :is-loading="isLoading">
-    <!-- render items -->
-  </LoadingContainer>
-  <Paging v-model="pagingInfo" :count="itemsCount" @change="updateOverviewRoute()" />
+    <Feedback :feedback="feedback" />
+    <LoadingContainer :is-loading="isLoading">
+        <!-- render items -->
+    </LoadingContainer>
+    <Paging v-model="pagingInfo" :count="itemsCount" @change="updateOverviewRoute()" />
 </template>
 ```
 
@@ -44,15 +47,17 @@ const { updateOverviewRoute } = useRouteOverview({ searchObject, pagingInfo, han
 import { computed } from "vue"
 import { TabContainer, Tab, useScreen } from "@/regira_modules/vue/ui"
 const { screen } = useScreen()
-const tabs = computed(() => [
-    Tab.create("form", { icon: "form", title: "Form", isDefault: true }),
-    !screen.isLarge ? Tab.create("more", { icon: "list", title: "More" }) : null,
-].filter(Boolean))
+const tabs = computed(() =>
+    [
+        Tab.create("form", { icon: "form", title: "Form", isDefault: true }),
+        !screen.isLarge ? Tab.create("more", { icon: "list", title: "More" }) : null,
+    ].filter(Boolean)
+)
 </script>
 <template>
-  <TabContainer :tabs="tabs">
-    <!-- tab panes -->
-  </TabContainer>
+    <TabContainer :tabs="tabs">
+        <!-- tab panes -->
+    </TabContainer>
 </template>
 ```
 
@@ -78,10 +83,16 @@ import "@/regira_modules/vue/ui/modal/style.scss"
 const isVisible = ref(false)
 </script>
 <template>
-  <DefaultModal :is-visible="isVisible" title="Confirm" :type="ModalType.warning"
-                @submit="onSubmit" @cancel="isVisible = false" @close="isVisible = false">
-    Are you sure?
-  </DefaultModal>
+    <DefaultModal
+        :is-visible="isVisible"
+        title="Confirm"
+        :type="ModalType.warning"
+        @submit="onSubmit"
+        @cancel="isVisible = false"
+        @close="isVisible = false"
+    >
+        Are you sure?
+    </DefaultModal>
 </template>
 ```
 
@@ -92,8 +103,8 @@ const isVisible = ref(false)
 import { BsIcon, IconButton } from "@/regira_modules/vue/ui"
 </script>
 <template>
-  <BsIcon name="bi bi-box-seam" size="lg" />
-  <IconButton icon="bi bi-trash" @click="remove" />
+    <BsIcon name="bi bi-box-seam" size="lg" />
+    <IconButton icon="bi bi-trash" @click="remove" />
 </template>
 ```
 
@@ -106,10 +117,12 @@ import { get } from "@/regira_modules/vue/ioc"
 const service = get<IEntityService<Product>>("Product")!
 </script>
 <template>
-  <Autocomplete v-model="selected"
-                :search="(term) => service.list({ q: term })"
-                :display-item-formatter="(p) => p?.$title ?? ''"
-                @select="onSelect" />
+    <Autocomplete
+        v-model="selected"
+        :search="(term) => service.list({ q: term })"
+        :display-item-formatter="(p) => p?.$title ?? ''"
+        @select="onSelect"
+    />
 </template>
 ```
 
@@ -120,7 +133,7 @@ const service = get<IEntityService<Product>>("Product")!
 import { DateInput } from "@/regira_modules/vue/ui"
 </script>
 <template>
-  <DateInput v-model="item.publishedOn" culture="nl-BE" />
+    <DateInput v-model="item.publishedOn" culture="nl-BE" />
 </template>
 ```
 

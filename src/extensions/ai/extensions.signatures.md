@@ -10,25 +10,25 @@ import dateExtensions from "regira_modules/extensions/date-extensions" // granul
 ## Barrel (index.d.ts)
 
 ```ts
-export { default as arrayExtensions } from "./array-extensions";
-export { default as dateExtensions } from "./date-extensions";
-export { default as promiseExtensions } from "./promise-extensions";
+export { default as arrayExtensions } from "./array-extensions"
+export { default as dateExtensions } from "./date-extensions"
+export { default as promiseExtensions } from "./promise-extensions"
 declare const _default: {
-    useArrayExtensions: (overwrite?: boolean) => void;
-    useDateExtensions: () => void;
-    usePromiseExtensions: () => void;
-};
-export default _default;
+    useArrayExtensions: (overwrite?: boolean) => void
+    useDateExtensions: () => void
+    usePromiseExtensions: () => void
+}
+export default _default
 ```
 
 ## arrayExtensions (array-extensions.d.ts)
 
 ```ts
 declare const _default: {
-    injectInto(target: object, overwrite?: boolean): void;
-    use(overwrite?: boolean): void;
-};
-export default _default;
+    injectInto(target: object, overwrite?: boolean): void
+    use(overwrite?: boolean): void
+}
+export default _default
 ```
 
 Injected onto `Array.prototype` (each method calls the matching `array-utility` function with the array as
@@ -42,40 +42,40 @@ the first argument): `orderBy`, `orderByDesc`, `naturalSort`, `shuffle`, `innerJ
 
 ```ts
 declare const _default: {
-    use(): void;
-};
-export default _default;
+    use(): void
+}
+export default _default
 ```
 
 `use()` sets `Date.prototype.toJSON` to a function backed by `stringifyDate` (no timezone correction):
 
 ```ts
 // from utilities/datetime-utility
-export declare const stringifyDate: (date: Date | number) => string | null;
+export declare const stringifyDate: (date: Date | number) => string | null
 ```
 
 ## promiseExtensions (promise-extensions.d.ts)
 
 ```ts
-import { debounceToPromise, enqueue } from "../utilities/promise-utility";
+import { debounceToPromise, enqueue } from "../utilities/promise-utility"
 declare global {
     interface PromiseConstructor {
-        debounce: typeof debounceToPromise;
-        enqueue: typeof enqueue;
+        debounce: typeof debounceToPromise
+        enqueue: typeof enqueue
     }
 }
 declare const _default: {
-    use(): void;
-};
-export default _default;
+    use(): void
+}
+export default _default
 ```
 
 `use()` assigns these statics on the `Promise` constructor:
 
 ```ts
 // from utilities/promise-utility
-export declare const debounceToPromise: <T>(func: (...args: unknown[]) => T, wait?: number) => (...args: unknown[]) => Promise<T>;
-export declare const enqueue: (arr: Array<() => unknown>) => Promise<unknown[]>;
+export declare const debounceToPromise: <T>(func: (...args: unknown[]) => T, wait?: number) => (...args: unknown[]) => Promise<T>
+export declare const enqueue: (arr: Array<() => unknown>) => Promise<unknown[]>
 ```
 
 ## See also

@@ -15,7 +15,7 @@ import { AppStatus, plugin as appPlugin, whenAppReady } from "@/regira_modules/v
 
 const app = createApp(App)
 app.use(createPinia())
-app.use(appPlugin, { culture: processedConfig.culture })   // culture is optional
+app.use(appPlugin, { culture: processedConfig.culture }) // culture is optional
 ```
 
 ## Drive the lifecycle during bootstrap

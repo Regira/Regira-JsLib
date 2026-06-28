@@ -17,6 +17,13 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         protected axios: AxiosInstance,
         protected config: IConfig
     ) {
+        if (axios == null) {
+            throw new Error(
+                `EntityServiceBase ("${config?.key ?? "unknown entity"}") was constructed without an axios instance. ` +
+                    `Register the shared axios in the IoC container so services can resolve it: ` +
+                    `app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => initAxios({ api })) }).`
+            )
+        }
         this.defaultPageSize = config.defaultPageSize ?? DEFAULT_PAGESIZE
     }
 

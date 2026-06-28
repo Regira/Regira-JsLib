@@ -23,7 +23,7 @@ Drop `v-focus` on the element that should grab focus when it mounts (focus is ap
 
 ```vue
 <template>
-  <input v-focus v-model.trim="item.value" maxlength="256" class="form-control" />
+    <input v-focus v-model.trim="item.value" maxlength="256" class="form-control" />
 </template>
 ```
 
@@ -36,13 +36,15 @@ opening click doesn't immediately close it:
 <script setup lang="ts">
 import { ref } from "vue"
 const showMenu = ref(false)
-function handleCloseMenu() { showMenu.value = false }
+function handleCloseMenu() {
+    showMenu.value = false
+}
 </script>
 <template>
-  <a href="#" @click.prevent="showMenu = !showMenu">Account</a>
-  <ul class="dropdown-menu" :class="{ show: showMenu }" v-click-outside="handleCloseMenu">
-    <li>…</li>
-  </ul>
+    <a href="#" @click.prevent="showMenu = !showMenu">Account</a>
+    <ul class="dropdown-menu" :class="{ show: showMenu }" v-click-outside="handleCloseMenu">
+        <li>…</li>
+    </ul>
 </template>
 ```
 
@@ -57,7 +59,7 @@ app.use(grow, { maxGrow: 10 })
 
 ```vue
 <template>
-  <textarea v-grow v-model="notes" class="form-control"></textarea>
+    <textarea v-grow v-model="notes" class="form-control"></textarea>
 </template>
 ```
 

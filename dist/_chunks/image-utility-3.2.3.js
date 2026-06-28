@@ -1,5 +1,5 @@
 import { startsWith as e, trim as t } from "../utilities/string-utility.js";
-import { A as n, _ as r, g as i, j as a, n as o, p as s } from "./array-utility-3.2.2.js";
+import { A as n, _ as r, g as i, j as a, n as o, p as s } from "./array-utility-3.2.3.js";
 import c from "../utilities/file-utility.js";
 //#region src/utilities/color-utility.ts
 var l = (e, t, n) => "#" + [

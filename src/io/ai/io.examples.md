@@ -14,7 +14,7 @@ import { FileHelper } from "@/regira_modules/io"
 const fh = new FileHelper()
 const [file] = await fh.browse({ accept: "application/json", multiple: false })
 if (file) {
-    const config = await fh.readJson(file)   // text -> JSON.parse
+    const config = await fh.readJson(file) // text -> JSON.parse
 }
 ```
 
@@ -26,7 +26,7 @@ if (file) {
 import { FileHelper } from "@/regira_modules/io"
 
 const fh = new FileHelper()
-await fh.saveAs(blob)                                  // uses the blob's own name/type
+await fh.saveAs(blob) // uses the blob's own name/type
 await fh.writeJson(report, "report.json").then((b) => fh.saveAs(b))
 ```
 

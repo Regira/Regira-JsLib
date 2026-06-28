@@ -15,9 +15,7 @@ import { defaultPoolCache, PoolCache } from "@/regira_modules/vue/entities"
 const axios = initAxios({ api, includeCredentials })
 
 app.use(servicesPlugin, {
-    configure: (sp: IServiceProvider) =>
-        sp.add("axios", () => axios)
-          .add(PoolCache.name, () => defaultPoolCache),
+    configure: (sp: IServiceProvider) => sp.add("axios", () => axios).add(PoolCache.name, () => defaultPoolCache),
 })
 ```
 

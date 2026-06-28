@@ -18,8 +18,8 @@ export interface IServiceProvider {
 export class ServiceProvider implements IServiceProvider {
     services: Map<any, (sp: IServiceProvider) => any>
     constructor()
-    get<T = any>(key: any): T | null                                        // returns factory(this) or null
-    add<T = any>(key: any, factory: (sp: IServiceProvider) => T): IServiceProvider   // chainable
+    get<T = any>(key: any): T | null // returns factory(this) or null
+    add<T = any>(key: any, factory: (sp: IServiceProvider) => T): IServiceProvider // chainable
 }
 
 // resolves from the default singleton

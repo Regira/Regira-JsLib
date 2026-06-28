@@ -3,7 +3,7 @@
 Two **complete, copy-paste** worked entity slices, simplest first. **Part 1** is the SIMPLE slice
 (`UnitType`) — a self-contained minimal entity with every file shown verbatim; this is the canonical place
 the shared boilerplate is printed in full. **Part 2** is the STANDARD slice (`Product`) — the richer
-entity that *builds on* Part 1, so it shows only the files it changes and points back up for the shared
+entity that _builds on_ Part 1, so it shows only the files it changes and points back up for the shared
 boilerplate. Both are copied verbatim from the reference
 [PIM-Manager](https://github.com/Regira) app (`unit-types` and `products` slices). The third, COMPLEX tier
 (`Vehicle`) lives in [entities.advanced.example.md](entities.advanced.example.md).
@@ -62,7 +62,7 @@ complex `Vehicle` slice) reuse most of these files unchanged.
 - **The Form is just text inputs** — `code` and `title` — with no tabs, selectors, or relation pickers
   (see `details/Form.vue` §13).
 
-But note what *doesn't* change: a simple entity here **still uses `useSearchView`** (pointed at the list
+But note what _doesn't_ change: a simple entity here **still uses `useSearchView`** (pointed at the list
 endpoint) and **still registers both Overview and Details routes** in `setup.ts`. The `isComplex` flag
 toggles the search endpoint and the new-item UX — it does **not** swap out the composable or drop the
 Details route.

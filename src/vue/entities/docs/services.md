@@ -24,7 +24,9 @@ The Axios-backed implementation. Subclass it and implement **only** `toEntity`:
 
 ```ts
 export class EntityService extends EntityServiceBase<Product> {
-    constructor(axios: AxiosInstance, config: IConfig) { super(axios, config) }
+    constructor(axios: AxiosInstance, config: IConfig) {
+        super(axios, config)
+    }
     override toEntity(item: object): Product {
         return item instanceof Product ? item : Object.assign(this.createInstance(Product), item || {})
     }
@@ -34,7 +36,7 @@ export class EntityService extends EntityServiceBase<Product> {
 The constructor takes the shared `axios` instance and the entity's `IConfig`; both are supplied by the
 IoC registration in `setup.ts`. Useful protected members:
 
-- **`toEntity(item)`** *(abstract)* — converts a plain server object into a model instance.
+- **`toEntity(item)`** _(abstract)_ — converts a plain server object into a model instance.
 - **`prepareItem(item)`** — runs before save; strips every property whose key starts with `_`
   (transient client state). Override to drop soft-deleted children, etc.
 - **`processItem(item)`** — runs after fetch/save; hydrates `created` / `lastModified` strings to `Date`.
@@ -55,15 +57,15 @@ reference data, not frequently changing entities. See
 `EntityServiceBase` builds requests from `IConfig` and expects item-wrapped envelopes — the shape the
 back-end `Regira.Entities.Web` endpoints return:
 
-| Method | HTTP | URL | Response |
-|--------|------|-----|----------|
-| `details(id)` | GET | `{detailsUrl}/{id}` | `{ item }` |
-| `list(so)` | GET | `{listUrl}?{query}` | `{ items }` |
-| `search(so)` | GET | `{searchUrl}?{query}` | `{ items, count }` |
-| `searchUnion(sos)` | POST | `{searchUrl}?{query}` (body = search objects) | `{ items, count }` |
-| `insert(item)` | POST | `{saveUrl}` | `{ item }` |
-| `update(item)` | PUT | `{saveUrl}/{$id}` | `{ item }` |
-| `remove(item)` | DELETE | `{deleteUrl}/{$id}` | — |
+| Method             | HTTP   | URL                                           | Response           |
+| ------------------ | ------ | --------------------------------------------- | ------------------ |
+| `details(id)`      | GET    | `{detailsUrl}/{id}`                           | `{ item }`         |
+| `list(so)`         | GET    | `{listUrl}?{query}`                           | `{ items }`        |
+| `search(so)`       | GET    | `{searchUrl}?{query}`                         | `{ items, count }` |
+| `searchUnion(sos)` | POST   | `{searchUrl}?{query}` (body = search objects) | `{ items, count }` |
+| `insert(item)`     | POST   | `{saveUrl}`                                   | `{ item }`         |
+| `update(item)`     | PUT    | `{saveUrl}/{$id}`                             | `{ item }`         |
+| `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                           | —                  |
 
 `save(item)` inserts when `$id` is `null`/`"new"`, otherwise updates, and returns `{ saved, isNew }`.
 

@@ -12,10 +12,23 @@ overview, details, form, filter, describers, navigation, pooling, preloading, tr
 
 ```ts
 import {
-  EntityBase, EntityServiceBase, JSONService, SearchObjectBase, PagingInfo,
-  type IEntity, type IEntityService, type IConfig, type SearchResult, type SaveResult,
-  useSearchView, useRouteOverview, useDetails, useForm, useFilter,
-  createStore, DetailsSummary,
+    EntityBase,
+    EntityServiceBase,
+    JSONService,
+    SearchObjectBase,
+    PagingInfo,
+    type IEntity,
+    type IEntityService,
+    type IConfig,
+    type SearchResult,
+    type SaveResult,
+    useSearchView,
+    useRouteOverview,
+    useDetails,
+    useForm,
+    useFilter,
+    createStore,
+    DetailsSummary,
 } from "regira_modules/vue/entities"
 ```
 
@@ -34,22 +47,22 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 
 ## Types by concern (barrel: `regira_modules/vue/entities`)
 
-| Concern | Exports |
-|---------|---------|
-| Entity contract | `IEntity`, `EntityBase` |
-| Service | `IEntityService`, `EntityServiceBase`, `JSONService` |
-| Result envelopes | `DetailsResult`, `ListResult`, `SearchResult`, `SavedResult`, `SaveResult`, `DeleteResult` |
-| Search / paging / sort | `ISearchObject`, `SearchObjectBase`, `DefaultSearchObject`, `IPagingInfo`, `PagingInfo`, `DEFAULT_PAGESIZE`, `ISortByInfo`, `SortByInfo` |
-| Config / descriptor | `IConfig`, `NavTypes`, `EntityDescriptor`, `IEntityDescriptor` |
-| Overview | `useSearchView`, `useListView`, `useOverviewCore`, `useRouteOverview`, `OverviewProps`, `OverviewEmits`, `DEFAULT_DEBOUNCE` |
-| Details | `useDetails`, `DetailsSummary` |
-| Form | `useForm`, `useModalForm`/`useModal`, `FormProps`, `FormEmits`, `FormStates`, `formDefaults`, `useOwnedCollection`, `useOwnedModal`, `useListInput`, `useListItemInput` |
-| Filter | `useFilter`, `FilterIn`, `FilterEmits`, `FilterOut` |
-| Pooling | `createStore`, `usePooling`, `defaultPoolCache`, `PoolCache`, `PoolService`, `IPoolHandler`, `IPoolService`, `IPoolCache` |
-| Navigation | `NavItem`, `NavGroup`, `INavItem`, `INavCore`, `createNavItem`, `createNavGroup`, `buildNavigationTree`, `importDashboard`, `importNavbar`, `isNavItem` |
-| Tree | `useTree`, `useDragDrop` |
-| Preloading | `usePreloader`, `preloaderPlugin` |
-| Utilities | `cleanQueryParams`, `parseQueryParams` |
+| Concern                | Exports                                                                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entity contract        | `IEntity`, `EntityBase`                                                                                                                                                 |
+| Service                | `IEntityService`, `EntityServiceBase`, `JSONService`                                                                                                                    |
+| Result envelopes       | `DetailsResult`, `ListResult`, `SearchResult`, `SavedResult`, `SaveResult`, `DeleteResult`                                                                              |
+| Search / paging / sort | `ISearchObject`, `SearchObjectBase`, `DefaultSearchObject`, `IPagingInfo`, `PagingInfo`, `DEFAULT_PAGESIZE`, `ISortByInfo`, `SortByInfo`                                |
+| Config / descriptor    | `IConfig`, `NavTypes`, `EntityDescriptor`, `IEntityDescriptor`                                                                                                          |
+| Overview               | `useSearchView`, `useListView`, `useOverviewCore`, `useRouteOverview`, `OverviewProps`, `OverviewEmits`, `DEFAULT_DEBOUNCE`                                             |
+| Details                | `useDetails`, `DetailsSummary`                                                                                                                                          |
+| Form                   | `useForm`, `useModalForm`/`useModal`, `FormProps`, `FormEmits`, `FormStates`, `formDefaults`, `useOwnedCollection`, `useOwnedModal`, `useListInput`, `useListItemInput` |
+| Filter                 | `useFilter`, `FilterIn`, `FilterEmits`, `FilterOut`                                                                                                                     |
+| Pooling                | `createStore`, `usePooling`, `defaultPoolCache`, `PoolCache`, `PoolService`, `IPoolHandler`, `IPoolService`, `IPoolCache`                                               |
+| Navigation             | `NavItem`, `NavGroup`, `INavItem`, `INavCore`, `createNavItem`, `createNavGroup`, `buildNavigationTree`, `importDashboard`, `importNavbar`, `isNavItem`                 |
+| Tree                   | `useTree`, `useDragDrop`                                                                                                                                                |
+| Preloading             | `usePreloader`, `preloaderPlugin`                                                                                                                                       |
+| Utilities              | `cleanQueryParams`, `parseQueryParams`                                                                                                                                  |
 
 `Selector.vue` (entity picker) is exported from the barrel's `components`.
 
@@ -58,32 +71,32 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 Use these only when you want to import a single feature area (e.g. for tree-shaking). All are also
 re-exported by the barrel above.
 
-| Subpath | Holds |
-|---------|-------|
+| Subpath                                    | Holds                                                                                                                                        |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `regira_modules/vue/entities/abstractions` | `IEntity`, `EntityBase`, `IEntityService`, `EntityServiceBase`, `JSONService`, result types, `IConfig`, `NavTypes`, search/paging/sort types |
-| `regira_modules/vue/entities/config` | `EntityDescriptor`, `IEntityDescriptor` |
-| `regira_modules/vue/entities/overview` | overview composables + types |
-| `regira_modules/vue/entities/details` | `useDetails`, `DetailsSummary` |
-| `regira_modules/vue/entities/form` | `useForm`, modal/owned/list-input composables + types |
-| `regira_modules/vue/entities/filter` | `useFilter` + types |
-| `regira_modules/vue/entities/describers` | `useEntityDescribers` |
-| `regira_modules/vue/entities/navigation` | nav classes, builders, importers |
-| `regira_modules/vue/entities/pooling` | pooling cache + handlers |
-| `regira_modules/vue/entities/preloading` | `usePreloader`, `preloaderPlugin` |
-| `regira_modules/vue/entities/tree` | `useTree`, `useDragDrop` |
-| `regira_modules/vue/entities/utilities` | `cleanQueryParams`, `parseQueryParams` |
+| `regira_modules/vue/entities/config`       | `EntityDescriptor`, `IEntityDescriptor`                                                                                                      |
+| `regira_modules/vue/entities/overview`     | overview composables + types                                                                                                                 |
+| `regira_modules/vue/entities/details`      | `useDetails`, `DetailsSummary`                                                                                                               |
+| `regira_modules/vue/entities/form`         | `useForm`, modal/owned/list-input composables + types                                                                                        |
+| `regira_modules/vue/entities/filter`       | `useFilter` + types                                                                                                                          |
+| `regira_modules/vue/entities/describers`   | `useEntityDescribers`                                                                                                                        |
+| `regira_modules/vue/entities/navigation`   | nav classes, builders, importers                                                                                                             |
+| `regira_modules/vue/entities/pooling`      | pooling cache + handlers                                                                                                                     |
+| `regira_modules/vue/entities/preloading`   | `usePreloader`, `preloaderPlugin`                                                                                                            |
+| `regira_modules/vue/entities/tree`         | `useTree`, `useDragDrop`                                                                                                                     |
+| `regira_modules/vue/entities/utilities`    | `cleanQueryParams`, `parseQueryParams`                                                                                                       |
 
 > The package also exposes `regira_modules/vue/entities/abstractions/IEntity` for importing the
 > contract alone (used by `package.json` `exports`).
 
 ## Wiring modules
 
-| Specifier | Exports | Used for |
-|-----------|---------|----------|
-| `regira_modules/vue/ioc` | `ServiceProvider`, `get`, `IServiceProvider`, `plugin` | register/resolve services |
-| `regira_modules/vue/http` | `initAxios`, `useAxios`, `AxiosWithFilesInstance`, `createQueryString` | the shared axios instance + query strings |
-| `regira_modules/vue/auth` | `plugin`, `LocalStorageTokenManager`/`CookieTokenManager`/`MemoryTokenManager`, `useAuthStore`, `useAuth` | bearer-token auth on the shared axios |
-| `regira_modules/vue/vue-helper` | `useVModelField`, `createFromComputedPool`, `useEventListener` | v-model field binding + pool-backed computed helpers (used by the advanced example's form) |
+| Specifier                       | Exports                                                                                                   | Used for                                                                                   |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `regira_modules/vue/ioc`        | `ServiceProvider`, `get`, `IServiceProvider`, `plugin`                                                    | register/resolve services                                                                  |
+| `regira_modules/vue/http`       | `initAxios`, `useAxios`, `AxiosWithFilesInstance`, `createQueryString`                                    | the shared axios instance + query strings                                                  |
+| `regira_modules/vue/auth`       | `plugin`, `LocalStorageTokenManager`/`CookieTokenManager`/`MemoryTokenManager`, `useAuthStore`, `useAuth` | bearer-token auth on the shared axios                                                      |
+| `regira_modules/vue/vue-helper` | `useVModelField`, `createFromComputedPool`, `useEventListener`                                            | v-model field binding + pool-backed computed helpers (used by the advanced example's form) |
 
 > **Deep specifiers in the advanced example.** The verbatim Vehicle slice
 > ([entities.advanced.example.md](entities.advanced.example.md)) reaches two granular paths:

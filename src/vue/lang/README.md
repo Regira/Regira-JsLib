@@ -6,15 +6,15 @@ global properties. Entity labels and any user-facing strings are translated thro
 
 ## What it provides
 
-| Export | Purpose |
-|--------|---------|
-| `plugin` | `app.use(plugin, { defaultLang, messages })` — set language + load messages, install `$t`/`$tm`. |
-| `useLang()` | Shared (singleton) i18n state: `langCode`, `messages`, `translate`, `setLangCode`, `loadMessages`, … |
-| `translate(key, values, langCode, formatArgs?)` | Look up a key in a dictionary for a language (falls back to 2-letter prefix). |
-| `translateMessage(message, langCode, formatArgs?)` | Translate an inline per-language message (or plain string). |
-| `formatText(input, formatArgs)` | Fill `{param}` placeholders, or pass a function to transform the string. |
-| `ITranslationMessages` / `ITranslationMessage` | The dictionary and per-language message types. |
-| `IFormatInput` | Interpolation args: a value map or a `(input) => string` function. |
+| Export                                             | Purpose                                                                                              |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `plugin`                                           | `app.use(plugin, { defaultLang, messages })` — set language + load messages, install `$t`/`$tm`.     |
+| `useLang()`                                        | Shared (singleton) i18n state: `langCode`, `messages`, `translate`, `setLangCode`, `loadMessages`, … |
+| `translate(key, values, langCode, formatArgs?)`    | Look up a key in a dictionary for a language (falls back to 2-letter prefix).                        |
+| `translateMessage(message, langCode, formatArgs?)` | Translate an inline per-language message (or plain string).                                          |
+| `formatText(input, formatArgs)`                    | Fill `{param}` placeholders, or pass a function to transform the string.                             |
+| `ITranslationMessages` / `ITranslationMessage`     | The dictionary and per-language message types.                                                       |
+| `IFormatInput`                                     | Interpolation args: a value map or a `(input) => string` function.                                   |
 
 ## How it fits
 

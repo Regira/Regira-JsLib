@@ -26,9 +26,9 @@ the package root above.
   Default `findParents` returns `[]`, so everything becomes a root. This is how `buildNavigationTree`
   works — it matches `candidates.filter((x) => x.id == value.parentId)`.
 
-  ```ts
-  const tree = new TreeList<Item>().init(items, (v, all) => all.filter((x) => x.id === v.parentId))
-  ```
+    ```ts
+    const tree = new TreeList<Item>().init(items, (v, all) => all.filter((x) => x.id === v.parentId))
+    ```
 
 - **Imperatively.** Pass a flat `Array<T>` to the constructor (each becomes a root), or call
   `addValue(value, parentNode?)` / `addValues(values, parentNode?)`. Omit `parentNode` (or pass `null`)

@@ -4,7 +4,7 @@ Verbatim TypeScript signatures for `regira_modules/vue/online`. Do not guess —
 
 ```ts
 import { useOnlineChecker, plugin } from "regira_modules/vue/online"
-import onlinePlugin from "regira_modules/vue/online"   // default export === plugin
+import onlinePlugin from "regira_modules/vue/online" // default export === plugin
 ```
 
 ## Composable
@@ -14,7 +14,7 @@ export type IsOnline = {
     isOnline: Ref<boolean>
 }
 export declare function useOnlineChecker(): IsOnline
-export default useOnlineChecker   // this module's own default; the package root's default is the plugin (below)
+export default useOnlineChecker // this module's own default; the package root's default is the plugin (below)
 ```
 
 ## Plugin

@@ -27,21 +27,21 @@ A front-end app is **assembled** from several `regira_modules` packages. `vue/en
 engine; the others provide the runtime it plugs into. This is the front-end counterpart of the back-end
 package set — each module has its own guide (load it when you work in that area).
 
-| Module | Import | Role | Required? |
-|--------|--------|------|-----------|
-| **vue/entities** | `regira_modules/vue/entities` | **This module.** The CRUD engine: `EntityBase`, `EntityServiceBase`/`JSONService`, `IConfig`, `createStore` (pooling), the overview/details/form/filter composables, navigation, preloading, tree. | ✓ core |
-| **vue/app** | [`regira_modules/vue/app`](../../app/ai/app.instructions.md) | App lifecycle + culture: `AppStatus` (Init→Mounting→Ready), `$setAppStatus`, `$culture`/`$setCulture`, `whenAppReady()`, the loading gate. The app's heartbeat. | ✓ core |
-| **vue/ioc** | [`regira_modules/vue/ioc`](../../ioc/ai/ioc.instructions.md) | Service container: register the shared `axios` + `PoolCache` here; every entity service is resolved from it by `Entity.name` via `get()`. | ✓ core |
-| **vue/http** | [`regira_modules/vue/http`](../../http/ai/http.instructions.md) | The single shared axios: `initAxios({ api, includeCredentials })` (sets `baseURL`, credentials, file upload/download helpers). | ✓ core |
-| **vue/ui** | [`regira_modules/vue/ui`](../../ui/ai/ui.instructions.md) | Component + feedback kit (Bootstrap 5): `feedbackPlugin`, `modalPlugin`, `loadingPlugin`/`LoadingContainer`, `iconPlugin`, `screenPlugin`, inputs (`DateInput`, `NullableCheckBox`…), `Autocomplete`, paging, tabs. | ✓ core¹ |
-| **vue/auth** | [`regira_modules/vue/auth`](../../auth/ai/auth.instructions.md) | Login + bearer token layered on the shared axios: `authPlugin`, `LocalStorageTokenManager`, `useAuthStore`, login UI, route guard. | ○ optional (see [Running without auth](entities.setup.md#running-without-authentication)) |
-| **vue/lang** | [`regira_modules/vue/lang`](../../lang/ai/lang.instructions.md) | i18n: `langPlugin`, `useLang`, `$t`/`$tm`, key-first translations. | ○ optional |
-| **vue/directives** | [`regira_modules/vue/directives`](../../directives/ai/directives.instructions.md) | Global directives installed as plugins: `focus`, `grow` (textarea autosize), `clickOutside`. | ○ optional |
-| **vue/online** | [`regira_modules/vue/online`](../../online/ai/online.instructions.md) | Connectivity: `isOnlinePlugin` + `$isOnline`, drives an offline banner. | ○ optional |
-| **vue/formatters** | [`regira_modules/vue/formatters`](../../formatters/ai/formatters.instructions.md) | Date/number formatting (`formatDateTime`, …) — used for display and config cache-busting. | ○ optional |
-| **vue/debug** | [`regira_modules/vue/debug`](../../debug/ai/debug.instructions.md) | Dev-only `debugPlugin` + `$isDebug`/`$setDebug`. | ○ optional |
-| **extensions/date-extensions** | [`regira_modules/extensions/date-extensions`](../../../extensions/ai/extensions.instructions.md) | `dateSerializer.use()` once at startup — serialize `Date`s to JSON without a timezone shift. Lives under `extensions/`, **not** `vue/`. | ○ recommended |
-| **utilities** | [`regira_modules/utilities`](../../../utilities/ai/utilities.instructions.md) | Pure helpers (`string-utility`, `array-utility`, `file-utility`, …). | ○ as needed |
+| Module                         | Import                                                                                           | Role                                                                                                                                                                                                                | Required?                                                                                 |
+| ------------------------------ | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **vue/entities**               | `regira_modules/vue/entities`                                                                    | **This module.** The CRUD engine: `EntityBase`, `EntityServiceBase`/`JSONService`, `IConfig`, `createStore` (pooling), the overview/details/form/filter composables, navigation, preloading, tree.                  | ✓ core                                                                                    |
+| **vue/app**                    | [`regira_modules/vue/app`](../../app/ai/app.instructions.md)                                     | App lifecycle + culture: `AppStatus` (Init→Mounting→Ready), `$setAppStatus`, `$culture`/`$setCulture`, `whenAppReady()`, the loading gate. The app's heartbeat.                                                     | ✓ core                                                                                    |
+| **vue/ioc**                    | [`regira_modules/vue/ioc`](../../ioc/ai/ioc.instructions.md)                                     | Service container: register the shared `axios` + `PoolCache` here; every entity service is resolved from it by `Entity.name` via `get()`.                                                                           | ✓ core                                                                                    |
+| **vue/http**                   | [`regira_modules/vue/http`](../../http/ai/http.instructions.md)                                  | The single shared axios: `initAxios({ api, includeCredentials })` (sets `baseURL`, credentials, file upload/download helpers).                                                                                      | ✓ core                                                                                    |
+| **vue/ui**                     | [`regira_modules/vue/ui`](../../ui/ai/ui.instructions.md)                                        | Component + feedback kit (Bootstrap 5): `feedbackPlugin`, `modalPlugin`, `loadingPlugin`/`LoadingContainer`, `iconPlugin`, `screenPlugin`, inputs (`DateInput`, `NullableCheckBox`…), `Autocomplete`, paging, tabs. | ✓ core¹                                                                                   |
+| **vue/auth**                   | [`regira_modules/vue/auth`](../../auth/ai/auth.instructions.md)                                  | Login + bearer token layered on the shared axios: `authPlugin`, `LocalStorageTokenManager`, `useAuthStore`, login UI, route guard.                                                                                  | ○ optional (see [Running without auth](entities.setup.md#running-without-authentication)) |
+| **vue/lang**                   | [`regira_modules/vue/lang`](../../lang/ai/lang.instructions.md)                                  | i18n: `langPlugin`, `useLang`, `$t`/`$tm`, key-first translations.                                                                                                                                                  | ○ optional                                                                                |
+| **vue/directives**             | [`regira_modules/vue/directives`](../../directives/ai/directives.instructions.md)                | Global directives installed as plugins: `focus`, `grow` (textarea autosize), `clickOutside`.                                                                                                                        | ○ optional                                                                                |
+| **vue/online**                 | [`regira_modules/vue/online`](../../online/ai/online.instructions.md)                            | Connectivity: `isOnlinePlugin` + `$isOnline`, drives an offline banner.                                                                                                                                             | ○ optional                                                                                |
+| **vue/formatters**             | [`regira_modules/vue/formatters`](../../formatters/ai/formatters.instructions.md)                | Date/number formatting (`formatDateTime`, …) — used for display and config cache-busting.                                                                                                                           | ○ optional                                                                                |
+| **vue/debug**                  | [`regira_modules/vue/debug`](../../debug/ai/debug.instructions.md)                               | Dev-only `debugPlugin` + `$isDebug`/`$setDebug`.                                                                                                                                                                    | ○ optional                                                                                |
+| **extensions/date-extensions** | [`regira_modules/extensions/date-extensions`](../../../extensions/ai/extensions.instructions.md) | `dateSerializer.use()` once at startup — serialize `Date`s to JSON without a timezone shift. Lives under `extensions/`, **not** `vue/`.                                                                             | ○ recommended                                                                             |
+| **utilities**                  | [`regira_modules/utilities`](../../../utilities/ai/utilities.instructions.md)                    | Pure helpers (`string-utility`, `array-utility`, `file-utility`, …).                                                                                                                                                | ○ as needed                                                                               |
 
 > **Not in the common stack:** `regira_modules/treelist` (`TreeList` / `IFindParents`) is a direct
 > dependency only when you build an explicit client-side hierarchy with `useTree` — a load-on-demand
@@ -49,10 +49,10 @@ package set — each module has its own guide (load it when you work in that are
 > not part of the app you assemble here. (The dashboard/navbar builders return a `TreeList` too, but you
 > import those from `vue/entities`, not `treelist` directly.)
 
-¹ *`vue/ui` is "core" because the standard app shell (`App.vue`) uses `Feedback` + `LoadingContainer` and
+¹ _`vue/ui` is "core" because the standard app shell (`App.vue`) uses `Feedback` + `LoadingContainer` and
 the views render icons. A pure headless data layer can skip it — see
 [Choosing a service base](#choosing-a-service-base) and the data-layer-only note in
-[entities.setup.md](entities.setup.md).*
+[entities.setup.md](entities.setup.md)._
 
 The **plugin install order** that wires these together is fixed (verified across the reference apps) —
 see [App startup](#app-startup-wiring-order) and the canonical `main.ts` in
@@ -67,16 +67,16 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 
 ## Quick Agent Playbook
 
-| Task | Go to |
-|------|-------|
-| **Stand up a new app** (deps, `main.ts`, `App.vue`, router, plugin order, app shell) | → [entities.setup.md](entities.setup.md) |
-| **Build the app shell** (config-driven dashboard + navbar, header/footer chrome, form-action buttons, auth UI) | → [entities.setup.md §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
-| **Add an entity** | → [§Entity Implementation Workflow](#entity-implementation-workflow) |
-| **Scaffold a new entity** (blank file tree + placeholder skeletons to fill in) | → [entities.template.md](entities.template.md) |
-| **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`) | → [entities.examples.md](entities.examples.md) |
-| **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`) | → [entities.advanced.example.md](entities.advanced.example.md) |
-| **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing) | → [entities.patterns.md](entities.patterns.md) |
-| **Run without authentication** | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication) |
+| Task                                                                                                                           | Go to                                                                                             |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| **Stand up a new app** (deps, `main.ts`, `App.vue`, router, plugin order, app shell)                                           | → [entities.setup.md](entities.setup.md)                                                          |
+| **Build the app shell** (config-driven dashboard + navbar, header/footer chrome, form-action buttons, auth UI)                 | → [entities.setup.md §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
+| **Add an entity**                                                                                                              | → [§Entity Implementation Workflow](#entity-implementation-workflow)                              |
+| **Scaffold a new entity** (blank file tree + placeholder skeletons to fill in)                                                 | → [entities.template.md](entities.template.md)                                                    |
+| **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                | → [entities.examples.md](entities.examples.md)                                                    |
+| **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                    | → [entities.advanced.example.md](entities.advanced.example.md)                                    |
+| **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing) | → [entities.patterns.md](entities.patterns.md)                                                    |
+| **Run without authentication**                                                                                                 | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication)     |
 
 ## References
 
@@ -112,27 +112,27 @@ Vue view  ──uses──▶  composable (useSearchView / useForm / useDetails 
 
 ### Generic type system
 
-| Parameter | Constraint | Role |
-|-----------|------------|------|
-| `T` | `extends IEntity` | the entity model (`$id` = uniform identifier, `$title` = uniform display label) |
-| `SO` | `extends ISearchObject` | the search/filter object (has `q`) |
-| — | `IConfig` | endpoint URLs, paging, route prefix, titles, icon |
-| — | `IPagingInfo` / `ISortByInfo` | paging and sort directives |
+| Parameter | Constraint                    | Role                                                                            |
+| --------- | ----------------------------- | ------------------------------------------------------------------------------- |
+| `T`       | `extends IEntity`             | the entity model (`$id` = uniform identifier, `$title` = uniform display label) |
+| `SO`      | `extends ISearchObject`       | the search/filter object (has `q`)                                              |
+| —         | `IConfig`                     | endpoint URLs, paging, route prefix, titles, icon                               |
+| —         | `IPagingInfo` / `ISortByInfo` | paging and sort directives                                                      |
 
 ### The API contract it mirrors
 
 `EntityServiceBase<T>` builds requests from `IConfig` and expects **item-wrapped** envelopes — the exact
 shape the back-end `Regira.Entities.Web` endpoints return.
 
-| Method | HTTP | URL | Response |
-|--------|------|-----|----------|
-| `details(id)` | GET | `{detailsUrl}/{id}` | `{ item }` |
-| `list(so)` | GET | `{listUrl}?{query}` | `{ items }` |
-| `search(so)` | GET | `{searchUrl}?{query}` | `{ items, count }` |
-| `searchUnion(sos)` | POST | `{searchUrl}?{query}` (body = array of search objects) | `{ items, count }` |
-| `insert(item)` | POST | `{saveUrl}` | `{ item }` |
-| `update(item)` | PUT | `{saveUrl}/{$id}` | `{ item }` |
-| `remove(item)` | DELETE | `{deleteUrl}/{$id}` | — |
+| Method             | HTTP   | URL                                                    | Response           |
+| ------------------ | ------ | ------------------------------------------------------ | ------------------ |
+| `details(id)`      | GET    | `{detailsUrl}/{id}`                                    | `{ item }`         |
+| `list(so)`         | GET    | `{listUrl}?{query}`                                    | `{ items }`        |
+| `search(so)`       | GET    | `{searchUrl}?{query}`                                  | `{ items, count }` |
+| `searchUnion(sos)` | POST   | `{searchUrl}?{query}` (body = array of search objects) | `{ items, count }` |
+| `insert(item)`     | POST   | `{saveUrl}`                                            | `{ item }`         |
+| `update(item)`     | PUT    | `{saveUrl}/{$id}`                                      | `{ item }`         |
+| `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                                    | —                  |
 
 `save(item)` dispatches: **insert** when `$id == null || $id === "new"`, otherwise **update**; it returns
 `SaveResult` = `{ saved, isNew }`. The `*Url` fields default off `config.api` and are **relative** to the
@@ -172,10 +172,10 @@ axios `baseURL` (set from app config).
 
 ### Choosing a service base
 
-| Use | Base | Why |
-|-----|------|-----|
-| Normal server-backed entity | `EntityServiceBase<T>` | one request per operation against the API |
-| Small static / lookup list | `JSONService<T>` | fetches the list once, then filters/pages/saves in memory (shared cache keyed by `key`) — see [entities.patterns.md](entities.patterns.md#static--lookup-data--jsonservice) |
+| Use                         | Base                   | Why                                                                                                                                                                         |
+| --------------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Normal server-backed entity | `EntityServiceBase<T>` | one request per operation against the API                                                                                                                                   |
+| Small static / lookup list  | `JSONService<T>`       | fetches the list once, then filters/pages/saves in memory (shared cache keyed by `key`) — see [entities.patterns.md](entities.patterns.md#static--lookup-data--jsonservice) |
 
 Set `config.isComplex = true` for entities with child collections / heavier forms (used by navigation
 and routing conventions); simple lookups leave it unset.
@@ -188,19 +188,17 @@ and routing conventions); simple lookups leave it unset.
 
 ### Overview: `useListView` vs `useSearchView`
 
-Pick the overview composable to match what the **back-end controller exposes**:
+Both simple and complex controllers expose `/search`, so the choice is a fetch-shape decision, not a
+question of which endpoint exists:
 
-| Back-end controller | Endpoint it serves | Front-end composable | Notes |
-|---------------------|--------------------|----------------------|-------|
-| **Complex** (full `For<>` with a search object) | `GET /search` → `{ items, count }` | `useSearchView` + `useRouteOverview` | paged search with a total count + filters |
-| **Simple / lookup** (registered as `For<T>` only) | `GET /?q=` → `{ items }`, no counted `/search` | `useListView` | plain list + free-text `q`; point `config.searchUrl` at the list endpoint or rely on `listUrl` |
+| Composable                           | Calls              | Expects            | Use when                                       |
+| ------------------------------------ | ------------------ | ------------------ | ---------------------------------------------- |
+| `useSearchView` + `useRouteOverview` | `service.search()` | `{ items, count }` | counted paging + filters (the usual list UI)   |
+| `useListView`                        | `service.list()`   | `{ items }`        | a plain list is enough — no total count needed |
 
-`useSearchView` calls `service.search()` (expects `{ items, count }`); `useListView` calls
-`service.list()` (expects `{ items }`). Calling `search()` against a simple controller that has no
-`/search` endpoint returns the wrong shape (or 404s) — match the pair above. Both expose the same
-overview surface (`items`, `pagingInfo`, `itemsCount`, `isLoading`, `applySave`, `handleSave`,
-`handleRemove`); only the fetch + handler names differ (`searchHandler` / `debouncedSearchHandler`
-vs `listHandler` / `debouncedListHandler`).
+Both expose the same overview surface (`items`, `pagingInfo`, `itemsCount`, `isLoading`, `applySave`,
+`handleSave`, `handleRemove`); only the fetch + handler names differ (`searchHandler` /
+`debouncedSearchHandler` vs `listHandler` / `debouncedListHandler`).
 
 > **→ See:** [entities.signatures.md](entities.signatures.md#5-overview-composables) — exact composable signatures.
 
@@ -270,7 +268,9 @@ Keep every view thin: bind the refs the composables return.
 > **Verify after wiring a slice:** the service resolves (`get<IEntityService>(Entity.name)` non-null after
 > startup); the overview lists and pages (archived rows hidden unless `searchObject.isArchived` is set);
 > save round-trips (new `$id === "new"` inserts, existing updates — bind to `saved`); routes resolve
-> (`${key}Overview`, `${key}Details` → `${key}Form`/`${key}Fiche`).
+> (`${key}Overview`, `${key}Details` → `${key}Form`/`${key}Fiche`). Then **smoke-test at runtime**: a green
+> `npm run build` only proves it compiles — run the app against the live API and load one view per entity
+> to confirm the wiring (most wiring/contract mismatches surface only here).
 
 ---
 
@@ -325,41 +325,42 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 
 ## Quick reference
 
-| I want to… | Use |
-|------------|-----|
-| Define a model | `extends EntityBase` (`$id`, `$title`) |
-| Call the API | `extends EntityServiceBase<T>` → implement `toEntity` |
-| Static lookup list | `extends JSONService<T>` |
-| List + search + URL sync | `useSearchView` + `useRouteOverview` |
-| List (simple controller) | `useListView` |
-| Load one item | `useDetails` |
-| Create/edit/delete form | `useForm` (modal: `useModalForm`) |
-| Filter UI | `useFilter` |
-| Reactive shared cache | `createStore` (Pinia store) |
-| Child collections | `useOwnedCollection` / `useOwnedModal` / `useListInput` |
-| Hierarchy | `useTree` |
-| Navigation from configs | `importDashboard` / `importNavbar` / `buildNavigationTree` |
+| I want to…                         | Use                                                        |
+| ---------------------------------- | ---------------------------------------------------------- |
+| Define a model                     | `extends EntityBase` (`$id`, `$title`)                     |
+| Call the API                       | `extends EntityServiceBase<T>` → implement `toEntity`      |
+| Static lookup list                 | `extends JSONService<T>`                                   |
+| List + search + URL sync (counted) | `useSearchView` + `useRouteOverview`                       |
+| Plain list (no count)              | `useListView`                                              |
+| Load one item                      | `useDetails`                                               |
+| Create/edit/delete form            | `useForm` (modal: `useModalForm`)                          |
+| Filter UI                          | `useFilter`                                                |
+| Reactive shared cache              | `createStore` (Pinia store)                                |
+| Child collections                  | `useOwnedCollection` / `useOwnedModal` / `useListInput`    |
+| Hierarchy                          | `useTree`                                                  |
+| Navigation from configs            | `importDashboard` / `importNavbar` / `buildNavigationTree` |
 
 ---
 
 ## Gotchas
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| `v-for` over `items` throws a null error on first render | Overview refs are **lazy** — `items` / `itemsCount` are `undefined` until `searchHandler`/`listHandler` runs (the type says `Array<T>`, but the initial value is `undefined`) | Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`, `(items?.length ?? 0) === 0` |
-| `Fiche`/`Form` receive `null` | `useDetails().item` is `null` until the `onMounted` load resolves | Gate the child: `<RouterView v-if="item" v-model="item" …>` |
-| Save result binds to nothing / wrong shape | Binding to `item` instead of `saved` | `SaveResult` exposes `saved` (not `item`); `SaveResult` and the raw server `SavedResult` differ — bind to `saved` |
-| New entity not treated as insert | `$id` not `"new"`/`null` | `save()` treats `$id === "new"` (or `null`) as insert; new-entity routes use `:id = "new"`; `$id` getter returns `this.id || "new"` |
-| Updates 404 while inserts pass | `saveUrl` set to a literal `/save` path | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves |
-| Archived rows missing | `isArchived` defaults to `false` | Set `isArchived` on the search object to include them |
-| Pager-less overview shows only 10 rows | The overview composables seed paging from `PagingInfo`, whose fallback is 10 (a `defaultPageSize` of `0` reads as 10) | Set `defaultPageSize` to a large number (the API's max page size); `pageSize: 0` means "all" only at the service layer |
-| Nested collection empty on a detail/edit form | `includes` may not apply to the Details GET | Ensure the API eager-loads it for Details, or fetch children with a dedicated call |
-| Custom service method not found on the store `service` | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface) | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`) |
-| Wrong overview shape / 404 on `/search` | `useSearchView` used against a simple controller (no `/search`) | Match the [composable to the controller](#overview-uselistview-vs-usesearchview) — `useListView` for simple/lookup |
-| Import not found / wrong path | Guessed an import specifier | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess |
-| Wrong method name/params/return | Guessed a signature | Look it up in [entities.signatures.md](entities.signatures.md) |
+| Symptom                                                  | Cause                                                                                                                                                                         | Fix                                                                                                                            |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --- | ------ |
+| `v-for` over `items` throws a null error on first render | Overview refs are **lazy** — `items` / `itemsCount` are `undefined` until `searchHandler`/`listHandler` runs (the type says `Array<T>`, but the initial value is `undefined`) | Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`, `(items?.length ?? 0) === 0`                 |
+| `Fiche`/`Form` receive `null`                            | `useDetails().item` is `null` until the `onMounted` load resolves                                                                                                             | Gate the child: `<RouterView v-if="item" v-model="item" …>`                                                                    |
+| Save result binds to nothing / wrong shape               | Binding to `item` instead of `saved`                                                                                                                                          | `SaveResult` exposes `saved` (not `item`); `SaveResult` and the raw server `SavedResult` differ — bind to `saved`              |
+| New entity not treated as insert                         | `$id` not `"new"`/`null`                                                                                                                                                      | `save()` treats `$id === "new"` (or `null`) as insert; new-entity routes use `:id = "new"`; `$id` getter returns `this.id      |     | "new"` |
+| Updates 404 while inserts pass                           | `saveUrl` set to a literal `/save` path                                                                                                                                       | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves                                   |
+| Archived rows missing                                    | `isArchived` defaults to `false`                                                                                                                                              | Set `isArchived` on the search object to include them                                                                          |
+| Pager-less overview shows only 10 rows                   | The overview composables seed paging from `PagingInfo`, whose fallback is 10 (a `defaultPageSize` of `0` reads as 10)                                                         | Set `defaultPageSize` to a large number (the API's max page size); `pageSize: 0` means "all" only at the service layer         |
+| Nested collection empty on a detail/edit form            | `includes` may not apply to the Details GET                                                                                                                                   | Ensure the API eager-loads it for Details, or fetch children with a dedicated call                                             |
+| Custom service method not found on the store `service`   | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface)                                                                                       | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`)                                    |
+| Overview total wrong / count missing                     | `useSearchView` bound to an endpoint that returns `{ items }` without `count`                                                                                                 | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview)) |
+| Import not found / wrong path                            | Guessed an import specifier                                                                                                                                                   | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess                                                   |
+| Wrong method name/params/return                          | Guessed a signature                                                                                                                                                           | Look it up in [entities.signatures.md](entities.signatures.md)                                                                 |
 
 > **Dormant code — do not use:**
+>
 > - `regira_modules/entities` (the `src/entities/*` folder) is fully commented-out; its `package.json`
 >   `./entities` export resolves to an empty module. Use `regira_modules/vue/entities`.
 > - `EntityDescriptor` (`/config`) is unused by the demos — the plain `IConfig` + IoC + `$configs`

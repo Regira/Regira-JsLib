@@ -10,7 +10,16 @@ and any user-facing strings flow through `$t`/`useLang().translate`.
 ## Import
 
 ```ts
-import { useLang, plugin, translate, translateMessage, formatText, type ITranslationMessages, type ITranslationMessage, type IFormatInput } from "regira_modules/vue/lang"
+import {
+    useLang,
+    plugin,
+    translate,
+    translateMessage,
+    formatText,
+    type ITranslationMessages,
+    type ITranslationMessage,
+    type IFormatInput,
+} from "regira_modules/vue/lang"
 ```
 
 The package exposes a single subpath, `regira_modules/vue/lang` (no granular sub-exports).
@@ -27,7 +36,7 @@ Call **`app.use(plugin, { defaultLang, messages })` once** at startup. `messages
   plain string), e.g. an entity field that already carries its own translations.
 
 ```ts
-app.use(plugin, { defaultLang: "nl", messages: () => import("./i18n/nl.json").then(m => m.default) })
+app.use(plugin, { defaultLang: "nl", messages: () => import("./i18n/nl.json").then((m) => m.default) })
 ```
 
 ## The composable
@@ -52,7 +61,7 @@ falls back to `en`). `formatText(input, formatArgs)` does the `{param}` substitu
 `(input) => string` to transform the raw string yourself.
 
 ```ts
-formatText("Hello {name}", { name: "Bram" })   // "Hello Bram"
+formatText("Hello {name}", { name: "Bram" }) // "Hello Bram"
 useLang().translate("greeting", { name: "Bram" })
 ```
 

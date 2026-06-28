@@ -26,9 +26,9 @@ entity field):
 
 ```vue
 <template>
-  <span>{{ $t("results") }}</span>
-  <FormLabel :label="$t('auth.currentPassword')" />
-  <h1>{{ $tm(homeTitle) }}</h1>
+    <span>{{ $t("results") }}</span>
+    <FormLabel :label="$t('auth.currentPassword')" />
+    <h1>{{ $tm(homeTitle) }}</h1>
 </template>
 ```
 
@@ -40,7 +40,7 @@ entity field):
 import { useLang } from "@/regira_modules/vue/lang"
 
 const { langCode, translate, translateMessage, setLangCode } = useLang()
-setLangCode("nl")                          // ignores empty values
+setLangCode("nl") // ignores empty values
 document.title = translateMessage(configTitle)
 ```
 
@@ -48,8 +48,8 @@ A language selector binds straight to `langCode` / `setLangCode`:
 
 ```vue
 <template>
-  <li :class="{ 'fw-bold': langCode == 'en' }" @click="setLangCode('en')">EN</li>
-  <li :class="{ 'fw-bold': langCode == 'nl' }" @click="setLangCode('nl')">NL</li>
+    <li :class="{ 'fw-bold': langCode == 'en' }" @click="setLangCode('en')">EN</li>
+    <li :class="{ 'fw-bold': langCode == 'nl' }" @click="setLangCode('nl')">NL</li>
 </template>
 <script setup lang="ts">
 import { useLang } from "@/regira_modules/vue/lang"
@@ -63,7 +63,7 @@ Pass a value map as the last argument to fill `{name}`-style placeholders:
 
 ```ts
 const { translate } = useLang()
-const welcomeMsg = translate("welcome", { name: auth.displayName })   // "Welcome {name}" → "Welcome Bram"
+const welcomeMsg = translate("welcome", { name: auth.displayName }) // "Welcome {name}" → "Welcome Bram"
 ```
 
 ## See also

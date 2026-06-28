@@ -4,8 +4,14 @@ Verbatim TypeScript signatures for `regira_modules/vue/lang`. Do not guess — l
 
 ```ts
 import {
-  useLang, plugin, translate, translateMessage, formatText,
-  type ITranslationMessages, type ITranslationMessage, type IFormatInput,
+    useLang,
+    plugin,
+    translate,
+    translateMessage,
+    formatText,
+    type ITranslationMessages,
+    type ITranslationMessage,
+    type IFormatInput,
 } from "regira_modules/vue/lang"
 ```
 
@@ -33,17 +39,17 @@ export function formatText(input: string, formatArgs: IFormatInput): string
 
 ```ts
 export function useLang(): {
-    langCode: import("vue").Ref<string, string>;
-    fallbackLangCode: import("vue").Ref<string, string>;
-    messages: import("vue").Ref<ITranslationMessages, ITranslationMessages>;
-    translate: (key: string, formatArgs?: IFormatInput) => string;
-    translateMessage: (message: ITranslationMessage, formatArgs?: IFormatInput) => string;
-    setLangCode(newValue: string): void;
-    replaceMessages: (newValue: ITranslationMessages) => ITranslationMessages;
+    langCode: import("vue").Ref<string, string>
+    fallbackLangCode: import("vue").Ref<string, string>
+    messages: import("vue").Ref<ITranslationMessages, ITranslationMessages>
+    translate: (key: string, formatArgs?: IFormatInput) => string
+    translateMessage: (message: ITranslationMessage, formatArgs?: IFormatInput) => string
+    setLangCode(newValue: string): void
+    replaceMessages: (newValue: ITranslationMessages) => ITranslationMessages
     loadMessages: (values: ITranslationMessages) => {
-        [x: string]: ITranslationMessage;
-    };
-};
+        [x: string]: ITranslationMessage
+    }
+}
 ```
 
 ## Vue plugin (`plugin`)
@@ -52,7 +58,7 @@ export function useLang(): {
 // IMessageLoader and IOptions are not exported; this is their shape:
 type IMessageLoader = () => Promise<ITranslationMessages>
 type IOptions = {
-    defaultLang?: string                              // initial + fallback language, default "en"
+    defaultLang?: string // initial + fallback language, default "en"
     messages: ITranslationMessages | IMessageLoader
 }
 export const plugin: {

@@ -64,7 +64,9 @@ Use the composable when you just need a one-off seed of the current value (it re
 import { useOnlineChecker } from "@/regira_modules/vue/online"
 
 const { isOnline } = useOnlineChecker()
-if (!isOnline.value) { /* skip the request, show offline UI */ }
+if (!isOnline.value) {
+    /* skip the request, show offline UI */
+}
 ```
 
 ## See also

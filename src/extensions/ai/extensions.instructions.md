@@ -27,8 +27,8 @@ Call the enablers once, early (before code relies on the new prototype members):
 
 ```ts
 import extensions from "regira_modules/extensions"
-extensions.useArrayExtensions()   // Array.prototype
-extensions.useDateExtensions()    // Date.prototype.toJSON
+extensions.useArrayExtensions() // Array.prototype
+extensions.useDateExtensions() // Date.prototype.toJSON
 extensions.usePromiseExtensions() // Promise.debounce / Promise.enqueue
 ```
 

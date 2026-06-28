@@ -4,7 +4,7 @@ A **blank fill-in-the-blanks scaffold** for one entity slice. Copy the folder se
 placeholders below (the files marked `// TODO`). The placeholder entity is **`Foo`** (resource `"/foos"`,
 route prefix `foos`) — rename it to your entity throughout.
 
-This is the *skeleton*. For the same files **filled in with real code**, see
+This is the _skeleton_. For the same files **filled in with real code**, see
 [entities.examples.md](entities.examples.md) (a simple `UnitType` slice and a standard `Product` slice).
 The **app shell** that hosts these slices (project structure, `main.ts`, router, navigation) is in
 [entities.setup.md](entities.setup.md) — this file is only the per-entity slice.
@@ -90,10 +90,10 @@ export class Foo extends EntityBase {
     lastModified?: Date
 
     override get $id(): string | number {
-        return this.id || "new"           // "new" (or null) marks an unsaved instance → save() inserts
+        return this.id || "new" // "new" (or null) marks an unsaved instance → save() inserts
     }
     override get $title(): string | undefined {
-        return this.title                 // TODO: the human label (selectors, breadcrumbs, nav)
+        return this.title // TODO: the human label (selectors, breadcrumbs, nav)
     }
 }
 
@@ -107,31 +107,31 @@ export default Foo
 import type { IConfig } from "@/regira_modules/vue/entities"
 import Entity from "../data/Entity"
 
-const api = "/foos"                       // TODO: API resource path (relative to the axios baseURL)
+const api = "/foos" // TODO: API resource path (relative to the axios baseURL)
 
 const config: IConfig = {
     id: Entity.name,
-    key: "Foo",                           // TODO: route-name prefix + icon key (conventionally = Entity.name)
-    isComplex: false,                     // TODO: true → tabbed form + /search endpoint + Details-page "new"
+    key: "Foo", // TODO: route-name prefix + icon key (conventionally = Entity.name)
+    isComplex: false, // TODO: true → tabbed form + /search endpoint + Details-page "new"
 
-    routePrefix: "foos",                  // TODO: URL path segment
-    baseQueryParams: { includes: [] },    // TODO: server-side eager-loads, e.g. { includes: ["Bar"] }
+    routePrefix: "foos", // TODO: URL path segment
+    baseQueryParams: { includes: [] }, // TODO: server-side eager-loads, e.g. { includes: ["Bar"] }
     initialQuery: {},
 
-    overviewTitle: "foos",                // TODO: i18n keys
+    overviewTitle: "foos", // TODO: i18n keys
     detailsTitle: "foo",
     description: "foo.description",
-    icon: "bi bi-question-circle",        // TODO: a Bootstrap-Icons class
+    icon: "bi bi-question-circle", // TODO: a Bootstrap-Icons class
 
-    defaultPageSize: 10,                  // 0 = fetch all (typical for a small lookup)
+    defaultPageSize: 10, // 0 = fetch all (typical for a small lookup)
 
     api,
     detailsUrl: api,
     listUrl: api,
     get searchUrl() {
-        return this.isComplex ? api + "/search" : api   // simple entities have no /search endpoint
+        return this.isComplex ? api + "/search" : api // simple tier reads from the list endpoint
     },
-    saveUrl: api,                         // resource base — update/remove append /{$id} themselves
+    saveUrl: api, // resource base — update/remove append /{$id} themselves
     deleteUrl: api,
 }
 
@@ -148,12 +148,12 @@ import { SearchObjectBase } from "@/regira_modules/vue/entities"
 
 export class EntitySearchObject extends SearchObjectBase {
     // `q` (free-text) is inherited from SearchObjectBase. Add your filters:
-    title?: string                        // TODO: your filter fields
+    title?: string // TODO: your filter fields
     // barId?: number | Array<number>     // arrays serialize as repeated query keys
 
     minCreated?: Date
     maxCreated?: Date
-    isArchived?: boolean                  // set true to include archived rows (hidden by default)
+    isArchived?: boolean // set true to include archived rows (hidden by default)
 }
 
 export default EntitySearchObject
@@ -221,7 +221,7 @@ interface Emits extends /* @vue-ignore */ OverviewEmits<Entity> {}
 const emit = defineEmits<Emits>()
 const props = defineProps<{ modelValue?: Array<Entity>; readonly?: boolean }>()
 
-const { fromPool } = useEntityStore()                  // resolve rows through the shared pool (reactive cache)
+const { fromPool } = useEntityStore() // resolve rows through the shared pool (reactive cache)
 const items = computed<Array<Entity>>({
     get: () => fromPool(props.modelValue || []),
     set: (value) => emit("update:modelValue", value),
@@ -328,12 +328,7 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
             <!-- TODO: column headers -->
             <div class="col">{{ $t("name") }}</div>
         </div>
-        <div
-            v-for="(item, i) in items"
-            :key="item.$id"
-            class="row border-bottom py-2"
-            :class="{ 'is-selected': isSelected(item) }"
-        >
+        <div v-for="(item, i) in items" :key="item.$id" class="row border-bottom py-2" :class="{ 'is-selected': isSelected(item) }">
             <div class="col-auto">
                 <IconButton :icon="isSelected(item) ? 'selected' : 'select'" @click="handleSelect(item)" />
             </div>
@@ -405,7 +400,7 @@ import Entity from "./Entity"
 
 export const useEntityStore = defineStore(Entity.name, () => {
     const service = get<IEntityService<Entity>>(Entity.name)!
-    return createStore<Entity>(service, Entity.name)   // pooled, reactive shared cache
+    return createStore<Entity>(service, Entity.name) // pooled, reactive shared cache
 })
 
 export default useEntityStore
@@ -441,7 +436,7 @@ import config from "../config/config"
 import useEntityStore from "../data/store"
 
 const { service } = useEntityStore()
-const { item, isLoading, overviewUrl, feedback } = useDetails(service)   // item is null until onMounted load
+const { item, isLoading, overviewUrl, feedback } = useDetails(service) // item is null until onMounted load
 
 const router = useRouter()
 function handleRemove() {
@@ -537,20 +532,20 @@ These files carry no entity-specific markup — they are byte-identical for ever
 from the simple `UnitType` slice in [entities.examples.md](entities.examples.md) Part 1 (the section numbers
 below) rather than hand-stubbing them here, so there is one source of truth:
 
-| File | What it is | Copy from |
-|------|------------|-----------|
-| `overview/Overview.vue` | the list page — `useSearchView` + `useRouteOverview` wiring, paging, the new-item button (modal for simple, Details route for complex) | [entities.examples.md](entities.examples.md) Part 1 §11 |
-| `filter/Filter.vue` | the filter shell (hosts the inline bar + the advanced-search modal) | [entities.examples.md](entities.examples.md) Part 1 §6 |
-| `filter/FilterInline.vue` | the inline keyword bar | [entities.examples.md](entities.examples.md) Part 1 §7 |
-| `details/FormModalButton.vue` | opens the Form in a modal (`useModal`) — the new/edit affordance for simple entities | [entities.examples.md](entities.examples.md) Part 1 §14 |
-| `selecting/Autocomplete.vue` | type-ahead search input | [entities.examples.md](entities.examples.md) Part 1 §15 |
-| `selecting/InputSelector.vue` | single-item picker | [entities.examples.md](entities.examples.md) Part 1 §16 |
-| `selecting/Selector.vue` | multi-item picker (chips) | [entities.examples.md](entities.examples.md) Part 1 §17 |
-| `selecting/SelectorDropdown.vue` | simple `<select>` from the cache | [entities.examples.md](entities.examples.md) Part 1 §18 |
-| `selecting/SelectorModalButton.vue` | opens the search/select modal | [entities.examples.md](entities.examples.md) Part 1 §20 |
-| `selecting/SelectorSearch.vue` | search UI inside the selector modal | [entities.examples.md](entities.examples.md) Part 1 §21 |
+| File                                | What it is                                                                                                                             | Copy from                                               |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `overview/Overview.vue`             | the list page — `useSearchView` + `useRouteOverview` wiring, paging, the new-item button (modal for simple, Details route for complex) | [entities.examples.md](entities.examples.md) Part 1 §11 |
+| `filter/Filter.vue`                 | the filter shell (hosts the inline bar + the advanced-search modal)                                                                    | [entities.examples.md](entities.examples.md) Part 1 §6  |
+| `filter/FilterInline.vue`           | the inline keyword bar                                                                                                                 | [entities.examples.md](entities.examples.md) Part 1 §7  |
+| `details/FormModalButton.vue`       | opens the Form in a modal (`useModal`) — the new/edit affordance for simple entities                                                   | [entities.examples.md](entities.examples.md) Part 1 §14 |
+| `selecting/Autocomplete.vue`        | type-ahead search input                                                                                                                | [entities.examples.md](entities.examples.md) Part 1 §15 |
+| `selecting/InputSelector.vue`       | single-item picker                                                                                                                     | [entities.examples.md](entities.examples.md) Part 1 §16 |
+| `selecting/Selector.vue`            | multi-item picker (chips)                                                                                                              | [entities.examples.md](entities.examples.md) Part 1 §17 |
+| `selecting/SelectorDropdown.vue`    | simple `<select>` from the cache                                                                                                       | [entities.examples.md](entities.examples.md) Part 1 §18 |
+| `selecting/SelectorModalButton.vue` | opens the search/select modal                                                                                                          | [entities.examples.md](entities.examples.md) Part 1 §20 |
+| `selecting/SelectorSearch.vue`      | search UI inside the selector modal                                                                                                    | [entities.examples.md](entities.examples.md) Part 1 §21 |
 
-> The `selecting/` set is the **relation picker** for this entity — it lets *other* entities pick it (in
+> The `selecting/` set is the **relation picker** for this entity — it lets _other_ entities pick it (in
 > their forms). You only ever customize `SelectorList.vue` (its columns, above); the other six are copied
 > unchanged.
 

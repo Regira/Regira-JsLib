@@ -17,39 +17,40 @@ exports:
 import { Paging, LoadingContainer, useFeedback, TabContainer, Tab, BsIcon, useScreen } from "regira_modules/vue/ui"
 import { Pending, Success, ErrorSummary, type FeedbackError } from "regira_modules/vue/ui/feedback"
 import { type IIconProvider, type IconProps } from "regira_modules/vue/ui/icons"
-import { DefaultModal } from "regira_modules/vue/ui/modal"   // + "regira_modules/vue/ui/modal/style.scss"
+import { DefaultModal } from "regira_modules/vue/ui/modal" // + "regira_modules/vue/ui/modal/style.scss"
 ```
 
 ## Plugins (install once at startup)
 
-Several areas register a global helper or component. Install the ones you use:
+Each plugin installs its globals once at startup. The components it registers are then global app-wide —
+reference them directly in any template (a local `app.component(...)` for the same name is redundant).
 
-| Plugin | Provides | Options |
-|--------|----------|---------|
-| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts | `{ autoHideDelay? }` |
-| `iconPlugin` | `$icons` (`IIconProvider`) + registers global `Icon` (= `BsIcon`/`FaIcon`) and `IconButton` | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` |
-| `loadingPlugin` | global loading spinner | `{ img }` |
-| `modalPlugin` | registers the modal globally as `MyModal` (defaults to `DefaultModal`) | `{ DefaultModal? }` (override) |
-| `pagingPlugin` | paging defaults | `{ defaultPageSize? }` |
-| `screenPlugin` | `$screen` (`IScreen`) — reactive breakpoints | — |
+| Plugin           | Globals it registers                                                   | Options                                          |
+| ---------------- | ---------------------------------------------------------------------- | ------------------------------------------------ |
+| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                          | `{ autoHideDelay? }`                             |
+| `iconPlugin`     | `Icon` (= `BsIcon`/`FaIcon`), `IconButton`; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` |
+| `loadingPlugin`  | `Loading`, `LoadingButton`, `LoadingContainer`                         | `{ img }`                                        |
+| `modalPlugin`    | `MyModal` (defaults to `DefaultModal`)                                 | `{ DefaultModal? }` (override)                   |
+| `pagingPlugin`   | `Paging`                                                               | `{ defaultPageSize? }`                           |
+| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                           | —                                                |
 
 `$feedback`, `$icons`, `$screen` are typed on Vue's `ComponentCustomProperties`.
 
 ## Areas
 
-| Area | Key components | Programmatic |
-|------|----------------|--------------|
-| paging | `Paging` | `pagingDefaults`, `ButtonType`, `pagingPlugin` |
-| loading | `Loading`, `LoadingContainer`, `LoadingButton` | `loadingPlugin` |
-| feedback | `Feedback`, `Pending`, `Success`, `ErrorSummary` | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
-| modal | `DefaultModal` | `ModalType`, `modalPlugin` |
-| tabs | `TabContainer` | `Tab` / `ITab` |
-| icons | `BsIcon`, `FaIcon`, `IconButton` | `iconPlugin`, `loadIcons`, `IIconProvider` |
-| screen | — | `useScreen`, `SCREEN_SIZES`, `screenPlugin` |
-| autocomplete | `Autocomplete` | `useAutocomplete`, `autocompleteProps`, `autocompleteEmits` |
-| buttons | `ConfirmButton` | — |
-| input | `Anchor`, `DateInput`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | — |
-| gis | `GMap`, `GMapLink`, `GMapButton` (Google Maps) | — |
+| Area         | Key components                                                                                                                  | Programmatic                                                     |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| paging       | `Paging`                                                                                                                        | `pagingDefaults`, `ButtonType`, `pagingPlugin`                   |
+| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                  | `loadingPlugin`                                                  |
+| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
+| modal        | `DefaultModal`                                                                                                                  | `ModalType`, `modalPlugin`                                       |
+| tabs         | `TabContainer`                                                                                                                  | `Tab` / `ITab`                                                   |
+| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                | `iconPlugin`, `loadIcons`, `IIconProvider`                       |
+| screen       | —                                                                                                                               | `useScreen`, `SCREEN_SIZES`, `screenPlugin`                      |
+| autocomplete | `Autocomplete`                                                                                                                  | `useAutocomplete`, `autocompleteProps`, `autocompleteEmits`      |
+| buttons      | `ConfirmButton`                                                                                                                 | —                                                                |
+| input        | `Anchor`, `DateInput`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                                |
+| gis          | `GMap`, `GMapLink`, `GMapButton` (Google Maps)                                                                                  | —                                                                |
 
 ## What the entity views use
 
@@ -59,8 +60,8 @@ Several areas register a global helper or component. Install the ones you use:
 - **`Feedback`** — `:feedback="feedback"` (the `FeedbackOut` returned by the overview/form composables);
   or use the global `$feedback` / `useFeedback()` for app-wide messages.
 - **`TabContainer`** + `Tab.create(...)` — multi-tab forms.
-- **`BsIcon`/`FaIcon`** — render registered icons by `name`; register via `iconPlugin` (entity icons come
-  from each `config.icon`).
+- **`Icon`** (= `BsIcon`/`FaIcon`) — give it a registered friendly key (`config.icon` per entity) or a raw
+  icon class; seed friendly keys via `iconPlugin`.
 - **`useScreen()`** — responsive layout (`screen.isLarge`, …) to switch form layouts.
 
 ## Composables
@@ -74,8 +75,10 @@ Several areas register a global helper or component. Install the ones you use:
 
 ## Gotchas
 
-- **Icons must be registered.** Render shows nothing until `iconPlugin` runs (or `loadIcons(...)`); the
-  source (`"bs"`/`"fa"`) decides Bootstrap vs FontAwesome glyphs.
+- **Icon name resolution.** The global `Icon` renders a registered friendly key (`new`, `search`, …) via
+  the seeded map, and renders a raw class (`bi bi-grid`, `fa-solid fa-user`) directly when given one;
+  `source` (`"bs"`/`"fa"`) selects which glyph set `iconPlugin` seeds. The glyph **font CSS** is separate —
+  import it (`bootstrap-icons`/Font Awesome) or every glyph stays blank.
 - **Modal is a component, not a composable.** There is no `openModal()` here — use `DefaultModal` with
   `:is-visible` (one-way; it has no `update:isVisible` emit) plus `@close`/`@cancel` to flip your own state
   (and import its `style.scss`). For entity edit-in-modal, use `useModal` from

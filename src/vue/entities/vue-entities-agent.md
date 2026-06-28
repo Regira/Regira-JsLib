@@ -25,10 +25,11 @@ Load on demand: `entities.setup.md` (new-app wiring — plugin install order, re
 running with/without auth, plus the app-shell scaffold + **Entity slice anatomy** + npm install),
 `entities.patterns.md` (child collections, trees, JSON services, paging, union search, navigation, custom
 endpoints, typing the client from OpenAPI), `entities.template.md` (a **blank slice scaffold** — file tree
-+ a placeholder skeleton per `(c)` file to fill in), `entities.examples.md` (worked slices, simplest first
-— a **simple** `UnitType` then a **standard** `Product`),
-and `entities.advanced.example.md` (a complex slice — `Vehicle`: attachments, many-to-many, owned child
-collection).
+
+- a placeholder skeleton per `(c)` file to fill in), `entities.examples.md` (worked slices, simplest first
+  — a **simple** `UnitType` then a **standard** `Product`),
+  and `entities.advanced.example.md` (a complex slice — `Vehicle`: attachments, many-to-many, owned child
+  collection).
 
 ## Your responsibilities
 
@@ -45,8 +46,9 @@ You produce a complete entity slice under `src/entities/<name>/`:
 - register the plugin in `src/entities/index.ts`
 
 Keep the folder set identical for every entity: `config/ data/ details/ filter/ overview/ selecting/`
-+ `index.ts` + `setup.ts`. The app shell (components, infrastructure, config, styling, Entity slice
-anatomy) is in `entities.setup.md`.
+
+- `index.ts` + `setup.ts`. The app shell (components, infrastructure, config, styling, Entity slice
+  anatomy) is in `entities.setup.md`.
 
 ## Rules
 
@@ -58,11 +60,11 @@ anatomy) is in `entities.setup.md`.
 - Bind save results to `saved` (`SaveResult`), not `item`.
 - Keep views thin — delegate to composables; do not re-implement list/search/save logic.
 - Match the existing slice layout and local code style; do not introduce new abstractions.
-- **Auth is optional.** When the app runs without a login, follow the *Running without authentication*
+- **Auth is optional.** When the app runs without a login, follow the _Running without authentication_
   recipe in `entities.setup.md` (no `authPlugin`; advance `AppStatus` to `Ready` yourself; drop the
   auth UI from `App.vue`) — do not leave the app stuck on the loading gate.
-- **Choose the overview composable by controller shape:** `useSearchView` for complex controllers
-  (`/search` → `{ items, count }`), `useListView` for simple/lookup controllers (`/?q=` → `{ items }`).
+- **Choose the overview composable by fetch shape:** `useSearchView` for counted paging + filters
+  (`service.search()` → `{ items, count }`), `useListView` for a plain list (`service.list()` → `{ items }`).
 
 ## Output format
 

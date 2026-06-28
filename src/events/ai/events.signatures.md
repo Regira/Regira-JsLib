@@ -11,21 +11,21 @@ import { Event, EventHandler } from "regira_modules/events"
 
 ```ts
 declare class Event {
-    type: string;
+    type: string
     src?: Event;
-    [key: string]: unknown;
-    constructor(type: string, src?: Event, data?: Record<string, unknown>);
+    [key: string]: unknown
+    constructor(type: string, src?: Event, data?: Record<string, unknown>)
 }
-export default Event;
+export default Event
 ```
 
 ## EventHandler
 
 ```ts
 declare class EventHandler {
-    static injectInto(target: object): void;
+    static injectInto(target: object): void
 }
-export default EventHandler;
+export default EventHandler
 ```
 
 ## Injected runtime API
@@ -39,11 +39,11 @@ type EventCallback = (event: Event, arg?: unknown) => unknown
 type ConstraintFn = (e: unknown, arg?: unknown) => boolean
 
 interface Injected {
-    listeners: Record<string, Listener[]>                       // lazy per-instance map (getter)
-    on(key: string, ...args: unknown[]): this                   // key | options-object first; callback last
-    once(key: string, ...args: unknown[]): this                 // same as on, but auto-removed after first fire
-    off(key: string, listener?: EventCallback | null): this     // omit listener to drop all for key
-    trigger(e: Event | string, arg?: unknown): Promise<unknown[]>   // async; results in registration order
+    listeners: Record<string, Listener[]> // lazy per-instance map (getter)
+    on(key: string, ...args: unknown[]): this // key | options-object first; callback last
+    once(key: string, ...args: unknown[]): this // same as on, but auto-removed after first fire
+    off(key: string, listener?: EventCallback | null): this // omit listener to drop all for key
+    trigger(e: Event | string, arg?: unknown): Promise<unknown[]> // async; results in registration order
 }
 ```
 

@@ -14,7 +14,7 @@ to broadcast state changes — e.g. the [identity manager](../../identity) injec
 ```ts
 import { Event, EventHandler } from "regira_modules/events"
 // or the default barrel:
-import events from "regira_modules/events"   // { Event, EventHandler }
+import events from "regira_modules/events" // { Event, EventHandler }
 ```
 
 There are no granular subpaths — only `regira_modules/events` is exported.
@@ -26,7 +26,9 @@ Inject into a **prototype** to make every instance an emitter (each instance laz
 listener map):
 
 ```ts
-class IdentityManager { /* … */ }
+class IdentityManager {
+    /* … */
+}
 EventHandler.injectInto(IdentityManager.prototype)
 ```
 

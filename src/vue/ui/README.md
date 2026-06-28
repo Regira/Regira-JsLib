@@ -6,26 +6,33 @@ form inputs, and responsive layout.
 
 ## Areas
 
-| Area | Components | Programmatic |
-|------|------------|--------------|
-| paging | `Paging` | `pagingDefaults`, `ButtonType`, `pagingPlugin` |
-| loading | `Loading`, `LoadingContainer`, `LoadingButton` | `loadingPlugin` |
-| feedback | `Feedback`, `Pending`, `Success`, `ErrorSummary` | `useFeedback`, `FeedbackStatus`, `feedbackPlugin` |
-| modal | `DefaultModal` | `ModalType`, `modalPlugin` |
-| tabs | `TabContainer` | `Tab` / `ITab` |
-| icons | `BsIcon`, `FaIcon`, `IconButton` | `iconPlugin`, `loadIcons` |
-| screen | — | `useScreen`, `screenPlugin` |
-| autocomplete | `Autocomplete` | `useAutocomplete` |
-| buttons | `ConfirmButton` | — |
-| input | `Anchor`, `DateInput`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | — |
-| gis | `GMap`, `GmapLink`, `ModalButton` (Google Maps) | — |
+| Area         | Components                                                                                                                      | Programmatic                                      |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| paging       | `Paging`                                                                                                                        | `pagingDefaults`, `ButtonType`, `pagingPlugin`    |
+| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                  | `loadingPlugin`                                   |
+| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                | `useFeedback`, `FeedbackStatus`, `feedbackPlugin` |
+| modal        | `DefaultModal`                                                                                                                  | `ModalType`, `modalPlugin`                        |
+| tabs         | `TabContainer`                                                                                                                  | `Tab` / `ITab`                                    |
+| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                | `iconPlugin`, `loadIcons`                         |
+| screen       | —                                                                                                                               | `useScreen`, `screenPlugin`                       |
+| autocomplete | `Autocomplete`                                                                                                                  | `useAutocomplete`                                 |
+| buttons      | `ConfirmButton`                                                                                                                 | —                                                 |
+| input        | `Anchor`, `DateInput`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                 |
+| gis          | `GMap`, `GmapLink`, `ModalButton` (Google Maps)                                                                                 | —                                                 |
 
 ## Plugins & globals
 
-Install the plugins for the areas you use; some expose a global helper: `feedbackPlugin` → `$feedback`,
-`iconPlugin` → `$icons`, `screenPlugin` → `$screen`. `iconPlugin` also registers `BsIcon`/`FaIcon` and
-must run before icons render. Most-used in entity UIs: `Paging`, `LoadingContainer`, `Feedback`,
-`TabContainer` + `Tab.create`, `BsIcon`, and `useScreen`.
+Install the plugins for the areas you use. Each registers its globals app-wide, so reference them directly
+in any template:
+
+- `feedbackPlugin` → `$feedback` · `screenPlugin` → `$screen`
+- `iconPlugin` → `Icon` (= `BsIcon`/`FaIcon`), `IconButton`, `$icons`
+- `loadingPlugin` → `Loading`, `LoadingButton`, `LoadingContainer` · `pagingPlugin` → `Paging`
+- `modalPlugin` → `MyModal`
+
+The global `Icon` takes a registered friendly key or a raw icon class; the glyph font CSS
+(`bootstrap-icons`/Font Awesome) must be imported separately. Most-used in entity UIs: `Paging`,
+`LoadingContainer`, `Feedback`, `TabContainer` + `Tab.create`, `Icon`, and `useScreen`.
 
 ## Notes
 

@@ -7,10 +7,10 @@ file/image utilities and are DOM-dependent (browser only).
 
 ## What it provides
 
-| Export | Purpose |
-|--------|---------|
-| `FileHelper` | Class: convert any input to a `Blob`, plus `browse`, `getBase64Url`/`createUrl`, `readJson`/`writeJson`, `send` (multipart), `saveAs` (download). |
-| `ImageHelper` | Extends `FileHelper`: `getImage`, `resize`, `rotate`, `flip*`, `convertType`, `getLightness`, `white2transparent`. |
+| Export        | Purpose                                                                                                                                           |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FileHelper`  | Class: convert any input to a `Blob`, plus `browse`, `getBase64Url`/`createUrl`, `readJson`/`writeJson`, `send` (multipart), `saveAs` (download). |
+| `ImageHelper` | Extends `FileHelper`: `getImage`, `resize`, `rotate`, `flip*`, `convertType`, `getLightness`, `white2transparent`.                                |
 
 Both are named exports; the package root also default-exports `{ FileHelper, ImageHelper }`. Instantiate
 per use (`new FileHelper()`, `new ImageHelper()`).

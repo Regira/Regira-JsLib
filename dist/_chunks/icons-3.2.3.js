@@ -19,8 +19,8 @@ var f = /* @__PURE__ */ r({
 	},
 	setup(n) {
 		let r = n;
-		l.has(r.name) || console.warn(`Icon ${r.name} not found`, { icons: l.values() });
-		let s = e(() => l.get(r.name)), c = {
+		!l.has(r.name) && !((e) => /\s/.test(e) || e.startsWith("bi-") || e.startsWith("fa-"))(r.name) && console.warn(`Icon "${r.name}" is not a registered key; pass a known key or a raw icon class.`);
+		let s = e(() => l.get(r.name) ?? r.name), c = {
 			sm: .75,
 			md: 1,
 			lg: 2,
@@ -39,13 +39,13 @@ var f = /* @__PURE__ */ r({
 	},
 	setup(n) {
 		let r = n;
-		l.has(r.name) || console.warn(`Icon ${r.name} not found`, { icons: l.values() });
+		!l.has(r.name) && !((e) => /\s/.test(e) || e.startsWith("bi-") || e.startsWith("fa-"))(r.name) && console.warn(`Icon "${r.name}" is not a registered key; pass a known key or a raw icon class.`);
 		let a = {
 			sm: "fa-sm",
 			md: "fa-md",
 			lg: "fa-lg",
 			xl: "fa-3x"
-		}, s = e(() => [l.get(r.name), a[r.size]]);
+		}, s = e(() => [l.get(r.name) ?? r.name, a[r.size]]);
 		return (e, n) => (o(), t("i", { class: i(s.value) }, null, 2));
 	}
 }), m = ["type"], h = /* @__PURE__ */ r({

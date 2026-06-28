@@ -18,7 +18,7 @@ the provider (chainable); `get<T>(key)` returns `factory(this)` or `null` when t
 module-level **default singleton** backs the standalone `get<T>(key)` function and the Vue plugin.
 
 > **Resolution is transient.** `get(key)` re-invokes the factory **every call**, so each `get` of a
-> service that does `new …()` yields a *new* instance. Data caching/sharing is handled by the entities
+> service that does `new …()` yields a _new_ instance. Data caching/sharing is handled by the entities
 > pooling layer (`createStore`), not by the container.
 
 ## Vue plugin

@@ -5,12 +5,12 @@ plugin that adds `$isDebug` / `$setDebug` globals to control when that output sh
 
 ## What it provides
 
-| Export | Purpose |
-|--------|---------|
-| `plugin` (default) | Vue plugin; registers `Debug` globally and installs the `$isDebug`/`$setDebug` properties. Options: `{ isDebug }`. |
-| `Debug` | Component that renders `title` + `modelValue` (as pretty JSON) only when `$isDebug` is true. |
-| `$isDebug` | Global getter — `enableDebug && (?debug=1` query param, else the `isDebug` option`)`. |
-| `$setDebug(value = true)` | Global master switch; `false` hides all debug output. |
+| Export                    | Purpose                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `plugin` (default)        | Vue plugin; registers `Debug` globally and installs the `$isDebug`/`$setDebug` properties. Options: `{ isDebug }`. |
+| `Debug`                   | Component that renders `title` + `modelValue` (as pretty JSON) only when `$isDebug` is true.                       |
+| `$isDebug`                | Global getter — `enableDebug && (?debug=1` query param, else the `isDebug` option`)`.                              |
+| `$setDebug(value = true)` | Global master switch; `false` hides all debug output.                                                              |
 
 ## How it fits
 

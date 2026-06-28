@@ -21,9 +21,9 @@ Each view is a thin Vue component that delegates to a composable. Exact signatur
 handler, defaultPageSize })` keeps those in sync with the URL query and re-searches on navigation,
 returning `updateOverviewRoute`. (`useOverviewCore` is the shared base.)
 
-**`useSearchView` vs `useListView`** — match the back-end controller: use `useSearchView` for **complex**
-controllers that expose `GET /search` → `{ items, count }`, and `useListView` for **simple/lookup**
-controllers that only expose `GET /?q=` → `{ items }` (no counted search). See
+**`useSearchView` vs `useListView`** — a fetch-shape choice (every controller exposes `/search`): use
+`useSearchView` when you want counted paging + filters (`service.search()` → `{ items, count }`), and
+`useListView` when a plain list is enough (`service.list()` → `{ items }`). See
 [../ai/entities.instructions.md](../ai/entities.instructions.md#overview-uselistview-vs-usesearchview).
 
 > **Guard the lazy refs.** `items` / `itemsCount` are `undefined` until the first fetch, so bind

@@ -53,6 +53,8 @@ lists, extend `JSONService` instead of `EntityServiceBase`.
 - Overview lists and pages; archived rows hidden unless `searchObject.isArchived` is set.
 - Save round-trips: new item (`$id === "new"`) inserts; existing updates; bind results to `saved`.
 - Routes resolve: `${key}Overview`, `${key}Details` → `${key}Form`/`${key}Fiche`.
+- Smoke-test at runtime: after `npm run build`, run the app against the live API and load one view per
+  entity — a green build alone does not exercise the wiring.
 
 ## Overview
 

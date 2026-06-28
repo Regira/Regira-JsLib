@@ -10,8 +10,8 @@ is the app's current culture, passed as the `culture` argument:
 
 ```vue
 <template>
-  <div>{{ formatDate(item.invoiceDate, $culture) }}</div>
-  <div>{{ formatCurrency(item.priceIncl, $culture) }}</div>
+    <div>{{ formatDate(item.invoiceDate, $culture) }}</div>
+    <div>{{ formatCurrency(item.priceIncl, $culture) }}</div>
 </template>
 
 <script setup lang="ts">
@@ -26,9 +26,9 @@ on hover:
 
 ```vue
 <template>
-  <div :title="formatDate(item.interventionDate, $culture)">
-    {{ formatShortDate(item.interventionDate, $culture) }}
-  </div>
+    <div :title="formatDate(item.interventionDate, $culture)">
+        {{ formatShortDate(item.interventionDate, $culture) }}
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -54,7 +54,7 @@ const config = await fetch(`${appConfig.baseUrl}/config.json?v=${v}`).then((r) =
 ```ts
 import { getInitials } from "@/regira_modules/vue/formatters"
 
-getInitials("Ada Lovelace")   // => "AL"
+getInitials("Ada Lovelace") // => "AL"
 ```
 
 ## See also

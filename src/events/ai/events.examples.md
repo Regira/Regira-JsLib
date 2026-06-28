@@ -15,8 +15,7 @@ class IdentityManager {
     async login(email: string, password: string) {
         // ... authenticate, update this.state ...
         // injected methods aren't on the TS type, so cast when calling:
-        return (this as unknown as { trigger(e: string, arg?: unknown): Promise<unknown[]> })
-            .trigger("login", { ...this.state })
+        return (this as unknown as { trigger(e: string, arg?: unknown): Promise<unknown[]> }).trigger("login", { ...this.state })
     }
 }
 EventHandler.injectInto(IdentityManager.prototype)
@@ -30,8 +29,7 @@ EventHandler.injectInto(IdentityManager.prototype)
 const mgr = new IdentityManager(/* ... */) as any
 
 const onLogin = (e, arg) => console.log("logged in", arg)
-mgr.on("login", onLogin)
-   .on("logoff", () => console.log("logged out"))
+mgr.on("login", onLogin).on("logoff", () => console.log("logged out"))
 
 // later: stop listening to one callback (omit it to drop all "login" listeners)
 mgr.off("login", onLogin)
@@ -57,7 +55,7 @@ mgr.on("login logoff", (e) => console.log("auth changed:", e.type))
 ```ts
 import { Event } from "@/regira_modules/events"
 
-mgr.on("login", (e) => `welcome ${e.email}`)   // e.email comes from the data below
+mgr.on("login", (e) => `welcome ${e.email}`) // e.email comes from the data below
 
 const results = await (mgr as any).trigger(new Event("login", undefined, { email: "bram@regira.com" }))
 // results === ["welcome bram@regira.com"], in registration order

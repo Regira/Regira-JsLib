@@ -39,7 +39,7 @@ type __VLS_Props = {
     title?: string
     modelValue?: unknown
 }
-declare const _default: DefineComponent<__VLS_Props, /* … */>
+declare const _default: DefineComponent<__VLS_Props /* … */>
 export default _default
 ```
 

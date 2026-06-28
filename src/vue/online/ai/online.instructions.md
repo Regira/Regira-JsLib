@@ -11,7 +11,7 @@ or [HTTP layer](../../http/ai/http.instructions.md) when the network is down.
 
 ```ts
 import { useOnlineChecker, plugin } from "regira_modules/vue/online"
-import onlinePlugin from "regira_modules/vue/online"   // default export === plugin
+import onlinePlugin from "regira_modules/vue/online" // default export === plugin
 ```
 
 There are no granular subpaths — everything is re-exported from the package root.
@@ -36,7 +36,9 @@ and the Options API. The same ref is also `provide`d under the injection key `"i
 
 ```ts
 const { isOnline } = useOnlineChecker()
-if (!isOnline.value) { /* skip the request, show offline UI */ }
+if (!isOnline.value) {
+    /* skip the request, show offline UI */
+}
 ```
 
 ## Gotchas

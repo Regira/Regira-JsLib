@@ -7,10 +7,10 @@ are both built on it.
 
 ## What it provides
 
-| Export | Purpose |
-|--------|---------|
-| `TreeList<T>` | Tree container; extends `Array<TreeNode<T>>` and keeps a separate `roots` array. Also the default export. |
-| `TreeNode<T>` | A node: `value`, `parent`, `level`, `children`, plus `add` / `update` / `remove` and navigation helpers. |
+| Export            | Purpose                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| `TreeList<T>`     | Tree container; extends `Array<TreeNode<T>>` and keeps a separate `roots` array. Also the default export.    |
+| `TreeNode<T>`     | A node: `value`, `parent`, `level`, `children`, plus `add` / `update` / `remove` and navigation helpers.     |
 | `IFindParents<T>` | `(value, candidates) => parents[]` — the callback `TreeList.init` uses to wire a flat list into a hierarchy. |
 
 Build from a flat list with `new TreeList<T>().init(values, findParents)`, or imperatively via the

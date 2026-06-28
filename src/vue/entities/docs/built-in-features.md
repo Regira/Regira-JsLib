@@ -10,7 +10,7 @@ so all views see one reactive, de-duplicated set of entities (`Ref<T>` keyed by 
 **store's** pooled `service`, never the raw IoC service. Register the cache once at startup:
 
 ```ts
-app.use(servicesPlugin, { configure: sp => sp.add("axios", () => axios).add(PoolCache.name, () => defaultPoolCache) })
+app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => axios).add(PoolCache.name, () => defaultPoolCache) })
 ```
 
 `usePooling(service, type, cache?, persistent?)` is the lower-level primitive; mark never-expiring types

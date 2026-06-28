@@ -33,13 +33,19 @@ record, and adds bespoke file endpoints. The shape:
 
 ```ts
 export class EntityService extends EntityServiceBase<Entity> {
-    constructor(axios: AxiosWithFilesInstance, config: IConfig) { super(axios, config) }
+    constructor(axios: AxiosWithFilesInstance, config: IConfig) {
+        super(axios, config)
+    }
 
-    getAttachments(so?): Promise<Array<EntityAttachment>>   // GET {api}/attachments
-    addAttachment(itemId, file: Blob): Promise<EntityAttachment>  // POST {api}/{id}/files
+    getAttachments(so?): Promise<Array<EntityAttachment>> // GET {api}/attachments
+    addAttachment(itemId, file: Blob): Promise<EntityAttachment> // POST {api}/{id}/files
 
-    override insert(item) { return insertWithAttachments(this.config.api, item, () => super.insert(item)) }
-    override update(item) { return updateWithAttachments(this.config.api, item, () => super.update(item)) }
+    override insert(item) {
+        return insertWithAttachments(this.config.api, item, () => super.insert(item))
+    }
+    override update(item) {
+        return updateWithAttachments(this.config.api, item, () => super.update(item))
+    }
 }
 ```
 

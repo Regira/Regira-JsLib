@@ -12,9 +12,7 @@ work until the app is ready. The [entities client](../../entities/ai/entities.in
 ## Import
 
 ```ts
-import {
-  plugin, useAppStore, AppStatus, useCulture, onAppReady, whenAppReady,
-} from "regira_modules/vue/app"
+import { plugin, useAppStore, AppStatus, useCulture, onAppReady, whenAppReady } from "regira_modules/vue/app"
 ```
 
 There is a single barrel export (`regira_modules/vue/app`); there are no granular subpaths.
@@ -31,7 +29,7 @@ import { plugin } from "regira_modules/vue/app"
 
 const app = createApp(Root)
 app.use(createPinia())
-app.use(plugin, { culture: "nl-BE" })   // culture is optional
+app.use(plugin, { culture: "nl-BE" }) // culture is optional
 ```
 
 `install(app, { culture? })` calls `store.setCulture(culture)` and wires up:

@@ -9,7 +9,9 @@ Recipes for individual features. Each is one focused snippet + notes. Verify sig
 it on the search object:
 
 ```ts
-class EntitySearchObject extends SearchObjectBase { isArchived?: boolean }
+class EntitySearchObject extends SearchObjectBase {
+    isArchived?: boolean
+}
 // ... searchObject.isArchived = true   // include archived; leave undefined to hide
 ```
 
@@ -24,7 +26,9 @@ injected `axios` + `config.api`, like any [custom endpoint](#custom-endpoints-on
 
 ```ts
 export class EntityService extends EntityServiceBase<Entity> {
-    override toEntity(item: object): Entity { /* … */ }
+    override toEntity(item: object): Entity {
+        /* … */
+    }
 
     async setActive(id: number, isActive: boolean): Promise<void> {
         await this.axios.post(`${this.config.api}/${id}/${isActive ? "activate" : "deactivate"}`)
@@ -63,7 +67,10 @@ this for UI-only state — most importantly **`_deleted`** to mark a child row f
 sending it:
 
 ```ts
-class OrderLine extends EntityBase { id = 0; _deleted = false; /* … */ }
+class OrderLine extends EntityBase {
+    id = 0
+    _deleted = false /* … */
+}
 ```
 
 `useListItemInput` / `useOwnedCollection` already drive `_deleted` for owned rows.
@@ -90,7 +97,7 @@ const { updateOverviewRoute } = useRouteOverview({ searchObject, pagingInfo, han
 ```ts
 const { items, count } = await service.searchUnion(
     [{ q: "blue" }, { q: "red" }],
-    { sortBy: "title" }   // optional IPagingInfo | ISortByInfo
+    { sortBy: "title" } // optional IPagingInfo | ISortByInfo
 )
 ```
 
@@ -100,7 +107,9 @@ Add methods that reuse the injected axios and `config.api`:
 
 ```ts
 export class EntityService extends EntityServiceBase<Entity> {
-    override toEntity(item: object): Entity { /* … */ }
+    override toEntity(item: object): Entity {
+        /* … */
+    }
 
     async getFamily(ids: Array<number>): Promise<Array<Entity>> {
         const { data } = await this.axios.get(`${this.config.api}/family`, { params: { ids } })
@@ -110,7 +119,7 @@ export class EntityService extends EntityServiceBase<Entity> {
 ```
 
 **Calling a custom method from a view.** The store's `service` is a **pooled** `PoolService` exposing
-only the `IEntityService` surface — your custom method is *not* on it. Resolve the raw service from IoC
+only the `IEntityService` surface — your custom method is _not_ on it. Resolve the raw service from IoC
 (it is registered under `Entity.name`):
 
 ```ts
@@ -137,18 +146,18 @@ import type Category from "../data/Entity"
 import useEntityStore from "../data/store"
 
 const model = defineModel<Category | undefined>()
-const { service, fromPool } = useEntityStore()          // pooled service + shared cache
+const { service, fromPool } = useEntityStore() // pooled service + shared cache
 const selected = computed<Category | undefined>({
-  get: () => fromPool(model.value) as Category | undefined,
-  set: (v) => (model.value = v),
+    get: () => fromPool(model.value) as Category | undefined,
+    set: (v) => (model.value = v),
 })
 // back the picker UI with `service.search({ q })`; render the barrel's <Selector> (entity picker)
 // or your own autocomplete that emits the chosen Category into `selected`.
 </script>
 
 <template>
-  <!-- e.g. an autocomplete bound to `selected`, options from service.search({ q }) -->
-  …
+    <!-- e.g. an autocomplete bound to `selected`, options from service.search({ q }) -->
+    …
 </template>
 ```
 
@@ -175,11 +184,11 @@ const { items, newItem, handleSort, handleSave } = useOwnedCollection<OrderLine>
 `pending`/`success`/`fail`/`reset`). `handleSubmit` already calls `pending("Saving…")` → `success("Saved")`,
 or on failure `fail(...)` **and re-throws** — so wrap the call. The failure mapping is fixed:
 
-| HTTP status | `feedback.message` | `feedback.error` |
-|-------------|--------------------|------------------|
-| `400` | `"Saving failed"` | the server's **`response.data.errors`** `{ field: message }` map |
-| `404` | `"Item not found"` | a string (`response.data.message` ‖ `error.message`) |
-| other | `"Server error"` | a string |
+| HTTP status | `feedback.message` | `feedback.error`                                                 |
+| ----------- | ------------------ | ---------------------------------------------------------------- |
+| `400`       | `"Saving failed"`  | the server's **`response.data.errors`** `{ field: message }` map |
+| `404`       | `"Item not found"` | a string (`response.data.message` ‖ `error.message`)             |
+| other       | `"Server error"`   | a string                                                         |
 
 So only a `400` puts a per-field map on `feedback.error`. Combine **client-side** guards (validate before
 saving) with that **server-side** map; render the summary with `<Feedback>` and the field map per input:
@@ -203,36 +212,42 @@ const { item, feedback, handleSubmit } = useForm<Article>({ entityService, props
 // client-side: validate before hitting the server
 const errors = ref<Record<string, string>>({})
 function validate(): boolean {
-  errors.value = {}
-  if (!item.value.title?.trim()) errors.value.title = "Title is required"
-  if (item.value.price < 0) errors.value.price = "Price cannot be negative"
-  return Object.keys(errors.value).length === 0
+    errors.value = {}
+    if (!item.value.title?.trim()) errors.value.title = "Title is required"
+    if (item.value.price < 0) errors.value.price = "Price cannot be negative"
+    return Object.keys(errors.value).length === 0
 }
 async function submit() {
-  if (!validate()) { feedback.fail("Please fix the highlighted fields", errors.value); return }
-  try { await handleSubmit() } catch { /* feedback already set by useForm; swallow the re-throw */ }
+    if (!validate()) {
+        feedback.fail("Please fix the highlighted fields", errors.value)
+        return
+    }
+    try {
+        await handleSubmit()
+    } catch {
+        /* feedback already set by useForm; swallow the re-throw */
+    }
 }
 
 // client errors first, then the server's 400 field map (a Record) on feedback.error
-const fieldError = (name: string) =>
-  errors.value[name] ?? (typeof feedback.error.value === "object" ? feedback.error.value?.[name] : undefined)
+const fieldError = (name: string) => errors.value[name] ?? (typeof feedback.error.value === "object" ? feedback.error.value?.[name] : undefined)
 </script>
 
 <template>
-  <form @submit.prevent="submit" novalidate>
-    <Feedback :feedback="feedback" />
-    <div class="mb-2">
-      <label class="form-label">Title</label>
-      <input v-model="item.title" class="form-control" :class="{ 'is-invalid': fieldError('title') }" />
-      <div class="invalid-feedback">{{ fieldError('title') }}</div>
-    </div>
-    <div class="mb-2">
-      <label class="form-label">Price</label>
-      <input v-model.number="item.price" type="number" step="0.01" class="form-control" :class="{ 'is-invalid': fieldError('price') }" />
-      <div class="invalid-feedback">{{ fieldError('price') }}</div>
-    </div>
-    <button type="submit" class="btn btn-primary" :disabled="feedback.status.value === FeedbackStatus.pending">Save</button>
-  </form>
+    <form @submit.prevent="submit" novalidate>
+        <Feedback :feedback="feedback" />
+        <div class="mb-2">
+            <label class="form-label">Title</label>
+            <input v-model="item.title" class="form-control" :class="{ 'is-invalid': fieldError('title') }" />
+            <div class="invalid-feedback">{{ fieldError("title") }}</div>
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Price</label>
+            <input v-model.number="item.price" type="number" step="0.01" class="form-control" :class="{ 'is-invalid': fieldError('price') }" />
+            <div class="invalid-feedback">{{ fieldError("price") }}</div>
+        </div>
+        <button type="submit" class="btn btn-primary" :disabled="feedback.status.value === FeedbackStatus.pending">Save</button>
+    </form>
 </template>
 ```
 
@@ -250,7 +265,7 @@ const fieldError = (name: string) =>
 
 ```ts
 const { tree, nodes, ancestors, offspring, family, init } = useTree<Category>()
-init(allCategories, allCategories, findParents)   // findParents: IFindParents<Category> — see treelist guide
+init(allCategories, allCategories, findParents) // findParents: IFindParents<Category> — see treelist guide
 // render `nodes`: each TreeNode<T> exposes .value, .parent, .getOffspring(), .getAncestors()
 ```
 
@@ -269,8 +284,12 @@ ctor arg):
 
 ```ts
 export class CountryService extends JSONService<Country> {
-    constructor(axios: AxiosInstance, config: IConfig) { super(axios, config, Country.name) }
-    override toEntity(item: object): Country { return Object.assign(this.createInstance(Country), item) }
+    constructor(axios: AxiosInstance, config: IConfig) {
+        super(axios, config, Country.name)
+    }
+    override toEntity(item: object): Country {
+        return Object.assign(this.createInstance(Country), item)
+    }
 }
 ```
 
@@ -296,19 +315,19 @@ const configs = Object.values(app.config.globalProperties.$configs) as Array<ICo
 
 // importDashboard: groups + entities grouped under a group id ([groupId, entityKeys])
 const dashboard = importDashboard({
-  groups: [{ id: "Catalog", title: "catalog", icon: "catalog" }],
-  entities: [["Catalog", ["Article", "Category"]]],     // Array<[groupId, Array<entityKey>]>
-  configs,
-  hasAccess: () => true,                                 // (config: IConfig) => boolean
+    groups: [{ id: "Catalog", title: "catalog", icon: "catalog" }],
+    entities: [["Catalog", ["Article", "Category"]]], // Array<[groupId, Array<entityKey>]>
+    configs,
+    hasAccess: () => true, // (config: IConfig) => boolean
 })
 // importNavbar: each entry is an entityKey, or [groupId, entityKeys] for a submenu
 const navbar = importNavbar({
-  groups: [{ id: "Catalog", title: "catalog", icon: "catalog" }],
-  entities: ["Article", ["Catalog", ["Category"]]],     // Array<string | [groupId, Array<entityKey>]>
-  configs,
-  hasAccess: () => true,
+    groups: [{ id: "Catalog", title: "catalog", icon: "catalog" }],
+    entities: ["Article", ["Catalog", ["Category"]]], // Array<string | [groupId, Array<entityKey>]>
+    configs,
+    hasAccess: () => true,
 })
-const tree = buildNavigationTree([...dashboard, ...navbar])   // → TreeList<INavCore> to render the menu
+const tree = buildNavigationTree([...dashboard, ...navbar]) // → TreeList<INavCore> to render the menu
 ```
 
 > Prefer the lower-level primitives when the importer inputs feel heavy: `createNavGroup({ id, title, icon })`
@@ -318,7 +337,7 @@ const tree = buildNavigationTree([...dashboard, ...navbar])   // → TreeList<IN
 
 Anything you put on the search object is sent as a query param (arrays → repeated keys). Keys starting
 with **`$`** are stripped by `cleanQueryParams` — use the `$` prefix for client-only/meta values you do
-*not* want on the wire.
+_not_ want on the wire.
 
 ## Type the client from the API's OpenAPI
 
@@ -335,7 +354,7 @@ npx openapi-typescript http://localhost:5001/openapi/v1.json -o src/api/schema.d
 ```ts
 // src/api/types.ts — friendly aliases over the generated schema
 import type { components } from "./schema"
-export type ArticleDto  = components["schemas"]["ArticleDto"]
+export type ArticleDto = components["schemas"]["ArticleDto"]
 export type CategoryDto = components["schemas"]["CategoryDto"]
 ```
 
@@ -347,9 +366,13 @@ import type { CategoryDto } from "@/api/types"
 export class Article extends EntityBase {
     id = 0
     title = ""
-    categories?: CategoryDto[]            // nested shapes come from OpenAPI, in sync with the server
-    override get $id() { return this.id || "new" }
-    override get $title() { return this.title }
+    categories?: CategoryDto[] // nested shapes come from OpenAPI, in sync with the server
+    override get $id() {
+        return this.id || "new"
+    }
+    override get $title() {
+        return this.title
+    }
 }
 ```
 

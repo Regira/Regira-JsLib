@@ -29,7 +29,7 @@ accepts a `File`, a `Blob`, an http(s) URL string (fetched via `fetch`, filename
   the picked files. `options.multiple` defaults to `true`; `options.accept` is a string or string[]
   (joined with commas).
 - **`getBase64Url(input)`** / **`createUrl(input)`** → `Promise<string>` — both return a base64 **data
-  URL** (`reader.readAsDataURL`). See gotchas: `createUrl` is *not* `URL.createObjectURL`.
+  URL** (`reader.readAsDataURL`). See gotchas: `createUrl` is _not_ `URL.createObjectURL`.
 - **`readJson(blob)`** → `Promise<any>` — reads the blob as text and `JSON.parse`s it.
 - **`writeJson(object, filename)`** → `Promise<Blob & { name }>` — pretty-prints (2-space) to an
   `application/json` named blob.

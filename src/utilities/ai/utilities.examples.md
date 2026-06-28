@@ -50,7 +50,7 @@ await saveAs(blob, (blob as any).name || "export.xlsx")
 ```ts
 import { formatFileSize } from "@/regira_modules/utilities/file-utility"
 
-const label = formatFileSize(attachment.length)   // e.g. "1.4 kB"
+const label = formatFileSize(attachment.length) // e.g. "1.4 kB"
 ```
 
 ## Same helpers via the barrel

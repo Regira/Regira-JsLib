@@ -20,7 +20,7 @@ app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => axios) })
 ```ts
 import { useAxios } from "regira_modules/vue/http"
 
-const axios = useAxios()                 // the singleton (throws if initAxios hasn't run)
+const axios = useAxios() // the singleton (throws if initAxios hasn't run)
 const { data } = await axios.get("/products")
 ```
 
@@ -29,7 +29,7 @@ const { data } = await axios.get("/products")
 ```ts
 import { useAxios } from "regira_modules/vue/http"
 
-const blob = await useAxios().getFile(`/products/${id}/export`)   // filename/type resolved from headers
+const blob = await useAxios().getFile(`/products/${id}/export`) // filename/type resolved from headers
 const url = URL.createObjectURL(blob)
 // trigger a download with (blob as any).name as the suggested filename, then URL.revokeObjectURL(url)
 ```
@@ -40,8 +40,8 @@ const url = URL.createObjectURL(blob)
 import { useAxios } from "regira_modules/vue/http"
 
 await useAxios().upload("/products/import", files, {
-    filesParameterName: "files",     // default is "file"
-    data: { overwrite: true },        // extra multipart fields
+    filesParameterName: "files", // default is "file"
+    data: { overwrite: true }, // extra multipart fields
 })
 ```
 

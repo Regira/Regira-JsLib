@@ -13,8 +13,18 @@ The package default and the named barrels come from the root specifier:
 
 ```ts
 import {
-  arrayUtility, colorUtility, datetimeUtility, fileUtility, htmlUtility, httpUtility,
-  imageUtility, numberUtility, objectUtility, promiseUtility, stringUtility, clipboardUtility,
+    arrayUtility,
+    colorUtility,
+    datetimeUtility,
+    fileUtility,
+    htmlUtility,
+    httpUtility,
+    imageUtility,
+    numberUtility,
+    objectUtility,
+    promiseUtility,
+    stringUtility,
+    clipboardUtility,
 } from "regira_modules/utilities"
 ```
 
