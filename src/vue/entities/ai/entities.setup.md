@@ -285,6 +285,19 @@ export default appConfig
 `main.ts` then does `fetch(\`${appConfig.baseUrl}/config.json\`)`→`createConfig(raw)`→`initAxios({ api, includeCredentials })`before installing plugins. The minimal flat`config.json`above
 still works;`app-config.ts` just adds env-selection and a typed accessor.
 
+### Calling the API in dev — HTTPS redirect
+
+The `BasicApi` server template calls `app.UseHttpsRedirection()`, so a request to the HTTP port
+307-redirects to the HTTPS port and the browser blocks the SPA on the untrusted dev certificate. Pick one:
+
+- **Trust the dev cert** and keep `api` on the HTTPS port: `dotnet dev-certs https --trust`.
+- **Proxy through Vite** — route `/api` to the API and set `config.json` `api` to `/api`:
+  ```ts
+  // vite.config.ts → server.proxy
+  server: { proxy: { "/api": { target: "https://localhost:7001", changeOrigin: true, secure: false } } }
+  ```
+- **Skip the redirect in Development** on the API: `if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();`.
+
 ### Navigation map
 
 Beyond `api`/`title`/`clientApp`, the shell-specific part is the **`navigation`** map that
