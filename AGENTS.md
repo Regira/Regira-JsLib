@@ -29,6 +29,7 @@ been authored cleanly, with no record of prior errors or revisions.
 - Each module: `README.md` (developer docs) + `ai/` = `<m>.instructions.md`, `<m>.signatures.md`, `<m>.examples.md`, `module.json`. Entities adds `namespaces.md`, `patterns.md`, `setup.md`, `template.md`, `vue-entities-agent.md`, `docs/`.
 - Root `README.md` indexes all modules; each is published via a `package.json` `exports` subpath (`regira_modules/<m>`).
 - `dist/**/*.d.ts` (committed) = authoritative public API.
+- **Meta package:** `src/bootstrap/ai/` (`frontend.bootstrap.md` + `module.json`, id `regira_modules`) holds the *front-end consumer bootstrap* — the SPA routing entry the MCP serves as `get_package id="regira_modules" section="frontend.bootstrap"`. Documentation-only: no `src` code, no `package.json` `exports` subpath. Distinct from this `AGENTS.md`/`CLAUDE.md`, which guide agents *working in* this repo.
 
 ## 3. Commands
 
@@ -49,6 +50,9 @@ been authored cleanly, with no record of prior errors or revisions.
 
 Update together: `src/<path>/README.md` + `ai/` set (incl. `module.json`), the root `README.md` index,
 and `package.json` `exports`.
+
+The `src/bootstrap/ai/` meta package (front-end consumer bootstrap) is the exception: update its `ai/` set
++ the root `README.md` index only — it has **no `package.json` `exports` entry** (not a runtime subpath).
 
 ## 6. MCP
 

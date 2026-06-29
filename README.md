@@ -5,6 +5,10 @@ http, ioc, auth, ui, formatters, …) that pair with the Regira back-end package
 
 ## Documentation
 
+**Start here (AI agents):** the [front-end consumer bootstrap](src/bootstrap/ai/frontend.bootstrap.md)
+(`get_package id="regira_modules" section="frontend.bootstrap"`) is the routing entry for building a Vue 3
+SPA against a Regira.Entities API; it points into the per-module guides below.
+
 **Vue modules**
 
 | Module | Developer docs | AI guides |
@@ -39,7 +43,9 @@ the guides on demand (front-end ids look like `regira_modules.vue.entities`):
 { "mcpServers": { "regira": { "url": "https://mcp.regira.com/mcp", "transport": "http" } } }
 ```
 
-Then use `list_packages` (filter `vue` or `frontend`), `get_package`, and `get_example`. Each documented
+Front-end consumers should start at the **front-end consumer bootstrap** —
+`get_package id="regira_modules" section="frontend.bootstrap"` — then follow its reading order. From
+there, use `list_packages` (filter `vue` or `frontend`), `get_package`, and `get_example`. Each documented
 module ships an `ai/module.json` (catalog metadata) plus `ai/*.md` guides; the knowledge builder reads
 them and the committed `dist/**/*.d.ts` for an exact API map.
 
