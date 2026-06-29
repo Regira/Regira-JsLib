@@ -6,19 +6,19 @@ form inputs, and responsive layout.
 
 ## Areas
 
-| Area         | Components                                                                                                                      | Programmatic                                      |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| paging       | `Paging`                                                                                                                        | `pagingDefaults`, `ButtonType`, `pagingPlugin`    |
-| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                  | `loadingPlugin`                                   |
-| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                | `useFeedback`, `FeedbackStatus`, `feedbackPlugin` |
-| modal        | `DefaultModal`                                                                                                                  | `ModalType`, `modalPlugin`                        |
-| tabs         | `TabContainer`                                                                                                                  | `Tab` / `ITab`                                    |
-| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                | `iconPlugin`, `loadIcons`                         |
-| screen       | —                                                                                                                               | `useScreen`, `screenPlugin`                       |
-| autocomplete | `Autocomplete`                                                                                                                  | `useAutocomplete`                                 |
-| buttons      | `ConfirmButton`                                                                                                                 | —                                                 |
-| input        | `Anchor`, `DateInput`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                 |
-| gis          | `GMap`, `GmapLink`, `ModalButton` (Google Maps)                                                                                 | —                                                 |
+| Area         | Components                                                                                                                                                            | Programmatic                                      |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`    |
+| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                   |
+| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin` |
+| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`                        |
+| tabs         | `TabContainer`                                                                                                                                                        | `Tab` / `ITab`                                    |
+| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`                         |
+| screen       | —                                                                                                                                                                     | `useScreen`, `screenPlugin`                       |
+| autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`                                 |
+| buttons      | `ConfirmButton`                                                                                                                                                       | —                                                 |
+| input        | `Anchor`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                 |
+| gis          | `GMap`, `GmapLink`, `ModalButton` (Google Maps)                                                                                                                       | —                                                 |
 
 ## Plugins & globals
 

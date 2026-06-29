@@ -113,7 +113,9 @@ export default defineConfig({
 > `erasableSyntaxOnly` (the current Vite `vue-ts` template default), define enum-like values as `const`
 > objects + a value type instead of `enum`. `@vue/tsconfig` (0.9) ships `tsconfig.json` / `.dom.json` /
 > `.lib.json` but **no `tsconfig.node.json`** — point `tsconfig.node.json` at the base
-> `@vue/tsconfig/tsconfig.json` (a stale reference to the missing file errors with TS6053).
+> `@vue/tsconfig/tsconfig.json` (a stale reference to the missing file errors with TS6053). Install `@types/node`
+> as a devDependency so `vue-tsc -b` type-checks `vite.config.ts` (it imports `node:url`); the
+> `npm create vue@latest` scaffold includes it.
 
 ```html
 <!-- index.html — Bootstrap + icons via CDN (or import the npm CSS in main.ts instead) -->
@@ -141,6 +143,54 @@ declare const __APP_VERSION__: string
 
 The `$configs` type and the rest of the app globals go in `src/shims.d.ts` — see
 [Root component — App.vue → Typing app globals](#typing-app-globals--srcshimsdts).
+
+## Lean tier (generic views)
+
+The full per-entity slice (below) is a back-office scaffold. For a focused admin, a storefront, or an
+embed, the **lean tier** pairs the per-entity data layer (model + `config` + service + `SearchObject`,
+from [entities.template.md](entities.template.md)) with two generic components the library ships —
+`EntityOverview` and `EntityForm` — bound to your columns and fields through slots.
+
+Create each service once over the shared axios:
+
+```ts
+// src/services.ts
+import { initAxios } from "regira_modules/vue/http"
+import ProductService from "@/entities/products/data/EntityService"
+import productConfig from "@/entities/products/config/config"
+
+const axios = initAxios({ api: "/api" }) // one shared instance for the whole app
+export const products = new ProductService(axios, productConfig)
+```
+
+```vue
+<!-- src/views/Products.vue -->
+<script setup lang="ts">
+import { EntityOverview } from "regira_modules/vue/entities"
+import { products } from "@/services"
+</script>
+
+<template>
+    <EntityOverview :service="products">
+        <template #head>
+            <th>Name</th>
+            <th>Description</th>
+        </template>
+        <template #row="{ item, remove }">
+            <td>{{ item.$title }}</td>
+            <td>{{ item.description }}</td>
+            <td><button class="btn btn-sm btn-outline-danger" @click="remove(item)">Delete</button></td>
+        </template>
+    </EntityOverview>
+</template>
+```
+
+`EntityOverview` pages server-side through `service.search`; set `:page-size` (default 10) and restyle the
+pager through the `#paging` slot.
+
+`EntityForm` takes the same `:service` plus an `:id` (`"new"` inserts), exposes the loaded entity through
+its default slot, and emits `saved` / `cancel`. Both rely only on the service contract, so the data layer
+is shared with the full tier and adopting the scaffold later is additive.
 
 ## Project structure
 
@@ -172,7 +222,7 @@ src/
   components/                    # shared UI shell — see App shell
     entity-navigation/           #   Dashboard / NavBar / NavSearch (built from $configs) + useNavigation()
       index.ts  functions.ts
-    input/        index.ts       #   shared form inputs (DescriptionInput, FormButtonsRow, …)
+    input/        index.ts       #   app-specific inputs (common FormButtonsRow/DescriptionInput ship in vue/ui)
     layout/                      #   TheHeader / TheFooter / Main / AppModal / LangSelector / Offline
     users/                       #   account + auth UI (omit when auth is disabled)
   infrastructure/                # small app-wide plugins/helpers — see App shell (keep it basic)
@@ -294,10 +344,10 @@ The `BasicApi` server template calls `app.UseHttpsRedirection()`, so a request t
 
 - **Trust the dev cert** and keep `api` on the HTTPS port: `dotnet dev-certs https --trust`.
 - **Proxy through Vite** — route `/api` to the API and set `config.json` `api` to `/api`:
-  ```ts
-  // vite.config.ts → server.proxy
-  server: { proxy: { "/api": { target: "https://localhost:7001", changeOrigin: true, secure: false } } }
-  ```
+    ```ts
+    // vite.config.ts → server.proxy
+    server: { proxy: { "/api": { target: "https://localhost:7001", changeOrigin: true, secure: false } } }
+    ```
 - **Skip the redirect in Development** on the API: `if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();`.
 
 ### Navigation map
@@ -515,10 +565,10 @@ The full app shell adds three things on top of that canonical file, right after 
 last one after `authPlugin`):
 
 ```ts
-// 1. register the common form inputs globally so every Form.vue can use them without importing
-import DescriptionInput from "@/components/input/DescriptionInput.vue"
+// 1. register frequently-used inputs globally so every Form.vue uses them without importing
+import { DescriptionInput, FormSection, FormLabel } from "@/regira_modules/vue/ui"
 app.component("DescriptionInput", DescriptionInput)
-// (the library's FormSection / DateInput / NullableCheckBox / FormLabel are registered the same way)
+// (FormSection / FormLabel / DateInput / NullableCheckBox register the same way)
 
 // 2. seed icons from a JSON map (group icons referenced by config.json → navigation.groups[].icon)
 const appIcons = await fetch(`${appConfig.baseUrl}/data/app-icons.json`).then((r) => r.json())
@@ -719,8 +769,8 @@ disabled), make three changes:
 ## App shell — components, infrastructure & styling
 
 Beyond entity slices, the sample apps ship a ready-made shell — a config-driven **dashboard + navbar**
-(`entity-navigation/`), the **layout chrome** (`layout/`), shared **form inputs** including
-`FormButtonsRow` (`input/`), and the **auth UI** (`users/`, when auth is enabled). Copy it from
+(`entity-navigation/`), the **layout chrome** (`layout/`), shared **form inputs** (the common
+`FormButtonsRow` / `DescriptionInput` ship in `vue/ui`), and the **auth UI** (`users/`, when auth is enabled). Copy it from
 [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin) and adapt rather than hand-rolling. The
 components read from the collected `$configs` and the runtime config; data/logic stays in the entity slices
 and composables. Each folder is detailed in [§ `src/components/`](#srccomponents) below.
@@ -755,12 +805,12 @@ step list in the [checklist](../docs/checklist.md).
 
 ### `src/components/`
 
-| Folder               | Holds                                                                                                                                                                      | Notes                                                                                                                                                                                                                                                                                        |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()`                                                                                                                     | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
-| `input/`             | shared form inputs — `FormButtonsRow` (the form's Save / Cancel / Delete / Restore row, bound to `handleCancel` / `handleRemove` / `handleRestore`), `DescriptionInput`, … | register the common ones globally in `main.ts` (`app.component(...)`) so every Form can use them                                                                                                                                                                                             |
-| `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline`                                                                                    | the chrome around `<RouterView>`                                                                                                                                                                                                                                                             |
-| `users/`             | account + auth UI (login, change password, admin list)                                                                                                                     | include when auth is enabled; omit on the [no-auth path](#running-without-authentication)                                                                                                                                                                                                    |
+| Folder               | Holds                                                                                   | Notes                                                                                                                                                                                                                                                                                        |
+| -------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()`                                  | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
+| `input/`             | app-specific form inputs                                                                | the common `FormButtonsRow` (Save / Cancel / Delete / Restore row) and `DescriptionInput` ship in `vue/ui`; register library inputs globally in `main.ts` if you prefer not to import them per-form                                                                                          |
+| `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>`                                                                                                                                                                                                                                                             |
+| `users/`             | account + auth UI (login, change password, admin list)                                  | include when auth is enabled; omit on the [no-auth path](#running-without-authentication)                                                                                                                                                                                                    |
 
 Give each folder an `index.ts` barrel; keep the components thin and presentational — data/logic stays in
 the entity slices and composables.
@@ -801,12 +851,6 @@ export { default as NavSearch } from "./nav-search/NavSearch.vue"
 
 `buildNavigationTree` returns a `TreeList<INavCore>`; render it via its `.roots` (each node has
 `children`). `Dashboard.vue` / `NavBar.vue` are thin wrappers that `v-for` over `tree.roots`.
-
-```ts
-// src/components/input/index.ts
-export { default as DescriptionInput } from "./DescriptionInput.vue"
-export { default as FormButtonsRow } from "./FormButtonsRow.vue"
-```
 
 ### `src/infrastructure/` (keep it basic)
 

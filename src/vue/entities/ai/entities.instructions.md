@@ -174,13 +174,13 @@ axios `baseURL` (set from app config).
 
 The reference app is large; you rarely need all of it. **Decide the tier before scaffolding.**
 
-| Tier                       | You build                                                                                                                     | ~Files/entity | Pick when                                                                       |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------- |
-| **Headless data-layer**    | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                            | 1–2           | storefront / read-mostly UI, or embedding in an existing app                    |
-| **Lean self-rolled views** | the data layer + a few hand-written (e.g. Bootstrap) list/detail/form views; skip the slice scaffold                         | 3–6           | a focused admin over a few entities where a reliable cold build matters most    |
-| **Full reference scaffold** | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth)        | ~20+          | a full back-office wanting batteries-included CRUD UX and relation pickers       |
+| Tier                        | You build                                                                                                              | ~Files/entity | Pick when                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
+| **Headless data-layer**     | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                      | 1–2           | storefront / read-mostly UI, or embedding in an existing app               |
+| **Lean (generic views)**    | the data layer + the library's `EntityOverview` / `EntityForm` bound via slots; skip the slice scaffold                | ~4            | a focused admin, storefront, or embed                                      |
+| **Full reference scaffold** | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth) | ~20+          | a full back-office wanting batteries-included CRUD UX and relation pickers |
 
-The worked [examples](entities.examples.md) and [slice template](entities.template.md) document the **full** tier; the lean/headless tiers reuse the same data layer (below) with your own views.
+The worked [examples](entities.examples.md) and [slice template](entities.template.md) document the **full** tier; the lean tier pairs the same data layer with the library's `EntityOverview` / `EntityForm` ([entities.setup.md → Lean tier](entities.setup.md#lean-tier-generic-views)), and the headless tier uses your own views.
 
 ### Choosing a service base
 
@@ -200,8 +200,7 @@ and routing conventions); simple lookups leave it unset.
 >
 > When you construct `EntityServiceBase` directly, the `*Url` fields default from `config.api`.
 > Model `id` as `id?: number` (an `id: null` would still serialize and a
-> non-nullable int InputDto rejects it). On older library versions also set `listUrl`/`detailsUrl`/`saveUrl`/`deleteUrl`
-> (= the resource) and `searchUrl` (= `resource/search`) explicitly, or requests hit `/api/undefined`.
+> non-nullable int InputDto rejects it).
 
 ### Overview: `useListView` vs `useSearchView`
 
@@ -356,25 +355,26 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | Child collections                  | `useOwnedCollection` / `useOwnedModal` / `useListInput`    |
 | Hierarchy                          | `useTree`                                                  |
 | Navigation from configs            | `importDashboard` / `importNavbar` / `buildNavigationTree` |
+| Lean overview/form (no scaffold)   | `EntityOverview` / `EntityForm`                            |
 
 ---
 
 ## Gotchas
 
-| Symptom                                                  | Cause                                                                                                                                                                         | Fix                                                                                                                            |
+| Symptom | Cause | Fix |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --- | ------ |
-| `v-for` over `items` throws a null error on first render | Overview refs are **lazy** — `items` / `itemsCount` are `undefined` until `searchHandler`/`listHandler` runs (the type says `Array<T>`, but the initial value is `undefined`) | Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`, `(items?.length ?? 0) === 0`                 |
-| `Fiche`/`Form` receive `null`                            | `useDetails().item` is `null` until the `onMounted` load resolves                                                                                                             | Gate the child: `<RouterView v-if="item" v-model="item" …>`                                                                    |
-| Save result binds to nothing / wrong shape               | Binding to `item` instead of `saved`                                                                                                                                          | `SaveResult` exposes `saved` (not `item`); `SaveResult` and the raw server `SavedResult` differ — bind to `saved`              |
-| New entity not treated as insert                         | `$id` not `"new"`/`null`                                                                                                                                                      | `save()` treats `$id === "new"` (or `null`) as insert; new-entity routes use `:id = "new"`; `$id` getter returns `this.id      |     | "new"` |
-| Updates 404 while inserts pass                           | `saveUrl` set to a literal `/save` path                                                                                                                                       | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves                                   |
-| Archived rows missing                                    | `isArchived` defaults to `false`                                                                                                                                              | Set `isArchived` on the search object to include them                                                                          |
-| Pager-less overview shows only 10 rows                   | The overview composables seed paging from `PagingInfo`, whose fallback is 10 (a `defaultPageSize` of `0` reads as 10)                                                         | Set `defaultPageSize` to a large number (the API's max page size); `pageSize: 0` means "all" only at the service layer         |
-| Nested collection empty on a detail/edit form            | `includes` may not apply to the Details GET                                                                                                                                   | Ensure the API eager-loads it for Details, or fetch children with a dedicated call                                             |
-| Custom service method not found on the store `service`   | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface)                                                                                       | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`)                                    |
-| Overview total wrong / count missing                     | `useSearchView` bound to an endpoint that returns `{ items }` without `count`                                                                                                 | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview)) |
-| Import not found / wrong path                            | Guessed an import specifier                                                                                                                                                   | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess                                                   |
-| Wrong method name/params/return                          | Guessed a signature                                                                                                                                                           | Look it up in [entities.signatures.md](entities.signatures.md)                                                                 |
+| `v-for` over `items` throws a null error on first render | Overview refs are **lazy** — `items` / `itemsCount` are `undefined` until `searchHandler`/`listHandler` runs (the type says `Array<T>`, but the initial value is `undefined`) | Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`, `(items?.length ?? 0) === 0` |
+| `Fiche`/`Form` receive `null` | `useDetails().item` is `null` until the `onMounted` load resolves | Gate the child: `<RouterView v-if="item" v-model="item" …>` |
+| Save result binds to nothing / wrong shape | Binding to `item` instead of `saved` | `SaveResult` exposes `saved` (not `item`); `SaveResult` and the raw server `SavedResult` differ — bind to `saved` |
+| New entity not treated as insert | `$id` not `"new"`/`null` | `save()` treats `$id === "new"` (or `null`) as insert; new-entity routes use `:id = "new"`; `$id` getter returns `this.id      |     | "new"` |
+| Updates 404 while inserts pass | `saveUrl` set to a literal `/save` path | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves |
+| Archived rows missing | `isArchived` defaults to `false` | Set `isArchived` on the search object to include them |
+| Pager-less overview shows only 10 rows | The overview composables seed paging from `PagingInfo`, whose fallback is 10 (a `defaultPageSize` of `0` reads as 10) | Set `defaultPageSize` to a large number (the API's max page size); `pageSize: 0` means "all" only at the service layer |
+| Nested collection empty on a detail/edit form | `includes` may not apply to the Details GET | Ensure the API eager-loads it for Details, or fetch children with a dedicated call |
+| Custom service method not found on the store `service` | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface) | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`) |
+| Overview total wrong / count missing | `useSearchView` bound to an endpoint that returns `{ items }` without `count` | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview)) |
+| Import not found / wrong path | Guessed an import specifier | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess |
+| Wrong method name/params/return | Guessed a signature | Look it up in [entities.signatures.md](entities.signatures.md) |
 
 > **Dormant code — do not use:**
 >

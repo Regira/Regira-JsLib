@@ -8,7 +8,7 @@ Where every type comes from. JavaScript has import specifiers, not namespaces.
 ## The one import you usually need
 
 The barrel **`regira_modules/vue/entities`** re-exports the entire entities surface (abstractions, config,
-overview, details, form, filter, describers, navigation, pooling, preloading, tree, utilities). Prefer it:
+overview, details, form, filter, lean views, describers, navigation, pooling, preloading, tree, utilities). Prefer it:
 
 ```ts
 import {
@@ -58,6 +58,7 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 | Details                | `useDetails`, `DetailsSummary`                                                                                                                                          |
 | Form                   | `useForm`, `useModalForm`/`useModal`, `FormProps`, `FormEmits`, `FormStates`, `formDefaults`, `useOwnedCollection`, `useOwnedModal`, `useListInput`, `useListItemInput` |
 | Filter                 | `useFilter`, `FilterIn`, `FilterEmits`, `FilterOut`                                                                                                                     |
+| Lean views             | `EntityOverview`, `EntityForm` (generic list/edit driven by `IEntityService`)                                                                                           |
 | Pooling                | `createStore`, `usePooling`, `defaultPoolCache`, `PoolCache`, `PoolService`, `IPoolHandler`, `IPoolService`, `IPoolCache`                                               |
 | Navigation             | `NavItem`, `NavGroup`, `INavItem`, `INavCore`, `createNavItem`, `createNavGroup`, `buildNavigationTree`, `importDashboard`, `importNavbar`, `isNavItem`                 |
 | Tree                   | `useTree`, `useDragDrop`                                                                                                                                                |

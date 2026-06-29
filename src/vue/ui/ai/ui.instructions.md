@@ -38,19 +38,19 @@ reference them directly in any template (a local `app.component(...)` for the sa
 
 ## Areas
 
-| Area         | Key components                                                                                                                  | Programmatic                                                     |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| paging       | `Paging`                                                                                                                        | `pagingDefaults`, `ButtonType`, `pagingPlugin`                   |
-| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                  | `loadingPlugin`                                                  |
-| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
-| modal        | `DefaultModal`                                                                                                                  | `ModalType`, `modalPlugin`                                       |
-| tabs         | `TabContainer`                                                                                                                  | `Tab` / `ITab`                                                   |
-| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                | `iconPlugin`, `loadIcons`, `IIconProvider`                       |
-| screen       | —                                                                                                                               | `useScreen`, `SCREEN_SIZES`, `screenPlugin`                      |
-| autocomplete | `Autocomplete`                                                                                                                  | `useAutocomplete`, `autocompleteProps`, `autocompleteEmits`      |
-| buttons      | `ConfirmButton`                                                                                                                 | —                                                                |
-| input        | `Anchor`, `DateInput`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                                |
-| gis          | `GMap`, `GMapLink`, `GMapButton` (Google Maps)                                                                                  | —                                                                |
+| Area         | Key components                                                                                                                                                        | Programmatic                                                     |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`                   |
+| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                                  |
+| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
+| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`                                       |
+| tabs         | `TabContainer`                                                                                                                                                        | `Tab` / `ITab`                                                   |
+| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`, `IIconProvider`                       |
+| screen       | —                                                                                                                                                                     | `useScreen`, `SCREEN_SIZES`, `screenPlugin`                      |
+| autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`, `autocompleteProps`, `autocompleteEmits`      |
+| buttons      | `ConfirmButton`                                                                                                                                                       | —                                                                |
+| input        | `Anchor`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                                |
+| gis          | `GMap`, `GMapLink`, `GMapButton` (Google Maps)                                                                                                                        | —                                                                |
 
 ## What the entity views use
 

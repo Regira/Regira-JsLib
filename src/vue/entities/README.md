@@ -38,6 +38,9 @@ the app-level [entity aggregator](ai/entities.setup.md#add-entities), and the np
 `@/regira_modules` alias is optional). To type the client from the API's OpenAPI, see
 [entities.patterns.md](ai/entities.patterns.md#type-the-client-from-the-apis-openapi).
 
+Pick a **build tier** first — the lean tier (the data layer + the library's `EntityOverview` / `EntityForm`)
+or the full per-entity scaffold; see [How much to build](ai/entities.instructions.md#how-much-to-build).
+
 A complete entity slice lives under `src/entities/<name>/` with the standard folder set
 (`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`). See the full worked
 code for the worked slices — a **simple** `UnitType` then a **standard** `Product` — in

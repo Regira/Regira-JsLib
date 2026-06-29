@@ -34,10 +34,10 @@ boilerplate. Both are copied verbatim from the reference
 > app-local imports against your own app. Resolve any `regira_modules` import you don't recognise from
 > [entities.namespaces.md](entities.namespaces.md); never guess one.
 
-> **⚠ These slices import app-shell components that aren't in the library.** `ResultSummary`,
-> `FormButtonsRow`, `DescriptionInput`, the `selecting/*` relation pickers and similar `@/components/...`
-> imports live in the reference *app*, not in `regira_modules` — a copied slice won't compile until you
-> supply them (write your own, or use a lean tier — see [How much to build](entities.instructions.md#how-much-to-build)).
+> **Shared inputs come from the library.** `ResultSummary`, `FormButtonsRow`, and `DescriptionInput` ship in
+> `regira_modules/vue/ui`; import them from there. The slice's own `selecting/*` relation pickers are
+> generated per entity (worked code below). For a smaller surface, build the
+> [lean tier](entities.setup.md#lean-tier-generic-views) — the data layer plus `EntityOverview` / `EntityForm`.
 
 ## Folder layout
 
@@ -642,7 +642,7 @@ const item = defineModel<Entity>({ required: true })
 import { useSearchView, useRouteOverview, type OverviewEmits } from "@/regira_modules/vue/entities"
 import { Paging, LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
 import { useAuthStore } from "@/regira_modules/vue/auth"
-import ResultSummary from "@/components/ResultSummary.vue"
+import { ResultSummary } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -814,7 +814,7 @@ function handleRemove() {
 <script setup lang="ts">
 import type { RouteRecordRaw } from "vue-router"
 import { Feedback } from "@/regira_modules/vue/ui"
-import { FormButtonsRow } from "@/components/input"
+import { FormButtonsRow } from "@/regira_modules/vue/ui"
 import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
@@ -1461,7 +1461,7 @@ watchEffect(() => (selected.value = props.modelValue))
 import { onMounted, type Ref } from "vue"
 import { useSearchView } from "@/regira_modules/vue/entities"
 import { Paging, LoadingContainer, Feedback, ButtonType } from "@/regira_modules/vue/ui"
-import ResultSummary from "@/components/ResultSummary.vue"
+import { ResultSummary } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -2480,7 +2480,7 @@ const { fromPool: getFacet } = useFacetStore()
 import { useSearchView, useRouteOverview, type OverviewEmits } from "@/regira_modules/vue/entities"
 import { Paging, LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
 import { useAuthStore } from "@/regira_modules/vue/auth"
-import ResultSummary from "@/components/ResultSummary.vue"
+import { ResultSummary } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -2667,7 +2667,7 @@ import { computed } from "vue"
 import type { RouteRecordRaw } from "vue-router"
 import { useLang } from "@/regira_modules/vue/lang"
 import { Feedback, TabContainer, Tab, useScreen } from "@/regira_modules/vue/ui"
-import { FormButtonsRow } from "@/components/input"
+import { FormButtonsRow } from "@/regira_modules/vue/ui"
 import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
 import { SelectorDropdown as UnitTypeInputSelector } from "@/entities/unit-types"
 import AssemblyOverview from "@/entities/products/product-assemblies/Overview.vue"

@@ -4,6 +4,7 @@ export * from "./describers";
 export * from "./details";
 export * from "./filter";
 export * from "./form";
+export * from "./lean";
 export * from "./navigation";
 export * from "./overview";
 export { usePreloader, plugin as preloaderPlugin } from "./preloading";

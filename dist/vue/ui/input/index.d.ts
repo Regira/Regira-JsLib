@@ -1,5 +1,7 @@
 export { default as Anchor } from "./Anchor.vue";
 export { default as DateInput } from "./DateInput.vue";
+export { default as DescriptionInput } from "./DescriptionInput.vue";
+export { default as FormButtonsRow } from "./FormButtonsRow.vue";
 export { default as FormLabel } from "./FormLabel.vue";
 export { default as NullableCheckBox } from "./NullableCheckBox.vue";
 export { default as NullableLabel } from "./NullableLabel.vue";

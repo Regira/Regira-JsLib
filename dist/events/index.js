@@ -1,4 +1,4 @@
-import { n as e, t } from "../_chunks/event-handler-3.2.3.js";
+import { n as e, t } from "../_chunks/event-handler-3.2.4.js";
 //#region src/events/index.ts
 var n = {
 	Event: e,

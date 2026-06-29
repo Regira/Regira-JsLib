@@ -48,18 +48,8 @@ export declare const useAppStore: import("pinia").StoreDefinition<
         },
         "status" | "culture" | "logo"
     >,
-    Pick<
-        {
-            /* …same shape… */
-        },
-        "isReady"
-    >,
-    Pick<
-        {
-            /* …same shape… */
-        },
-        "setCulture" | "setStatus" | "setLogo"
-    >
+    Pick<{ /* …same shape… */ }, "isReady">,
+    Pick<{ /* …same shape… */ }, "setCulture" | "setStatus" | "setLogo">
 >
 export default useAppStore
 ```

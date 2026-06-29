@@ -13,15 +13,15 @@ CRUD client) against a **Regira.Entities** API. Use this when the target is a SP
 The Regira MCP server (`https://mcp.regira.com/mcp`) has full knowledge of every front-end module,
 including ones not yet installed locally. Use it to discover and read guides on demand:
 
-| Tool | Purpose |
-|---|---|
-| `list_packages` (filter `vue` / `frontend`) | Browse the front-end module catalog. |
-| `recommend_packages` / `search_packages` | First-pass / keyword package discovery. |
-| `get_package_toc` | List a package's documentation sections. |
-| `get_section_toc` | List a section's headings before loading content. |
-| `get_package` (`section=`, `heading=`, `maxChars`, `page`) | Read the actual guidance, scoped. |
-| `get_example` (`section=`) | Pull only matching examples. |
-| `list_types` / `get_type` | Inspect the public API surface from the committed `.d.ts` map. |
+| Tool                                                       | Purpose                                                        |
+| ---------------------------------------------------------- | -------------------------------------------------------------- |
+| `list_packages` (filter `vue` / `frontend`)                | Browse the front-end module catalog.                           |
+| `recommend_packages` / `search_packages`                   | First-pass / keyword package discovery.                        |
+| `get_package_toc`                                          | List a package's documentation sections.                       |
+| `get_section_toc`                                          | List a section's headings before loading content.              |
+| `get_package` (`section=`, `heading=`, `maxChars`, `page`) | Read the actual guidance, scoped.                              |
+| `get_example` (`section=`)                                 | Pull only matching examples.                                   |
+| `list_types` / `get_type`                                  | Inspect the public API surface from the committed `.d.ts` map. |
 
 ## Pre-flight checklist
 
@@ -30,8 +30,8 @@ including ones not yet installed locally. Use it to discover and read guides on 
 - [ ] Peers installed: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`, `lodash`, plus `bootstrap` +
       `bootstrap-icons` for styling.
 - [ ] Build toolchain majors move as a set: `vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`.
-- [ ] **Authentication is optional.** Do not assume the auth plugin is required; follow the *Running
-      without authentication* recipe in `entities.setup` to run without a login.
+- [ ] **Authentication is optional.** Do not assume the auth plugin is required; follow the _Running
+      without authentication_ recipe in `entities.setup` to run without a login.
 - [ ] **Type the client from the API's OpenAPI.** When the API exposes OpenAPI, generate TypeScript types
       from it and feed them into the hand-written entity models (you still hand-write the model classes).
 - [ ] The applicable primary guides (`entities.instructions`, `entities.setup`) are read in full before
@@ -61,17 +61,17 @@ reading-order note in `regira_modules.vue.entities` → `entities.setup`.
 
 The CRUD client `regira_modules.vue.entities` wires onto sibling modules:
 
-| Module id | Role |
-|-----------|------|
-| `regira_modules.vue.entities` | CRUD client: models, services, search/paging, overview/details/form composables |
-| `regira_modules.vue.ioc` | DI container (`$services`, `get()`) |
-| `regira_modules.vue.http` | shared axios instance + query strings |
-| `regira_modules.vue.app` | app lifecycle (`AppStatus`, `$setAppStatus`) + culture |
-| `regira_modules.vue.ui` | icon / loading / modal / feedback components and plugins |
-| `regira_modules.vue.auth` | bearer-token auth (**optional**) |
-| `regira_modules.vue.lang` | i18n (`$t`) |
-| `regira_modules.vue.directives`, `.formatters`, `.online`, `.debug` | smaller helpers |
-| `regira_modules.io` | `FileHelper` / `ImageHelper` (uploads, blob/base64/url, image ops) |
+| Module id                                                           | Role                                                                            |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `regira_modules.vue.entities`                                       | CRUD client: models, services, search/paging, overview/details/form composables |
+| `regira_modules.vue.ioc`                                            | DI container (`$services`, `get()`)                                             |
+| `regira_modules.vue.http`                                           | shared axios instance + query strings                                           |
+| `regira_modules.vue.app`                                            | app lifecycle (`AppStatus`, `$setAppStatus`) + culture                          |
+| `regira_modules.vue.ui`                                             | icon / loading / modal / feedback components and plugins                        |
+| `regira_modules.vue.auth`                                           | bearer-token auth (**optional**)                                                |
+| `regira_modules.vue.lang`                                           | i18n (`$t`)                                                                     |
+| `regira_modules.vue.directives`, `.formatters`, `.online`, `.debug` | smaller helpers                                                                 |
+| `regira_modules.io`                                                 | `FileHelper` / `ImageHelper` (uploads, blob/base64/url, image ops)              |
 
 ## You are the Vue 3 / TypeScript / Vite expert
 
@@ -84,9 +84,10 @@ option is unconfirmed, **stop and ask**; do not invent it — verify against `en
 
 Follow the prescribed conventions by default; deviate deliberately, not by defaulting to a remembered
 pattern, and declare any **intended deviations** and why. This applies especially to the **build tier**
-(`entities.instructions` → *How much to build*) — pick one and stay within it rather than mixing layers —
-the **per-entity slice / project structure** (`entities.setup` → *Project structure*), and **Bootstrap 5**
-styling (`entities.setup` → *Bootstrap — main.ts*).
+(`entities.instructions` → _How much to build_) — declare which one and reuse the library data layer and
+generic views (`EntityOverview` / `EntityForm`) rather than re-implementing them —
+the **per-entity slice / project structure** (`entities.setup` → _Project structure_), and **Bootstrap 5**
+styling (`entities.setup` → _Bootstrap — main.ts_).
 
 ## Code-generation workflow
 

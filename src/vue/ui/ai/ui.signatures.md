@@ -57,6 +57,11 @@ export const pagingDefaults: { maxPages: number; buttonType: ButtonType }
 //   emits: "update:modelValue" | "change"
 ```
 
+```ts
+import { ResultSummary } from "regira_modules/vue/ui"
+// ResultSummary props: { visibleCount?: number; totalCount?: number }   // renders "visible / total"
+```
+
 ## Loading
 
 ```ts
@@ -149,6 +154,8 @@ export function useAutocomplete<T = any, TKey = number | string | T>(props, { em
 import {
     ConfirmButton,
     DateInput,
+    DescriptionInput,
+    FormButtonsRow,
     NullableCheckBox,
     FileDropZone,
     Anchor,
@@ -159,6 +166,8 @@ import {
 } from "regira_modules/vue/ui"
 // ConfirmButton props: { icon?: string; buttonLabel?: string; modalTitle?: string; modalType?: ModalType }
 // DateInput props: { modelValue?: string | Date; culture?: string }   (v-model)
+// DescriptionInput props: { label?: string; readonly?: boolean }   (v-model: string)
+// FormButtonsRow props: { item?: { isArchived?: boolean }; readonly?: boolean; feedback?: unknown; showDelete?: boolean } ; emits: cancel | remove | restore
 ```
 
 Other input/gis components (`Anchor`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`,

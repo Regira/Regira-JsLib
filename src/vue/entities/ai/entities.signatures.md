@@ -20,6 +20,7 @@ Verbatim TypeScript signatures for the front-end CRUD client (`regira_modules/vu
 8. [Navigation](#8-navigation)
 9. [Tree, preloading, utilities](#9-tree-preloading-utilities)
 10. [Wiring (IoC + HTTP)](#10-wiring-ioc--http)
+11. [Lean views (`EntityOverview` / `EntityForm`)](#11-lean-views-entityoverview--entityform)
 
 ---
 
@@ -627,6 +628,29 @@ export interface AxiosWithFilesInstance extends AxiosInstance {
 export function initAxios(config: { api: string; includeCredentials?: boolean }): AxiosWithFilesInstance
 export function useAxios(): AxiosWithFilesInstance
 export function createQueryString(o: object): URLSearchParams
+```
+
+---
+
+## 11. Lean views (`EntityOverview` / `EntityForm`)
+
+Generic, service-driven components for the lean tier (see
+[entities.setup.md → Lean tier](entities.setup.md#lean-tier-generic-views)). Both are generic over
+`T extends IEntity` and take a constructed `IEntityService<T>`; they rely only on the service contract, so
+they run without plugins, stores, or routes.
+
+```ts
+import { EntityOverview, EntityForm } from "regira_modules/vue/entities"
+
+// EntityOverview — list + built-in server paging + delete
+//   props:   { service: IEntityService<T>; query?: Record<string, any>; pageSize?: number }   // pageSize default 10
+//   slots:   toolbar({ reload, setPage }), head(), row({ item, remove, reload }), paging({ page, pageCount, count, setPage })
+//   exposes: { reload(): Promise<void>; setPage(p): Promise<void> }       // search({ ...query, page, pageSize })
+
+// EntityForm — create ("new") / edit one item
+//   props: { service: IEntityService<T>; id: string | number }
+//   slots: default({ item })                                              // item from newEntity() or details(id)
+//   emits: "saved" (item: T) | "cancel"                                   // save() result is the `saved` field
 ```
 
 ---
