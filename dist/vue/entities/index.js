@@ -45,7 +45,7 @@ var O = class {
 	defaultPageSize = 10;
 	constructor(e, t) {
 		if (this.axios = e, this.config = t, e == null) throw Error(`EntityServiceBase ("${t?.key ?? "unknown entity"}") was constructed without an axios instance. Register the shared axios in the IoC container so services can resolve it: app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => initAxios({ api })) }).`);
-		this.defaultPageSize = t.defaultPageSize ?? 10;
+		this.defaultPageSize = t.defaultPageSize ?? 10, t.api != null && (t.detailsUrl ??= t.api, t.listUrl ??= t.api, t.saveUrl ??= t.api, t.deleteUrl ??= t.api, t.searchUrl ??= t.isComplex ? `${t.api}/search` : t.api);
 	}
 	async details(e) {
 		let t = await this.axios.get(`${this.config.detailsUrl}/${e}`);
@@ -96,15 +96,17 @@ var O = class {
 		return this.processItem(i);
 	}
 	async insert(e) {
-		let t = `${this.config.saveUrl}`, n = this.prepareItem(e), r = await this.axios.post(t, n);
-		if (r instanceof v) throw r;
-		let { item: i } = r.data;
-		return "id" in i && Object.defineProperty(e, "id", {
-			value: i.id,
+		let t = `${this.config.saveUrl}`, n = this.prepareItem(e), r = n.id;
+		(r == null || r === 0 || r === "new") && delete n.id;
+		let i = await this.axios.post(t, n);
+		if (i instanceof v) throw i;
+		let { item: a } = i.data;
+		return "id" in a && Object.defineProperty(e, "id", {
+			value: a.id,
 			writable: !0,
 			configurable: !0,
 			enumerable: !0
-		}), this.processItem(i);
+		}), this.processItem(a);
 	}
 	async fetchItems(e, t) {
 		let n = {

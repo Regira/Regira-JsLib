@@ -111,7 +111,9 @@ export default defineConfig({
 > `npm run build` runs) errors on `baseUrl` (TS5101) even though `vue-tsc --noEmit` tolerates it, so
 > always verify with `npm run build`, not only a `--noEmit` typecheck. If your tsconfig enables
 > `erasableSyntaxOnly` (the current Vite `vue-ts` template default), define enum-like values as `const`
-> objects + a value type instead of `enum`.
+> objects + a value type instead of `enum`. `@vue/tsconfig` (0.9) ships `tsconfig.json` / `.dom.json` /
+> `.lib.json` but **no `tsconfig.node.json`** — point `tsconfig.node.json` at the base
+> `@vue/tsconfig/tsconfig.json` (a stale reference to the missing file errors with TS6053).
 
 ```html
 <!-- index.html — Bootstrap + icons via CDN (or import the npm CSS in main.ts instead) -->
@@ -503,7 +505,9 @@ fetch("/config.json")
 
 > **Required IoC registration (the #1 wiring pitfall).** The `configure` block above is mandatory: every
 > entity service resolves `axios` from the container, and `EntityServiceBase` throws a descriptive error at
-> construction when it is missing. Register `PoolCache` alongside it for the shared entity cache.
+> construction when it is missing. Register `PoolCache` alongside it for the shared entity cache. `configure`
+> must **return** the `IServiceProvider` (the chained `.add(...).add(...)` returns it; a multi-statement body
+> needs an explicit `return sp` or it fails type-check with TS2769).
 
 ### Full-shell additions
 
@@ -662,6 +666,10 @@ still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--
 > (`bi bi-*`); install the `bootstrap-icons` npm package and import its CSS in `main.ts`
 > (`import "bootstrap-icons/font/bootstrap-icons.css"`) or every icon renders blank. (`source: "fa"` →
 > Font Awesome the same way.)
+
+> **Library components need `iconPlugin` too.** `Feedback`, `LoadingContainer`, `Paging` and `ConfirmButton`
+> resolve `Icon`/`IconButton` **globally**, which only `iconPlugin` registers — so install it whenever you
+> render any of them, even if your own markup shows no icons (otherwise: `Failed to resolve component: IconButton`).
 
 ## Running without authentication
 

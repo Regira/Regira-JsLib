@@ -128,9 +128,7 @@ const config: IConfig = {
     api,
     detailsUrl: api,
     listUrl: api,
-    get searchUrl() {
-        return this.isComplex ? api + "/search" : api // simple tier reads from the list endpoint
-    },
+    searchUrl: api + "/search",
     saveUrl: api, // resource base — update/remove append /{$id} themselves
     deleteUrl: api,
 }

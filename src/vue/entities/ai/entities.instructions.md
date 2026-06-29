@@ -170,6 +170,18 @@ axios `baseURL` (set from app config).
 
 ## Decision Guidelines
 
+### How much to build
+
+The reference app is large; you rarely need all of it. **Decide the tier before scaffolding.**
+
+| Tier                       | You build                                                                                                                     | ~Files/entity | Pick when                                                                       |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------- |
+| **Headless data-layer**    | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                            | 1–2           | storefront / read-mostly UI, or embedding in an existing app                    |
+| **Lean self-rolled views** | the data layer + a few hand-written (e.g. Bootstrap) list/detail/form views; skip the slice scaffold                         | 3–6           | a focused admin over a few entities where a reliable cold build matters most    |
+| **Full reference scaffold** | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth)        | ~20+          | a full back-office wanting batteries-included CRUD UX and relation pickers       |
+
+The worked [examples](entities.examples.md) and [slice template](entities.template.md) document the **full** tier; the lean/headless tiers reuse the same data layer (below) with your own views.
+
 ### Choosing a service base
 
 | Use                         | Base                   | Why                                                                                                                                                                         |
@@ -185,6 +197,11 @@ and routing conventions); simple lookups leave it unset.
 > views. `service.search(so)` still merges `baseQueryParams`, strips `$`-keys, serializes arrays as
 > repeated keys, and defaults `pageSize`/`isArchived`. The reference apps all wire the full stack — this
 > is the minimal variant, not the norm.
+>
+> When you construct `EntityServiceBase` directly, the `*Url` fields default from `config.api`.
+> Model `id` as `id?: number` (an `id: null` would still serialize and a
+> non-nullable int InputDto rejects it). On older library versions also set `listUrl`/`detailsUrl`/`saveUrl`/`deleteUrl`
+> (= the resource) and `searchUrl` (= `resource/search`) explicitly, or requests hit `/api/undefined`.
 
 ### Overview: `useListView` vs `useSearchView`
 

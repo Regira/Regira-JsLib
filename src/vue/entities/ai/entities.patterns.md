@@ -347,8 +347,9 @@ classes — the client needs real classes with `$id` / `$title` getters and `toE
 /related fields and your form payloads then stay in lock-step with the server contract.
 
 ```bash
-# run once, or wire it as a "predev" / "prebuild" npm script
-npx openapi-typescript http://localhost:5001/openapi/v1.json -o src/api/schema.d.ts
+# run once, or wire it as a "predev" / "prebuild" npm script.
+# openapi-typescript@7 peers typescript@^5 — run it isolated via npx (don't add it as a dep) so it can't clash with your TS 6 toolchain.
+npx -p openapi-typescript@7 -p typescript@5 openapi-typescript http://localhost:5001/openapi/v1.json -o src/api/schema.d.ts
 ```
 
 ```ts

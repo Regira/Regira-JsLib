@@ -34,6 +34,11 @@ boilerplate. Both are copied verbatim from the reference
 > app-local imports against your own app. Resolve any `regira_modules` import you don't recognise from
 > [entities.namespaces.md](entities.namespaces.md); never guess one.
 
+> **⚠ These slices import app-shell components that aren't in the library.** `ResultSummary`,
+> `FormButtonsRow`, `DescriptionInput`, the `selecting/*` relation pickers and similar `@/components/...`
+> imports live in the reference *app*, not in `regira_modules` — a copied slice won't compile until you
+> supply them (write your own, or use a lean tier — see [How much to build](entities.instructions.md#how-much-to-build)).
+
 ## Folder layout
 
 The full folder tree — every file with its one-line purpose — lives in
@@ -665,7 +670,7 @@ const { updateOverviewRoute } = useRouteOverview({
     defaultPageSize: config.defaultPageSize,
 })
 
-// trigger searchHandler when logging in or refreshing token
+// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (see entities.setup.md#running-without-authentication)
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => ["login", "refresh"].includes(name) && after(() => authStore.isAuthenticated && searchHandler(false)))
 
@@ -717,7 +722,7 @@ const { service } = useEntityStore()
 
 const { item, isLoading, overviewUrl, load, feedback } = useDetails(service)
 
-// trigger load when logging in (only load when item has not been loaded before)
+// trigger load when logging in (only load when item has not been loaded before) — no-auth app: delete these two lines
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => name == "login" && after(() => item.value == null && authStore.isAuthenticated && load()))
 
@@ -2507,7 +2512,7 @@ const { updateOverviewRoute } = useRouteOverview({
     defaultPageSize: config.defaultPageSize,
 })
 
-// trigger searchHandler when logging in or refreshing token
+// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (see entities.setup.md#running-without-authentication)
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => ["login", "refresh"].includes(name) && after(() => authStore.isAuthenticated && searchHandler(false)))
 
