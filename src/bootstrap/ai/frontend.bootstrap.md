@@ -80,6 +80,14 @@ bundling, the build — are yours to own. Style with **Bootstrap 5**. When a Reg
 option is unconfirmed, **stop and ask**; do not invent it — verify against `entities.namespaces` /
 `entities.signatures` and the committed `dist/**/*.d.ts`.
 
+## Following conventions
+
+Follow the prescribed conventions by default; deviate deliberately, not by defaulting to a remembered
+pattern, and declare any **intended deviations** and why. This applies especially to the **build tier**
+(`entities.instructions` → *How much to build*) — pick one and stay within it rather than mixing layers —
+the **per-entity slice / project structure** (`entities.setup` → *Project structure*), and **Bootstrap 5**
+styling (`entities.setup` → *Bootstrap — main.ts*).
+
 ## Code-generation workflow
 
 1. Confirm the target is a Vue 3 SPA (otherwise use the back-end `get_bootstrap_guide`).
