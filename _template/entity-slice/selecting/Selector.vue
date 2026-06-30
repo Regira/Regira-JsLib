@@ -3,7 +3,7 @@
         <div v-for="(item, i) in items" :key="item.id" class="col-auto">
             <div class="text-nowrap p-2 border rounded-1">
                 <FormModalButton v-model="items![i]" class="m-0 p-0" />
-                {{ item.title }}
+                {{ item.$title }}
                 <IconButton icon="delete" class="m-0 py-0 px-1" @click="handleRemove(item)" />
             </div>
         </div>

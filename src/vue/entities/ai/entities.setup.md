@@ -285,6 +285,13 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 > `infrastructure/` ([App shell](#app-shell--components-infrastructure--styling)), the [Router](#router),
 > and [Runtime config](#runtime-config--publicconfigjson) — is the project template.
 
+> **Title-agnostic, archive-agnostic by default.** The display boilerplate (overview rows, selectors)
+> renders `item.$title` — the accessor every `Entity` implements — so point `$title` at your label field in
+> `data/Entity.ts` (it defaults to `title`) and the slice works whether or not the entity has a `title`. The
+> `(c)` `Form.vue` / `FilterAdv.vue` ship a `title`/`name` example field and filter input — replace them with
+> your entity's real fields. Archivable UI (the Delete↔Restore toggle in `FormButtonsRow`) auto-detects
+> `isArchived`, so it simply stays hidden for non-`IArchivable` entities — nothing to gate.
+
 ## Runtime config — `public/config.json`
 
 ```json
@@ -491,6 +498,7 @@ import { iconPlugin, screenPlugin, loadingPlugin, modalPlugin, feedbackPlugin } 
 import { focus, grow, clickOutside } from "@/regira_modules/vue/directives"
 import { plugin as authPlugin, LocalStorageTokenManager } from "@/regira_modules/vue/auth"
 import { preloaderPlugin, defaultPoolCache, PoolCache } from "@/regira_modules/vue/entities"
+import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
 import dateExtensions from "@/regira_modules/extensions/date-extensions"
 import entityPlugins from "@/entities"
 import { routerFactory } from "@/router"
@@ -533,6 +541,7 @@ fetch("/config.json")
         app.use(entityPlugins, { routes: entityRoutes })
         app.use(routerFactory([...entityRoutes]))
         app.use(preloaderPlugin)
+        app.use(debugPlugin, { isDebug: config.isDebug }) // registers <Debug> (used by Overview/Filter/SelectorSearch); needs the router; shows only when ?debug=1 / isDebug
 
         // auth last (needs the router on the app)
         app.use(authPlugin, {
@@ -716,6 +725,12 @@ still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--
 | `preloaderPlugin` (`vue/entities`)           | route preloading                            | Optional                                                                                                                                    |
 | `authPlugin` (`vue/auth`)                    | bearer auth + `$auth`                       | **Optional** — see [Running without authentication](#running-without-authentication)                                                        |
 
+> **`debugPlugin` (`vue/debug`) — install it.** The scaffolded `Overview.vue`, `Filter.vue` and
+> `SelectorSearch.vue` render `<Debug>`, which only `debugPlugin` registers globally — without it a
+> by-the-book app logs "Failed to resolve component: Debug". The canonical `main.ts` installs it **after the
+> router** (its `$isDebug` getter reads `$router`). It is inert in production: `<Debug>` renders nothing
+> unless `?debug=1` or the `isDebug` option is set.
+
 > **Icon fonts aren't bundled.** `iconPlugin({ source: "bs" })` only emits Bootstrap-Icons class names
 > (`bi bi-*`); install the `bootstrap-icons` npm package and import its CSS in `main.ts`
 > (`import "bootstrap-icons/font/bootstrap-icons.css"`) or every icon renders blank. (`source: "fa"` →
@@ -769,6 +784,12 @@ disabled), make three changes:
 > fires once at startup). For a pure no-auth app, removing the plugin (above) is simpler.
 
 > Skip `infrastructure/user-plugin.ts` and the `components/users/` folder entirely for a no-auth app.
+
+> **Keep the dashboard + navbar shell — it is auth-independent.** `entity-navigation/` and `layout/` build
+> from the collected `$configs` + `config.json → navigation`, not from the auth store; only `users/` and
+> `user-plugin` are auth-coupled. So adopt the full shell even in a no-auth app. Hand-rolling a navbar
+> instead of `useNavigation()` forfeits the config-driven dashboard/navbar — the main payoff of the full
+> scaffold — and is a deviation to declare, not a default.
 
 ## App shell — components, infrastructure & styling
 

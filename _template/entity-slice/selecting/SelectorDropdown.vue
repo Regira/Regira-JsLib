@@ -2,7 +2,7 @@
     <select v-model="selectedId" class="form-select">
         <option :value="undefined"></option>
         <option v-for="item in items" :value="item.id" :key="item.id">
-            {{ item.title }}
+            {{ item.$title }}
         </option>
     </select>
 </template>

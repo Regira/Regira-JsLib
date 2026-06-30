@@ -20,6 +20,11 @@ files:
 node node_modules/regira_modules/_template/scaffold.mjs Product   # → src/entities/products/
 ```
 
+The app shell — the config-driven **dashboard + navbar** (`entity-navigation/` + `layout/`) — is
+**auth-independent**: it builds from `$configs` + `config.json → navigation`, not the auth store, so build it
+even for a no-auth app. Hand-rolling a navbar instead of `useNavigation()` forfeits that config-driven shell
+and is a deviation to declare, not a default; only `users/` + `user-plugin` are auth-coupled.
+
 Drop to the **lean** (generic `EntityOverview`/`EntityForm`) or **headless** (data layer only) tier **only
 when the user explicitly asks** for a demo, an embed, or a custom/headless UX — and declare the choice.
 Tiers are described in `entities.instructions` → _How much to build_.
