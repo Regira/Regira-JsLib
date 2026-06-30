@@ -42,6 +42,7 @@ export default defineConfig({
                 "vue/entities/index": resolve(__dirname, "src/vue/entities/index.ts"),
                 "vue/entities/details/index": resolve(__dirname, "src/vue/entities/details/index.ts"),
                 "vue/entities/form/index": resolve(__dirname, "src/vue/entities/form/index.ts"),
+                "vue/entities/abstractions/index": resolve(__dirname, "src/vue/entities/abstractions/index.ts"),
                 "vue/entities/abstractions/IEntity": resolve(__dirname, "src/vue/entities/abstractions/IEntity.ts"),
                 "vue/formatters/index": resolve(__dirname, "src/vue/formatters/index.ts"),
                 "vue/http/index": resolve(__dirname, "src/vue/http/index.ts"),
@@ -57,7 +58,7 @@ export default defineConfig({
             formats: ["es"],
         },
         rollupOptions: {
-            external: ["axios", "date-fns", "lodash", "pinia", "vue", "vue-router"],
+            external: ["axios", "date-fns", "pinia", "vue", "vue-router"],
             output: {
                 chunkFileNames: `_chunks/[name]-${version}.js`,
             },

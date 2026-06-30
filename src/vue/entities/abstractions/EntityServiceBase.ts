@@ -24,11 +24,29 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
                     `app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => initAxios({ api })) }).`
             )
         }
+        // Resolve the per-operation URLs off config.api when not set explicitly.
+        // A dedicated search endpoint (config.searchUrl = api + "/search") is set per entity when one exists.
+        config.detailsUrl ??= config.api
+        config.listUrl ??= config.api
+        config.searchUrl ??= config.api
+        config.saveUrl ??= config.api
+        config.deleteUrl ??= config.api
         this.defaultPageSize = config.defaultPageSize ?? DEFAULT_PAGESIZE
     }
 
+    /** Returns the URL or throws a clear error instead of issuing a request to `undefined`. */
+    private requireUrl(url: string | undefined, field: string): string {
+        if (url == null || url === "") {
+            throw new Error(
+                `EntityServiceBase ("${this.config.key ?? "unknown entity"}"): config.${field} could not be resolved ` +
+                    `(config.api is also unset). Set config.api so the request URL can be built.`
+            )
+        }
+        return url
+    }
+
     public async details(id: string | number): Promise<T | null> {
-        const response = await this.axios.get<DetailsResult<T>>(`${this.config.detailsUrl}/${id}`)
+        const response = await this.axios.get<DetailsResult<T>>(`${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${id}`)
         if (response?.status == 200) {
             const {
                 data: { item },
@@ -38,12 +56,12 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         throw response
     }
     public async list(so?: ISearchObject & IPagingInfo): Promise<Array<T>> {
-        const { items } = await this.fetchItems<ListResult<T>>(this.config.listUrl!, so)
+        const { items } = await this.fetchItems<ListResult<T>>(this.requireUrl(this.config.listUrl, "listUrl"), so)
 
         return items.map((item) => this.processItem(item)!)
     }
     public async search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>> {
-        const { items, count } = await this.fetchItems<SearchResult<T>>(this.config.searchUrl!, so)
+        const { items, count } = await this.fetchItems<SearchResult<T>>(this.requireUrl(this.config.searchUrl, "searchUrl"), so)
 
         return {
             items: items.map((item) => this.processItem(item)!),
@@ -56,7 +74,7 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
             ...(extra || {}),
         }
         const queryString = createQueryString(cleanQueryParams(queryParams, this.defaultPageSize))
-        const url = `${this.config.searchUrl}?${queryString}`
+        const url = `${this.requireUrl(this.config.searchUrl, "searchUrl")}?${queryString}`
         const {
             data: result,
             //  status,
@@ -71,12 +89,12 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     }
     async remove(item: T): Promise<void> {
         const prepared = this.prepareItem(item)
-        const url = `${this.config.deleteUrl}/${prepared.$id}`
+        const url = `${this.requireUrl(this.config.deleteUrl, "deleteUrl")}/${prepared.$id}`
         await this.axios.delete<DeleteResult<T>>(url).then((r) => r.data)
     }
 
     async update(item: T) {
-        const url = `${this.config.saveUrl}/${item.$id}`
+        const url = `${this.requireUrl(this.config.saveUrl, "saveUrl")}/${item.$id}`
         const prepared = this.prepareItem(item)
         console.debug("update", { item, prepared })
         const response = (await this.axios.put<SavedResult<T>>(url, prepared)) as any
@@ -88,7 +106,7 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     }
 
     async insert(item: T) {
-        const url = `${this.config.saveUrl}`
+        const url = this.requireUrl(this.config.saveUrl, "saveUrl")
         const prepared = this.prepareItem(item)
         const response = await this.axios.post<SavedResult<T>>(url, prepared)
         if (response instanceof AxiosError) {

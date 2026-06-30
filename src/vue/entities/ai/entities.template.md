@@ -18,15 +18,25 @@ The **app shell** that hosts these slices (project structure, `main.ts`, router,
 
 ## How to use
 
-1. Create `src/entities/<name>/` with the folder set in the tree below.
-2. Write the `(c)` files (§ below) — those are the only ones tailored to your entity.
-3. Copy the **boilerplate** files verbatim from [entities.examples.md](entities.examples.md) Part 1
-   (`UnitType`) — they are byte-identical for every entity (only the literal entity name differs). The
-   short ones are also shown inline below; the longer/identical ones are listed in
-   [§Boilerplate — copy verbatim](#boilerplate--copy-verbatim) so this scaffold stays a single source of
-   truth and doesn't drift from the worked example.
-4. Register the slice's `plugin` in `src/entities/index.ts` — see
+The full slice ships as a **copy-on-disk template** in the package — scaffold it, don't hand-write the files:
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs Product   # → src/entities/products/
+```
+
+(or copy `node_modules/regira_modules/_template/entity-slice` and replace the `__Entity__` / `__entities__`
+/ `__entity__` tokens.) Then:
+
+1. Customize the **`(c)`** files (§ below) — the only ones tailored to your entity; leave the rest as-is.
+2. Register the slice's `plugin` in `src/entities/index.ts` — see
    [entities.setup.md → Add entities](entities.setup.md#add-entities).
+
+> **Nested relation columns:** bind the plain projected field (`item.bar?.title`), **never**
+> `item.bar?.$title` — only the root item is hydrated into an `EntityBase`
+> (see [entities.instructions.md → Item hydration](entities.instructions.md#item-hydration)).
+
+The skeletons below are the same `(c)` files the scaffold writes (placeholder `Foo`) — a reference for what
+to fill in.
 
 ## File tree
 
@@ -125,12 +135,9 @@ const config: IConfig = {
 
     defaultPageSize: 10, // 0 = fetch all (typical for a small lookup)
 
-    api,
-    detailsUrl: api,
-    listUrl: api,
-    searchUrl: api + "/search",
+    api, // every *Url below defaults to `api` when omitted; keep only the ones you override
+    searchUrl: api, // simple entity → list endpoint (no /search). Complex? set `api + "/search"`
     saveUrl: api, // resource base — update/remove append /{$id} themselves
-    deleteUrl: api,
 }
 
 export default config

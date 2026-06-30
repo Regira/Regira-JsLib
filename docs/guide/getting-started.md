@@ -11,9 +11,9 @@ build step runs on install).
 ```json
 // package.json
 {
-  "dependencies": {
-    "regira_modules": "github:Regira/Regira-JsLib"
-  }
+    "dependencies": {
+        "regira_modules": "github:Regira/Regira-JsLib"
+    }
 }
 ```
 
@@ -29,7 +29,7 @@ import { initAxios } from "regira_modules/vue/http"
 Pin known-good versions of the peers and install:
 
 ```bash
-npm install vue@^3.5 vue-router@^5 pinia@^3 axios@^1.16 date-fns@^4 lodash@^4.17.21
+npm install vue@^3.5 vue-router@^5 pinia@^3 axios@^1.16 date-fns@^4
 npm install
 ```
 

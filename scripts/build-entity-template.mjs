@@ -1,0 +1,106 @@
+// Generates _template/entity-slice/** from the AI doc source of truth, so the shipped
+// copy-on-disk scaffold can never drift from the worked examples.
+//
+//   node scripts/build-entity-template.mjs
+//
+// Sources:
+//   - src/vue/entities/ai/entities.template.md  → the `(c)` skeletons + short boilerplate (placeholder `Foo`)
+//   - src/vue/entities/ai/entities.examples.md  → the longer boilerplate (UnitType slice, Part 1)
+//
+// Transforms applied to every file:
+//   - `@/regira_modules/…`  →  `regira_modules/…`   (demo-app alias → published npm specifier)
+// Plus, for the two entity-named files only, the placeholder tokens used by _template/scaffold.mjs:
+//   - Foo → __Entity__   foos → __entities__   foo → __entity__
+
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from "fs"
+import { resolve, dirname } from "path"
+import { fileURLToPath } from "url"
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..")
+const aiDir = resolve(root, "src/vue/entities/ai")
+const outDir = resolve(root, "_template/entity-slice")
+
+/** Map every `## … `path`` heading to the first fenced code block that follows it. */
+function extractBlocks(markdown) {
+    const lines = markdown.split(/\r?\n/)
+    const blocks = {}
+    for (let i = 0; i < lines.length; i++) {
+        const m = lines[i].match(/^#{2,}\s.*`([^`]+\.(?:ts|vue))`/)
+        if (!m) continue
+        const path = m[1]
+        // find the opening fence, then capture until the closing fence
+        let j = i + 1
+        while (j < lines.length && !/^```/.test(lines[j]) && !/^#{2,}\s/.test(lines[j])) j++
+        if (j >= lines.length || !/^```/.test(lines[j])) continue
+        const body = []
+        for (j++; j < lines.length && !/^```/.test(lines[j]); j++) body.push(lines[j])
+        if (!(path in blocks)) blocks[path] = body.join("\n") + "\n"
+    }
+    return blocks
+}
+
+const tpl = extractBlocks(readFileSync(resolve(aiDir, "entities.template.md"), "utf8"))
+// Only Part 1 (the simple UnitType slice) of the examples file.
+const examplesPart1 = readFileSync(resolve(aiDir, "entities.examples.md"), "utf8").split(/^# Part 2/m)[0]
+const ex = extractBlocks(examplesPart1)
+
+const unalias = (s) => s.replace(/@\/regira_modules\//g, "regira_modules/")
+const tokenize = (s) =>
+    s
+        .replace(/\bFoo\b/g, "__Entity__")
+        .replace(/\bfoos\b/g, "__entities__")
+        .replace(/\bfoo\b/g, "__entity__")
+
+// target path → [source map, tokenize?]
+const FROM_TPL = false // readability flags below
+const plan = [
+    // entity-named skeletons (placeholder Foo → tokens)
+    ["data/Entity.ts", tpl, true],
+    ["config/config.ts", tpl, true],
+    // (c) skeletons + short boilerplate — clean fill-in-the-blanks versions
+    ["filter/SearchObject.ts", tpl, FROM_TPL],
+    ["filter/FilterAdv.vue", tpl, FROM_TPL],
+    ["overview/List.vue", tpl, FROM_TPL],
+    ["overview/ListItem.vue", tpl, FROM_TPL],
+    ["details/Form.vue", tpl, FROM_TPL],
+    ["selecting/SelectorList.vue", tpl, FROM_TPL],
+    ["data/EntityService.ts", tpl, FROM_TPL],
+    ["data/store.ts", tpl, FROM_TPL],
+    ["index.ts", tpl, FROM_TPL],
+    ["setup.ts", tpl, FROM_TPL],
+    // longer boilerplate (full-package, incl. auth hooks) — from the worked slice
+    ["filter/Filter.vue", ex, FROM_TPL],
+    ["filter/FilterInline.vue", ex, FROM_TPL],
+    ["overview/Overview.vue", ex, FROM_TPL],
+    ["details/Details.vue", ex, FROM_TPL],
+    ["details/FormModalButton.vue", ex, FROM_TPL],
+    ["selecting/Autocomplete.vue", ex, FROM_TPL],
+    ["selecting/InputSelector.vue", ex, FROM_TPL],
+    ["selecting/Selector.vue", ex, FROM_TPL],
+    ["selecting/SelectorDropdown.vue", ex, FROM_TPL],
+    ["selecting/SelectorModalButton.vue", ex, FROM_TPL],
+    ["selecting/SelectorSearch.vue", ex, FROM_TPL],
+]
+
+rmSync(outDir, { recursive: true, force: true })
+let written = 0
+const missing = []
+for (const [target, src, doToken] of plan) {
+    const raw = src[target]
+    if (raw == null) {
+        missing.push(target)
+        continue
+    }
+    let content = unalias(raw)
+    if (doToken) content = tokenize(content)
+    const dest = resolve(outDir, target)
+    mkdirSync(dirname(dest), { recursive: true })
+    writeFileSync(dest, content)
+    written++
+}
+
+if (missing.length) {
+    console.error(`✗ Missing code blocks in the docs for: ${missing.join(", ")}`)
+    process.exit(1)
+}
+console.log(`✓ Wrote ${written} files to _template/entity-slice/`)

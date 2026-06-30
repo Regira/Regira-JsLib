@@ -67,28 +67,20 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 
 `Selector.vue` (entity picker) is exported from the barrel's `components`.
 
-## Granular subpaths (also published)
+## Granular subpaths
 
-Use these only when you want to import a single feature area (e.g. for tree-shaking). All are also
-re-exported by the barrel above.
+**Prefer the main barrel `regira_modules/vue/entities`** — it re-exports everything below. Only the subpaths
+listed in `package.json` `exports` resolve as standalone imports; for anything else, import from the barrel.
 
-| Subpath                                    | Holds                                                                                                                                        |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `regira_modules/vue/entities/abstractions` | `IEntity`, `EntityBase`, `IEntityService`, `EntityServiceBase`, `JSONService`, result types, `IConfig`, `NavTypes`, search/paging/sort types |
-| `regira_modules/vue/entities/config`       | `EntityDescriptor`, `IEntityDescriptor`                                                                                                      |
-| `regira_modules/vue/entities/overview`     | overview composables + types                                                                                                                 |
-| `regira_modules/vue/entities/details`      | `useDetails`, `DetailsSummary`                                                                                                               |
-| `regira_modules/vue/entities/form`         | `useForm`, modal/owned/list-input composables + types                                                                                        |
-| `regira_modules/vue/entities/filter`       | `useFilter` + types                                                                                                                          |
-| `regira_modules/vue/entities/describers`   | `useEntityDescribers`                                                                                                                        |
-| `regira_modules/vue/entities/navigation`   | nav classes, builders, importers                                                                                                             |
-| `regira_modules/vue/entities/pooling`      | pooling cache + handlers                                                                                                                     |
-| `regira_modules/vue/entities/preloading`   | `usePreloader`, `preloaderPlugin`                                                                                                            |
-| `regira_modules/vue/entities/tree`         | `useTree`, `useDragDrop`                                                                                                                     |
-| `regira_modules/vue/entities/utilities`    | `cleanQueryParams`, `parseQueryParams`                                                                                                       |
+| Published subpath                                | Holds                                                                                                        |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `regira_modules/vue/entities/abstractions`       | `IEntity`, `EntityBase`, `IEntityService`, `EntityServiceBase`, `JSONService`, result types, `IConfig`, `NavTypes`, search/paging/sort types |
+| `regira_modules/vue/entities/abstractions/IEntity` | `IEntity` alone (the contract)                                                                              |
+| `regira_modules/vue/entities/details`            | `useDetails`, `DetailsSummary`                                                                                |
+| `regira_modules/vue/entities/form`               | `useForm`, `FormStates`, modal/owned/list-input composables + types                                          |
 
-> The package also exposes `regira_modules/vue/entities/abstractions/IEntity` for importing the
-> contract alone (used by `package.json` `exports`).
+> Composables not listed above (`useFilter`, overview/tree/preloading/navigation, …) are reached through the
+> **main barrel**, not a `…/<area>` subpath — those subpaths are not in `exports` and will fail to resolve.
 
 ## Wiring modules
 

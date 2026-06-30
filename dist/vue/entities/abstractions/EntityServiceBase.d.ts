@@ -14,6 +14,8 @@ export declare abstract class EntityServiceBase<T extends IEntity> implements IE
     protected config: IConfig;
     defaultPageSize: number;
     constructor(axios: AxiosInstance, config: IConfig);
+    /** Returns the URL or throws a clear error instead of issuing a request to `undefined`. */
+    private requireUrl;
     details(id: string | number): Promise<T | null>;
     list(so?: ISearchObject & IPagingInfo): Promise<Array<T>>;
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>;

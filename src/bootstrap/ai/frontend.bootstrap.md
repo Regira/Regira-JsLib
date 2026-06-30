@@ -8,6 +8,22 @@ CRUD client) against a **Regira.Entities** API. Use this when the target is a SP
 > `Regira-JsLib` repo, with package ids like `regira_modules.vue.entities`. There is **no NuGet feed and
 > no license key** on the front-end.
 
+## Default: a full, scalable SPA
+
+Build the **full reference scaffold** by default — the complete plugin stack, the per-entity slice
+(`config`/`data`/`filter`/`overview`/`details`/`selecting`/`setup`), the app shell (dashboard + navbar),
+the preloader, and the `app-config.ts` runtime config. Use the **full** features of `regira_modules`, not a
+hand-rolled subset. Scaffold each entity by copying the shipped slice template rather than re-writing ~23
+files:
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs Product   # → src/entities/products/
+```
+
+Drop to the **lean** (generic `EntityOverview`/`EntityForm`) or **headless** (data layer only) tier **only
+when the user explicitly asks** for a demo, an embed, or a custom/headless UX — and declare the choice.
+Tiers are described in `entities.instructions` → _How much to build_.
+
 ## MCP server
 
 The Regira MCP server (`https://mcp.regira.com/mcp`) has full knowledge of every front-end module,
@@ -27,7 +43,7 @@ including ones not yet installed locally. Use it to discover and read guides on 
 
 - [ ] `regira_modules` is a dependency (`"regira_modules": "github:Regira/Regira-JsLib"`) — no NuGet, no
       license key, no service budget on the front-end.
-- [ ] Peers installed: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`, `lodash`, plus `bootstrap` +
+- [ ] Peers installed: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`, plus `bootstrap` +
       `bootstrap-icons` for styling.
 - [ ] Build toolchain majors move as a set: `vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`.
 - [ ] **Authentication is optional.** Do not assume the auth plugin is required; follow the _Running
@@ -98,6 +114,7 @@ styling (`entities.setup` → _Bootstrap — main.ts_).
 4. Read `entities.instructions` and `entities.setup` in full (via MCP `get_package`).
 5. Scaffold the app shell (`main.ts`, `App.vue`, router, plugin install order, `config.json` +
    `app-config.ts`) per `entities.setup`; decide auth on/off there.
-6. Generate each entity slice using the composables; consult `entities.namespaces` /
-   `entities.signatures` for exact imports/signatures and `entities.patterns` for recipes.
+6. Scaffold each entity slice with `node node_modules/regira_modules/_template/scaffold.mjs <Entity>`, then
+   customize the `(c)` files; consult `entities.namespaces` / `entities.signatures` for exact
+   imports/signatures and `entities.patterns` for recipes.
 7. Verify with `npm run build` (`vue-tsc -b`).

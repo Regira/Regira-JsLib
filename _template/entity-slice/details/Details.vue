@@ -1,0 +1,41 @@
+<template>
+    <section>
+        <LoadingContainer :is-loading="isLoading">
+            <RouterView v-slot="{ Component }">
+                <Feedback :feedback="feedback" />
+                <component
+                    :is="Component"
+                    v-if="item != null"
+                    v-model="item"
+                    :overviewUrl="overviewUrl"
+                    @change-state="isLoading = $event == FormStates.pending"
+                    @remove="handleRemove"
+                />
+            </RouterView>
+        </LoadingContainer>
+    </section>
+</template>
+
+<script setup lang="ts">
+import { RouterView, useRouter } from "vue-router"
+import { useAuthStore } from "regira_modules/vue/auth"
+import { LoadingContainer, Feedback } from "regira_modules/vue/ui"
+import { useDetails } from "regira_modules/vue/entities/details"
+import { FormStates } from "regira_modules/vue/entities/form"
+import config from "../config/config"
+import Entity from "../data/Entity"
+import useEntityStore from "../data/store"
+
+const { service } = useEntityStore()
+
+const { item, isLoading, overviewUrl, load, feedback } = useDetails(service)
+
+// trigger load when logging in (only load when item has not been loaded before) — no-auth app: delete these two lines
+const authStore = useAuthStore()
+authStore.$onAction(({ name, after }) => name == "login" && after(() => item.value == null && authStore.isAuthenticated && load()))
+
+const router = useRouter()
+function handleRemove() {
+    router.push(overviewUrl || { name: config.key + "Overview" })
+}
+</script>

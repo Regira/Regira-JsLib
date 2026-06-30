@@ -69,10 +69,10 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 
 | Task                                                                                                                           | Go to                                                                                             |
 | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| **Stand up a new app** (deps, `main.ts`, `App.vue`, router, plugin order, app shell)                                           | → [entities.setup.md](entities.setup.md)                                                          |
+| **Stand up a new app** (full SPA: deps, full plugin stack, `main.ts`, `App.vue`, router, preloader, app shell, `app-config.ts`) | → [entities.setup.md](entities.setup.md)                                                          |
 | **Build the app shell** (config-driven dashboard + navbar, header/footer chrome, form-action buttons, auth UI)                 | → [entities.setup.md §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
 | **Add an entity**                                                                                                              | → [§Entity Implementation Workflow](#entity-implementation-workflow)                              |
-| **Scaffold a new entity** (blank file tree + placeholder skeletons to fill in)                                                 | → [entities.template.md](entities.template.md)                                                    |
+| **Scaffold a new entity** (`scaffold.mjs <Entity>` copies the full slice; then fill the `(c)` files)                            | → [entities.template.md](entities.template.md)                                                    |
 | **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                | → [entities.examples.md](entities.examples.md)                                                    |
 | **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                    | → [entities.advanced.example.md](entities.advanced.example.md)                                    |
 | **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing) | → [entities.patterns.md](entities.patterns.md)                                                    |
@@ -158,6 +158,12 @@ axios `baseURL` (set from app config).
 - keys starting with **`$`** are stripped (treat them as private/meta).
 - array values serialize as **repeated keys** (`includes=A&includes=B`).
 
+> **Simple controllers expose no `/search`, and `list` returns no `count`.** `service.search()` on a simple
+> entity hits the SPA fallback (HTML) → `undefined.map`; use `service.list()` / `useListView`. Because
+> `list` returns `{ items }` with no total, a simple overview **cannot page** — for a large dataset either
+> make the entity complex (counted `/search`) or set a large `defaultPageSize` to show all rows. **Let
+> dataset size drive the simple-vs-complex choice.**
+
 #### Item hydration
 
 - `processItem` converts the string fields **`created`** and **`lastModified`** into `Date` instances
@@ -165,6 +171,9 @@ axios `baseURL` (set from app config).
   see [entities.patterns.md → Date hydration](entities.patterns.md#date-hydration)).
 - `prepareItem` strips every property whose key starts with **`_`** before sending to the server — use
   `_`-prefixed fields for transient client-only state (e.g. `_deleted` on child rows).
+- **Nested included relations are plain JSON objects** — only the root item runs through `toEntity`. On an
+  included relation the `EntityBase` getters (`$id`, `$title`, …) are `undefined`; bind the **plain DTO
+  field** the API projects (`item.vehicle?.title`), **never** `item.vehicle?.$title`.
 
 ---
 
@@ -172,15 +181,20 @@ axios `baseURL` (set from app config).
 
 ### How much to build
 
-The reference app is large; you rarely need all of it. **Decide the tier before scaffolding.**
+**Default to the full reference scaffold** — a scalable SPA using the full `regira_modules` package. Drop to
+a lighter tier **only when the user explicitly asks** for a demo, an embed, or a headless/custom UX, and
+declare the choice.
 
-| Tier                        | You build                                                                                                              | ~Files/entity | Pick when                                                                  |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------- | -------------------------------------------------------------------------- |
-| **Headless data-layer**     | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                      | 1–2           | storefront / read-mostly UI, or embedding in an existing app               |
-| **Lean (generic views)**    | the data layer + the library's `EntityOverview` / `EntityForm` bound via slots; skip the slice scaffold                | ~4            | a focused admin, storefront, or embed                                      |
-| **Full reference scaffold** | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth) | ~20+          | a full back-office wanting batteries-included CRUD UX and relation pickers |
+| Tier                                    | You build                                                                                                              | ~Files/entity | Pick when                                                               |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------- |
+| **Full reference scaffold** *(default)* | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth) | ~23           | any real app — batteries-included CRUD UX, relation pickers, navigation |
+| **Lean (generic views)**                | the data layer + the library's `EntityOverview` / `EntityForm` bound via slots; skip the slice scaffold                | ~4            | an explicitly-requested focused admin, storefront, or embed            |
+| **Headless data-layer**                 | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                      | 1–2           | an explicitly-requested storefront / custom UI, or embedding           |
 
-The worked [examples](entities.examples.md) and [slice template](entities.template.md) document the **full** tier; the lean tier pairs the same data layer with the library's `EntityOverview` / `EntityForm` ([entities.setup.md → Lean tier](entities.setup.md#lean-tier-generic-views)), and the headless tier uses your own views.
+Scaffold the full tier by copying the shipped slice template — don't hand-write the files:
+`node node_modules/regira_modules/_template/scaffold.mjs <Entity>` (see [slice template](entities.template.md)).
+The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
+([entities.setup.md → Lean tier](entities.setup.md#lean-tier-generic-views)).
 
 ### Choosing a service base
 
@@ -249,10 +263,11 @@ every entity** (a lookup keeps every folder, just with thinner files).
 
 ### Minimal slice (happy path)
 
-Most entities follow the same 12 steps below — one file per step. A **lookup** entity keeps the folders
-but drops the list UI (omit the views and `createRoutes()`; the `install` only registers the service/icon
-and `$configs[Entity.name]`; `SearchObject` may be empty; consider `JSONService` for static data). Build
-the slice in this order:
+Most entities follow the same 12 steps below — one file per step. **Scaffold all of them at once** with
+`node node_modules/regira_modules/_template/scaffold.mjs <Entity>`, then fill the `(c)` files in this order.
+A **lookup** entity keeps the folders but drops the list UI (omit the views and `createRoutes()`; the
+`install` only registers the service/icon and `$configs[Entity.name]`; `SearchObject` may be empty; consider
+`JSONService` for static data):
 
 1. **Model** — `data/Entity.ts` (c): `extends EntityBase` with concrete fields; `override get $id()`
    (`this.id || "new"`) and `override get $title()`. Export the class, `export const Entity = …`, and a default.

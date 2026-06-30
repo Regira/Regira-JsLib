@@ -35,7 +35,7 @@ package specifier resolves with no alias or tsconfig path**:
 import { EntityBase, EntityServiceBase } from "regira_modules/vue/entities"
 ```
 
-Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`, `lodash`.
+Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`.
 
 Start from the Vite `vue-ts` template (`npm create vue@latest`), then add the peers the library needs
 (let your package manager resolve the ranges):
@@ -45,7 +45,7 @@ Start from the Vite `vue-ts` template (`npm create vue@latest`), then add the pe
 "dependencies": {
   "regira_modules": "github:Regira/Regira-JsLib",
   "vue": "^3.5", "vue-router": "^5", "pinia": "^3",
-  "axios": "^1", "date-fns": "^4", "lodash": "^4",
+  "axios": "^1", "date-fns": "^4",
   "bootstrap": "^5.3", "bootstrap-icons": "^1.13"
 }
 ```

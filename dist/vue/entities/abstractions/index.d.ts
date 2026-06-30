@@ -1,4 +1,3 @@
-export * from "../abstractions";
 export type { IEntity } from "./IEntity";
 export type { IEntityService, DetailsResult, ListResult, SaveResult, SearchResult, DeleteResult } from "./IEntityService";
 export { type IConfig, NavTypes } from "./IConfig";
