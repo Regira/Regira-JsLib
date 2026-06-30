@@ -196,6 +196,17 @@ Scaffold the full tier by copying the shipped slice template — don't hand-writ
 The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 ([entities.setup.md → Lean tier](entities.setup.md#lean-tier-generic-views)).
 
+> **The default holds for small and non-CRUD apps.** Two reasons not to downgrade:
+> - **File count is not effort.** `scaffold.mjs <Entity>` generates all ~23 files in one command; you author
+>   only the ~6 `(c)` files. The rest is generated, toolchain-tested boilerplate — not a cost to optimize away.
+> - **A non-grid UX is still the slice.** The views are editable starting points: a category-tree filter, an
+>   active/inactive toggle, or a storefront card list is normal customization of `Filter.vue` / `List.vue` /
+>   `ListItem.vue`. The shared data layer, relation pickers (`selecting/`), and config-driven navigation scale
+>   with the app.
+>
+> Downgrade to lean or headless **only** when the user's request names it — "demo", "embed", "storefront",
+> "headless", "lean", "no scaffold", "just the data layer" — and state the tier you picked.
+
 ### Choosing a service base
 
 | Use                         | Base                   | Why                                                                                                                                                                         |

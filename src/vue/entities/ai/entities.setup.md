@@ -146,6 +146,10 @@ The `$configs` type and the rest of the app globals go in `src/shims.d.ts` — s
 
 ## Lean tier (generic views)
 
+> **Opt-in path, not the default.** The default is the full scaffold ([Project structure](#project-structure)
+> below); take the lean tier only on an explicit request — see
+> [How much to build](entities.instructions.md#how-much-to-build).
+
 The full per-entity slice (below) is a back-office scaffold. For a focused admin, a storefront, or an
 embed, the **lean tier** pairs the per-entity data layer (model + `config` + service + `SearchObject`,
 from [entities.template.md](entities.template.md)) with two generic components the library ships —
