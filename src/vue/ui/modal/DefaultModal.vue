@@ -62,6 +62,8 @@
 <script setup lang="ts">
 import "./style.scss"
 import { computed } from "vue"
+import Icon from "../icons/Icon.vue"
+import IconButton from "../icons/IconButton.vue"
 import { ModalType } from "./modal"
 
 const emit = defineEmits<{

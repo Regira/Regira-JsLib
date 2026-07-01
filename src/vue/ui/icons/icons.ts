@@ -1,5 +1,7 @@
 /// <reference lib="es2017.object" />
 
+import bsIcons from "./bootstrap-icons"
+
 export type IconsConfig = { source: string; icons: Map<string, string> }
 
 type IconSet = Record<string, string> | Array<Array<string>>
@@ -18,5 +20,8 @@ export function load(icons: IconSet) {
 export function clear() {
     iconMap.clear()
 }
+
+// seed the Bootstrap set so friendly keys resolve without iconPlugin; the plugin re-seeds (bs or fa) on install
+load(bsIcons)
 
 export default iconMap

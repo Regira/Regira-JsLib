@@ -6,7 +6,8 @@
 </template>
 
 <script setup lang="ts">
-import type { IconSize } from "."
+import Icon from "./Icon.vue"
+import type { IconSize } from "./icons"
 
 withDefaults(
     defineProps<{

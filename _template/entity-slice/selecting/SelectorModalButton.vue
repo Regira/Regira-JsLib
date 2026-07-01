@@ -2,7 +2,7 @@
     <button type="button" class="btn btn-default" @click="open">
         <slot><Icon name="search" /></slot>
         <Teleport to="#modals">
-            <MyModal
+            <DefaultModal
                 :is-visible="isOpen"
                 :title="modalTitle || $t(config.overviewTitle || '')"
                 :showFooter="true"
@@ -12,13 +12,14 @@
                 @submit="handleSubmit"
             >
                 <SelectorSearch v-model="selected" :filter-defaults="filterDefaults" :item-defaults="itemDefaults" :page-size="maxResults" />
-            </MyModal>
+            </DefaultModal>
         </Teleport>
     </button>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watchEffect, type Ref } from "vue"
+import { Icon, DefaultModal } from "regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"

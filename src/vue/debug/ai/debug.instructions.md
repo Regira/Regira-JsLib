@@ -12,13 +12,12 @@ properties controlling when that output is visible.
 import plugin, { Debug } from "regira_modules/vue/debug"
 ```
 
-The default export is the plugin (also exported as `plugin`); `Debug` is the component (the plugin
-also registers it globally as `"Debug"`).
+The default export is the plugin (also exported as `plugin`); `Debug` is the component — import it
+locally where used.
 
 ## The plugin
 
-`app.use(plugin, { isDebug })` registers the `Debug` component globally and installs two global
-properties:
+`app.use(plugin, { isDebug })` installs two global properties (the `Debug` component reads `$isDebug`):
 
 ```ts
 app.use(plugin, { isDebug: appConfig.isDebug }) // isDebug defaults to false
@@ -50,8 +49,8 @@ toggle button.
   option apply.
 - **Master switch.** `$setDebug(false)` gates everything off even when `?debug=1` or `isDebug: true` —
   it ANDs with the resolved value.
-- **Icon dependency.** `<Debug>` uses an `<Icon>` component for its toggle button, so an `Icon` must be
-  resolvable in the app (see the ui icons module).
+- **Icon glyph.** `<Debug>`'s toggle button renders a bundled `<Icon>` (imported from the ui icons
+  module); its glyph only appears if the icon **font CSS** (bootstrap-icons/Font Awesome) is loaded.
 
 ## See also
 

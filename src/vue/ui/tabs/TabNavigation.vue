@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import Icon from "../icons/Icon.vue"
 import type { ITab } from "./Tab"
 import type { IEmits } from "./tabs"
 

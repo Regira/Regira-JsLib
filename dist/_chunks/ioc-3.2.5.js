@@ -18,7 +18,7 @@ function n(e) {
 //#endregion
 //#region src/vue/ioc/plugin.ts
 var r = { install(e, { configure: n } = {}) {
-	e.config.globalProperties.$services = t, e.provide("services", t), n && n(t);
+	e.config.globalProperties.$services = t, e.config.globalProperties.$configs ??= {}, e.provide("services", t), n && n(t);
 } };
 //#endregion
 export { n as i, e as n, t as r, r as t };

@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, getCurrentInstance } from "vue"
+import Icon from "../icons/Icon.vue"
 const emit = defineEmits<{
     (e: "expand"): void
     (e: "collapse"): void

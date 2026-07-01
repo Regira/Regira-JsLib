@@ -99,9 +99,9 @@
 
 <script setup lang="ts">
 import { useSearchView, useRouteOverview, type OverviewEmits } from "regira_modules/vue/entities"
-import { Paging, LoadingContainer, Feedback } from "regira_modules/vue/ui"
+import { Icon, Paging, LoadingContainer, Feedback, ResultSummary } from "regira_modules/vue/ui"
+import { Debug } from "regira_modules/vue/debug"
 import { useAuthStore } from "regira_modules/vue/auth"
-import { ResultSummary } from "regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"

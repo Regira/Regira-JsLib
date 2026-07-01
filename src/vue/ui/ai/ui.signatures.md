@@ -6,12 +6,11 @@ component prop not listed, use the MCP source map (`get_type` on `regira_modules
 ## Plugins
 
 ```ts
-import { feedbackPlugin, iconPlugin, loadingPlugin, modalPlugin, pagingPlugin, screenPlugin } from "regira_modules/vue/ui"
+import { feedbackPlugin, iconPlugin, loadingPlugin, pagingPlugin, screenPlugin } from "regira_modules/vue/ui"
 
 feedbackPlugin.install(app, { autoHideDelay?: number })
 iconPlugin.install(app, { icons?: Record<string, string>; clearFirst?: boolean; source?: "bs" | "fa" })
 loadingPlugin.install(app, { img: string })
-modalPlugin.install(app, { DefaultModal? })
 pagingPlugin.install(app, { defaultPageSize?: number })
 screenPlugin.install(app)
 ```

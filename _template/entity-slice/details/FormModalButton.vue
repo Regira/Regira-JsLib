@@ -4,7 +4,7 @@
             <Icon :name="config.key" />
         </slot>
         <Teleport to="#modals">
-            <MyModal
+            <DefaultModal
                 :is-visible="isOpen"
                 :title="modalTitle || $t(config.detailsTitle || '')"
                 :showFooter="false"
@@ -22,13 +22,14 @@
                     @save="handleSave"
                     @remove="handleRemove"
                 />
-            </MyModal>
+            </DefaultModal>
         </Teleport>
     </button>
 </template>
 
 <script setup lang="ts">
 import { computed, type Ref } from "vue"
+import { Icon, DefaultModal } from "regira_modules/vue/ui"
 import { FormStates, useModal, type FormModalEmits, type SaveResult } from "regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"

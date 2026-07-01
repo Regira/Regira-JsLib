@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
+import Icon from "../../icons/Icon.vue"
 import { DefaultModal } from "../../modal"
 import GMap from "./GMap.vue"
 

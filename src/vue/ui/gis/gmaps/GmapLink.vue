@@ -7,6 +7,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import Icon from "../../icons/Icon.vue"
 
 const props = defineProps<{
     modelValue: Array<string | undefined> | string

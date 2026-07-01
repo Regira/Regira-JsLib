@@ -1,5 +1,5 @@
-import { C as e, g as t, w as n } from "./array-utility-3.2.4.js";
-import { t as r } from "./query-3.2.4.js";
+import { C as e, g as t, w as n } from "./array-utility-3.2.5.js";
+import { t as r } from "./query-3.2.5.js";
 import { AxiosError as i } from "axios";
 //#region src/vue/entities/abstractions/IConfig.ts
 var a = /* @__PURE__ */ function(e) {

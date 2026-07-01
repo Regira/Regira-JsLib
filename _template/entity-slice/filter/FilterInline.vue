@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import { IconButton } from "regira_modules/vue/ui"
 import { useFilter, type FilterEmits } from "regira_modules/vue/entities"
 import config from "../config/config"
 import SearchObject from "./SearchObject"

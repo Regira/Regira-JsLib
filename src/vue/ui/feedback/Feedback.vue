@@ -16,6 +16,7 @@
 </template>
 
 <script setup lang="ts">
+import IconButton from "../icons/IconButton.vue"
 import Pending from "./Pending.vue"
 import Success from "./Success.vue"
 import ErrorSummary from "./ErrorSummary.vue"

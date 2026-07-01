@@ -166,6 +166,30 @@ so forms do `import { Selector as CategorySelector } from "@/entities/categories
 (an Article's many categories) bind an **array** and push/remove picked entities; mark removed owned rows
 with `_deleted` (see below).
 
+Type optional relations `Category | undefined`, not `| null` — selector/autocomplete `v-model`s are
+`T | undefined` (JSON `null` still deserializes fine).
+
+### Editing a many-to-many join with the related entity's selector
+
+The entity carries **join rows** (`{ categoryId, category? }`), but a multi-select binds related
+entities (`Category[]`). Bridge them locally in the form: seed a picked-entities array from the join
+rows, and rebuild the rows when the selection changes:
+
+```ts
+// Form.vue — item.articleCategories: Array<{ categoryId: number; category?: Category }>
+const selectedCategories = ref<Category[]>([])
+watch(item, (v) => {
+    selectedCategories.value = v?.articleCategories?.map((j) => j.category ?? Object.assign(new Category(), { id: j.categoryId })) ?? []
+}, { immediate: true })
+watch(selectedCategories, (cats) => {
+    item.value.articleCategories = cats.map((c) => item.value.articleCategories?.find((j) => j.categoryId === c.$id) ?? { categoryId: c.$id as number })
+})
+```
+
+Bind `selectedCategories` to the related entity's multi-select; the join collection follows. Existing
+join rows are reused (so their ids survive), removed picks drop their row, and the server-side
+`e.Related(...)` applies the add/remove on save.
+
 ## Owned (child) collections
 
 For master-detail forms, drive a child collection with `useOwnedCollection` (inline rows) or

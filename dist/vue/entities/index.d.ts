@@ -1,5 +1,10 @@
 export * from "./abstractions";
 export * from "./config";
+declare module "@vue/runtime-core" {
+    interface ComponentCustomProperties {
+        $configs: Record<string, import("./abstractions/IConfig").IConfig>;
+    }
+}
 export * from "./describers";
 export * from "./details";
 export * from "./filter";

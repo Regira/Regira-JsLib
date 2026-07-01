@@ -1,5 +1,5 @@
 <template>
-    <MyModal :title="title" :showFooter="false">
+    <DefaultModal is-visible :title="title" :showFooter="false">
         <slot v-bind="{ username }">
             <LoginForm
                 @success="$emit('success', $event)"
@@ -8,11 +8,12 @@
                 @fail="$emit('fail', $event)"
             />
         </slot>
-    </MyModal>
+    </DefaultModal>
 </template>
 
 <script setup lang="ts">
 import { type IEmits } from "./useLoginForm"
+import DefaultModal from "../ui/modal/DefaultModal.vue"
 import LoginForm from "./LoginForm.vue"
 
 interface ILoginEmits extends IEmits {}

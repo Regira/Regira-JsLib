@@ -1,4 +1,4 @@
-import type { IconSize } from ".";
+import type { IconSize } from "./icons";
 type __VLS_Props = {
     icon: string;
     size?: IconSize;

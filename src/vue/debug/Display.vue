@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { ref, computed, getCurrentInstance } from "vue"
+import Icon from "../ui/icons/Icon.vue"
 
 const props = defineProps<{
     title?: string

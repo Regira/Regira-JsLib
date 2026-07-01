@@ -89,7 +89,7 @@ entities app will not run without it.
 | **app**             | [`vue/app`](../app/README.md)               | App lifecycle / `AppStatus` (`appPlugin`); gates startup until auth/data is ready.                                               | yes       |
 | **ioc**             | [`vue/ioc`](../ioc/README.md)               | `ServiceProvider` / `get` — services registered + resolved by `Entity.name` (`servicesPlugin`).                                  | yes       |
 | **http**            | [`vue/http`](../http/README.md)             | `initAxios` shared axios instance (+ file helpers `getFile`/`upload`), `createQueryString`.                                      | yes       |
-| **ui**              | [`vue/ui`](../ui/README.md)                 | Icons, screens, modals, loading, feedback (`iconPlugin`/`screenPlugin`/`modalPlugin`/`loadingPlugin`/`feedbackPlugin`).          | yes       |
+| **ui**              | [`vue/ui`](../ui/README.md)                 | Icons, screens, modals, loading, feedback (`iconPlugin`/`screenPlugin`/`loadingPlugin`/`feedbackPlugin`).                        | yes       |
 | **auth**            | [`vue/auth`](../auth/README.md)             | Bearer-token interceptor + route guard (`authPlugin`, installed **after** the router).                                           | optional  |
 | **lang**            | [`vue/lang`](../lang/README.md)             | `translate()` / `langPlugin` for i18n labels and titles.                                                                         | optional  |
 | **directives**      | [`vue/directives`](../directives/README.md) | `focus` / `grow` / `clickOutside` form directives.                                                                               | optional  |

@@ -1,3 +1,5 @@
+import Icon from "../icons/Icon.vue"
+
 export const Success = (props) => {
     const msg = props.msg || "Success!"
 

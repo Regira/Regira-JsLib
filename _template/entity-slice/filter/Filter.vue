@@ -5,7 +5,7 @@
         </slot>
 
         <Teleport to="#modals">
-            <MyModal
+            <DefaultModal
                 :is-visible="showAdv"
                 :title="props.modalTitle || 'Advanced search'"
                 :show-footer="true"
@@ -17,13 +17,15 @@
                 <slot name="adv" :handleUpdate="handleUpdate" :handleSubmit="handleSubmit" :handleClose="handleClose"> </slot>
 
                 <Debug :modelValue="searchObject" />
-            </MyModal>
+            </DefaultModal>
         </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
+import { DefaultModal } from "regira_modules/vue/ui"
+import { Debug } from "regira_modules/vue/debug"
 import { useFilter, type FilterEmits } from "regira_modules/vue/entities"
 import type SearchObject from "./SearchObject"
 import FilterInline from "./FilterInline.vue"

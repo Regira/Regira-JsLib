@@ -5,8 +5,8 @@ Verify signatures in [debug.signatures.md](debug.signatures.md). Imports use the
 
 ## Install the plugin (startup)
 
-Install after vue-router (the `$isDebug` getter reads the current route) and after the `Icon`
-component is resolvable. Pass `isDebug` from your loaded config:
+Install after vue-router (the `$isDebug` getter reads the current route). Pass `isDebug` from your
+loaded config:
 
 ```ts
 import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
@@ -14,14 +14,17 @@ import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
 app.use(debugPlugin, { isDebug: config.isDebug }) // isDebug defaults to false
 ```
 
-This registers `<Debug>` globally and installs the `$isDebug` / `$setDebug` global properties.
+This installs the `$isDebug` / `$setDebug` global properties that the `Debug` component reads.
 
 ## A debug bar that only shows in debug mode
 
-`<Debug>` is registered globally, so no import is needed. With no `modelValue` it just acts as a
-slot for debug-only chrome (it renders nothing unless `$isDebug` is true):
+Import `Debug` where used. With no `modelValue` it just acts as a slot for debug-only chrome (it
+renders nothing unless `$isDebug` is true):
 
 ```vue
+<script setup lang="ts">
+import { Debug } from "@/regira_modules/vue/debug"
+</script>
 <template>
     <section>
         <Feedback :feedback="$feedback" />
@@ -57,19 +60,14 @@ Combine several things into one object to inspect them together:
 </template>
 ```
 
-You can also import the component explicitly instead of relying on global registration:
-
-```vue
-<script setup lang="ts">
-import { Debug } from "@/regira_modules/vue/debug"
-</script>
-```
-
 ## Gate your own debug-only UI
 
 Use the `$isDebug` getter to show extra markup, and `$setDebug(false)` to switch debug output off:
 
 ```vue
+<script setup lang="ts">
+import { IconButton } from "@/regira_modules/vue/ui"
+</script>
 <template>
     <div v-if="$isDebug" class="debug">
         <span>{{ $router.currentRoute.value.name }}</span>

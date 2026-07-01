@@ -1,5 +1,4 @@
 import { ref, type App } from "vue"
-import Display from "./Display.vue"
 
 type IOptions = {
     isDebug: boolean
@@ -9,8 +8,6 @@ export default {
     install(app: App<Element>, options?: IOptions) {
         const isDebug = ref<boolean>(!!options?.isDebug)
         const enableDebug = ref(true)
-
-        app.component("Debug", Display)
 
         Object.defineProperty(app.config.globalProperties, "$isDebug", {
             get() {

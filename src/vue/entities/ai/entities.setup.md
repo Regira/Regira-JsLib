@@ -130,7 +130,7 @@ export default defineConfig({
 <body>
     <div id="app"></div>
     <div id="modals" class="fixed-top"></div>
-    <!-- modalPlugin host -->
+    <!-- modal teleport host (DefaultModal) -->
     <div id="loginModal" class="fixed-top"></div>
     <!-- LoginModal teleport target -->
     <script type="module" src="/src/main.ts"></script>
@@ -145,7 +145,7 @@ export default defineConfig({
 declare const __APP_VERSION__: string
 ```
 
-The `$configs` type and the rest of the app globals go in `src/shims.d.ts` — see
+App-specific globals (e.g. `$isAdmin`) go in `src/shims.d.ts` — see
 [Root component — App.vue → Typing app globals](#typing-app-globals--srcshimsdts).
 
 ## Lean tier (generic views)
@@ -199,6 +199,36 @@ pager through the `#paging` slot.
 `EntityForm` takes the same `:service` plus an `:id` (`"new"` inserts), exposes the loaded entity through
 its default slot, and emits `saved` / `cancel`. Both rely only on the service contract, so the data layer
 is shared with the full tier and adopting the scaffold later is additive.
+
+### Headless quick-start (data layer only)
+
+Also opt-in only. For a bespoke UI that just needs typed access to the API — no plugins, no shell:
+
+```ts
+import { initAxios } from "regira_modules/vue/http"
+import { EntityBase, EntityServiceBase, type IConfig } from "regira_modules/vue/entities"
+
+class Product extends EntityBase {
+    id = 0
+    name = ""
+    get $id() { return this.id }
+    get $title() { return this.name }
+}
+class ProductService extends EntityServiceBase<Product> {
+    override toEntity(item: object): Product {
+        return item instanceof Product ? item : Object.assign(new Product(), item || {})
+    }
+}
+
+// api/searchUrl are relative to the axios baseURL; /search is the counted endpoint every controller exposes
+const config: IConfig = { key: "product", routePrefix: "products", api: "/products", searchUrl: "/products/search", defaultPageSize: 20 }
+const products = new ProductService(initAxios({ api: "/api" }), config)
+
+const { items, count } = await products.search({ q: "blue", pageSize: 10 })
+```
+
+Add `baseQueryParams: { includes: "All" }` to the config when the API gates nested collections behind
+`?includes=` (complex entities do — `Details` loads them, `List`/`Search` omit them by default).
 
 ## Project structure
 
@@ -498,8 +528,9 @@ import { initAxios } from "@/regira_modules/vue/http"
 import { plugin as servicesPlugin, type IServiceProvider } from "@/regira_modules/vue/ioc"
 import { plugin as appPlugin, AppStatus, whenAppReady } from "@/regira_modules/vue/app"
 import { plugin as langPlugin, useLang } from "@/regira_modules/vue/lang"
-import { iconPlugin, screenPlugin, loadingPlugin, modalPlugin, feedbackPlugin } from "@/regira_modules/vue/ui"
+import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "@/regira_modules/vue/ui"
 import { focus, grow, clickOutside } from "@/regira_modules/vue/directives"
+import "@/regira_modules/style.css" // library component styles (modal backdrop, autocomplete dropdown)
 import { plugin as authPlugin, LocalStorageTokenManager } from "@/regira_modules/vue/auth"
 import { preloaderPlugin, defaultPoolCache, PoolCache } from "@/regira_modules/vue/entities"
 import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
@@ -530,7 +561,6 @@ fetch("/config.json")
         app.use(iconPlugin, { source: "bs" })
         app.use(screenPlugin)
         app.use(loadingPlugin, { img: loadingImg })
-        app.use(modalPlugin)
         app.use(feedbackPlugin, { autoHideDelay: 2500 })
         app.use(langPlugin, { defaultLang: "en", messages: translations })
         const { setLangCode } = useLang()
@@ -545,7 +575,7 @@ fetch("/config.json")
         app.use(entityPlugins, { routes: entityRoutes })
         app.use(routerFactory([...entityRoutes]))
         app.use(preloaderPlugin)
-        app.use(debugPlugin, { isDebug: config.isDebug }) // registers <Debug> (used by Overview/Filter/SelectorSearch); needs the router; shows only when ?debug=1 / isDebug
+        app.use(debugPlugin, { isDebug: config.isDebug }) // provides $isDebug, read by <Debug>; needs the router; shows only when ?debug=1 / isDebug
 
         // auth last (needs the router on the app)
         app.use(authPlugin, {
@@ -566,9 +596,10 @@ fetch("/config.json")
 ```
 
 > **Install order matters:** the `$services` / `$configs` / `$icons` globals must exist before any entity
-> plugin installs, so install Pinia, `appPlugin`, `servicesPlugin` (axios + `PoolCache`) and `iconPlugin`
-> **first**; then the entity plugins **before** `routerFactory` (so their routes are collected); and the
-> **router before `authPlugin`** (the auth plugin reads `$router` for its route guard).
+> plugin installs, so install Pinia, `appPlugin`, `servicesPlugin` (axios + `PoolCache`; it also creates the
+> `$configs` map) and `iconPlugin` **first**; then the entity plugins **before** `routerFactory` (so their
+> routes are collected); and the **router before `authPlugin`** (the auth plugin reads `$router` for its
+> route guard).
 
 > **Required IoC registration (the #1 wiring pitfall).** The `configure` block above is mandatory: every
 > entity service resolves `axios` from the container, and `EntityServiceBase` throws a descriptive error at
@@ -578,20 +609,16 @@ fetch("/config.json")
 
 ### Full-shell additions
 
-The full app shell adds three things on top of that canonical file, right after the UI plugins (and the
-last one after `authPlugin`):
+The full app shell adds two things on top of that canonical file, right after the UI plugins (and the
+last one after `authPlugin`). Components (`FormSection`, `DescriptionInput`, `Icon`, …) are **not**
+registered globally — every view imports what it uses from `regira_modules/vue/ui`.
 
 ```ts
-// 1. register frequently-used inputs globally so every Form.vue uses them without importing
-import { DescriptionInput, FormSection, FormLabel } from "@/regira_modules/vue/ui"
-app.component("DescriptionInput", DescriptionInput)
-// (FormSection / FormLabel / DateInput / NullableCheckBox register the same way)
-
-// 2. seed icons from a JSON map (group icons referenced by config.json → navigation.groups[].icon)
+// 1. seed icons from a JSON map (group icons referenced by config.json → navigation.groups[].icon)
 const appIcons = await fetch(`${appConfig.baseUrl}/data/app-icons.json`).then((r) => r.json())
 app.use(iconPlugin, { icons: appIcons, source: "bs", clearFirst: false })
 
-// 3. app-wide glue (after authPlugin, since it reads the auth store)
+// 2. app-wide glue (after authPlugin, since it reads the auth store)
 import { plugin as userPlugin } from "@/infrastructure/user-plugin"
 app.use(userPlugin)
 ```
@@ -679,33 +706,19 @@ import { RouterView } from "vue-router"
 
 ### Typing app globals — `src/shims.d.ts`
 
-The library declares its own globals on `@vue/runtime-core` (`$services`, `$icons`, `$appStatus`/
-`$setAppStatus`, `$feedback`, `$t`/`$tm`, `$auth`, …), so those are typed in templates and `this`
-automatically. **`$configs` is the exception** — each entity `setup.ts` writes to
-`app.config.globalProperties.$configs[Entity.name]`, but the library does not declare its type. Add a
-one-file ambient declaration (TypeScript picks up `src/**/*.d.ts` automatically):
+The library declares its own globals on `@vue/runtime-core` (`$services`, `$configs`, `$icons`,
+`$appStatus`/`$setAppStatus`, `$feedback`, `$t`/`$tm`, `$auth`, …), so those are typed in templates and
+`this` automatically. Only **app-specific** globals need a one-file ambient declaration (TypeScript picks
+up `src/**/*.d.ts` automatically) — the full template declares the `user-plugin` global:
 
 ```ts
 // src/shims.d.ts
-import type { IConfig } from "regira_modules/vue/entities"
-
-declare module "@vue/runtime-core" {
-    interface ComponentCustomProperties {
-        $configs: Record<string, IConfig> // populated by each entity setup.ts
-    }
-}
-export {}
-```
-
-The full template adds the `user-plugin` global to the same file:
-
-```ts
-// src/shims.d.ts (in addition to the $configs declaration above)
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         $isAdmin: boolean // provided by infrastructure/user-plugin.ts — see App shell
     }
 }
+export {}
 ```
 
 ## Plugins — required vs optional
@@ -717,32 +730,32 @@ still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--
 | -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `createPinia()`                              | Pinia stores                                | **Required** (app store, entity stores, auth store)                                                                                         |
 | `appPlugin` (`vue/app`)                      | `$appStatus` / `$setAppStatus`, `$culture`  | **Required** — the startup lifecycle and loading gate                                                                                       |
-| `servicesPlugin` (`vue/ioc`)                 | `$services` IoC + `get()`                   | **Required** — register the shared `axios` and `PoolCache` here; services resolve from here                                                 |
+| `servicesPlugin` (`vue/ioc`)                 | `$services` IoC + `get()`; creates `$configs` | **Required** — register the shared `axios` and `PoolCache` here; services resolve from here                                                 |
 | entity plugins (`@/entities`)                | routes + service registrations + `$configs` | **Required** — your slices                                                                                                                  |
 | `routerFactory` (vue-router)                 | routing                                     | **Required** for multi-view slices                                                                                                          |
 | `iconPlugin` (`vue/ui`)                      | `$icons`                                    | Required if your views/nav render icons (the demos do)                                                                                      |
 | `feedbackPlugin` (`vue/ui`)                  | `$feedback`                                 | Required if you use the `Feedback` component (the demo `App.vue` does)                                                                      |
-| `loadingPlugin` (`vue/ui`)                   | `Loading`/`LoadingContainer` components     | Required if you use `LoadingContainer` (the demo `App.vue` does). **Must pass `{ img }`** when installed: `app.use(loadingPlugin, { img })` |
-| `modalPlugin` (`vue/ui`)                     | modal host                                  | Optional — only if you use modal forms                                                                                                      |
+| `loadingPlugin` (`vue/ui`)                   | the image `Loading`/`LoadingContainer` render | Required if you use `LoadingContainer` (the demo `App.vue` does). **Must pass `{ img }`** when installed: `app.use(loadingPlugin, { img })` |
 | `langPlugin` (`vue/lang`)                    | `$t` i18n                                   | Optional — only if you render translated labels                                                                                             |
 | directives (`focus`, `grow`, `clickOutside`) | template directives                         | Optional — only where used                                                                                                                  |
 | `preloaderPlugin` (`vue/entities`)           | route preloading                            | Optional                                                                                                                                    |
 | `authPlugin` (`vue/auth`)                    | bearer auth + `$auth`                       | **Optional** — see [Running without authentication](#running-without-authentication)                                                        |
 
 > **`debugPlugin` (`vue/debug`) — install it.** The scaffolded `Overview.vue`, `Filter.vue` and
-> `SelectorSearch.vue` render `<Debug>`, which only `debugPlugin` registers globally — without it a
-> by-the-book app logs "Failed to resolve component: Debug". The canonical `main.ts` installs it **after the
-> router** (its `$isDebug` getter reads `$router`). It is inert in production: `<Debug>` renders nothing
-> unless `?debug=1` or the `isDebug` option is set.
+> `SelectorSearch.vue` import `<Debug>`, which renders only when `$isDebug` is true — and `$isDebug` is
+> what `debugPlugin` provides. The canonical `main.ts` installs it **after the router** (its `$isDebug`
+> getter reads `$router`). It is inert in production: `<Debug>` renders nothing unless `?debug=1` or the
+> `isDebug` option is set.
 
 > **Icon fonts aren't bundled.** `iconPlugin({ source: "bs" })` only emits Bootstrap-Icons class names
 > (`bi bi-*`); install the `bootstrap-icons` npm package and import its CSS in `main.ts`
 > (`import "bootstrap-icons/font/bootstrap-icons.css"`) or every icon renders blank. (`source: "fa"` →
 > Font Awesome the same way.)
 
-> **Library components need `iconPlugin` too.** `Feedback`, `LoadingContainer`, `Paging` and `ConfirmButton`
-> resolve `Icon`/`IconButton` **globally**, which only `iconPlugin` registers — so install it whenever you
-> render any of them, even if your own markup shows no icons (otherwise: `Failed to resolve component: IconButton`).
+> **No global component registration.** Library components and the scaffolded views import everything they
+> use (`Icon`, `IconButton`, `DefaultModal`, form inputs, …) locally from `regira_modules/vue/ui`. `iconPlugin`
+> only selects the glyph source (`bs`/`fa`) and seeds friendly icon keys; `Icon` falls back to Bootstrap
+> glyphs when it is not installed.
 
 ## Running without authentication
 
@@ -808,8 +821,8 @@ and composables. Each folder is detailed in [§ `src/components/`](#srccomponent
 
 Create `src/entities/<name>/` slices — each with the full folder set (`config/ data/ details/ filter/
 overview/ selecting/` + `index.ts` + `setup.ts`, see [Entity slice anatomy](#entity-slice-anatomy)) — and
-an `src/entities/index.ts` aggregator that installs them and collects routes. It resets `$configs` and
-lets each `setup.ts` push its routes into the shared array:
+an `src/entities/index.ts` aggregator that installs them and collects routes (each `setup.ts` writes its
+config into the `$configs` map that `servicesPlugin` created, and pushes its routes into the shared array):
 
 ```ts
 import type { App } from "vue"
@@ -822,7 +835,6 @@ export const plugins = [categoryPlugin, productPlugin]
 
 export default {
     install(app: App<Element>, { routes }: { routes: Array<RouteRecordRaw> }) {
-        app.config.globalProperties.$configs = {}
         plugins.forEach((plugin) => app.use(plugin as any, { routes }))
     },
 }
@@ -837,7 +849,7 @@ step list in the [checklist](../docs/checklist.md).
 | Folder               | Holds                                                                                   | Notes                                                                                                                                                                                                                                                                                        |
 | -------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()`                                  | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
-| `input/`             | app-specific form inputs                                                                | the common `FormButtonsRow` (Save / Cancel / Delete / Restore row) and `DescriptionInput` ship in `vue/ui`; register library inputs globally in `main.ts` if you prefer not to import them per-form                                                                                          |
+| `input/`             | app-specific form inputs                                                                | the common `FormButtonsRow` (Save / Cancel / Delete / Restore row) and `DescriptionInput` ship in `vue/ui` — import them per-form                                                                                                                                                            |
 | `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>`                                                                                                                                                                                                                                                             |
 | `users/`             | account + auth UI (login, change password, admin list)                                  | include when auth is enabled; omit on the [no-auth path](#running-without-authentication)                                                                                                                                                                                                    |
 

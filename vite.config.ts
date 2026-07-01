@@ -56,6 +56,8 @@ export default defineConfig({
                 "vue/ui/modal/index": resolve(__dirname, "src/vue/ui/modal/index.ts"),
             },
             formats: ["es"],
+            // all extracted component CSS lands in dist/style.css — consumers import "regira_modules/style.css"
+            cssFileName: "style",
         },
         rollupOptions: {
             external: ["axios", "date-fns", "pinia", "vue", "vue-router"],

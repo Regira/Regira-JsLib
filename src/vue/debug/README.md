@@ -5,23 +5,23 @@ plugin that adds `$isDebug` / `$setDebug` globals to control when that output sh
 
 ## What it provides
 
-| Export                    | Purpose                                                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `plugin` (default)        | Vue plugin; registers `Debug` globally and installs the `$isDebug`/`$setDebug` properties. Options: `{ isDebug }`. |
-| `Debug`                   | Component that renders `title` + `modelValue` (as pretty JSON) only when `$isDebug` is true.                       |
-| `$isDebug`                | Global getter — `enableDebug && (?debug=1` query param, else the `isDebug` option`)`.                              |
-| `$setDebug(value = true)` | Global master switch; `false` hides all debug output.                                                              |
+| Export                    | Purpose                                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| `plugin` (default)        | Vue plugin; installs the `$isDebug`/`$setDebug` global properties. Options: `{ isDebug }`.   |
+| `Debug`                   | Component that renders `title` + `modelValue` (as pretty JSON) only when `$isDebug` is true. |
+| `$isDebug`                | Global getter — `enableDebug && (?debug=1` query param, else the `isDebug` option`)`.        |
+| `$setDebug(value = true)` | Global master switch; `false` hides all debug output.                                        |
 
 ## How it fits
 
 ```
 app.use(plugin, { isDebug })
-   ├─ registers <Debug> globally
    ├─ $isDebug  ← reads ?debug query (via $router) and the isDebug option
    └─ $setDebug ← master enable/disable switch
 ```
 
-Requires vue-router (the `$isDebug` getter reads the current route) and a resolvable `Icon` component.
+`Debug` is imported locally where used (it bundles its own `Icon`). Requires vue-router — the `$isDebug`
+getter reads the current route.
 
 ## Reference
 

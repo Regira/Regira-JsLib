@@ -30,6 +30,8 @@ node node_modules/regira_modules/_template/scaffold.mjs Product   # → src/enti
 1. Customize the **`(c)`** files (§ below) — the only ones tailored to your entity; leave the rest as-is.
 2. Register the slice's `plugin` in `src/entities/index.ts` — see
    [entities.setup.md → Add entities](entities.setup.md#add-entities).
+3. Run `npm run build` (not just a `--noEmit` type-check) — a freshly scaffolded slice must build green
+   before you customize.
 
 > **Nested relation columns:** bind the plain projected field (`item.bar?.title`), **never**
 > `item.bar?.$title` — only the root item is hydrated into an `EntityBase`
@@ -180,7 +182,7 @@ export default EntitySearchObject
 </template>
 
 <script setup lang="ts">
-// Icon / IconButton are globally-registered (vue/ui) — or import them.
+import { IconButton } from "@/regira_modules/vue/ui"
 import { useFilter, type FilterEmits } from "@/regira_modules/vue/entities"
 import SearchObject from "./SearchObject"
 
@@ -302,9 +304,8 @@ const item = defineModel<Entity>({ required: true })
 </template>
 
 <script setup lang="ts">
-// FormSection / FormLabel / Icon are globally-registered (vue/ui); FormButtonsRow is imported from vue/ui.
 import type { RouteRecordRaw } from "vue-router"
-import { FormButtonsRow } from "@/regira_modules/vue/ui"
+import { FormButtonsRow, FormSection, FormLabel } from "@/regira_modules/vue/ui"
 import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"

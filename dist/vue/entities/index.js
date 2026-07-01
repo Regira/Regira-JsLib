@@ -1,12 +1,12 @@
-import { S as e } from "../../_chunks/array-utility-3.2.4.js";
+import { S as e } from "../../_chunks/array-utility-3.2.5.js";
 import { debounceToPromise as t } from "../../utilities/promise-utility.js";
-import { t as n } from "../../_chunks/treelist-3.2.4.js";
-import { a as r, c as i, d as a, i as o, l as s, n as c, o as l, r as u, s as d, t as f, u as p } from "../../_chunks/abstractions-3.2.4.js";
-import { i as m } from "../../_chunks/feedback-3.2.4.js";
-import { n as h, t as g } from "../../_chunks/details-3.2.4.js";
-import { a as ee, c as _, i as te, l as ne, n as re, o as ie, r as ae, s as oe, t as se } from "../../_chunks/form-3.2.4.js";
-import "../../_chunks/ui-3.2.4.js";
-import { i as v } from "../../_chunks/ioc-3.2.4.js";
+import { t as n } from "../../_chunks/treelist-3.2.5.js";
+import { a as r, c as i, d as a, i as o, l as s, n as c, o as l, r as u, s as d, t as f, u as p } from "../../_chunks/abstractions-3.2.5.js";
+import { i as m } from "../../_chunks/feedback-3.2.5.js";
+import { n as h, t as g } from "../../_chunks/details-3.2.5.js";
+import { a as ee, c as _, i as te, l as ne, n as re, o as ie, r as ae, s as oe, t as se } from "../../_chunks/form-3.2.5.js";
+import "../../_chunks/ui-3.2.5.js";
+import { i as v } from "../../_chunks/ioc-3.2.5.js";
 import { Fragment as ce, computed as y, createCommentVNode as le, createElementBlock as b, createElementVNode as x, defineComponent as S, onMounted as C, openBlock as w, ref as T, renderList as ue, renderSlot as E, toDisplayString as D, toRaw as de, watch as fe, withModifiers as pe } from "vue";
 import { useRouter as me } from "vue-router";
 //#region src/vue/entities/config/EntityDescriptor.ts

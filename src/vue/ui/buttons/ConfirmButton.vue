@@ -6,7 +6,7 @@
         </slot>
         <Teleport to="#modals">
             <slot name="modal">
-                <MyModal
+                <DefaultModal
                     :is-visible="showModal"
                     :type="modalType"
                     :title="modalTitle"
@@ -15,7 +15,7 @@
                     @close="handleClose"
                 >
                     <slot></slot>
-                </MyModal>
+                </DefaultModal>
             </slot>
         </Teleport>
     </button>
@@ -23,6 +23,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue"
+import Icon from "../icons/Icon.vue"
+import DefaultModal from "../modal/DefaultModal.vue"
 import { ModalType } from "../modal"
 
 const emit = defineEmits<{

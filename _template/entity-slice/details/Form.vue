@@ -23,9 +23,8 @@
 </template>
 
 <script setup lang="ts">
-// FormSection / FormLabel / Icon are globally-registered (vue/ui); FormButtonsRow is imported from vue/ui.
 import type { RouteRecordRaw } from "vue-router"
-import { FormButtonsRow } from "regira_modules/vue/ui"
+import { FormButtonsRow, FormSection, FormLabel } from "regira_modules/vue/ui"
 import { useForm, type FormEmits, formDefaults } from "regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"

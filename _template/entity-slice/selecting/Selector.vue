@@ -15,6 +15,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue"
+import { IconButton } from "regira_modules/vue/ui"
 import useEntityStore from "../data/store"
 import type Entity from "../data/Entity"
 import FormModalButton from "../details/FormModalButton.vue"

@@ -34,8 +34,9 @@
             </template>
         </slot>
         <Teleport to="#modals">
-            <MyModal
+            <DefaultModal
                 v-if="showSummary"
+                is-visible
                 :title="msg"
                 :show-footer="false"
                 :type="ModalType.danger"
@@ -55,7 +56,7 @@
                         </ul>
                     </li>
                 </ul>
-            </MyModal>
+            </DefaultModal>
         </Teleport>
     </div>
 </template>
@@ -63,6 +64,8 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import type { FeedbackError } from "./feedback"
+import Icon from "../icons/Icon.vue"
+import DefaultModal from "../modal/DefaultModal.vue"
 import { ModalType } from "../modal"
 
 const props = withDefaults(

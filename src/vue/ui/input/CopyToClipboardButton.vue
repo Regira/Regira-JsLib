@@ -4,6 +4,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue"
+import IconButton from "../icons/IconButton.vue"
 import { copyTextToClipboard } from "../../../utilities/clipboard-utility"
 
 const props = withDefaults(

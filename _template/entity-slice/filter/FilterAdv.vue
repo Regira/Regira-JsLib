@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-// Icon / IconButton are globally-registered (vue/ui) — or import them.
+import { IconButton } from "regira_modules/vue/ui"
 import { useFilter, type FilterEmits } from "regira_modules/vue/entities"
 import SearchObject from "./SearchObject"
 

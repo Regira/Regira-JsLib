@@ -17,24 +17,25 @@ exports:
 import { Paging, LoadingContainer, useFeedback, TabContainer, Tab, BsIcon, useScreen } from "regira_modules/vue/ui"
 import { Pending, Success, ErrorSummary, type FeedbackError } from "regira_modules/vue/ui/feedback"
 import { type IIconProvider, type IconProps } from "regira_modules/vue/ui/icons"
-import { DefaultModal } from "regira_modules/vue/ui/modal" // + "regira_modules/vue/ui/modal/style.scss"
+import { DefaultModal } from "regira_modules/vue/ui/modal" // styles: import "regira_modules/style.css" once
 ```
 
 ## Plugins (install once at startup)
 
-Each plugin installs its globals once at startup. The components it registers are then global app-wide —
-reference them directly in any template (a local `app.component(...)` for the same name is redundant).
+Plugins configure globals only — **no component is registered globally**; import every component locally
+from `regira_modules/vue/ui` (or its sub-path).
 
-| Plugin           | Globals it registers                                                   | Options                                          |
-| ---------------- | ---------------------------------------------------------------------- | ------------------------------------------------ |
-| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                          | `{ autoHideDelay? }`                             |
-| `iconPlugin`     | `Icon` (= `BsIcon`/`FaIcon`), `IconButton`; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` |
-| `loadingPlugin`  | `Loading`, `LoadingButton`, `LoadingContainer`                         | `{ img }`                                        |
-| `modalPlugin`    | `MyModal` (defaults to `DefaultModal`)                                 | `{ DefaultModal? }` (override)                   |
-| `pagingPlugin`   | `Paging`                                                               | `{ defaultPageSize? }`                           |
-| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                           | —                                                |
+| Plugin           | Configures                                                                      | Options                                          |
+| ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                                   | `{ autoHideDelay? }`                             |
+| `iconPlugin`     | glyph source for `Icon` (`bs`/`fa`) + friendly keys; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` |
+| `loadingPlugin`  | the image `Loading`/`LoadingContainer` render                                   | `{ img }`                                        |
+| `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize? }`                           |
+| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                |
 
-`$feedback`, `$icons`, `$screen` are typed on Vue's `ComponentCustomProperties`.
+`$feedback`, `$icons`, `$screen` are typed on Vue's `ComponentCustomProperties`. `Icon` works without
+`iconPlugin` (defaults to Bootstrap glyphs); modals need no plugin — import `DefaultModal` and import
+`regira_modules/style.css` once in `main.ts` for its backdrop/overlay styling.
 
 ## Areas
 
@@ -43,7 +44,7 @@ reference them directly in any template (a local `app.component(...)` for the sa
 | paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`                   |
 | loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                                  |
 | feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
-| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`                                       |
+| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`                                                      |
 | tabs         | `TabContainer`                                                                                                                                                        | `Tab` / `ITab`                                                   |
 | icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`, `IIconProvider`                       |
 | screen       | —                                                                                                                                                                     | `useScreen`, `SCREEN_SIZES`, `screenPlugin`                      |
@@ -75,13 +76,13 @@ reference them directly in any template (a local `app.component(...)` for the sa
 
 ## Gotchas
 
-- **Icon name resolution.** The global `Icon` renders a registered friendly key (`new`, `search`, …) via
+- **Icon name resolution.** `Icon` renders a registered friendly key (`new`, `search`, …) via
   the seeded map, and renders a raw class (`bi bi-grid`, `fa-solid fa-user`) directly when given one;
   `source` (`"bs"`/`"fa"`) selects which glyph set `iconPlugin` seeds. The glyph **font CSS** is separate —
   import it (`bootstrap-icons`/Font Awesome) or every glyph stays blank.
 - **Modal is a component, not a composable.** There is no `openModal()` here — use `DefaultModal` with
   `:is-visible` (one-way; it has no `update:isVisible` emit) plus `@close`/`@cancel` to flip your own state
-  (and import its `style.scss`). For entity edit-in-modal, use `useModal` from
+  (its backdrop/overlay CSS ships in `regira_modules/style.css`). For entity edit-in-modal, use `useModal` from
   the [entities](../../entities/ai/entities.signatures.md) module.
 - **`Feedback` needs a `FeedbackOut`** — pass the one from a composable (`useFeedback()` or an
   overview/form composable), not a string.

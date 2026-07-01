@@ -6,15 +6,17 @@ Verify props/signatures in [ui.signatures.md](ui.signatures.md). Imports use the
 ## Install plugins (startup)
 
 ```ts
-import { iconPlugin, feedbackPlugin, loadingPlugin, modalPlugin, pagingPlugin, screenPlugin } from "@/regira_modules/vue/ui"
+import { iconPlugin, feedbackPlugin, loadingPlugin, pagingPlugin, screenPlugin } from "@/regira_modules/vue/ui"
+import "@/regira_modules/style.css" // component styles (modal backdrop, autocomplete dropdown)
 
 app.use(screenPlugin)
 app.use(feedbackPlugin)
-app.use(iconPlugin, { source: "bs", icons: appIcons }) // register Bootstrap icons
+app.use(iconPlugin, { source: "bs", icons: appIcons }) // seed friendly icon keys
 app.use(loadingPlugin, { img: "/loading.svg" })
-app.use(modalPlugin)
 app.use(pagingPlugin, { defaultPageSize: 10 })
 ```
+
+Plugins only configure; components are imported where used — e.g. `import { DefaultModal, Icon } from "@/regira_modules/vue/ui"`.
 
 ## Overview building blocks
 

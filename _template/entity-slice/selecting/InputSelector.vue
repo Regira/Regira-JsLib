@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, type Ref } from "vue"
+import { Icon } from "regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"

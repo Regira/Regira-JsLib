@@ -1,8 +1,5 @@
 type __VLS_Props = {
-    item?: {
-        isArchived?: boolean;
-        [key: string]: unknown;
-    };
+    item?: unknown;
     readonly?: boolean;
     feedback?: unknown;
     showDelete?: boolean;

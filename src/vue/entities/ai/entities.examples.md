@@ -214,7 +214,7 @@ export default EntitySearchObject
         </slot>
 
         <Teleport to="#modals">
-            <MyModal
+            <DefaultModal
                 :is-visible="showAdv"
                 :title="props.modalTitle || 'Advanced search'"
                 :show-footer="true"
@@ -226,13 +226,15 @@ export default EntitySearchObject
                 <slot name="adv" :handleUpdate="handleUpdate" :handleSubmit="handleSubmit" :handleClose="handleClose"> </slot>
 
                 <Debug :modelValue="searchObject" />
-            </MyModal>
+            </DefaultModal>
         </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
+import { DefaultModal } from "@/regira_modules/vue/ui"
+import { Debug } from "@/regira_modules/vue/debug"
 import { useFilter, type FilterEmits } from "@/regira_modules/vue/entities"
 import type SearchObject from "./SearchObject"
 import FilterInline from "./FilterInline.vue"
@@ -288,6 +290,7 @@ function handleSubmit() {
 </template>
 
 <script setup lang="ts">
+import { IconButton } from "@/regira_modules/vue/ui"
 import { useFilter, type FilterEmits } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import SearchObject from "./SearchObject"
@@ -387,6 +390,7 @@ const { filterIsActive, handleReset, handleUpdate, handleToggle } = useFilter({
 </template>
 
 <script setup lang="ts">
+import { Icon, IconButton } from "@/regira_modules/vue/ui"
 import { useFilter, type FilterEmits } from "@/regira_modules/vue/entities"
 import SearchObject from "./SearchObject"
 
@@ -449,6 +453,7 @@ const { filterIsActive, handleReset } = useFilter({
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { Icon } from "@/regira_modules/vue/ui"
 import type { OverviewEmits } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import type Entity from "../data/Entity"
@@ -508,7 +513,7 @@ const items = computed<Array<Entity>>({
 </template>
 
 <script setup lang="ts">
-import { ModalType, ConfirmButton } from "@/regira_modules/vue/ui"
+import { Icon, ModalType, ConfirmButton } from "@/regira_modules/vue/ui"
 import type { SaveResult } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
@@ -638,9 +643,9 @@ const item = defineModel<Entity>({ required: true })
 
 <script setup lang="ts">
 import { useSearchView, useRouteOverview, type OverviewEmits } from "@/regira_modules/vue/entities"
-import { Paging, LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
+import { Icon, Paging, LoadingContainer, Feedback, ResultSummary } from "@/regira_modules/vue/ui"
+import { Debug } from "@/regira_modules/vue/debug"
 import { useAuthStore } from "@/regira_modules/vue/auth"
-import { ResultSummary } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -811,8 +816,8 @@ function handleRemove() {
 
 <script setup lang="ts">
 import type { RouteRecordRaw } from "vue-router"
-import { Feedback } from "@/regira_modules/vue/ui"
-import { FormButtonsRow } from "@/regira_modules/vue/ui"
+import { Icon, Feedback, FormButtonsRow, FormSection, FormLabel } from "@/regira_modules/vue/ui"
+import { Debug } from "@/regira_modules/vue/debug"
 import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
@@ -850,7 +855,7 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
             <Icon :name="config.key" />
         </slot>
         <Teleport to="#modals">
-            <MyModal
+            <DefaultModal
                 :is-visible="isOpen"
                 :title="modalTitle || $t(config.detailsTitle || '')"
                 :showFooter="false"
@@ -868,13 +873,14 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
                     @save="handleSave"
                     @remove="handleRemove"
                 />
-            </MyModal>
+            </DefaultModal>
         </Teleport>
     </button>
 </template>
 
 <script setup lang="ts">
 import { computed, type Ref } from "vue"
+import { Icon, DefaultModal } from "@/regira_modules/vue/ui"
 import { FormStates, useModal, type FormModalEmits, type SaveResult } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
@@ -1050,6 +1056,7 @@ const displayItemFormatter = (item?: Entity) => item?.$title as string
 
 <script setup lang="ts">
 import { computed, onMounted, type Ref } from "vue"
+import { Icon } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -1123,6 +1130,7 @@ onMounted(async () => {
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue"
+import { IconButton } from "@/regira_modules/vue/ui"
 import useEntityStore from "../data/store"
 import type Entity from "../data/Entity"
 import FormModalButton from "../details/FormModalButton.vue"
@@ -1240,6 +1248,7 @@ onMounted(() => {
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { IconButton } from "@/regira_modules/vue/ui"
 import { type OverviewEmits } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import type Entity from "../data/Entity"
@@ -1280,7 +1289,7 @@ function handleSelect(item?: Entity) {
     <button type="button" class="btn btn-default" @click="open">
         <slot><Icon name="search" /></slot>
         <Teleport to="#modals">
-            <MyModal
+            <DefaultModal
                 :is-visible="isOpen"
                 :title="modalTitle || $t(config.overviewTitle || '')"
                 :showFooter="true"
@@ -1290,13 +1299,14 @@ function handleSelect(item?: Entity) {
                 @submit="handleSubmit"
             >
                 <SelectorSearch v-model="selected" :filter-defaults="filterDefaults" :item-defaults="itemDefaults" :page-size="maxResults" />
-            </MyModal>
+            </DefaultModal>
         </Teleport>
     </button>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watchEffect, type Ref } from "vue"
+import { Icon, DefaultModal } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -1458,8 +1468,8 @@ watchEffect(() => (selected.value = props.modelValue))
 <script setup lang="ts">
 import { onMounted, type Ref } from "vue"
 import { useSearchView } from "@/regira_modules/vue/entities"
-import { Paging, LoadingContainer, Feedback, ButtonType } from "@/regira_modules/vue/ui"
-import { ResultSummary } from "@/regira_modules/vue/ui"
+import { Icon, IconButton, Paging, LoadingContainer, Feedback, ButtonType, ResultSummary } from "@/regira_modules/vue/ui"
+import { Debug } from "@/regira_modules/vue/debug"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -2265,6 +2275,7 @@ watchEffect(async () => {
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { Icon } from "@/regira_modules/vue/ui"
 import type { OverviewEmits } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import type Entity from "../data/Entity"
@@ -2333,7 +2344,7 @@ const items = computed<Array<Entity>>({
 </template>
 
 <script setup lang="ts">
-import { ModalType, ConfirmButton } from "@/regira_modules/vue/ui"
+import { Icon, ModalType, ConfirmButton } from "@/regira_modules/vue/ui"
 import { formatCurrency } from "@/regira_modules/vue/formatters"
 import { type SaveResult } from "@/regira_modules/vue/entities"
 import { useEntityStore as useUnitTypeStore, FormModalButton as UnitTypeButton } from "@/entities/unit-types"
@@ -2474,9 +2485,9 @@ const { fromPool: getFacet } = useFacetStore()
 
 <script setup lang="ts">
 import { useSearchView, useRouteOverview, type OverviewEmits } from "@/regira_modules/vue/entities"
-import { Paging, LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
+import { Icon, Paging, LoadingContainer, Feedback, ResultSummary } from "@/regira_modules/vue/ui"
+import { Debug } from "@/regira_modules/vue/debug"
 import { useAuthStore } from "@/regira_modules/vue/auth"
-import { ResultSummary } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -2745,6 +2756,7 @@ const tabs = computed(() =>
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { IconButton } from "@/regira_modules/vue/ui"
 import { type OverviewEmits } from "@/regira_modules/vue/entities"
 import { useEntityStore as useUnitTypeStore, FormModalButton as UnitTypeButton } from "@/entities/unit-types"
 import type Entity from "../data/Entity"

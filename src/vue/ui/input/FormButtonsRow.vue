@@ -10,10 +10,11 @@
 <script setup lang="ts">
 import { computed } from "vue"
 
-// `item` only needs `isArchived` to gate the restore button; the index signature keeps it from being a
-// TypeScript "weak type" so any entity (archivable or not) can be bound without TS2559.
-const props = defineProps<{ item?: { isArchived?: boolean; [key: string]: unknown }; readonly?: boolean; feedback?: unknown; showDelete?: boolean }>()
+// `item` only needs `isArchived` to gate the restore button. Typed `unknown` so any entity binds —
+// class instances (EntityBase) have no index signature, and an all-optional object type would be a
+// TypeScript "weak type" — both reject `:item="item"` under strict mode.
+const props = defineProps<{ item?: unknown; readonly?: boolean; feedback?: unknown; showDelete?: boolean }>()
 const emit = defineEmits<{ cancel: []; remove: []; restore: [] }>()
 
-const isArchived = computed(() => props.item?.isArchived === true)
+const isArchived = computed(() => (props.item as { isArchived?: boolean } | undefined)?.isArchived === true)
 </script>
