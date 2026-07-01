@@ -13,8 +13,9 @@ CRUD client) against a **Regira.Entities** API. Use this when the target is a SP
 Build the **full reference scaffold** by default — the complete plugin stack, the per-entity slice
 (`config`/`data`/`filter`/`overview`/`details`/`selecting`/`setup`), the app shell (dashboard + navbar),
 the preloader, and the `app-config.ts` runtime config. Use the **full** features of `regira_modules`, not a
-hand-rolled subset. Scaffold each entity by copying the shipped slice template rather than re-writing ~23
-files:
+hand-rolled subset — the scaffold type-checks green out of the box and ships the server-searchable relation
+pickers, pooling, and preloader a hand-rolled tier would only have to rebuild. Scaffold each entity by
+copying the shipped slice template rather than re-writing ~23 files:
 
 ```bash
 node node_modules/regira_modules/_template/scaffold.mjs Product   # → src/entities/products/

@@ -152,17 +152,19 @@ axios `baseURL` (set from app config).
 
 `fetchItems` builds the query string by merging `config.baseQueryParams` with the search object, then:
 
-- **`pageSize`** defaults to `config.defaultPageSize` (`DEFAULT_PAGESIZE` = 10) unless you pass `0`.
+- **`pageSize`** defaults to `config.defaultPageSize` (`DEFAULT_PAGESIZE` = 10). `pageSize: 0` returns **all
+  rows, capped by the server's `MaxPageSize`** (100 under `UseDefaults()`) — send a positive `pageSize` to
+  page, and for sets larger than `MaxPageSize` use the `Autocomplete` selector (server-side search).
 - **`isArchived`** defaults to `false` — archived rows are hidden unless the search object sets it.
 - **`page`** is omitted from the URL when ≤ 1.
 - keys starting with **`$`** are stripped (treat them as private/meta).
 - array values serialize as **repeated keys** (`includes=A&includes=B`).
 
-> **Simple controllers expose no `/search`, and `list` returns no `count`.** `service.search()` on a simple
-> entity hits the SPA fallback (HTML) → `undefined.map`; use `service.list()` / `useListView`. Because
-> `list` returns `{ items }` with no total, a simple overview **cannot page** — for a large dataset either
-> make the entity complex (counted `/search`) or set a large `defaultPageSize` to show all rows. **Let
-> dataset size drive the simple-vs-complex choice.**
+> **`GET /search` (with `count`) is on every controller — simple and complex.** A simple entity pages just
+> like a complex one: set `searchUrl: api + "/search"` and use `useSearchView`. *Complex* adds only typed
+> `?sortBy=`/`?includes=` and the batch `POST /list`/`POST /search` — not the count. Leave `searchUrl` at
+> `config.api` (no `/search`) and `service.search()` falls back to `GET /` → `{ items }` with no `count`, so
+> use `useListView` there. **Let dataset size drive the simple-vs-complex choice.**
 
 #### Item hydration
 
@@ -196,13 +198,20 @@ Scaffold the full tier by copying the shipped slice template — don't hand-writ
 The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 ([entities.setup.md → Lean tier](entities.setup.md#lean-tier-generic-views)).
 
-> **The default holds for small and non-CRUD apps.** Two reasons not to downgrade:
-> - **File count is not effort.** `scaffold.mjs <Entity>` generates all ~23 files in one command; you author
->   only the ~6 `(c)` files. The rest is generated, toolchain-tested boilerplate — not a cost to optimize away.
-> - **A non-grid UX is still the slice.** The views are editable starting points: a category-tree filter, an
->   active/inactive toggle, or a storefront card list is normal customization of `Filter.vue` / `List.vue` /
->   `ListItem.vue`. The shared data layer, relation pickers (`selecting/`), and config-driven navigation scale
->   with the app.
+> **The full scaffold is the low-risk default; hand-rolling views is the expensive path** — and this holds
+> for small and non-CRUD apps too:
+> - **It type-checks green out of the box.** `scaffold.mjs <Entity>` emits all ~23 files; you edit only the
+>   ~6 `(c)` ones and the rest is generated, `vue-tsc`-verified boilerplate. File count is not effort — you
+>   are not signing up to debug generated code.
+> - **The relation pickers are the payoff.** `selecting/Autocomplete.vue` is a server-searchable picker: it
+>   selects one row out of thousands without loading them all (a plain dropdown can't). Hand-rolled forms
+>   re-hit that problem and rebuild the picker, modal, and pager the kit already ships.
+> - **The plugin stack is a one-time app-shell cost, not per-entity.** It installs once in `main.ts`, and
+>   every slice composable (`useForm`/`useFilter`/`useSearchView`) needs it — so going headless to "skip
+>   plugins" is a false economy the moment you want one real form. The data layer, pooling, and preloader are
+>   one tested whole; opting out of one piece means re-implementing the others.
+> - **A non-grid UX is still the slice.** A category-tree filter, an active/inactive toggle, or a storefront
+>   card list is normal customization of `Filter.vue` / `List.vue` / `ListItem.vue`.
 >
 > Downgrade to lean or headless **only** when the user's request names it — "demo", "embed", "storefront",
 > "headless", "lean", "no scaffold", "just the data layer" — and state the tier you picked.
@@ -291,8 +300,9 @@ A **lookup** entity keeps the folders but drops the list UI (omit the views and 
 5. **Search object** — `filter/SearchObject.ts` (c): `extends SearchObjectBase` with filter fields.
 6. **Filter** — `filter/`: `Filter.vue` (inline bar + advanced-modal shell), `FilterInline.vue`,
    `FilterAdv.vue` (c) — all call `useFilter`.
-7. **Overview** — `overview/`: `Overview.vue` (`useSearchView` + `useRouteOverview`; swap to `useListView`
-   for a simple/lookup controller) + `List.vue` (c) + `ListItem.vue` (c).
+7. **Overview** — `overview/`: `Overview.vue` (`useSearchView` + `useRouteOverview` → counted `/search`, so
+   the overview pages for simple **and** complex entities; swap to `useListView` only for a lookup that needs
+   no count) + `List.vue` (c) + `ListItem.vue` (c).
 8. **Details & form** — `details/`: `Details.vue` (`useDetails`, loads `:id`, hosts `Fiche`/`Form`),
    `Form.vue` (c) (`useForm`), `FormModalButton.vue` (`useModalForm`).
 9. **Selecting** — `selecting/`: the relation-picker set built on the store; only `SelectorList.vue` (c) is
@@ -351,7 +361,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 - **State toggle (activate/deactivate)** — a dedicated endpoint + custom service method for a visible status flag.
 - **Date hydration** — convert non-`created`/`lastModified` date fields in `toEntity`.
 - **Transient client-only fields** — `_`-prefixed props (e.g. `_deleted`) stripped before save.
-- **Paging** — `pagingInfo` + `itemsCount`; `pageSize: 0` for all rows.
+- **Paging** — `pagingInfo` + `itemsCount`; `pageSize: 0` returns all rows capped by the server's `MaxPageSize` (send a positive `pageSize` to page).
 - **Union search** — `searchUnion` (OR across filters).
 - **Custom endpoints on a service** — reach the raw `get<EntityService>(Entity.name)`, not the pooled store.
 - **Entity selector (relation picker)** — the `selecting/` set for picking related entities in forms.
@@ -395,7 +405,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | New entity not treated as insert | `$id` not `"new"`/`null` | `save()` treats `$id === "new"` (or `null`) as insert; new-entity routes use `:id = "new"`; `$id` getter returns `this.id      |     | "new"` |
 | Updates 404 while inserts pass | `saveUrl` set to a literal `/save` path | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves |
 | Archived rows missing | `isArchived` defaults to `false` | Set `isArchived` on the search object to include them |
-| Pager-less overview shows only 10 rows | The overview composables seed paging from `PagingInfo`, whose fallback is 10 (a `defaultPageSize` of `0` reads as 10) | Set `defaultPageSize` to a large number (the API's max page size); `pageSize: 0` means "all" only at the service layer |
+| Pager-less overview shows only 10 rows | `defaultPageSize` of `0`/unset falls back to 10 in the overview composables | Set `defaultPageSize` to a large number (up to the server's `MaxPageSize`); `pageSize: 0` at the service layer returns all rows capped by `MaxPageSize`, and larger sets use the `Autocomplete` selector |
 | Nested collection empty on a detail/edit form | `includes` may not apply to the Details GET | Ensure the API eager-loads it for Details, or fetch children with a dedicated call |
 | Custom service method not found on the store `service` | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface) | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`) |
 | Overview total wrong / count missing | `useSearchView` bound to an endpoint that returns `{ items }` without `count` | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview)) |

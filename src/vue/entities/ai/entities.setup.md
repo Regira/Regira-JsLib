@@ -47,11 +47,15 @@ Start from the Vite `vue-ts` template (`npm create vue@latest`), then add the pe
   "vue": "^3.5", "vue-router": "^5", "pinia": "^3",
   "axios": "^1", "date-fns": "^4",
   "bootstrap": "^5.3", "bootstrap-icons": "^1.13"
+},
+"devDependencies": {
+  "sass-embedded": "^1.100"   // compiles the app shell's src/assets/*.scss (Bootstrap 5)
 }
 ```
 
 ```bash
 npm i bootstrap bootstrap-icons
+npm i -D sass-embedded   # the app shell's main.scss needs a Sass compiler
 ```
 
 > **Versions — known-good majors (`regira_modules@3.2.1`).** Targets **Vue 3**. The library's

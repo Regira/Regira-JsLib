@@ -262,7 +262,7 @@
         "dev": "vite",
         "build": "node scripts/build.mjs",
         "_prepare": "node scripts/build.mjs",
-        "types": "vue-tsc",
+        "types": "vue-tsc --noEmit",
         "preview": "vite preview",
         "test": "vitest",
         "format": "prettier --write src/"

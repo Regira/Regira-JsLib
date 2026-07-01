@@ -23,7 +23,9 @@ export class TreeList<T = any> extends Array<TreeNode<T>> {
         const addNode = (value: T) => {
             const parents = findParents(value, values)
             if (!parents.length) {
-                return this.addValue(value)
+                // Reuse an existing root instead of adding a duplicate: a parent may already have been
+                // synthesised as a root while visiting one of its children earlier in `values`.
+                return this.roots.find((x) => x.value === value) ?? this.addValue(value)
             }
             parents.forEach((parent) => {
                 const parentNode = this.find((x) => x.value === parent) || addNode(parent)

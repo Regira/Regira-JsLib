@@ -57,7 +57,7 @@ class SortByInfo implements ISortByInfo {}
 ```
 
 Paging is applied automatically by the service: `pageSize` defaults to `config.defaultPageSize`, and
-`page` is omitted from the URL when ≤ 1. Pass `pageSize: 0` to fetch all rows.
+`page` is omitted from the URL when ≤ 1. Pass `pageSize: 0` to fetch all rows (capped by the server's `MaxPageSize`).
 
 ## Result envelopes
 

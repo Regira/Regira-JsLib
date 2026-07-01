@@ -10,7 +10,9 @@
 <script setup lang="ts">
 import { computed } from "vue"
 
-const props = defineProps<{ item?: { isArchived?: boolean }; readonly?: boolean; feedback?: unknown; showDelete?: boolean }>()
+// `item` only needs `isArchived` to gate the restore button; the index signature keeps it from being a
+// TypeScript "weak type" so any entity (archivable or not) can be bound without TS2559.
+const props = defineProps<{ item?: { isArchived?: boolean; [key: string]: unknown }; readonly?: boolean; feedback?: unknown; showDelete?: boolean }>()
 const emit = defineEmits<{ cancel: []; remove: []; restore: [] }>()
 
 const isArchived = computed(() => props.item?.isArchived === true)

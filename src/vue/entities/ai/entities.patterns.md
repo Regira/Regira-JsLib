@@ -78,11 +78,11 @@ class OrderLine extends EntityBase {
 ## Paging
 
 Paging is automatic: `pageSize` defaults to `config.defaultPageSize` (`DEFAULT_PAGESIZE` = 10) and
-`page` is omitted from the URL when ≤ 1. At the **service** layer, `service.list/search({ pageSize: 0 })`
-returns every row. The **overview** composables seed paging from `PagingInfo`, whose fallback is 10, so a
-pager-less "show all" overview sets `defaultPageSize` to a large number (the API's max page size, which the
-API also caps). The overview composables expose `pagingInfo` (a `Ref<IPagingInfo>`) and `itemsCount`; bind
-a `Paging` control to them and call the route handler on change:
+`page` is omitted from the URL when ≤ 1. `pageSize: 0` returns **all rows, capped by the server's
+`MaxPageSize`** (100 under `UseDefaults()`); for a pager-less "show all" set `defaultPageSize` to a large
+number up to that cap, and for datasets larger than `MaxPageSize` use the `Autocomplete` selector
+(server-side search) instead of a truncated page. The overview composables expose `pagingInfo` (a
+`Ref<IPagingInfo>`) and `itemsCount`; bind a `Paging` control to them and call the route handler on change:
 
 ```ts
 const { pagingInfo, itemsCount, searchHandler } = useSearchView({ service, searchObject, defaultPageSize: config.defaultPageSize })

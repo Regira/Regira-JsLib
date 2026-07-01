@@ -31,8 +31,10 @@ const config: IConfig = {
 `IConfig extends Record<string, any>`, so apps may add extra fields (e.g. `id`, `nav`) without type errors.
 
 `defaultPageSize` seeds each overview's page size; the overview composables fall back to 10 when it is `0`
-or unset, so a pager-less "show all" list uses a large value (the API's max page size). `pageSize: 0` means
-"all rows" only at the service layer (`service.list`/`search`).
+or unset. `pageSize: 0` at the service layer (`service.list`/`search`) returns **all rows, capped by the
+server's `MaxPageSize`** (100 under `UseDefaults()`); for a pager-less "show all" overview set
+`defaultPageSize` to a large value up to that cap. For datasets larger than `MaxPageSize`, use the
+`Autocomplete` selector (server-side search) rather than a truncated page.
 
 ## URL derivation
 

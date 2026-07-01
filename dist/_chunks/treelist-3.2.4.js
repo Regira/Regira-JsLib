@@ -58,7 +58,7 @@ var r = class e {
 			return i.length ? (i.forEach((e) => {
 				let t = this.find((t) => t.value === e) || n(e);
 				this.addValue(r, t);
-			}), null) : this.addValue(r);
+			}), null) : this.roots.find((e) => e.value === r) ?? this.addValue(r);
 		};
 		return e.forEach(n), this;
 	}

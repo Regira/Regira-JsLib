@@ -62,15 +62,14 @@ complex `Vehicle` slice) reuse most of these files unchanged.
 - **New/edit happens in a modal**, not on a Details page. The Overview's "new" button and the ListItem's
   edit affordance use the `v-else` branch (`FormModalButton`) instead of a `RouterLink` to `…Details`
   (see `overview/Overview.vue` §11 and `overview/ListItem.vue` §10).
-- **`searchUrl` returns the list endpoint** (`api`), not `api + "/search"` — the getter branches on
-  `this.isComplex` (see `config/config.ts` §2).
 - **The Form is just text inputs** — `code` and `title` — with no tabs, selectors, or relation pickers
   (see `details/Form.vue` §13).
 
-But note what _doesn't_ change: a simple entity here **still uses `useSearchView`** (pointed at the list
-endpoint) and **still registers both Overview and Details routes** in `setup.ts`. The `isComplex` flag
-toggles the search endpoint and the new-item UX — it does **not** swap out the composable or drop the
-Details route.
+But note what _doesn't_ change: a simple entity **still uses `useSearchView`** against the counted
+`searchUrl: api + "/search"` (every controller exposes `/search`, so its overview pages exactly like a
+complex one) and **still registers both Overview and Details routes** in `setup.ts`. The `isComplex` flag
+toggles only the new-item UX and form richness — it does **not** change the search endpoint, swap out the
+composable, or drop the Details route.
 
 ## 1. Model — `data/Entity.ts` (c)
 
@@ -101,8 +100,9 @@ export default UnitType
 
 ## 2. Config — `config/config.ts` (c)
 
-> Note the `searchUrl` getter: because `isComplex` is `false`, it returns the **list endpoint** (`api`),
-> not `api + "/search"`. `defaultPageSize: 0` means "no paging — load all".
+> `searchUrl` points at the counted `/search` endpoint (every controller exposes it), so this simple
+> entity's overview pages through `useSearchView` just like a complex one. `defaultPageSize` seeds the
+> overview's page size.
 
 ```ts
 import type { IConfig } from "@/regira_modules/vue/entities"
@@ -126,14 +126,12 @@ const config: IConfig = {
     description: "unitType.description",
     icon: "bi bi-tools",
 
-    defaultPageSize: 0,
+    defaultPageSize: 10,
 
     api,
     detailsUrl: api,
     listUrl: api,
-    get searchUrl() {
-        return this.isComplex ? api + "/search" : api
-    },
+    searchUrl: api + "/search",
     saveUrl: api,
     deleteUrl: api,
 }
@@ -533,9 +531,9 @@ const item = defineModel<Entity>({ required: true })
 
 ## 11. Overview — `overview/Overview.vue` (c)
 
-> Even though `UnitType` is simple, the Overview **still uses `useSearchView`** (here pointed at the list
-> endpoint via the `searchUrl` getter) and `useRouteOverview`. The SIMPLE-tier marker is the "new" button:
-> the `config.isComplex` branch links to `…Details` (`id: 'new'`), the `v-else` branch opens a
+> Even though `UnitType` is simple, the Overview uses `useSearchView` + `useRouteOverview` against the
+> counted `/search` endpoint, so it pages just like a complex entity. The SIMPLE-tier marker is the "new"
+> button: the `config.isComplex` branch links to `…Details` (`id: 'new'`), the `v-else` branch opens a
 > `FormModalButton` modal and re-runs `searchHandler` on save.
 
 ```vue
@@ -1628,8 +1626,8 @@ export default {
 
 What makes `Product` the **standard** tier rather than simple:
 
-- `isComplex: true` → `searchUrl` is `api + "/search"`, new/edit **navigates to a Details page** (not a
-  modal), and `defaultPageSize: 10`.
+- `isComplex: true` → new/edit **navigates to a Details page** (not a modal) and the Form is tabbed.
+  (`searchUrl` is `api + "/search"` for every entity — the overview always pages through it.)
 - The model carries **relations** (`unitType`, `assemblies`, `components`, `facets`, `suppliers`) and extra
   fields.
 - The `SearchObject` adds many relation/boolean filters; `FilterAdv.vue` is a full relation-picker panel.
@@ -1696,9 +1694,9 @@ export default Product
 
 ## 2. Config — `config/config.ts` (c)
 
-`isComplex: true` flips the standard-tier behaviour: `searchUrl` becomes `api + "/search"`, the Overview's
-"new" button navigates to the Details page, and `defaultPageSize: 10`. `baseQueryParams.includes` requests
-the related collections on every fetch.
+`isComplex: true` flips the standard-tier behaviour: the Overview's "new" button navigates to the Details
+page and the Form is tabbed. (`searchUrl` is `api + "/search"` for every entity — the overview always pages
+through it.) `baseQueryParams.includes` requests the related collections on every fetch.
 
 ```ts
 import type { IConfig } from "@/regira_modules/vue/entities"
@@ -1727,9 +1725,7 @@ const config: IConfig = {
     api,
     detailsUrl: api,
     listUrl: api,
-    get searchUrl() {
-        return this.isComplex ? api + "/search" : api
-    },
+    searchUrl: api + "/search",
     saveUrl: api,
     deleteUrl: api,
 }

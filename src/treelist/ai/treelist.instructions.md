@@ -23,8 +23,9 @@ the package root above.
 
 - **From a flat list with `init(values, findParents)`.** `findParents(value, candidates)` returns the
   parent value(s) of `value` from the full list; `init` wires up the hierarchy and returns `this`.
-  Default `findParents` returns `[]`, so everything becomes a root. This is how `buildNavigationTree`
-  works — it matches `candidates.filter((x) => x.id == value.parentId)`.
+  Default `findParents` returns `[]`, so everything becomes a root. `values` may be in **any order** — if a
+  child precedes its parent, `init` synthesises the parent once and reuses it, so no duplicate roots appear.
+  This is how `buildNavigationTree` works — it matches `candidates.filter((x) => x.id == value.parentId)`.
 
     ```ts
     const tree = new TreeList<Item>().init(items, (v, all) => all.filter((x) => x.id === v.parentId))

@@ -122,7 +122,7 @@ const api = "/foos" // TODO: API resource path (relative to the axios baseURL)
 const config: IConfig = {
     id: Entity.name,
     key: "Foo", // TODO: route-name prefix + icon key (conventionally = Entity.name)
-    isComplex: false, // TODO: true → tabbed form + /search endpoint + Details-page "new"
+    isComplex: false, // TODO: true → tabbed form + Details-page "new" for create/edit (both tiers page via /search)
 
     routePrefix: "foos", // TODO: URL path segment
     baseQueryParams: { includes: [] }, // TODO: server-side eager-loads, e.g. { includes: ["Bar"] }
@@ -133,10 +133,10 @@ const config: IConfig = {
     description: "foo.description",
     icon: "bi bi-question-circle", // TODO: a Bootstrap-Icons class
 
-    defaultPageSize: 10, // 0 = fetch all (typical for a small lookup)
+    defaultPageSize: 10, // initial overview page size (raise it to show more per page, up to the server's MaxPageSize)
 
     api, // every *Url below defaults to `api` when omitted; keep only the ones you override
-    searchUrl: api, // simple entity → list endpoint (no /search). Complex? set `api + "/search"`
+    searchUrl: api + "/search", // counted search endpoint — the overview pages through it (every controller exposes /search)
     saveUrl: api, // resource base — update/remove append /{$id} themselves
 }
 
