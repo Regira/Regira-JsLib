@@ -1,0 +1,75 @@
+import { createApp } from "vue"
+import { createPinia } from "pinia"
+import type { RouteRecordRaw } from "vue-router"
+import { initAxios } from "regira_modules/vue/http"
+import { plugin as servicesPlugin, type IServiceProvider } from "regira_modules/vue/ioc"
+import { plugin as appPlugin, AppStatus, whenAppReady } from "regira_modules/vue/app"
+import { plugin as langPlugin } from "regira_modules/vue/lang"
+import { useLang } from "regira_modules/vue/lang" // @auth:only
+import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "regira_modules/vue/ui"
+import { focus, grow, clickOutside } from "regira_modules/vue/directives"
+import "regira_modules/style.css"
+import { plugin as authPlugin, LocalStorageTokenManager } from "regira_modules/vue/auth" // @auth:only
+import { plugin as userPlugin } from "@/infrastructure/user-plugin" // @auth:only
+import { preloaderPlugin, defaultPoolCache, PoolCache } from "regira_modules/vue/entities"
+import { plugin as debugPlugin } from "regira_modules/vue/debug"
+import dateExtensions from "regira_modules/extensions/date-extensions"
+import entityPlugins from "@/entities"
+import { routerFactory } from "@/router"
+import appConfig, { createConfig } from "@/app-config"
+import App from "@/App.vue"
+
+const loadingImg = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // 1×1 — swap for your spinner
+
+dateExtensions.use() // serialize Dates to JSON without a timezone shift
+
+fetch(`${appConfig.baseUrl}/config.json`)
+    .then((r) => r.json())
+    .then(async (raw) => {
+        const config = createConfig(raw)
+        const axios = initAxios({ api: config.api, includeCredentials: config.includeCredentials })
+        const translations = await fetch(`${appConfig.baseUrl}/data/translations.json`).then((r) => r.json())
+
+        const app = createApp(App)
+        app.use(createPinia())
+        app.use(appPlugin, { culture: config.culture })
+        app.use(servicesPlugin, {
+            configure: (sp: IServiceProvider) => sp.add("axios", () => axios).add(PoolCache.name, () => defaultPoolCache),
+        })
+
+        app.use(iconPlugin, { source: "bs" })
+        app.use(screenPlugin)
+        app.use(loadingPlugin, { img: loadingImg })
+        app.use(feedbackPlugin, { autoHideDelay: 2500 })
+        app.use(langPlugin, { defaultLang: "en", messages: translations })
+
+        app.use(focus)
+        app.use(grow)
+        app.use(clickOutside)
+
+        const entityRoutes: Array<RouteRecordRaw> = []
+        app.use(entityPlugins, { routes: entityRoutes })
+        app.use(routerFactory([...entityRoutes]))
+        app.use(preloaderPlugin)
+        app.use(debugPlugin, { isDebug: config.isDebug })
+
+        // @auth:block-start
+        const { setLangCode } = useLang()
+        app.use(authPlugin, {
+            axios,
+            tokenManager: new LocalStorageTokenManager(),
+            clientApp: config.clientApp,
+            loginUrl: config.loginUrl,
+            onAuthenticationChange: (auth) => {
+                app.config.globalProperties.$setAppStatus(auth.isAuthenticated ? AppStatus.Ready : AppStatus.Init)
+                if (auth.isAuthenticated && auth.culture) setLangCode(auth.culture.split("-")[0])
+            },
+        })
+        app.use(userPlugin)
+        // @auth:block-end
+
+        app.config.globalProperties.$setAppStatus(AppStatus.Mounting)
+        app.mount("#app")
+        app.config.globalProperties.$setAppStatus(AppStatus.Ready) // @noauth:only — no auth → advance to Ready manually
+        await whenAppReady()
+    })

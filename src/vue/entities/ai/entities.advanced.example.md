@@ -1,7 +1,7 @@
 # Regira JsLib Entities — Advanced Worked Example (`Vehicle`)
 
-ONE complete **complex** slice — `Vehicle`, copied verbatim from the reference
-[RegiraFleet](https://github.com/Regira) `vehicles` slice. This is the advanced counterpart of the basic
+ONE complete **complex** slice — `Vehicle`, a production-shaped example you can copy verbatim. This is
+the advanced counterpart of the basic
 [`Product`](entities.examples.md) slice: it shows every per-entity file plus the patterns a simple slice
 omits. Where the basic example is fully self-contained, this file is self-contained for everything
 **Vehicle-specific** and for the **advanced features**; for the handful of byte-identical picker/shell

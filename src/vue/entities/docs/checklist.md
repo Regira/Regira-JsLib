@@ -39,8 +39,8 @@ lists, extend `JSONService` instead of `EntityServiceBase`.
 - **Plugins & bootstrap** — `main.ts` / `App.vue`, install order, and the required-vs-optional plugin
   set: [../ai/entities.setup.md](../ai/entities.setup.md).
 - **App-shell scaffold** — the concrete tooling, router split, `components/`, `infrastructure/`, and
-  views that surround the slices: the public sample app
-  [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin), inlined for agents in
+  views that surround the slices — see the public sample app
+  [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin); the same shell is inlined in
   [../ai/entities.setup.md](../ai/entities.setup.md#app-shell--components-infrastructure--styling).
 - **No authentication** — omit `authPlugin`, advance `AppStatus` to `Ready` yourself, drop the auth UI:
   [../ai/entities.setup.md](../ai/entities.setup.md#running-without-authentication).

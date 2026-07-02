@@ -25,7 +25,7 @@ function extractBlocks(markdown) {
     const lines = markdown.split(/\r?\n/)
     const blocks = {}
     for (let i = 0; i < lines.length; i++) {
-        const m = lines[i].match(/^#{2,}\s.*`([^`]+\.(?:ts|vue))`/)
+        const m = lines[i].match(/^#{2,}\s.*`([^`]+\.(?:ts|vue|json))`/)
         if (!m) continue
         const path = m[1]
         // find the opening fence, then capture until the closing fence
@@ -104,3 +104,20 @@ if (missing.length) {
     process.exit(1)
 }
 console.log(`✓ Wrote ${written} files to _template/entity-slice/`)
+
+// ---- App shell (entities.shell.template.md → _template/app-shell/**, one `## `path`` heading per file) ----
+const shellOutDir = resolve(root, "_template/app-shell")
+const shellBlocks = extractBlocks(readFileSync(resolve(aiDir, "entities.shell.template.md"), "utf8"))
+rmSync(shellOutDir, { recursive: true, force: true })
+let shellWritten = 0
+for (const [path, body] of Object.entries(shellBlocks)) {
+    const dest = resolve(shellOutDir, path)
+    mkdirSync(dirname(dest), { recursive: true })
+    writeFileSync(dest, unalias(body)) // no tokenizing — the shell is not per-entity
+    shellWritten++
+}
+if (!shellWritten) {
+    console.error("✗ No app-shell blocks found in entities.shell.template.md")
+    process.exit(1)
+}
+console.log(`✓ Wrote ${shellWritten} files to _template/app-shell/`)

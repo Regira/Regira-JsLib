@@ -37,4 +37,19 @@ as-is. Building without authentication? Scaffold with `--no-auth` — it strips 
 `overview/Overview.vue` and `details/Details.vue` (and `load` from `Details.vue`'s `useDetails` destructure,
 used only by that hook); for an existing slice, delete those commented lines and drop `load` from the destructure.
 
-> Generated from the AI docs by `scripts/build-entity-template.mjs` — do not edit `entity-slice/` by hand.
+## App shell (`--shell`)
+
+`app-shell/` is the one-time application shell — bootstrap (`main.ts`, `App.vue`), runtime config, router,
+the config-driven dashboard + navbar, layout chrome, and views. Scaffold it once into a new app:
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs --shell            # auth-on
+node node_modules/regira_modules/_template/scaffold.mjs --shell --no-auth  # no-auth (omits the auth files + wiring)
+```
+
+It writes `src/**` + `public/config.json` + `public/data/translations.json`, skipping files that already
+exist (`--force` overwrites). Set up the build toolchain (`vite.config`/`tsconfig`/`index.html`) from the
+entities setup guide → Install first.
+
+> `entity-slice/` and `app-shell/` are generated from the AI docs by `scripts/build-entity-template.mjs` —
+> do not edit them by hand.

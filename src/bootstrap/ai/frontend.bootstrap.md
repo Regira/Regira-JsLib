@@ -11,8 +11,9 @@ CRUD client) against a **Regira.Entities** API. Use this when the target is a SP
 ## Pick the build tier first
 
 Decide the tier **before reading any further guides** — it determines which docs you need at all.
-**Default: the full reference scaffold.** Drop to a lighter tier only when the user explicitly asks for a
-storefront, embed, demo, or custom/headless UX — and declare the choice (tier definitions:
+**Default: a scalable, production-ready app on the full reference scaffold** — treat every build request as
+production-bound unless the user says otherwise. Drop to a lighter tier only when the user explicitly asks
+for a storefront, embed, demo, or custom/headless UX — and declare the choice (tier definitions:
 `entities.instructions` → _How much to build_).
 
 | Tier                        | Build when…                                                | Read (everything else is skippable)                                                                                  |
@@ -29,7 +30,8 @@ pickers, pooling, and preloader a hand-rolled tier would only have to rebuild. S
 copying the shipped slice template rather than re-writing ~23 files:
 
 ```bash
-node node_modules/regira_modules/_template/scaffold.mjs Product   # → src/entities/products/  (--no-auth for a no-auth app)
+node node_modules/regira_modules/_template/scaffold.mjs --shell    # → app shell once: main.ts, App.vue, router, dashboard/navbar, layout, views (--no-auth variant)
+node node_modules/regira_modules/_template/scaffold.mjs Product     # → src/entities/products/  (--no-auth for a no-auth app)
 ```
 
 The app shell — the config-driven **dashboard + navbar** (`entity-navigation/` + `layout/`) — is
@@ -122,7 +124,9 @@ pattern, and declare any **intended deviations** and why. This applies especiall
 (`entities.instructions` → _How much to build_) — declare which one and reuse the library data layer and
 generic views (`EntityOverview` / `EntityForm`) rather than re-implementing them —
 the **per-entity slice / project structure** (`entities.setup` → _Project structure_), and **Bootstrap 5**
-styling (`entities.setup` → _Bootstrap — main.ts_).
+styling (`entities.setup` → _Bootstrap — main.ts_). The scaffolded templates are **indicative of
+functionality, not appearance** — restructure their markup and layout and restyle them freely; what you
+preserve is the wiring (composables, services, DI, plugin order, routing), not the look.
 
 ## Code-generation workflow
 
@@ -131,8 +135,9 @@ styling (`entities.setup` → _Bootstrap — main.ts_).
 3. Add `regira_modules` + the known-good dependency set (`entities.setup` → Install). For a new app,
    start from the Vite `vue-ts` template (`npm create vue@latest`).
 4. Read `entities.instructions` and `entities.setup` in full (via MCP `get_package`).
-5. Scaffold the app shell (`main.ts`, `App.vue`, router, plugin install order, `config.json` +
-   `app-config.ts`) per `entities.setup`; decide auth on/off there.
+5. Scaffold the app shell — `node node_modules/regira_modules/_template/scaffold.mjs --shell` (`--no-auth`
+   for a no-auth app) writes `main.ts`, `App.vue`, router, dashboard/navbar, layout, views, `config.json` +
+   `app-config.ts` (full source: `entities.shell.template`); then set up the toolchain per `entities.setup` → Install.
 6. Scaffold each entity slice with `node node_modules/regira_modules/_template/scaffold.mjs <Entity>`
    (add `--no-auth` for a no-auth app), then customize the `(c)` files; consult `entities.namespaces` / `entities.signatures` for exact
    imports/signatures and `entities.patterns` for recipes.

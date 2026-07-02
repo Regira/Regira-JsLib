@@ -4,10 +4,16 @@ A **blank fill-in-the-blanks scaffold** for one entity slice. Copy the folder se
 placeholders below (the files marked `// TODO`). The placeholder entity is **`Foo`** (resource `"/foos"`,
 route prefix `foos`) — rename it to your entity throughout.
 
+> **Indicative, not prescriptive.** The templates fix the *functional wiring* (service ↔ store ↔ composable ↔
+> `IConfig`, DI, routing) so a scaffolded slice is green out of the box — the **markup, columns, layout, and
+> styling are yours to restructure and restyle freely**. Preserve the composable/service contract and the
+> `(c)` fill-ins; own the looks.
+
 This is the _skeleton_. For the same files **filled in with real code**, see
 [entities.examples.md](entities.examples.md) (a simple `UnitType` slice and a standard `Product` slice).
-The **app shell** that hosts these slices (project structure, `main.ts`, router, navigation) is in
-[entities.setup.md](entities.setup.md) — this file is only the per-entity slice.
+The **app shell** that hosts these slices (project structure, `main.ts`, router, navigation) has its own
+scaffold — `scaffold.mjs --shell` ([entities.shell.template.md](entities.shell.template.md)); this file is
+only the per-entity slice.
 
 > **Reading order:** [instructions](entities.instructions.md) → [setup](entities.setup.md) (new app) →
 > [namespaces](entities.namespaces.md) → [signatures](entities.signatures.md) →

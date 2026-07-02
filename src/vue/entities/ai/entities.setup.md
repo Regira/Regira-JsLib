@@ -3,17 +3,15 @@
 How to stand up a new `regira_modules` Vue 3 app (Vite + Pinia + vue-router) — install, project
 structure, the **entity slice anatomy**, runtime config, the canonical `main.ts` / `App.vue`, the
 required-vs-optional plugin matrix, running without auth, and the app shell (components, infrastructure,
-styling) that surrounds your entity slices. This is the single app-scaffolding file; it mirrors the public
-sample app [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin). Kept reference-grade and
-copy-pasteable; verify any API in [entities.signatures.md](entities.signatures.md) and the per-module
-guides.
+styling) that surrounds your entity slices. This is the single app-scaffolding file — reference-grade,
+copy-pasteable, and self-contained (every shell component is inlined below). Verify any API in
+[entities.signatures.md](entities.signatures.md) and the per-module guides.
 
 The worked app shown throughout is `ShoppingManager` (`clientApp: "shopping-manager"`) — a `Product` slice
 plus a `Category` lookup — so it lines up with the basic example.
 
-> **Pragmatic, not a symlink.** Copy these files into your repo and evolve them — don't symlink or vendor
-> the sample app. They are a starting skeleton, not a dependency; the live reference is the public sample
-> [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin).
+> **A skeleton, not a dependency.** Copy these files into your repo and evolve them — they are a starting
+> point to own and adapt, not something to vendor or symlink.
 
 > **Reading order:** [entities.instructions.md](entities.instructions.md) → **entities.setup.md** (this
 > file) → [entities.namespaces.md](entities.namespaces.md) → [entities.signatures.md](entities.signatures.md)
@@ -93,6 +91,7 @@ export default defineConfig({
     plugins: [vue()],
     resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
     define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version) },
+    server: { port: Number(process.env.PORT) || 5173 }, // honor a harness/preview-assigned PORT (Vite ignores it by default)
 })
 ```
 
@@ -231,7 +230,9 @@ The full app template (mirrors the sample apps) — the **shell that surrounds y
 `entities/<name>/` slice uses the same folder set (a lookup keeps the same folders, just thinner, with no
 list UI); its file-by-file anatomy is [Entity slice anatomy](#entity-slice-anatomy) below.
 
-The concrete, filled-in tree (modeled on [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin)):
+The concrete, filled-in tree — `scaffold.mjs --shell` writes the **load-bearing baseline**; items marked
+`(+)` are optional chrome you add on demand from the module guides (see
+[App shell](#app-shell--components-infrastructure--styling)):
 
 ```
 index.html                       # Bootstrap CSS/Icons CDN links + #app / #modals / #loginModal mounts
@@ -251,13 +252,13 @@ src/
     index.ts                     # re-export routerFactory
     router.ts                    # routerFactory(entityRoutes)
     routes.ts                    # static routes (home, account/auth, error pages)
-  views/                         # page-level views (HomeView, NotFound, Forbidden, Unauthorized, AccountView, …)
+  views/                         # HomeView / NotFound / Forbidden / Unauthorized · AccountView (+)
   components/                    # shared UI shell — see App shell
     entity-navigation/           #   Dashboard / NavBar / NavSearch (built from $configs) + useNavigation()
       index.ts  functions.ts
-    input/        index.ts       #   app-specific inputs (common FormButtonsRow/DescriptionInput ship in vue/ui)
-    layout/                      #   TheHeader / TheFooter / Main / AppModal / LangSelector / Offline
-    users/                       #   account + auth UI (omit when auth is disabled)
+    input/        index.ts       #   (+) app-specific inputs (common FormButtonsRow/DescriptionInput ship in vue/ui)
+    layout/                      #   TheHeader / TheFooter / Main · AppModal / LangSelector / Offline (+)
+    users/                       #   (+) account + auth UI (auth-on)
   infrastructure/                # small app-wide plugins/helpers — see App shell (keep it basic)
     permissions.ts               #   permission constants
     user-plugin.ts               #   $isAdmin + persists chosen language
@@ -837,12 +838,27 @@ disabled), make these four changes:
 
 ## App shell — components, infrastructure & styling
 
-Beyond entity slices, the sample apps ship a ready-made shell — a config-driven **dashboard + navbar**
+Beyond entity slices, a real app needs a thin shell — a config-driven **dashboard + navbar**
 (`entity-navigation/`), the **layout chrome** (`layout/`), shared **form inputs** (the common
-`FormButtonsRow` / `DescriptionInput` ship in `vue/ui`), and the **auth UI** (`users/`, when auth is enabled). Copy it from
-[Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin) and adapt rather than hand-rolling. The
-components read from the collected `$configs` and the runtime config; data/logic stays in the entity slices
-and composables. Each folder is detailed in [§ `src/components/`](#srccomponents) below.
+`FormButtonsRow` / `DescriptionInput` ship in `vue/ui`), and the **auth UI** (`users/`, when auth is
+enabled). **Scaffold the load-bearing baseline** — bootstrap, runtime config, router, dashboard/navbar,
+`layout/` (`TheHeader` / `TheFooter` / `Main`), error views, and infrastructure — in one command, then
+customize:
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs --shell            # auth-on
+node node_modules/regira_modules/_template/scaffold.mjs --shell --no-auth  # no-auth
+```
+
+Full source for every generated file is in [entities.shell.template.md](entities.shell.template.md); the
+sections below explain what it produces. The shell reads from the collected `$configs` and the runtime
+config, so data/logic stays in the entity slices and composables.
+
+The baseline is intentionally lean; add the rest of the chrome on demand from the module guides — the
+**`AppModal`** wrapper ([ui.examples.md](../../ui/ai/ui.examples.md) → Modal), a **`LangSelector`**
+([lang.examples.md](../../lang/ai/lang.examples.md) → language selector), an **`Offline`** banner
+([online.examples.md](../../online/ai/online.examples.md) → Offline banner component), and the fuller
+**`users/`** account UI — login, change password, admin list ([auth.examples.md](../../auth/ai/auth.examples.md)).
 
 ### Add entities
 
@@ -877,14 +893,15 @@ step list in the [checklist](../docs/checklist.md).
 | -------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()`                                  | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
 | `input/`             | app-specific form inputs                                                                | the common `FormButtonsRow` (Save / Cancel / Delete / Restore row) and `DescriptionInput` ship in `vue/ui` — import them per-form                                                                                                                                                            |
-| `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>`                                                                                                                                                                                                                                                             |
-| `users/`             | account + auth UI (login, change password, admin list)                                  | include when auth is enabled; omit on the [no-auth path](#running-without-authentication)                                                                                                                                                                                                    |
+| `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>`; `--shell` scaffolds `TheHeader` / `TheFooter` / `Main` — add `AppModal` ([ui](../../ui/ai/ui.examples.md)), `LangSelector` ([lang](../../lang/ai/lang.examples.md)), `Offline` ([online](../../online/ai/online.examples.md)) on demand                       |
+| `users/`             | account + auth UI (login, change password, admin list)                                  | add on demand when auth is enabled ([auth](../../auth/ai/auth.examples.md)); omit on the [no-auth path](#running-without-authentication)                                                                                                                                                       |
 
 Give each folder an `index.ts` barrel; keep the components thin and presentational — data/logic stays in
 the entity slices and composables.
 
-The one piece worth showing in full is **`useNavigation()`** — it reads `config.json → navigation` and the
-collected `$configs`, then builds the dashboard/navbar trees with the library importers:
+The load-bearing pieces are **`useNavigation()`** and the three thin components it feeds. `useNavigation()`
+reads `config.json → navigation` and the collected `$configs`, then builds the dashboard/navbar trees with
+the library importers:
 
 ```ts
 // src/components/entity-navigation/functions.ts
@@ -912,13 +929,16 @@ export function useNavigation() {
 ```ts
 // src/components/entity-navigation/index.ts
 export * from "./functions"
-export { default as Dashboard } from "./dashboard/Dashboard.vue"
-export { default as NavBar } from "./navbar/NavBar.vue"
-export { default as NavSearch } from "./nav-search/NavSearch.vue"
+export { default as Dashboard } from "./Dashboard.vue"
+export { default as NavBar } from "./NavBar.vue"
+export { default as NavSearch } from "./NavSearch.vue"
 ```
 
-`buildNavigationTree` returns a `TreeList<INavCore>`; render it via its `.roots` (each node has
-`children`). `Dashboard.vue` / `NavBar.vue` are thin wrappers that `v-for` over `tree.roots`.
+`buildNavigationTree` returns a `TreeList<INavCore>`; render it via its `.roots` — each node has `children`,
+and each `node.value` is an `INavItem` (`routeName` / `initialQuery` / `icon` / `title`), with
+`isNavItem(node.value)` telling a leaf entity link from a group submenu. `Dashboard.vue` / `NavBar.vue` /
+`NavSearch.vue` are thin `v-for`s over that tree — scaffold them with the shell (above);
+[entities.shell.template.md](entities.shell.template.md) has the full source.
 
 ### `src/infrastructure/` (keep it basic)
 
@@ -1026,11 +1046,10 @@ You don't need Bootstrap's JavaScript (the UI components bring their own behavio
   [entities.signatures.md](entities.signatures.md) — exact TypeScript signatures
 - [entities.examples.md](entities.examples.md) — simple (`UnitType`) + standard (`Product`) slices ·
   [entities.advanced.example.md](entities.advanced.example.md) — one complete complex slice (`Vehicle`)
+- [entities.shell.template.md](entities.shell.template.md) — the app-shell scaffold (`scaffold.mjs --shell`): every bootstrap/shell file
 - [entities.patterns.md](entities.patterns.md#navigation-from-the-config-map) — per-feature recipes
   (navigation importers, selectors, trees, …)
 - [checklist.md](../docs/checklist.md) — add an entity, step by step
-- [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin) — the public sample app this template is
-  modeled on
 - Module guides: [http](../../http/ai/http.instructions.md) · [ioc](../../ioc/ai/ioc.instructions.md) ·
   [auth](../../auth/ai/auth.instructions.md) · [ui](../../ui/ai/ui.instructions.md) ·
   [app](../../app/ai/app.instructions.md) · [lang](../../lang/ai/lang.instructions.md)

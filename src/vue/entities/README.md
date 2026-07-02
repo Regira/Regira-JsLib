@@ -50,8 +50,8 @@ code for the worked slices — a **simple** `UnitType` then a **standard** `Prod
 [checklist.md](docs/checklist.md). The app shell (project structure, `components/`, `infrastructure/`,
 `config.json` + `app-config.ts`, and Bootstrap 5 styling) is in
 [ai/entities.setup.md](ai/entities.setup.md#project-structure). For a complete working example, see the
-public sample app [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin); the same scaffold is
-inlined for agents in [ai/entities.setup.md](ai/entities.setup.md#app-shell--components-infrastructure--styling).
+public sample app [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin); the app shell is also
+inlined in [ai/entities.setup.md](ai/entities.setup.md#app-shell--components-infrastructure--styling).
 
 ## API contract
 

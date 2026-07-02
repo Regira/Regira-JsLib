@@ -70,7 +70,7 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 | Task                                                                                                                            | Go to                                                                                             |
 | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | **Stand up a new app** (full SPA: deps, full plugin stack, `main.ts`, `App.vue`, router, preloader, app shell, `app-config.ts`) | → [entities.setup.md](entities.setup.md)                                                          |
-| **Build the app shell** (config-driven dashboard + navbar, header/footer chrome, form-action buttons, auth UI)                  | → [entities.setup.md §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
+| **Scaffold the app shell** (`scaffold.mjs --shell` → bootstrap, config, router, dashboard + navbar, layout, views; `--no-auth` variant) | → [entities.shell.template.md](entities.shell.template.md) · [setup §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
 | **Add an entity**                                                                                                               | → [§Entity Implementation Workflow](#entity-implementation-workflow)                              |
 | **Scaffold a new entity** (`scaffold.mjs <Entity>` copies the full slice; then fill the `(c)` files)                            | → [entities.template.md](entities.template.md)                                                    |
 | **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                 | → [entities.examples.md](entities.examples.md)                                                    |
@@ -183,9 +183,9 @@ axios `baseURL` (set from app config).
 
 ### How much to build
 
-**Default to the full reference scaffold** — a scalable SPA using the full `regira_modules` package. Drop to
-a lighter tier **only when the user explicitly asks** for a demo, an embed, or a headless/custom UX, and
-declare the choice.
+**Default to the full reference scaffold** — a scalable, production-ready SPA using the full `regira_modules`
+package. Treat every build request as production-bound unless the user says otherwise; drop to a lighter tier
+**only when the user explicitly asks** for a demo, an embed, or a headless/custom UX, and declare the choice.
 
 | Tier                                    | You build                                                                                                              | ~Files/entity | Pick when                                                               |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------------------------------------------------------------- |
@@ -213,6 +213,9 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 >   one tested whole; opting out of one piece means re-implementing the others.
 > - **A non-grid UX is still the slice.** A category-tree filter, an active/inactive toggle, or a storefront
 >   card list is normal customization of `Filter.vue` / `List.vue` / `ListItem.vue`.
+> - **The look is yours.** The scaffold fixes the *wiring*, not the *design* — freely restructure the markup,
+>   columns, and layout and restyle the views. The templates are indicative of functionality, not a mandated
+>   appearance.
 >
 > Downgrade to lean or headless **only** when the user's request names it — "demo", "embed", "storefront",
 > "headless", "lean", "no scaffold", "just the data layer" — and state the tier you picked.
@@ -258,9 +261,12 @@ Both expose the same overview surface (`items`, `pagingInfo`, `itemsCount`, `isL
 ## App Creation Workflow
 
 Standing up a new app — deps, runtime config, the shared axios, the plugin install order, the app shell —
-is a one-time **project-setup** task.
+is a one-time **project-setup** task. Scaffold it in one command:
+`node node_modules/regira_modules/_template/scaffold.mjs --shell` (`--no-auth` for a no-auth app), then set
+up the toolchain per [entities.setup.md → Install](entities.setup.md#install).
 
-> **→ See:** [entities.setup.md](entities.setup.md) — the full project template (`main.ts`, `App.vue`,
+> **→ See:** [entities.shell.template.md](entities.shell.template.md) — every generated shell file ·
+> [entities.setup.md](entities.setup.md) — the full project template (`main.ts`, `App.vue`,
 > router, plugin install order, required-vs-optional plugins, running with/without auth, app shell).
 
 ---
@@ -329,8 +335,7 @@ Keep every view thin: bind the refs the composables return.
 
 ## App startup (wiring order)
 
-The plugin install order is fixed (verified identical across the reference apps PIM-Manager, Fleet-Admin,
-and RegiraFleet-Website). The full `main.ts` lives in
+The plugin install order is fixed (verified identical across the reference apps). The full `main.ts` lives in
 [entities.setup.md → Bootstrap](entities.setup.md#bootstrap--maints); the order is:
 
 ```
@@ -427,7 +432,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 
 - [entities.setup.md](entities.setup.md) — new-project template + app shell · [entities.namespaces.md](entities.namespaces.md) — imports ·
   [entities.signatures.md](entities.signatures.md) — signatures
-- [entities.template.md](entities.template.md) — blank slice scaffold (placeholders to fill) ·
+- [entities.template.md](entities.template.md) — blank slice scaffold · [entities.shell.template.md](entities.shell.template.md) — app-shell scaffold (`--shell`) ·
   [entities.examples.md](entities.examples.md) — simple (`UnitType`) + standard (`Product`) slices ·
   [entities.advanced.example.md](entities.advanced.example.md) — complex slice (`Vehicle`) ·
   [entities.patterns.md](entities.patterns.md) — feature recipes

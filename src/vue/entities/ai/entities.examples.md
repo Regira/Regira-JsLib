@@ -4,8 +4,7 @@ Two **complete, copy-paste** worked entity slices, simplest first. **Part 1** is
 (`UnitType`) — a self-contained minimal entity with every file shown verbatim; this is the canonical place
 the shared boilerplate is printed in full. **Part 2** is the STANDARD slice (`Product`) — the richer
 entity that _builds on_ Part 1, so it shows only the files it changes and points back up for the shared
-boilerplate. Both are copied verbatim from the reference
-[PIM-Manager](https://github.com/Regira) app (`unit-types` and `products` slices). The third, COMPLEX tier
+boilerplate. Both are complete, production-shaped slices you can copy verbatim. The third, COMPLEX tier
 (`Vehicle`) lives in [entities.advanced.example.md](entities.advanced.example.md).
 
 > **Tiers (simplest → richest):**
