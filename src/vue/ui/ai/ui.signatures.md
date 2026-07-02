@@ -85,7 +85,7 @@ export enum ModalType {
     danger = "Danger",
 }
 // DefaultModal:
-//   props: { isVisible: boolean; title?: string; showHeader?: boolean; showFooter?: boolean; fullWidth?: boolean; type?: ModalType }
+//   props: { isVisible: boolean; title?: string; showHeader?: boolean; showFooter?: boolean; fullWidth?: boolean; size?: "sm" | "md" | "lg" | "xl"; type?: ModalType }
 //   emits: "cancel" | "close" | "submit"
 //   slots: title, header-close-button, default, buttons, footer-close-button, footer-submit-button
 ```

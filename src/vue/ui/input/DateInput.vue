@@ -1,5 +1,12 @@
 <template>
-    <input type="date" :value="dateValue" @change="handleChange" :lang="culture" :class="{ 'is-invalid': dateValue && !isValidDate }" />
+    <input
+        type="date"
+        class="form-control"
+        :value="dateValue"
+        @change="handleChange"
+        :lang="culture"
+        :class="{ 'is-invalid': dateValue && !isValidDate }"
+    />
 </template>
 
 <script setup lang="ts">

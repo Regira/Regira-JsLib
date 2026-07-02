@@ -6,6 +6,7 @@ type __VLS_Props = {
     showHeader?: boolean;
     showFooter?: boolean;
     fullWidth?: boolean;
+    size?: "sm" | "md" | "lg" | "xl";
     type?: ModalType;
 };
 declare var __VLS_7: {}, __VLS_19: {

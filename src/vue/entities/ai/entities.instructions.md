@@ -67,16 +67,16 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 
 ## Quick Agent Playbook
 
-| Task                                                                                                                            | Go to                                                                                             |
-| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Stand up a new app** (full SPA: deps, full plugin stack, `main.ts`, `App.vue`, router, preloader, app shell, `app-config.ts`) | → [entities.setup.md](entities.setup.md)                                                          |
+| Task                                                                                                                                    | Go to                                                                                                                                            |
+| --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Stand up a new app** (full SPA: deps, full plugin stack, `main.ts`, `App.vue`, router, preloader, app shell, `app-config.ts`)         | → [entities.setup.md](entities.setup.md)                                                                                                         |
 | **Scaffold the app shell** (`scaffold.mjs --shell` → bootstrap, config, router, dashboard + navbar, layout, views; `--no-auth` variant) | → [entities.shell.template.md](entities.shell.template.md) · [setup §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
-| **Add an entity**                                                                                                               | → [§Entity Implementation Workflow](#entity-implementation-workflow)                              |
-| **Scaffold a new entity** (`scaffold.mjs <Entity>` copies the full slice; then fill the `(c)` files)                            | → [entities.template.md](entities.template.md)                                                    |
-| **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                 | → [entities.examples.md](entities.examples.md)                                                    |
-| **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                     | → [entities.advanced.example.md](entities.advanced.example.md)                                    |
-| **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing)  | → [entities.patterns.md](entities.patterns.md)                                                    |
-| **Run without authentication**                                                                                                  | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication)     |
+| **Add an entity**                                                                                                                       | → [§Entity Implementation Workflow](#entity-implementation-workflow)                                                                             |
+| **Scaffold a new entity** (`scaffold.mjs <Entity>` copies the full slice; then fill the `(c)` files)                                    | → [entities.template.md](entities.template.md)                                                                                                   |
+| **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                         | → [entities.examples.md](entities.examples.md)                                                                                                   |
+| **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                             | → [entities.advanced.example.md](entities.advanced.example.md)                                                                                   |
+| **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing)          | → [entities.patterns.md](entities.patterns.md)                                                                                                   |
+| **Run without authentication**                                                                                                          | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication)                                                    |
 
 ## References
 
@@ -213,7 +213,7 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 >   one tested whole; opting out of one piece means re-implementing the others.
 > - **A non-grid UX is still the slice.** A category-tree filter, an active/inactive toggle, or a storefront
 >   card list is normal customization of `Filter.vue` / `List.vue` / `ListItem.vue`.
-> - **The look is yours.** The scaffold fixes the *wiring*, not the *design* — freely restructure the markup,
+> - **The look is yours.** The scaffold fixes the _wiring_, not the _design_ — freely restructure the markup,
 >   columns, and layout and restyle the views. The templates are indicative of functionality, not a mandated
 >   appearance.
 >
@@ -296,6 +296,11 @@ A **lookup** entity keeps the folders but drops the list UI (omit the views and 
 `install` only registers the service/icon and `$configs[Entity.name]`; `SearchObject` may be empty; consider
 `JSONService` for static data):
 
+> **The files you actually edit** are the eight marked `(c)`: `data/Entity.ts`, `config/config.ts`,
+> `filter/SearchObject.ts`, `filter/FilterAdv.vue`, `overview/List.vue`, `overview/ListItem.vue`,
+> `details/Form.vue`, `selecting/SelectorList.vue`. Everything else is verbatim boilerplate the scaffold writes;
+> a **lookup** drops the overview trio (`List`/`ListItem`/`FilterAdv`).
+
 1. **Model** — `data/Entity.ts` (c): `extends EntityBase` with concrete fields; `override get $id()`
    (`this.id || "new"`) and `override get $title()`. Export the class, `export const Entity = …`, and a default.
 2. **Config** — `config/config.ts` (c): a `const config: IConfig` — `key`, `routePrefix`, `api`, the `*Url`
@@ -370,7 +375,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 - **Paging** — `pagingInfo` + `itemsCount`; `pageSize: 0` returns all rows capped by the server's `MaxPageSize` (send a positive `pageSize` to page).
 - **Union search** — `searchUnion` (OR across filters).
 - **Custom endpoints on a service** — reach the raw `get<EntityService>(Entity.name)`, not the pooled store.
-- **Entity selector (relation picker)** — the `selecting/` set for picking related entities in forms.
+- **Entity selector (relation picker)** — the `selecting/` set for picking related entities in forms; to bind a **many-to-many join** to a multi-select, see [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector).
 - **Owned (child) collections** — `useOwnedCollection` / `useOwnedModal` / `useListInput` for master-detail.
 - **Hierarchical (tree) entities** — `useTree` + `useDragDrop`.
 - **Static / lookup data** — `JSONService`.

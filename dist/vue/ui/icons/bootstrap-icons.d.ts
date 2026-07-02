@@ -6,7 +6,12 @@ declare const _default: {
     ban: string;
     bank: string;
     birthday: string;
+    box: string;
+    boxes: string;
+    building: string;
+    calendar: string;
     cancel: string;
+    car: string;
     chat: string;
     chatLeft: string;
     chatRight: string;
@@ -26,6 +31,7 @@ declare const _default: {
     copy: string;
     country: string;
     csv: string;
+    dashboard: string;
     date: string;
     delete: string;
     details: string;
@@ -75,12 +81,13 @@ declare const _default: {
     noUser: string;
     pay: string;
     pdf: string;
-    peppol: string;
     people: string;
+    peppol: string;
     phone: string;
     popOut: string;
     question: string;
     receipt: string;
+    report: string;
     restore: string;
     save: string;
     search: string;
@@ -100,8 +107,10 @@ declare const _default: {
     title: string;
     to: string;
     today: string;
+    tools: string;
     transport: string;
     tree: string;
+    truck: string;
     unchecked: string;
     unlocked: string;
     up: string;
@@ -110,8 +119,9 @@ declare const _default: {
     vCard: string;
     warning: string;
     website: string;
-    xml: string;
+    wrench: string;
     xlsx: string;
+    xml: string;
     zip: string;
 };
 export default _default;

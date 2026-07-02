@@ -21,6 +21,7 @@ var v = /* @__PURE__ */ function(e) {
 			default: !0
 		},
 		fullWidth: { type: Boolean },
+		size: {},
 		type: { default: v.normal }
 	},
 	emits: [
@@ -29,25 +30,25 @@ var v = /* @__PURE__ */ function(e) {
 		"close"
 	],
 	setup(u, { emit: w }) {
-		let T = w, E = u, D = r(() => E.type === v.normal), O = r(() => E.type === v.success), k = r(() => E.type === v.warning), A = r(() => E.type === v.danger), j = r(() => ({
+		let T = w, E = u, D = r(() => E.type === v.normal), O = r(() => E.type === v.success), k = r(() => E.type === v.warning), A = r(() => E.type === v.danger), j = r(() => E.size && E.size !== "md" ? `modal-${E.size}` : ""), M = r(() => ({
 			"bg-normal": D.value,
 			"bg-success": O.value,
 			"bg-danger": A.value,
 			"text-white": A.value,
 			"bg-warning": k.value
-		})), M = r(() => ({ "text-danger": A.value })), N = r(() => ({})), P = () => T("close"), F = () => T("cancel"), I = () => T("submit");
+		})), N = r(() => ({ "text-danger": A.value })), P = r(() => ({})), F = () => T("close"), I = () => T("cancel"), L = () => T("submit");
 		return (r, v) => (p(), i(n, { name: "modal" }, {
 			default: g(() => [u.isVisible ? (p(), o("div", {
 				key: 0,
 				class: "modal-mask",
-				onKeydown: _(P, ["esc"])
-			}, [s("div", y, [s("div", b, [s("div", { class: d(["modal-dialog modal-dialog-scrollable", { "full-width": u.fullWidth }]) }, [s("div", {
+				onKeydown: _(F, ["esc"])
+			}, [s("div", y, [s("div", b, [s("div", { class: d(["modal-dialog modal-dialog-scrollable", [j.value, { "full-width": u.fullWidth }]]) }, [s("div", {
 				class: "modal-content",
 				style: f({ "min-height": u.fullWidth ? "60vh" : "inherit" })
 			}, [
 				u.showHeader ? (p(), o("div", {
 					key: 0,
-					class: d(["modal-header py-2", j.value])
+					class: d(["modal-header py-2", M.value])
 				}, [s("div", x, [m(r.$slots, "title", {}, () => [s("h3", S, [
 					A.value ? (p(), i(e, {
 						key: 0,
@@ -60,28 +61,28 @@ var v = /* @__PURE__ */ function(e) {
 						class: "me-2"
 					})) : a("", !0),
 					c(" " + h(u.title), 1)
-				])]), m(r.$slots, "header-close-button", { handleClose: P }, () => [l(t, {
+				])]), m(r.$slots, "header-close-button", { handleClose: F }, () => [l(t, {
 					icon: "close",
 					class: d([A.value ? "btn-danger" : "btn-outline-danger"]),
 					title: "close",
-					onClick: P,
+					onClick: F,
 					"data-dismiss": "modal"
 				}, null, 8, ["class"])])])], 2)) : a("", !0),
-				s("div", { class: d(["modal-body", M.value]) }, [m(r.$slots, "default")], 2),
+				s("div", { class: d(["modal-body", N.value]) }, [m(r.$slots, "default")], 2),
 				u.showFooter ? (p(), o("div", {
 					key: 1,
-					class: d(["modal-footer py-1", N.value])
-				}, [m(r.$slots, "buttons", {}, () => [s("div", C, [m(r.$slots, "footer-close-button", { handleCancel: F }, () => [s("div", null, [l(t, {
+					class: d(["modal-footer py-1", P.value])
+				}, [m(r.$slots, "buttons", {}, () => [s("div", C, [m(r.$slots, "footer-close-button", { handleCancel: I }, () => [s("div", null, [l(t, {
 					icon: "cancel",
 					class: "btn-outline-secondary",
-					onClick: F
+					onClick: I
 				}, {
 					default: g(() => [...v[0] ||= [c("Cancel", -1)]]),
 					_: 1
-				})])]), m(r.$slots, "footer-submit-button", { handleClose: I }, () => [s("div", null, [l(t, {
+				})])]), m(r.$slots, "footer-submit-button", { handleClose: L }, () => [s("div", null, [l(t, {
 					icon: "submit",
 					class: d(A.value ? "btn-danger" : "btn-success"),
-					onClick: I
+					onClick: L
 				}, {
 					default: g(() => [...v[1] ||= [c("Submit", -1)]]),
 					_: 1

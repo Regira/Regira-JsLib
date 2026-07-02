@@ -4,7 +4,7 @@ A **blank fill-in-the-blanks scaffold** for one entity slice. Copy the folder se
 placeholders below (the files marked `// TODO`). The placeholder entity is **`Foo`** (resource `"/foos"`,
 route prefix `foos`) — rename it to your entity throughout.
 
-> **Indicative, not prescriptive.** The templates fix the *functional wiring* (service ↔ store ↔ composable ↔
+> **Indicative, not prescriptive.** The templates fix the _functional wiring_ (service ↔ store ↔ composable ↔
 > `IConfig`, DI, routing) so a scaffolded slice is green out of the box — the **markup, columns, layout, and
 > styling are yours to restructure and restyle freely**. Preserve the composable/service contract and the
 > `(c)` fill-ins; own the looks.

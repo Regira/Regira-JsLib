@@ -43,6 +43,10 @@ import { ServiceProvider, get, type IServiceProvider } from "regira_modules/vue/
 import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 ```
 
+> **Cross-slice import rule:** a slice barrel re-exports its model as the default **`Entity`**, not under the
+> class name. Import another slice's model aliased — `import { type Entity as Vehicle } from "@/entities/vehicles"`
+> — and its `config` / `EntityService` / `Selector` / `InputSelector` by those same generic export names.
+
 ---
 
 ## Types by concern (barrel: `regira_modules/vue/entities`)

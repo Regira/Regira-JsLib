@@ -8,6 +8,7 @@ declare const _default: {
                 showHeader?: boolean;
                 showFooter?: boolean;
                 fullWidth?: boolean;
+                size?: "sm" | "md" | "lg" | "xl";
                 type?: import("./modal").ModalType;
             }> & Readonly<{
                 onCancel?: (() => any) | undefined;
@@ -34,6 +35,7 @@ declare const _default: {
                 showHeader?: boolean;
                 showFooter?: boolean;
                 fullWidth?: boolean;
+                size?: "sm" | "md" | "lg" | "xl";
                 type?: import("./modal").ModalType;
             }> & Readonly<{
                 onCancel?: (() => any) | undefined;
@@ -53,6 +55,7 @@ declare const _default: {
             showHeader?: boolean;
             showFooter?: boolean;
             fullWidth?: boolean;
+            size?: "sm" | "md" | "lg" | "xl";
             type?: import("./modal").ModalType;
         }> & Readonly<{
             onCancel?: (() => any) | undefined;

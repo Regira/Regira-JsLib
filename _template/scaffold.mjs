@@ -41,8 +41,9 @@ if (!name) {
     console.error("Usage: scaffold.mjs <Entity> [--plural x] [--singular y] [--dir src/entities]  |  scaffold.mjs --shell [--no-auth]")
     process.exit(1)
 }
-const plural = opt("--plural", name.toLowerCase() + "s")
-const singular = opt("--singular", name.toLowerCase())
+const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1)
+const plural = lowerFirst(opt("--plural", name.toLowerCase() + "s"))
+const singular = lowerFirst(opt("--singular", name.toLowerCase()))
 const baseDir = opt("--dir", "src/entities")
 
 const srcRoot = resolve(here, "entity-slice")

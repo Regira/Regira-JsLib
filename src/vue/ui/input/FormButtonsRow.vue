@@ -1,7 +1,7 @@
 <template>
-    <div class="form-buttons btn-group">
+    <div class="form-buttons d-flex flex-wrap gap-2">
         <button v-if="!readonly" type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-link" @click="emit('cancel')">Cancel</button>
+        <button type="button" class="btn btn-outline-secondary" @click="emit('cancel')">Cancel</button>
         <button v-if="showDelete && !isArchived" type="button" class="btn btn-outline-danger" @click="emit('remove')">Delete</button>
         <button v-if="isArchived" type="button" class="btn btn-outline-secondary" @click="emit('restore')">Restore</button>
     </div>

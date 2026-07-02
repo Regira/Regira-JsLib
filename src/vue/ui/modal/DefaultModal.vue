@@ -3,7 +3,7 @@
         <div v-if="isVisible" class="modal-mask" @keydown.esc="handleClose">
             <div class="modal-wrapper">
                 <div class="modal show d-block" tabindex="-1">
-                    <div class="modal-dialog modal-dialog-scrollable" :class="{ 'full-width': fullWidth }">
+                    <div class="modal-dialog modal-dialog-scrollable" :class="[sizeClass, { 'full-width': fullWidth }]">
                         <div class="modal-content" :style="{ 'min-height': fullWidth ? '60vh' : 'inherit' }">
                             <div v-if="showHeader" class="modal-header py-2" :class="titleClass">
                                 <div class="d-flex justify-content-between w-100">
@@ -78,6 +78,7 @@ const props = withDefaults(
         showHeader?: boolean
         showFooter?: boolean
         fullWidth?: boolean
+        size?: "sm" | "md" | "lg" | "xl"
         type?: ModalType
     }>(),
     {
@@ -91,6 +92,7 @@ const isNormal = computed(() => props.type === ModalType.normal)
 const isSuccess = computed(() => props.type === ModalType.success)
 const isWarning = computed(() => props.type === ModalType.warning)
 const isDanger = computed(() => props.type === ModalType.danger)
+const sizeClass = computed(() => (props.size && props.size !== "md" ? `modal-${props.size}` : ""))
 
 const titleClass = computed(() => ({
     "bg-normal": isNormal.value,

@@ -9,6 +9,7 @@
                 :title="modalTitle || $t(config.detailsTitle || '')"
                 :showFooter="false"
                 :full-width="fullWidth"
+                size="lg"
                 @close="close"
                 @cancel="close"
                 @submit="close"

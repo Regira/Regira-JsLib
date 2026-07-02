@@ -1,5 +1,13 @@
 {
+    "deleteItem": { "en": "Delete" },
+    "filtersAreApplied": { "en": "Filters are applied" },
+    "keywords": { "en": "Keywords" },
+    "main": { "en": "Main" },
+    "name": { "en": "Name" },
+    "new": { "en": "New" },
+    "noResults": { "en": "No results" },
+    "overview": { "en": "Overview" },
+    "popOut": { "en": "Open in new tab" },
     "signIn": { "en": "Sign in" },
-    "signOut": { "en": "Sign out" },
-    "main": { "en": "Main" }
+    "signOut": { "en": "Sign out" }
 }

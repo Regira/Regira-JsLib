@@ -360,10 +360,10 @@ var ue = { class: "loading list-group-item" }, de = ["onClick"], fe = ["innerHTM
 		};
 		return (t, n) => (M(), b("input", {
 			type: "date",
+			class: A(["form-control", { "is-invalid": a.value && !i.value }]),
 			value: a.value,
 			onChange: o,
-			lang: e.culture,
-			class: A({ "is-invalid": a.value && !i.value })
+			lang: e.culture
 		}, null, 42, ye));
 	}
 }), xe = /* @__PURE__ */ w({
@@ -400,7 +400,7 @@ var ue = { class: "loading list-group-item" }, de = ["onClick"], fe = ["innerHTM
 			label: e.label
 		}, null, 8, ["label"])) : y("", !0)]));
 	}
-}), Te = { class: "form-buttons btn-group" }, Ee = {
+}), Te = { class: "form-buttons d-flex flex-wrap gap-2" }, Ee = {
 	key: 0,
 	type: "submit",
 	class: "btn btn-primary"
@@ -423,7 +423,7 @@ var ue = { class: "loading list-group-item" }, de = ["onClick"], fe = ["innerHTM
 			e.readonly ? y("", !0) : (M(), b("button", Ee, "Save")),
 			x("button", {
 				type: "button",
-				class: "btn btn-link",
+				class: "btn btn-outline-secondary",
 				onClick: n[0] ||= (e) => r("cancel")
 			}, "Cancel"),
 			e.showDelete && !i.value ? (M(), b("button", {

@@ -188,9 +188,17 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 
 ```json
 {
+    "deleteItem": { "en": "Delete" },
+    "filtersAreApplied": { "en": "Filters are applied" },
+    "keywords": { "en": "Keywords" },
+    "main": { "en": "Main" },
+    "name": { "en": "Name" },
+    "new": { "en": "New" },
+    "noResults": { "en": "No results" },
+    "overview": { "en": "Overview" },
+    "popOut": { "en": "Open in new tab" },
     "signIn": { "en": "Sign in" },
-    "signOut": { "en": "Sign out" },
-    "main": { "en": "Main" }
+    "signOut": { "en": "Sign out" }
 }
 ```
 
@@ -253,7 +261,12 @@ const routes: Array<RouteRecordRaw> = [
     { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
     { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
     { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
-    { path: "/:pathMatch(.*)*", name: "catchAll", redirect: (from) => ({ name: "notFound", query: { url: from.fullPath } }), meta: { allowAnonymous: true } },
+    {
+        path: "/:pathMatch(.*)*",
+        name: "catchAll",
+        redirect: (from) => ({ name: "notFound", query: { url: from.fullPath } }),
+        meta: { allowAnonymous: true },
+    },
 ]
 
 export default routes
@@ -444,7 +457,10 @@ const logout = () => authStore.logout() // @auth:only
                 <NavBar @select="closeMenu" />
                 <div class="d-flex ms-auto align-items-center gap-2">
                     <NavSearch @search="closeMenu" />
-                    <button v-if="$auth.enabled && $auth.isAuthenticated" class="btn btn-outline-secondary btn-sm" @click="logout">{{ $t("signOut") }}</button> <!-- @auth:only -->
+                    <button v-if="$auth.enabled && $auth.isAuthenticated" class="btn btn-outline-secondary btn-sm" @click="logout">
+                        {{ $t("signOut") }}
+                    </button>
+                    <!-- @auth:only -->
                 </div>
             </div>
         </div>
@@ -528,7 +544,8 @@ defineProps<{ url?: string }>()
     <section>
         <h1>401 — unauthorized</h1>
         <p>
-            Please sign in to view <router-link :to="url ?? '/'">{{ url }}</router-link>.
+            Please sign in to view <router-link :to="url ?? '/'">{{ url }}</router-link
+            >.
         </p>
     </section>
 </template>

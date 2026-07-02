@@ -35,9 +35,13 @@ import { EntityBase, EntityServiceBase } from "regira_modules/vue/entities"
 
 Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`.
 
-Start from the Vite `vue-ts` template (`npm create vue@latest`), then align `package.json` with the
-**known-good dependency set** below — copy it as-is and run one `npm install`; do not resolve majors one
-at a time:
+> **First API request 404s?** Almost always the dev URL contract, not your code — point `config.json → api` at
+> the API origin (add CORS), or align the Vite proxy prefix with the server route prefix. See
+> [The URL contract](#the-url-contract--four-owners-one-request).
+
+Skip `npm create vue` — it prompts interactively and can't be driven headless. Hand-author `package.json`
+from the **known-good dependency set** below (copy it as-is, one `npm install`; do not resolve majors one at a
+time), plus the `vite.config.ts` / `tsconfig` / `index.html` / `env.d.ts` under _Tooling_:
 
 ```jsonc
 // package.json — known-good set (runtime peers + the build toolchain they require)
@@ -342,6 +346,10 @@ makes every `$t()` render the raw key):
 
 See [lang.signatures.md](../../lang/ai/lang.signatures.md) (`ITranslationMessages`).
 
+Framework chrome emits its own keys (`keywords`, `new`, `noResults`, `deleteItem`, `filtersAreApplied`,
+`overview`, `popOut`, `signIn`/`signOut`); `scaffold.mjs --shell` seeds them in `translations.json` — add your
+domain labels alongside, or blank UI text renders the raw key.
+
 ### Typed config loader — `src/app-config.ts`
 
 For anything beyond a toy app, load `config.json` through a small `app-config.ts` so values can be
@@ -416,7 +424,8 @@ Resolution: `products.search()` → axios base `/api` + `IConfig.api` `/products
 
 Beyond `api`/`title`/`clientApp`, the shell-specific part is the **`navigation`** map that
 `useNavigation()` ([App shell](#app-shell--components-infrastructure--styling)) turns into the dashboard
-and navbar:
+and navbar. Each `icon` is a **registered friendly key** or a **raw `bi bi-*` class** — a bare unknown name
+(`rocket`) logs a warning and renders nothing:
 
 ```jsonc
 {
@@ -893,8 +902,8 @@ step list in the [checklist](../docs/checklist.md).
 | -------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()`                                  | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
 | `input/`             | app-specific form inputs                                                                | the common `FormButtonsRow` (Save / Cancel / Delete / Restore row) and `DescriptionInput` ship in `vue/ui` — import them per-form                                                                                                                                                            |
-| `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>`; `--shell` scaffolds `TheHeader` / `TheFooter` / `Main` — add `AppModal` ([ui](../../ui/ai/ui.examples.md)), `LangSelector` ([lang](../../lang/ai/lang.examples.md)), `Offline` ([online](../../online/ai/online.examples.md)) on demand                       |
-| `users/`             | account + auth UI (login, change password, admin list)                                  | add on demand when auth is enabled ([auth](../../auth/ai/auth.examples.md)); omit on the [no-auth path](#running-without-authentication)                                                                                                                                                       |
+| `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>`; `--shell` scaffolds `TheHeader` / `TheFooter` / `Main` — add `AppModal` ([ui](../../ui/ai/ui.examples.md)), `LangSelector` ([lang](../../lang/ai/lang.examples.md)), `Offline` ([online](../../online/ai/online.examples.md)) on demand                    |
+| `users/`             | account + auth UI (login, change password, admin list)                                  | add on demand when auth is enabled ([auth](../../auth/ai/auth.examples.md)); omit on the [no-auth path](#running-without-authentication)                                                                                                                                                     |
 
 Give each folder an `index.ts` barrel; keep the components thin and presentational — data/logic stays in
 the entity slices and composables.
