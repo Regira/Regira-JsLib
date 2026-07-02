@@ -129,6 +129,13 @@ object outside components. Prefer the store in components.
 - **No login redirect:** unauthenticated navigation is allowed (popup model), so you must provide the
   login UI and a `forbidden` route; only `permissions`/`policy` failures redirect.
 - **Endpoints are relative** (`"auth"`, `"auth/validate"`) — they resolve against the axios `baseURL`.
+- **`clientApp` on login:** `login()` posts only `{ username, password }` — it does **not** append `?clientApp=`.
+  When the API makes `clientApp` the JWT audience (Regira's `AccountControllerBase` does), pass
+  `loginUrl: "auth?clientApp=<clientApp>"` in the plugin options; the store's `clientApp` is not sent on the
+  login request itself.
+- **Password-reset link:** the recover email lands at `{siteUrl}/?token=<base64>` (root path). Read the token
+  from **vue-router `route.query.token`** (preserves `+`), never `URLSearchParams` — it turns `+` into a space
+  and corrupts the base64.
 
 ## See also
 
