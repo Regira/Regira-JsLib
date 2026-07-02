@@ -1,7 +1,7 @@
 import { n as e, t } from "./DefaultModal-3.2.5.js";
 import { t as n } from "./Icon-3.2.5.js";
 import { t as r } from "./IconButton-3.2.5.js";
-import "../vue/ui/modal/index.js";
+import "./modal-3.2.5.js";
 import { Fragment as i, Teleport as a, computed as o, createBlock as s, createCommentVNode as c, createElementBlock as l, createElementVNode as u, createTextVNode as d, createVNode as f, defineComponent as p, normalizeClass as m, openBlock as h, ref as g, renderList as _, renderSlot as v, toDisplayString as y, unref as b, withCtx as x } from "vue";
 //#region src/vue/ui/feedback/Pending.vue?vue&type=script&setup=true&lang.ts
 var S = { class: "bg-light text-info" }, C = /* @__PURE__ */ p({

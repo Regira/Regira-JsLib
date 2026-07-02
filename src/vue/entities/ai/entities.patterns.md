@@ -178,11 +178,17 @@ rows, and rebuild the rows when the selection changes:
 ```ts
 // Form.vue — item.articleCategories: Array<{ categoryId: number; category?: Category }>
 const selectedCategories = ref<Category[]>([])
-watch(item, (v) => {
-    selectedCategories.value = v?.articleCategories?.map((j) => j.category ?? Object.assign(new Category(), { id: j.categoryId })) ?? []
-}, { immediate: true })
+watch(
+    item,
+    (v) => {
+        selectedCategories.value = v?.articleCategories?.map((j) => j.category ?? Object.assign(new Category(), { id: j.categoryId })) ?? []
+    },
+    { immediate: true }
+)
 watch(selectedCategories, (cats) => {
-    item.value.articleCategories = cats.map((c) => item.value.articleCategories?.find((j) => j.categoryId === c.$id) ?? { categoryId: c.$id as number })
+    item.value.articleCategories = cats.map(
+        (c) => item.value.articleCategories?.find((j) => j.categoryId === c.$id) ?? { categoryId: c.$id as number }
+    )
 })
 ```
 
@@ -328,6 +334,36 @@ cache of entities (`Ref<T>`), deduplicated by id. Views should always use the **
 not the raw IoC service. Register `defaultPoolCache` once at startup
 (`sp.add(PoolCache.name, () => defaultPoolCache)`); mark types that should never expire via
 `cache.persistentTypes`.
+
+## Auth reload hooks (login-driven refresh)
+
+In an auth-enabled app, data requested before the user logs in fails or comes back empty, so the
+scaffolded `overview/Overview.vue` and `details/Details.vue` re-run their load on login. Slices
+scaffolded with `--no-auth` have these hooks stripped — and because `load` is destructured from
+`useDetails` **only** to feed the Details hook, `--no-auth` also drops `load` from that destructure
+(Overview's `searchHandler` stays: `useRouteOverview` uses it regardless). Re-add both the hook and its
+binding when the app enables the auth plugin later:
+
+```ts
+// overview/Overview.vue — re-search on login / token refresh.
+// `searchHandler` is already in the useSearchView destructure (useRouteOverview needs it) — nothing to re-add there.
+import { useAuthStore } from "regira_modules/vue/auth"
+
+const authStore = useAuthStore()
+authStore.$onAction(({ name, after }) => ["login", "refresh"].includes(name) && after(() => authStore.isAuthenticated && searchHandler(false)))
+```
+
+```ts
+// details/Details.vue — load on login, only when nothing was loaded yet.
+// Add `load` back to the existing useDetails destructure: const { item, …, load, feedback } = useDetails(service)
+import { useAuthStore } from "regira_modules/vue/auth"
+
+const authStore = useAuthStore()
+authStore.$onAction(({ name, after }) => name == "login" && after(() => item.value == null && authStore.isAuthenticated && load()))
+```
+
+The same primitive drives any other login-sensitive work — see
+[auth.examples.md → Re-run work on login / refresh](../../auth/ai/auth.examples.md).
 
 ## Navigation from the config map
 

@@ -1,41 +1,42 @@
 import { t as e } from "../../_chunks/Icon-3.2.5.js";
 import { t } from "../../_chunks/_plugin-vue_export-helper-3.2.5.js";
-import { computed as n, createCommentVNode as r, createElementBlock as i, createElementVNode as a, createVNode as o, defineComponent as s, getCurrentInstance as c, normalizeClass as l, openBlock as u, ref as d, toDisplayString as f, withModifiers as p } from "vue";
+import { n } from "../../_chunks/ioc-3.2.5.js";
+import { computed as r, createCommentVNode as i, createElementBlock as a, createElementVNode as o, createVNode as s, defineComponent as c, getCurrentInstance as l, normalizeClass as u, openBlock as d, ref as f, toDisplayString as p, withModifiers as m } from "vue";
 //#region src/vue/debug/Display.vue?vue&type=script&setup=true&lang.ts
-var m = { class: "value" }, h = /*#__PURE__*/ t(/* @__PURE__ */ s({
+var h = { class: "value" }, g = /*#__PURE__*/ t(/* @__PURE__ */ c({
 	__name: "Display",
 	props: {
 		title: {},
 		modelValue: {}
 	},
 	setup(t) {
-		let s = t, h = d(!1), g = c(), _ = n(() => g?.proxy?.$isDebug), v = n(() => JSON.stringify(s.modelValue ?? {}, null, 2));
-		return (n, s) => _.value ? (u(), i("div", {
+		let n = t, c = f(!1), g = l(), _ = r(() => g?.proxy?.$isDebug), v = r(() => JSON.stringify(n.modelValue ?? {}, null, 2));
+		return (n, r) => _.value ? (d(), a("div", {
 			key: 0,
-			class: l(["debug", { minimized: h.value }])
+			class: u(["debug", { minimized: c.value }])
 		}, [
-			a("button", {
+			o("button", {
 				type: "button",
 				class: "btn btn-default",
-				onClick: s[0] ||= p((e) => h.value = !h.value, ["stop"])
-			}, [o(e, { name: h.value ? "maximize" : "minimize" }, null, 8, ["name"])]),
-			a("div", {
+				onClick: r[0] ||= m((e) => c.value = !c.value, ["stop"])
+			}, [s(e, { name: c.value ? "maximize" : "minimize" }, null, 8, ["name"])]),
+			o("div", {
 				class: "title",
-				onClick: s[1] ||= (e) => h.value = !h.value
-			}, "Debug " + f(t.title), 1),
-			a("div", m, f(v.value), 1)
-		], 2)) : r("", !0);
+				onClick: r[1] ||= (e) => c.value = !c.value
+			}, "Debug " + p(t.title), 1),
+			o("div", h, p(v.value), 1)
+		], 2)) : i("", !0);
 	}
-}), [["__scopeId", "data-v-3de56375"]]), g = { install(e, t) {
-	let n = d(!!t?.isDebug), r = d(!0);
-	Object.defineProperty(e.config.globalProperties, "$isDebug", {
+}), [["__scopeId", "data-v-3de56375"]]), _ = { install(e, t) {
+	let r = f(!!t?.isDebug), i = f(!0);
+	n.registerComponentsGlobally && e.component("Debug", g), Object.defineProperty(e.config.globalProperties, "$isDebug", {
 		get() {
 			let t = e.config.globalProperties.$router.currentRoute.value.query?.debug;
-			return r.value && (t === void 0 ? n.value : t === "1");
+			return i.value && (t === void 0 ? r.value : t === "1");
 		},
 		enumerable: !0,
 		configurable: !0
-	}), e.config.globalProperties.$setDebug = (e = !0) => r.value = e;
+	}), e.config.globalProperties.$setDebug = (e = !0) => i.value = e;
 } };
 //#endregion
-export { h as Debug, g as default, g as plugin };
+export { g as Debug, _ as default, _ as plugin };

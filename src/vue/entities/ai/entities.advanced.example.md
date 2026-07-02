@@ -90,15 +90,15 @@ import type { VehicleInterventionType } from "./VehicleInterventionType"
 
 export class Vehicle extends EntityBase {
     id: number = 0
-    code: string
-    model: string
+    code = ""
+    model = ""
 
     brandId?: number
     vehicleTypeId?: number
 
     notes?: string
 
-    created: Date
+    created?: Date
     lastModified?: Date
 
     brand?: Brand
@@ -135,10 +135,10 @@ import { EntityBase } from "@/regira_modules/vue/entities"
 
 export class VehicleInterventionType extends EntityBase {
     id: number = 0
-    interventionTypeId: number
-    vehicleId: number
+    interventionTypeId: number = 0
+    vehicleId: number = 0
 
-    interventionType: InterventionType
+    interventionType?: InterventionType
 
     _deleted: boolean = false
 

@@ -20,7 +20,9 @@ app.use(plugin, { isDebug })
    └─ $setDebug ← master enable/disable switch
 ```
 
-`Debug` is imported locally where used (it bundles its own `Icon`). Requires vue-router — the `$isDebug`
+`Debug` is imported locally where used (it bundles its own `Icon`). With
+`configureGlobals({ registerComponentsGlobally: true })` (from `regira_modules/vue/ioc`) set before
+`app.use(plugin)`, the plugin also registers `Debug` app-wide. Requires vue-router — the `$isDebug`
 getter reads the current route.
 
 ## Reference

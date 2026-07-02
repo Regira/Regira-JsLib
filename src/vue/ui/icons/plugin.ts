@@ -1,7 +1,10 @@
 import type { App } from "vue"
+import { globalOptions } from "../../ioc"
 import bsIcons from "./bootstrap-icons"
 import faIcons from "./fontawesome-icons"
 import { iconMap, load, clear, type IconsConfig } from "./icons"
+import Icon from "./Icon.vue"
+import IconButton from "./IconButton.vue"
 
 type Options = {
     icons?: Record<string, string>
@@ -32,5 +35,11 @@ export default {
             source,
             map: iconMap,
         } as IIconProvider
+
+        if (globalOptions.registerComponentsGlobally) {
+            // Icon.vue resolves Bs/Fa from the injected config, so it honors `source`.
+            app.component("Icon", Icon)
+            app.component("IconButton", IconButton)
+        }
     },
 }

@@ -72,12 +72,12 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 **Prefer the main barrel `regira_modules/vue/entities`** — it re-exports everything below. Only the subpaths
 listed in `package.json` `exports` resolve as standalone imports; for anything else, import from the barrel.
 
-| Published subpath                                | Holds                                                                                                        |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `regira_modules/vue/entities/abstractions`       | `IEntity`, `EntityBase`, `IEntityService`, `EntityServiceBase`, `JSONService`, result types, `IConfig`, `NavTypes`, search/paging/sort types |
-| `regira_modules/vue/entities/abstractions/IEntity` | `IEntity` alone (the contract)                                                                              |
-| `regira_modules/vue/entities/details`            | `useDetails`, `DetailsSummary`                                                                                |
-| `regira_modules/vue/entities/form`               | `useForm`, `FormStates`, modal/owned/list-input composables + types                                          |
+| Published subpath                                  | Holds                                                                                                                                        |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `regira_modules/vue/entities/abstractions`         | `IEntity`, `EntityBase`, `IEntityService`, `EntityServiceBase`, `JSONService`, result types, `IConfig`, `NavTypes`, search/paging/sort types |
+| `regira_modules/vue/entities/abstractions/IEntity` | `IEntity` alone (the contract)                                                                                                               |
+| `regira_modules/vue/entities/details`              | `useDetails`, `DetailsSummary`                                                                                                               |
+| `regira_modules/vue/entities/form`                 | `useForm`, `FormStates`, modal/owned/list-input composables + types                                                                          |
 
 > Composables not listed above (`useFilter`, overview/tree/preloading/navigation, …) are reached through the
 > **main barrel**, not a `…/<area>` subpath — those subpaths are not in `exports` and will fail to resolve.

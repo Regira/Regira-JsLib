@@ -1,7 +1,8 @@
-import { a as e, i as t, o as n, s as r } from "./Icon-3.2.5.js";
-import "./IconButton-3.2.5.js";
+import { a as e, i as t, o as n, s as r, t as i } from "./Icon-3.2.5.js";
+import { t as a } from "./IconButton-3.2.5.js";
+import { n as o } from "./ioc-3.2.5.js";
 //#region src/vue/ui/icons/fontawesome-icons.ts
-var i = {
+var s = {
 	address: "fa-regular fa-address-card",
 	alert: "fa-solid fa-circle-exclamation",
 	attachment: "XXX",
@@ -59,15 +60,15 @@ var i = {
 	user: "fa-regular fa-user",
 	warning: "fa-solid fa-triangle-exclamation",
 	website: "fa-brands fa-internet-explorer"
-}, a = { install(a, { icons: o = {}, clearFirst: s = !1, source: c = "bs" } = {}) {
-	n(c == "bs" ? r : i), a.provide("icons.config", {
-		source: c,
+}, c = { install(c, { icons: l = {}, clearFirst: u = !1, source: d = "bs" } = {}) {
+	n(d == "bs" ? r : s), c.provide("icons.config", {
+		source: d,
 		icons: e
-	}), s && t(), o != null && n(o), a.config.globalProperties.$icons = {
+	}), u && t(), l != null && n(l), c.config.globalProperties.$icons = {
 		add: (e, t) => n({ [e]: t }),
-		source: c,
+		source: d,
 		map: e
-	};
+	}, o.registerComponentsGlobally && (c.component("Icon", i), c.component("IconButton", a));
 } };
 //#endregion
-export { a as t };
+export { c as t };

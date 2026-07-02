@@ -30,7 +30,7 @@ const { service } = useEntityStore()
 
 const { item, isLoading, overviewUrl, load, feedback } = useDetails(service)
 
-// trigger load when logging in (only load when item has not been loaded before) — no-auth app: delete these two lines
+// trigger load when logging in (only load when item has not been loaded before) — no-auth app: delete these two lines and drop load from the useDetails destructure above (scaffold.mjs --no-auth does both)
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => name == "login" && after(() => item.value == null && authStore.isAuthenticated && load()))
 

@@ -10,8 +10,8 @@
                 :showFooter="false"
                 :full-width="fullWidth"
                 @close="close"
-                @cancel="handleCancel"
-                @submit="handleSave"
+                @cancel="close"
+                @submit="close"
             >
                 <Form
                     v-model="item"

@@ -13,7 +13,8 @@ import plugin, { Debug } from "regira_modules/vue/debug"
 ```
 
 The default export is the plugin (also exported as `plugin`); `Debug` is the component — import it
-locally where used.
+locally where used. Setting `configureGlobals({ registerComponentsGlobally: true })` (from
+`regira_modules/vue/ioc`) before `app.use(plugin)` makes the plugin register `Debug` app-wide instead.
 
 ## The plugin
 

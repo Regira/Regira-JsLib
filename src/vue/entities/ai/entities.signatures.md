@@ -183,10 +183,10 @@ export interface IConfig extends Record<string, any> {
     description?: string
     icon?: string
     defaultPageSize: number
-    api: string // base path; the *Url fields default off this
+    api: string // base path; every *Url below defaults to `api` when omitted
     detailsUrl?: string
     listUrl?: string
-    searchUrl?: string
+    searchUrl?: string // set it to `api + "/search"` for the counted /search endpoint every Regira controller exposes (the scaffold config does)
     saveUrl?: string
     deleteUrl?: string
 }

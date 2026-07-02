@@ -21,7 +21,8 @@ The **app shell** that hosts these slices (project structure, `main.ts`, router,
 The full slice ships as a **copy-on-disk template** in the package — scaffold it, don't hand-write the files:
 
 ```bash
-node node_modules/regira_modules/_template/scaffold.mjs Product   # → src/entities/products/
+node node_modules/regira_modules/_template/scaffold.mjs Product             # → src/entities/products/
+node node_modules/regira_modules/_template/scaffold.mjs Product --no-auth   # no-auth app: also strips the auth-store hooks
 ```
 
 (or copy `node_modules/regira_modules/_template/entity-slice` and replace the `__Entity__` / `__entities__`
@@ -92,11 +93,13 @@ import { EntityBase } from "@/regira_modules/vue/entities"
 
 export class Foo extends EntityBase {
     id: number = 0
-    title: string
+    title = "" // initialize non-optional fields (strictPropertyInitialization); optional ones get `?`
     // TODO: your fields, e.g.
     // code?: string
     // barId?: number
     // bar?: Bar                          // a related entity (navigation property)
+    // status?: Status                    // mirror a C# enum as a const object + union type, never a TS `enum`
+    //                                    // (erasableSyntaxOnly rejects enums — see entities.setup.md → Tooling)
 
     created?: Date
     lastModified?: Date
@@ -127,7 +130,7 @@ const config: IConfig = {
     isComplex: false, // TODO: true → tabbed form + Details-page "new" for create/edit (both tiers page via /search)
 
     routePrefix: "foos", // TODO: URL path segment
-    baseQueryParams: { includes: [] }, // TODO: server-side eager-loads, e.g. { includes: ["Bar"] }
+    baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
     initialQuery: {},
 
     overviewTitle: "foos", // TODO: i18n keys

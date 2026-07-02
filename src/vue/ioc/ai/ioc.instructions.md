@@ -51,6 +51,23 @@ const service = get<IEntityService<Entity>>(Entity.name)!
 
 Keys are arbitrary (`"axios"`, `PoolCache.name`, `Entity.name`); use the same key to add and get.
 
+## Global options
+
+`globalOptions` is a shared, mutable module-level object holding cross-plugin flags; `configureGlobals`
+merges a partial into it. Plugins read it at install time, so set it **before** `app.use(...)`:
+
+```ts
+import { configureGlobals } from "regira_modules/vue/ioc"
+
+configureGlobals({ registerComponentsGlobally: true })
+```
+
+Components are imported locally by default. With `registerComponentsGlobally: true`, the component
+plugins re-register their components app-wide: `iconPlugin` → `Icon`/`IconButton`, `loadingPlugin` →
+`Loading`/`LoadingButton`/`LoadingContainer`, `pagingPlugin` → `Paging`, `modalPlugin` → `MyModal`,
+`debugPlugin` → `Debug`. Because `globalOptions` is a plain module object, the flag is honored
+regardless of `app.use` order.
+
 ## See also
 
 - [ioc.examples.md](ioc.examples.md)

@@ -11,7 +11,7 @@ form inputs, and responsive layout.
 | paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`    |
 | loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                   |
 | feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin` |
-| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`                                       |
+| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`                        |
 | tabs         | `TabContainer`                                                                                                                                                        | `Tab` / `ITab`                                    |
 | icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`                         |
 | screen       | —                                                                                                                                                                     | `useScreen`, `screenPlugin`                       |
@@ -22,8 +22,8 @@ form inputs, and responsive layout.
 
 ## Plugins & imports
 
-Components are **imported locally** from `regira_modules/vue/ui` (or a sub-path) — no component is
-registered globally. Import the library styles once in `main.ts`:
+Components are **imported locally** from `regira_modules/vue/ui` (or a sub-path) by default — no
+component is registered globally. Import the library styles once in `main.ts`:
 
 ```ts
 import "regira_modules/style.css" // modal backdrop, autocomplete dropdown, …
@@ -34,6 +34,12 @@ Install the plugins for the areas you use; each configures app-wide state only:
 - `feedbackPlugin` → `$feedback` · `screenPlugin` → `$screen`
 - `iconPlugin` → glyph source (`bs`/`fa`) + friendly icon keys, `$icons`
 - `loadingPlugin` → the image `Loading`/`LoadingContainer` render · `pagingPlugin` → `Paging` page size
+
+To opt back into app-wide registration, set `configureGlobals({ registerComponentsGlobally: true })`
+(from `regira_modules/vue/ioc`) **before** installing the plugins. With the flag on, `iconPlugin`
+registers `Icon`/`IconButton`, `loadingPlugin` registers `Loading`/`LoadingButton`/`LoadingContainer`,
+`pagingPlugin` registers `Paging`, and `modalPlugin` registers `MyModal` — so those tags resolve
+without local imports.
 
 `Icon` works without `iconPlugin` (defaults to Bootstrap glyphs) and `DefaultModal` needs no plugin; the
 glyph **font CSS** (`bootstrap-icons`/Font Awesome) must be imported separately. `Icon` takes a registered

@@ -1,7 +1,8 @@
 # Regira IoC (front-end)
 
 `regira_modules/vue/ioc` — a tiny inversion-of-control container that wires the app's services. Entity
-services are registered and resolved through it.
+services are registered and resolved through it. It also holds the library's cross-plugin
+**global options**.
 
 ## What it provides
 
@@ -12,6 +13,27 @@ services are registered and resolved through it.
 | `plugin`           | Vue plugin: exposes the provider as `$services` and runs a `configure(sp)` callback. |
 | `IServiceProvider` | The container interface.                                                             |
 | default export     | The shared `ServiceProvider` singleton.                                              |
+| `globalOptions`    | Shared, mutable options object read by plugins at install time.                      |
+| `configureGlobals` | Setter that merges into `globalOptions`; call once before `app.use(...)`.            |
+| `GlobalOptions`    | The options shape.                                                                   |
+
+## Global component registration
+
+Plugins import their sub-components locally by default. To opt back into app-wide registration —
+so `<Icon>`, `<Loading>`, `<Paging>`, `<Debug>`, `<MyModal>`, … resolve without local imports —
+turn on the flag before installing the plugins:
+
+```ts
+import { configureGlobals } from "regira_modules/vue/ioc"
+
+configureGlobals({ registerComponentsGlobally: true })
+// then app.use(iconPlugin) / loadingPlugin / pagingPlugin / modalPlugin / debugPlugin
+```
+
+`globalOptions` is a plain module-level object (default `registerComponentsGlobally: false`), so the
+flag is honored regardless of `app.use` order. When on, `iconPlugin` registers `Icon`/`IconButton`,
+`loadingPlugin` registers `Loading`/`LoadingButton`/`LoadingContainer`, `pagingPlugin` registers
+`Paging`, `modalPlugin` registers `MyModal`, and `debugPlugin` registers `Debug`.
 
 ## Key behaviour
 

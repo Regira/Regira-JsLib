@@ -3,7 +3,15 @@
 Verbatim TypeScript signatures for `regira_modules/vue/ioc`. Do not guess — look up here first.
 
 ```ts
-import { ServiceProvider, get, plugin as servicesPlugin, type IServiceProvider } from "regira_modules/vue/ioc"
+import {
+    ServiceProvider,
+    get,
+    plugin as servicesPlugin,
+    globalOptions,
+    configureGlobals,
+    type IServiceProvider,
+    type GlobalOptions,
+} from "regira_modules/vue/ioc"
 // default export = the shared ServiceProvider singleton
 ```
 
@@ -40,6 +48,25 @@ export const plugin: {
 ```
 
 `$services` is augmented onto `ComponentCustomProperties` (available as `this.$services`).
+
+## Global options
+
+```ts
+export type GlobalOptions = {
+    /** When true, plugins re-register their components app-wide via app.component(). */
+    registerComponentsGlobally: boolean
+}
+
+// shared, mutable module-level object; default { registerComponentsGlobally: false }
+export const globalOptions: GlobalOptions
+
+// merges the partial into globalOptions; call once before app.use(...)
+export function configureGlobals(options: Partial<GlobalOptions>): void
+```
+
+Read by the component plugins at install time (`iconPlugin`, `loadingPlugin`, `pagingPlugin`,
+`modalPlugin`, `debugPlugin`). Being a plain module-level object, the flag applies regardless of
+`app.use` order.
 
 ## See also
 

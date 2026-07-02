@@ -129,7 +129,7 @@ const { updateOverviewRoute } = useRouteOverview({
     defaultPageSize: config.defaultPageSize,
 })
 
-// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (see entities.setup.md#running-without-authentication)
+// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (scaffold.mjs --no-auth strips them; see entities.setup.md#running-without-authentication)
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => ["login", "refresh"].includes(name) && after(() => authStore.isAuthenticated && searchHandler(false)))
 

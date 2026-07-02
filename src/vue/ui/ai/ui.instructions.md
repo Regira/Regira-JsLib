@@ -22,20 +22,24 @@ import { DefaultModal } from "regira_modules/vue/ui/modal" // styles: import "re
 
 ## Plugins (install once at startup)
 
-Plugins configure globals only — **no component is registered globally**; import every component locally
-from `regira_modules/vue/ui` (or its sub-path).
+Plugins configure globals only — **components are imported locally by default**; import every component
+from `regira_modules/vue/ui` (or its sub-path). To opt back into app-wide registration, set
+`configureGlobals({ registerComponentsGlobally: true })` (from `regira_modules/vue/ioc`) before
+installing the plugins — see the **Global registration** column.
 
-| Plugin           | Configures                                                                      | Options                                          |
-| ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------------ |
-| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                                   | `{ autoHideDelay? }`                             |
-| `iconPlugin`     | glyph source for `Icon` (`bs`/`fa`) + friendly keys; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` |
-| `loadingPlugin`  | the image `Loading`/`LoadingContainer` render                                   | `{ img }`                                        |
-| `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize? }`                           |
-| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                |
+| Plugin           | Configures                                                                      | Options                                          | Global registration                            |
+| ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                                   | `{ autoHideDelay? }`                             | —                                              |
+| `iconPlugin`     | glyph source for `Icon` (`bs`/`fa`) + friendly keys; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` | `Icon`, `IconButton`                           |
+| `loadingPlugin`  | the image `Loading`/`LoadingContainer` render                                   | `{ img }`                                        | `Loading`, `LoadingButton`, `LoadingContainer` |
+| `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize? }`                           | `Paging`                                       |
+| `modalPlugin`    | — (registration only)                                                           | `{ DefaultModal? }`                              | `MyModal`                                      |
+| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                | —                                              |
 
 `$feedback`, `$icons`, `$screen` are typed on Vue's `ComponentCustomProperties`. `Icon` works without
-`iconPlugin` (defaults to Bootstrap glyphs); modals need no plugin — import `DefaultModal` and import
-`regira_modules/style.css` once in `main.ts` for its backdrop/overlay styling.
+`iconPlugin` (defaults to Bootstrap glyphs); modals need no plugin unless you want the global `MyModal`
+tag — import `DefaultModal` and import `regira_modules/style.css` once in `main.ts` for its
+backdrop/overlay styling.
 
 ## Areas
 
@@ -44,7 +48,7 @@ from `regira_modules/vue/ui` (or its sub-path).
 | paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`                   |
 | loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                                  |
 | feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
-| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`                                                      |
+| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`                                       |
 | tabs         | `TabContainer`                                                                                                                                                        | `Tab` / `ITab`                                                   |
 | icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`, `IIconProvider`                       |
 | screen       | —                                                                                                                                                                     | `useScreen`, `SCREEN_SIZES`, `screenPlugin`                      |

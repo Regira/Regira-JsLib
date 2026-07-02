@@ -19,6 +19,9 @@ function n(e) {
 //#region src/vue/ioc/plugin.ts
 var r = { install(e, { configure: n } = {}) {
 	e.config.globalProperties.$services = t, e.config.globalProperties.$configs ??= {}, e.provide("services", t), n && n(t);
-} };
+} }, i = { registerComponentsGlobally: !1 };
+function a(e) {
+	Object.assign(i, e);
+}
 //#endregion
-export { n as i, e as n, t as r, r as t };
+export { t as a, e as i, i as n, n as o, r, a as t };

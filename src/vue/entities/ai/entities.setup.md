@@ -37,11 +37,12 @@ import { EntityBase, EntityServiceBase } from "regira_modules/vue/entities"
 
 Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`.
 
-Start from the Vite `vue-ts` template (`npm create vue@latest`), then add the peers the library needs
-(let your package manager resolve the ranges):
+Start from the Vite `vue-ts` template (`npm create vue@latest`), then align `package.json` with the
+**known-good dependency set** below — copy it as-is and run one `npm install`; do not resolve majors one
+at a time:
 
 ```jsonc
-// package.json — peers the library needs
+// package.json — known-good set (runtime peers + the build toolchain they require)
 "dependencies": {
   "regira_modules": "github:Regira/Regira-JsLib",
   "vue": "^3.5", "vue-router": "^5", "pinia": "^3",
@@ -49,26 +50,16 @@ Start from the Vite `vue-ts` template (`npm create vue@latest`), then add the pe
   "bootstrap": "^5.3", "bootstrap-icons": "^1.13"
 },
 "devDependencies": {
-  "sass-embedded": "^1.100"   // compiles the app shell's src/assets/*.scss (Bootstrap 5)
+  "@types/node": "^26", "@vitejs/plugin-vue": "^6",
+  "sass-embedded": "^1.100",   // compiles the app shell's src/assets/*.scss (Bootstrap 5)
+  "typescript": "^6", "vite": "^8", "vue-tsc": "^3"
 }
 ```
 
-```bash
-npm i bootstrap bootstrap-icons
-npm i -D sass-embedded   # the app shell's main.scss needs a Sass compiler
-```
-
-> **Versions — known-good majors (`regira_modules@3.2.1`).** Targets **Vue 3**. The library's
-> `peerDependencies` give the supported runtime ranges, so let the package manager resolve them rather than
-> pinning here. Pair them with the build toolchain the library is tested against, and align your app's
-> majors with it — the toolchain moves as a set, so a current `vue-router` wants a current `vite`/
-> `typescript`. The cascade to keep in step: `vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`.
->
-> | Build tool                    | Major |
-> | ----------------------------- | ----- |
-> | `vite` · `@vitejs/plugin-vue` | 8 · 6 |
-> | `typescript` · `vue-tsc`      | 6 · 3 |
-> | `vitest` · `prettier`         | 4 · 3 |
+> **The toolchain moves as a set — don't mix majors.** `regira_modules` declares `vue-router@^5`; adding
+> `vue-router@4` (a common older default) fails `npm install` with `ERESOLVE`, and each individual fix just
+> pulls in the next major (`vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`). The block above is
+> that cascade already resolved. Optional extras that pair with it: `vitest 4`, `prettier 3`.
 
 > **The snippets below use the demo's `@/regira_modules` alias.** In a plain npm install, drop the `@/`
 > prefix on the library specifier (write `regira_modules/vue/http`, not `@/regira_modules/vue/http`); the
@@ -211,8 +202,12 @@ import { EntityBase, EntityServiceBase, type IConfig } from "regira_modules/vue/
 class Product extends EntityBase {
     id = 0
     name = ""
-    get $id() { return this.id }
-    get $title() { return this.name }
+    get $id() {
+        return this.id
+    }
+    get $title() {
+        return this.name
+    }
 }
 class ProductService extends EntityServiceBase<Product> {
     override toEntity(item: object): Product {
@@ -394,6 +389,27 @@ The `BasicApi` server template calls `app.UseHttpsRedirection()`, so a request t
     server: { proxy: { "/api": { target: "https://localhost:7001", changeOrigin: true, secure: false } } }
     ```
 - **Skip the redirect in Development** on the API: `if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();`.
+
+### The URL contract — four owners, one request
+
+Four settings each own a segment of the final request URL; misalign one and every call 404s. Align them
+up front:
+
+| Segment             | Owned by                                                                               | Example                           |
+| ------------------- | -------------------------------------------------------------------------------------- | --------------------------------- |
+| axios base          | `config.json → api` → `initAxios({ api })`                                             | `/api`                            |
+| resource path       | each entity's `IConfig.api` — **relative to the axios base**                           | `/products`                       |
+| dev proxy           | `vite.config.ts → server.proxy` (only when `api` is a relative path)                   | `/api` → `https://localhost:7001` |
+| server route prefix | back-end host config or a route-prefix convention (controllers stay resource-relative) | `api`                             |
+
+Resolution: `products.search()` → axios base `/api` + `IConfig.api` `/products` + `/search` =
+**`/api/products/search`** → Vite proxy → `https://localhost:7001/api/products/search` → server prefix
+`api` + `[Route("products")]`. The two classic mismatches:
+
+- `IConfig.api` repeats the base (`/api/products` → requests go to `/api/api/products`) — keep it relative.
+- The proxy forwards `/api/*` but the API serves controllers at root — add the prefix **once** on the
+  back-end (`Regira.Entities` → `entities.setup` → _API route prefix_), or skip the proxy entirely and point
+  `config.json → api` straight at the API origin (then configure CORS instead).
 
 ### Navigation map
 
@@ -611,7 +627,10 @@ fetch("/config.json")
 
 The full app shell adds two things on top of that canonical file, right after the UI plugins (and the
 last one after `authPlugin`). Components (`FormSection`, `DescriptionInput`, `Icon`, …) are **not**
-registered globally — every view imports what it uses from `regira_modules/vue/ui`.
+registered globally by default — every view imports what it uses from `regira_modules/vue/ui`. (To opt
+into app-wide registration for the plugin components, call
+`configureGlobals({ registerComponentsGlobally: true })` from `regira_modules/vue/ioc` before the
+`app.use(...)` calls.)
 
 ```ts
 // 1. seed icons from a JSON map (group icons referenced by config.json → navigation.groups[].icon)
@@ -726,20 +745,20 @@ export {}
 The entities layer needs only a few globals; install the rest as you actually use them. Install order
 still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--maints)).
 
-| Plugin                                       | Provides                                    | Status for the entities layer                                                                                                               |
-| -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `createPinia()`                              | Pinia stores                                | **Required** (app store, entity stores, auth store)                                                                                         |
-| `appPlugin` (`vue/app`)                      | `$appStatus` / `$setAppStatus`, `$culture`  | **Required** — the startup lifecycle and loading gate                                                                                       |
+| Plugin                                       | Provides                                      | Status for the entities layer                                                                                                               |
+| -------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `createPinia()`                              | Pinia stores                                  | **Required** (app store, entity stores, auth store)                                                                                         |
+| `appPlugin` (`vue/app`)                      | `$appStatus` / `$setAppStatus`, `$culture`    | **Required** — the startup lifecycle and loading gate                                                                                       |
 | `servicesPlugin` (`vue/ioc`)                 | `$services` IoC + `get()`; creates `$configs` | **Required** — register the shared `axios` and `PoolCache` here; services resolve from here                                                 |
-| entity plugins (`@/entities`)                | routes + service registrations + `$configs` | **Required** — your slices                                                                                                                  |
-| `routerFactory` (vue-router)                 | routing                                     | **Required** for multi-view slices                                                                                                          |
-| `iconPlugin` (`vue/ui`)                      | `$icons`                                    | Required if your views/nav render icons (the demos do)                                                                                      |
-| `feedbackPlugin` (`vue/ui`)                  | `$feedback`                                 | Required if you use the `Feedback` component (the demo `App.vue` does)                                                                      |
+| entity plugins (`@/entities`)                | routes + service registrations + `$configs`   | **Required** — your slices                                                                                                                  |
+| `routerFactory` (vue-router)                 | routing                                       | **Required** for multi-view slices                                                                                                          |
+| `iconPlugin` (`vue/ui`)                      | `$icons`                                      | Required if your views/nav render icons (the demos do)                                                                                      |
+| `feedbackPlugin` (`vue/ui`)                  | `$feedback`                                   | Required if you use the `Feedback` component (the demo `App.vue` does)                                                                      |
 | `loadingPlugin` (`vue/ui`)                   | the image `Loading`/`LoadingContainer` render | Required if you use `LoadingContainer` (the demo `App.vue` does). **Must pass `{ img }`** when installed: `app.use(loadingPlugin, { img })` |
-| `langPlugin` (`vue/lang`)                    | `$t` i18n                                   | Optional — only if you render translated labels                                                                                             |
-| directives (`focus`, `grow`, `clickOutside`) | template directives                         | Optional — only where used                                                                                                                  |
-| `preloaderPlugin` (`vue/entities`)           | route preloading                            | Optional                                                                                                                                    |
-| `authPlugin` (`vue/auth`)                    | bearer auth + `$auth`                       | **Optional** — see [Running without authentication](#running-without-authentication)                                                        |
+| `langPlugin` (`vue/lang`)                    | `$t` i18n                                     | Optional — only if you render translated labels                                                                                             |
+| directives (`focus`, `grow`, `clickOutside`) | template directives                           | Optional — only where used                                                                                                                  |
+| `preloaderPlugin` (`vue/entities`)           | route preloading                              | Optional                                                                                                                                    |
+| `authPlugin` (`vue/auth`)                    | bearer auth + `$auth`                         | **Optional** — see [Running without authentication](#running-without-authentication)                                                        |
 
 > **`debugPlugin` (`vue/debug`) — install it.** The scaffolded `Overview.vue`, `Filter.vue` and
 > `SelectorSearch.vue` import `<Debug>`, which renders only when `$isDebug` is true — and `$isDebug` is
@@ -761,7 +780,7 @@ still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--
 
 Auth is **optional**. The template in [Bootstrap](#bootstrap--maints) / [Root component](#root-component--appvue)
 is the auth-on path; to run the SPA without a login (internal tools, demos, or while the back-end has auth
-disabled), make three changes:
+disabled), make these four changes:
 
 1. **`main.ts` — don't install `authPlugin`.** Remove its import, its `app.use(authPlugin, …)` block,
    and the `LocalStorageTokenManager` import. Nothing else depends on it.
@@ -793,6 +812,14 @@ disabled), make three changes:
         </LoadingContainer>
     </template>
     ```
+
+4. **Entity slices — scaffold with `--no-auth`.** The boilerplate `overview/Overview.vue` and
+   `details/Details.vue` carry `authStore.$onAction` reload-on-login hooks.
+   `node node_modules/regira_modules/_template/scaffold.mjs <Entity> --no-auth` strips them (imports
+   included, plus `load` from `Details.vue`'s `useDetails` destructure — used only by that hook); for an
+   already-scaffolded slice, delete the marked lines in those two files and drop `load` from that
+   destructure. If the app enables auth later, re-add the hooks (and `load`) per
+   [entities.patterns.md → Auth reload hooks](entities.patterns.md#auth-reload-hooks-login-driven-refresh).
 
 > **Keep the auth scaffolding dormant instead?** Install it with `app.use(authPlugin, { …, enabled: false })`.
 > Then `$auth` is `{ enabled: false }` and the bearer interceptor is off — but the auth **store** still

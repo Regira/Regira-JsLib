@@ -79,7 +79,7 @@ import { EntityBase } from "@/regira_modules/vue/entities"
 export class UnitType extends EntityBase {
     id: number = 0
     code?: string
-    title: string
+    title = ""
     description?: string
 
     created?: Date
@@ -673,7 +673,7 @@ const { updateOverviewRoute } = useRouteOverview({
     defaultPageSize: config.defaultPageSize,
 })
 
-// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (see entities.setup.md#running-without-authentication)
+// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (scaffold.mjs --no-auth strips them; see entities.setup.md#running-without-authentication)
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => ["login", "refresh"].includes(name) && after(() => authStore.isAuthenticated && searchHandler(false)))
 
@@ -725,7 +725,7 @@ const { service } = useEntityStore()
 
 const { item, isLoading, overviewUrl, load, feedback } = useDetails(service)
 
-// trigger load when logging in (only load when item has not been loaded before) — no-auth app: delete these two lines
+// trigger load when logging in (only load when item has not been loaded before) — no-auth app: delete these two lines and drop load from the useDetails destructure above (scaffold.mjs --no-auth does both)
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => name == "login" && after(() => item.value == null && authStore.isAuthenticated && load()))
 
@@ -861,8 +861,8 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
                 :showFooter="false"
                 :full-width="fullWidth"
                 @close="close"
-                @cancel="handleCancel"
-                @submit="handleSave"
+                @cancel="close"
+                @submit="close"
             >
                 <Form
                     v-model="item"
@@ -1674,7 +1674,7 @@ import type ProductSupplier from "../product-suppliers/Entity"
 
 export class Product extends EntityBase {
     id: number = 0
-    title: string
+    title = ""
     description?: string
 
     unitTypeId?: number
@@ -2519,7 +2519,7 @@ const { updateOverviewRoute } = useRouteOverview({
     defaultPageSize: config.defaultPageSize,
 })
 
-// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (see entities.setup.md#running-without-authentication)
+// trigger searchHandler when logging in or refreshing token — no-auth app: delete these two lines (scaffold.mjs --no-auth strips them; see entities.setup.md#running-without-authentication)
 const authStore = useAuthStore()
 authStore.$onAction(({ name, after }) => ["login", "refresh"].includes(name) && after(() => authStore.isAuthenticated && searchHandler(false)))
 

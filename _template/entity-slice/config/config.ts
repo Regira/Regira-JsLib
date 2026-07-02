@@ -9,7 +9,7 @@ const config: IConfig = {
     isComplex: false, // TODO: true → tabbed form + Details-page "new" for create/edit (both tiers page via /search)
 
     routePrefix: "__entities__", // TODO: URL path segment
-    baseQueryParams: { includes: [] }, // TODO: server-side eager-loads, e.g. { includes: ["Bar"] }
+    baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
     initialQuery: {},
 
     overviewTitle: "__entities__", // TODO: i18n keys

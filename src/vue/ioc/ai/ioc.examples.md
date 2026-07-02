@@ -63,6 +63,24 @@ const search = (q: string) => entityService.list({ q, pageSize: 10 })
 > `get(key)` re-runs the factory every call, so a factory that does `new …()` yields a fresh instance.
 > Register shared singletons (like `axios`) by returning the same instance from the factory.
 
+## Opt into global component registration
+
+Plugins import their components locally by default. To restore app-wide registration, flip the flag
+before installing the plugins — then the tags resolve without local imports:
+
+```ts
+import { configureGlobals } from "@/regira_modules/vue/ioc"
+
+configureGlobals({ registerComponentsGlobally: true })
+
+app.use(iconPlugin)
+app.use(loadingPlugin, { img })
+app.use(pagingPlugin)
+app.use(modalPlugin)
+app.use(debugPlugin)
+// <Icon>, <IconButton>, <Loading>, <Paging>, <MyModal>, <Debug> … now resolve app-wide
+```
+
 ## See also
 
 - [ioc.instructions.md](ioc.instructions.md) · [ioc.signatures.md](ioc.signatures.md)

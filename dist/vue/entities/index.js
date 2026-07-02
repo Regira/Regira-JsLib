@@ -1,12 +1,12 @@
 import { S as e } from "../../_chunks/array-utility-3.2.5.js";
 import { debounceToPromise as t } from "../../utilities/promise-utility.js";
 import { t as n } from "../../_chunks/treelist-3.2.5.js";
-import { a as r, c as i, d as a, i as o, l as s, n as c, o as l, r as u, s as d, t as f, u as p } from "../../_chunks/abstractions-3.2.5.js";
-import { i as m } from "../../_chunks/feedback-3.2.5.js";
-import { n as h, t as g } from "../../_chunks/details-3.2.5.js";
-import { a as ee, c as _, i as te, l as ne, n as re, o as ie, r as ae, s as oe, t as se } from "../../_chunks/form-3.2.5.js";
+import { o as r } from "../../_chunks/ioc-3.2.5.js";
+import { a as i, c as a, d as o, i as s, l as c, n as l, o as u, r as d, s as f, t as p, u as m } from "../../_chunks/abstractions-3.2.5.js";
+import { i as h } from "../../_chunks/feedback-3.2.5.js";
+import { n as g, t as ee } from "../../_chunks/details-3.2.5.js";
+import { a as _, c as te, i as ne, l as re, n as ie, o as ae, r as oe, s as se, t as v } from "../../_chunks/form-3.2.5.js";
 import "../../_chunks/ui-3.2.5.js";
-import { i as v } from "../../_chunks/ioc-3.2.5.js";
 import { Fragment as ce, computed as y, createCommentVNode as le, createElementBlock as b, createElementVNode as x, defineComponent as S, onMounted as C, openBlock as w, ref as T, renderList as ue, renderSlot as E, toDisplayString as D, toRaw as de, watch as fe, withModifiers as pe } from "vue";
 import { useRouter as me } from "vue-router";
 //#region src/vue/entities/config/EntityDescriptor.ts
@@ -56,7 +56,7 @@ function M({ searchObject: e, emit: t, Constructor: n }) {
 	};
 	return {
 		filterIsActive: y(() => {
-			let t = n ? new n() : new f(), r = Object.keys(t), i = Object.entries(e.value || {}).filter(([, e]) => e != null).map(([e]) => e);
+			let t = n ? new n() : new p(), r = Object.keys(t), i = Object.entries(e.value || {}).filter(([, e]) => e != null).map(([e]) => e);
 			return r.some((e) => i.some((t) => e == t));
 		}),
 		handleToggle: () => t("toggle-adv"),
@@ -227,7 +227,7 @@ function xe(e) {
 //#endregion
 //#region src/vue/entities/overview/overview-core.ts
 function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
-	let r = T(t), i = T(new p(n || 10)), a = T(), o = T(), s = T(!1), c = m();
+	let r = T(t), i = T(new m(n || 10)), a = T(), o = T(), s = T(!1), c = h();
 	async function l(t) {
 		s.value = !0;
 		try {
@@ -276,7 +276,7 @@ function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
 		let t = o.value.findIndex((t) => t.$id === e.$id);
 		t !== -1 && o.value.splice(t, 1);
 	}
-	function h() {
+	function p() {
 		i.value = {
 			...i?.value,
 			page: 1
@@ -293,7 +293,7 @@ function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
 		applyRemove: u,
 		handleSave: d,
 		handleRemove: f,
-		resetPage: h
+		resetPage: p
 	};
 }
 //#endregion
@@ -387,7 +387,7 @@ function we({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 			...e?.value,
 			page: 1
 		});
-		let a = i.currentRoute.value, o = l({
+		let a = i.currentRoute.value, o = u({
 			...a.query,
 			...t.value,
 			...e.value ?? {}
@@ -398,7 +398,7 @@ function we({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 		i.push(s);
 	}
 	async function o() {
-		let { searchObject: a, pagingInfo: o } = d(i.currentRoute.value.query);
+		let { searchObject: a, pagingInfo: o } = f(i.currentRoute.value.query);
 		o.page ||= 1, (isNaN(o.pageSize) || o.pageSize == null) && n > 0 && (o.pageSize = n), t.value != null && (t.value = a), e.value != null && (e.value = o), await r();
 	}
 	let s = fe(i.currentRoute, async (e, t) => {
@@ -501,7 +501,7 @@ var G = class {
 	findReferences(e) {
 		return this.getAll().filter((t) => {
 			function n(t) {
-				return Array.isArray(t) ? t.some((e) => n(e)) : t instanceof u ? t?.constructor?.name === e.constructor.name ? t.$id === e.$id : n(Object.entries(t).map(([, e]) => e).filter((e) => e instanceof u || Array.isArray(e) && e.some((e) => e instanceof u))) : !1;
+				return Array.isArray(t) ? t.some((e) => n(e)) : t instanceof d ? t?.constructor?.name === e.constructor.name ? t.$id === e.$id : n(Object.entries(t).map(([, e]) => e).filter((e) => e instanceof d || Array.isArray(e) && e.some((e) => e instanceof d))) : !1;
 			}
 			return n(t.value);
 		});
@@ -572,7 +572,7 @@ function Q(e) {
 	Z.length = 0, X.length = 0;
 	for (let t of e) {
 		X.push(t.name);
-		let { list: e } = Y(v(t.name), t.name, void 0, !0), n = e({ pageSize: 0 });
+		let { list: e } = Y(r(t.name), t.name, void 0, !0), n = e({ pageSize: 0 });
 		Z.push(n);
 	}
 	return $();
@@ -641,4 +641,4 @@ function Ae({ emit: e }) {
 	};
 }
 //#endregion
-export { s as DEFAULT_PAGESIZE, f as DefaultSearchObject, g as DetailsSummary, u as EntityBase, O as EntityDescriptor, _e as EntityForm, z as EntityOverview, r as EntityServiceBase, oe as FormStates, o as JSONService, V as NavGroup, B as NavItem, a as NavTypes, p as PagingInfo, q as PoolCache, G as PoolService, c as SearchObjectBase, i as SortByInfo, be as buildNavigationTree, l as cleanQueryParams, H as createNavGroup, U as createNavItem, Te as createStore, J as defaultPoolCache, _ as formDefaults, ee as formModalDefaults, ve as importDashboard, ye as importNavbar, xe as isNavItem, d as parseQueryParams, Ee as preloaderPlugin, h as useDetails, Ae as useDragDrop, j as useEntityDescribers, M as useFilter, ne as useForm, ae as useListInput, te as useListItemInput, Ce as useListView, ie as useModal, W as useOverviewCore, re as useOwnedCollection, se as useOwnedModal, Y as usePooling, De as usePreloader, we as useRouteOverview, Se as useSearchView, ke as useTree };
+export { c as DEFAULT_PAGESIZE, p as DefaultSearchObject, ee as DetailsSummary, d as EntityBase, O as EntityDescriptor, _e as EntityForm, z as EntityOverview, i as EntityServiceBase, se as FormStates, s as JSONService, V as NavGroup, B as NavItem, o as NavTypes, m as PagingInfo, q as PoolCache, G as PoolService, l as SearchObjectBase, a as SortByInfo, be as buildNavigationTree, u as cleanQueryParams, H as createNavGroup, U as createNavItem, Te as createStore, J as defaultPoolCache, te as formDefaults, _ as formModalDefaults, ve as importDashboard, ye as importNavbar, xe as isNavItem, f as parseQueryParams, Ee as preloaderPlugin, g as useDetails, Ae as useDragDrop, j as useEntityDescribers, M as useFilter, re as useForm, oe as useListInput, ne as useListItemInput, Ce as useListView, ae as useModal, W as useOverviewCore, ie as useOwnedCollection, v as useOwnedModal, Y as usePooling, De as usePreloader, we as useRouteOverview, Se as useSearchView, ke as useTree };

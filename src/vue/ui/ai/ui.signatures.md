@@ -6,14 +6,20 @@ component prop not listed, use the MCP source map (`get_type` on `regira_modules
 ## Plugins
 
 ```ts
-import { feedbackPlugin, iconPlugin, loadingPlugin, pagingPlugin, screenPlugin } from "regira_modules/vue/ui"
+import { feedbackPlugin, iconPlugin, loadingPlugin, pagingPlugin, modalPlugin, screenPlugin } from "regira_modules/vue/ui"
 
 feedbackPlugin.install(app, { autoHideDelay?: number })
 iconPlugin.install(app, { icons?: Record<string, string>; clearFirst?: boolean; source?: "bs" | "fa" })
 loadingPlugin.install(app, { img: string })
 pagingPlugin.install(app, { defaultPageSize?: number })
+modalPlugin.install(app, { DefaultModal?: Component })
 screenPlugin.install(app)
 ```
+
+Components are imported locally by default. When `registerComponentsGlobally` is on (set via
+`configureGlobals` from `regira_modules/vue/ioc` before install), these plugins also register their
+components app-wide: `iconPlugin` → `Icon`/`IconButton`, `loadingPlugin` →
+`Loading`/`LoadingButton`/`LoadingContainer`, `pagingPlugin` → `Paging`, `modalPlugin` → `MyModal`.
 
 ## Feedback
 
