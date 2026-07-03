@@ -17,8 +17,10 @@ abstract class EntityBase implements IEntity {
 
 Every model extends `EntityBase` and implements:
 
-- **`$id`** — the primary key. Return the literal `"new"` (or `null`) for an unsaved instance; the
-  service treats that as an insert. The common idiom is `return this.id || "new"`.
+- **`$id`** — the primary key. The service treats `null`, `undefined`, `"new"`, `""`, and any non-positive
+  number (`0`, or the negative temp ids minted for new related-collection rows) as an unsaved instance and
+  inserts it — so a bare `return this.id` is safe; the convention is `return this.id || "new"`. (The
+  predicate is exported as `isNewEntity($id)`.)
 - **`$title`** — a human label used by selectors, breadcrumbs, and navigation.
 
 `EntityBase` also exposes an `entityType` getter (`= this.constructor.name`) used internally as a cache key.

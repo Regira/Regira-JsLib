@@ -134,8 +134,10 @@ shape the back-end `Regira.Entities.Web` endpoints return.
 | `update(item)`     | PUT    | `{saveUrl}/{$id}`                                      | `{ item }`         |
 | `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                                    | —                  |
 
-`save(item)` dispatches: **insert** when `$id == null || $id === "new"`, otherwise **update**; it returns
-`SaveResult` = `{ saved, isNew }`. The `*Url` fields default off `config.api` and are **relative** to the
+`save(item)` dispatches: **insert** when `$id` is an unsaved sentinel — `null`, `undefined`, `"new"`, `""`,
+or a **non-positive number** (`0`, or the negative temp ids owned/related collections mint for new rows) via
+the exported `isNewEntity($id)` predicate, otherwise **update**; it returns `SaveResult` = `{ saved, isNew }`.
+A model whose `$id` returns a bare `this.id` therefore inserts correctly at `id <= 0`. The `*Url` fields default off `config.api` and are **relative** to the
 axios `baseURL` (set from app config).
 
 > Each `*Url` is a **resource base**, not a literal endpoint: `update` appends `/{$id}` (`PUT {saveUrl}/{$id}`)
@@ -187,11 +189,14 @@ axios `baseURL` (set from app config).
 package. Treat every build request as production-bound unless the user says otherwise; drop to a lighter tier
 **only when the user explicitly asks** for a demo, an embed, or a headless/custom UX, and declare the choice.
 
-| Tier                                    | You build                                                                                                              | ~Files/entity | Pick when                                                               |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------- | ----------------------------------------------------------------------- |
-| **Full reference scaffold** _(default)_ | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth) | ~23           | any real app — batteries-included CRUD UX, relation pickers, navigation |
-| **Lean (generic views)**                | the data layer + the library's `EntityOverview` / `EntityForm` bound via slots; skip the slice scaffold                | ~4            | an explicitly-requested focused admin, storefront, or embed             |
-| **Headless data-layer**                 | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                      | 1–2           | an explicitly-requested storefront / custom UI, or embedding            |
+| Tier                                    | You build                                                                                                              | Files you edit | Pick when                                                               |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- |
+| **Full reference scaffold** _(default)_ | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth) | ~8 of ~23      | any real app — batteries-included CRUD UX, relation pickers, navigation |
+| **Lean (generic views)**                | the data layer + the library's `EntityOverview` / `EntityForm` bound via slots; skip the slice scaffold                | ~4             | an explicitly-requested focused admin, storefront, or embed             |
+| **Headless data-layer**                 | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                      | 1–2            | an explicitly-requested storefront / custom UI, or embedding            |
+
+The full tier _generates_ ~23 files/entity but you edit only the **8** marked `(c)` — the other 15 are
+`vue-tsc`-verified boilerplate you never touch. Compare the authored ~8, not the generated ~23, against lean's ~4.
 
 Scaffold the full tier by copying the shipped slice template — don't hand-write the files:
 `node node_modules/regira_modules/_template/scaffold.mjs <Entity>` (see [slice template](entities.template.md)).
@@ -201,9 +206,10 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 > **The full scaffold is the low-risk default; hand-rolling views is the expensive path** — and this holds
 > for small and non-CRUD apps too:
 >
-> - **It type-checks green out of the box.** `scaffold.mjs <Entity>` emits all ~23 files; you edit only the
->   ~6 `(c)` ones and the rest is generated, `vue-tsc`-verified boilerplate. File count is not effort — you
->   are not signing up to debug generated code.
+> - **It type-checks green out of the box — and more entities don't compound that.** Each slice is generated
+>   and `vue-tsc`-verified independently, so a 5-entity app is not 5× the type-check risk of one. `scaffold.mjs
+>   <Entity>` emits ~23 files; you edit only the **8** marked `(c)`, and the rest is verified boilerplate. File
+>   count is not effort — you are not signing up to debug generated code.
 > - **The relation pickers are the payoff.** `selecting/Autocomplete.vue` is a server-searchable picker: it
 >   selects one row out of thousands without loading them all (a plain dropdown can't). Hand-rolled forms
 >   re-hit that problem and rebuild the picker, modal, and pager the kit already ships.
@@ -413,7 +419,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | `v-for` over `items` throws a null error on first render | Overview refs are **lazy** — `items` / `itemsCount` are `undefined` until `searchHandler`/`listHandler` runs (the type says `Array<T>`, but the initial value is `undefined`) | Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`, `(items?.length ?? 0) === 0` |
 | `Fiche`/`Form` receive `null` | `useDetails().item` is `null` until the `onMounted` load resolves | Gate the child: `<RouterView v-if="item" v-model="item" …>` |
 | Save result binds to nothing / wrong shape | Binding to `item` instead of `saved` | `SaveResult` exposes `saved` (not `item`); `SaveResult` and the raw server `SavedResult` differ — bind to `saved` |
-| New entity not treated as insert | `$id` not `"new"`/`null` | `save()` treats `$id === "new"` (or `null`) as insert; new-entity routes use `:id = "new"`; `$id` getter returns `this.id      |     | "new"` |
+| New entity not treated as insert | `$id` returns a non-sentinel value for a fresh model | `save()` inserts when `$id` is `null`/`undefined`/`"new"`/`""` or `≤ 0` (`isNewEntity` — covers the negative temp ids of new related rows), so a bare `this.id` getter is fine (`this.id \|\| "new"` is the convention); new-entity routes use `:id = "new"` |
 | Updates 404 while inserts pass | `saveUrl` set to a literal `/save` path | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves |
 | Archived rows missing | `isArchived` defaults to `false` | Set `isArchived` on the search object to include them |
 | Pager-less overview shows only 10 rows | `defaultPageSize` of `0`/unset falls back to 10 in the overview composables | Set `defaultPageSize` to a large number (up to the server's `MaxPageSize`); `pageSize: 0` at the service layer returns all rows capped by `MaxPageSize`, and larger sets use the `Autocomplete` selector |

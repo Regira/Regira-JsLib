@@ -1,6 +1,6 @@
 import type { AxiosInstance } from "axios";
 import type { IConfig } from "./IConfig";
-import type { IEntity } from "./IEntity";
+import { type IEntity } from "./IEntity";
 import EntityServiceBase from "./EntityServiceBase";
 import type { SearchResult } from "./IEntityService";
 import type { ISearchObject } from "./ISearchObject";

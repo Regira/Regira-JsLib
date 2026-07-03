@@ -4,12 +4,12 @@ import { defineStore as a } from "pinia";
 var o = /* @__PURE__ */ function(e) {
 	return e.Init = "Init", e.Loading = "Loading", e.Mounting = "Mounting", e.Ready = "Ready", e;
 }({}), s = a("AppStore", () => {
-	let t = r("Init"), n = r(navigator.language), i = r();
+	let t = r(o.Init), n = r(navigator.language), i = r();
 	return {
 		culture: n,
 		logo: i,
 		status: t,
-		isReady: e(() => t.value == "Ready"),
+		isReady: e(() => t.value == o.Ready),
 		setCulture(e) {
 			n.value = e || navigator.language;
 		},

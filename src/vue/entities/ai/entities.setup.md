@@ -191,8 +191,9 @@ import { products } from "@/services"
 pager through the `#paging` slot.
 
 `EntityForm` takes the same `:service` plus an `:id` (`"new"` inserts), exposes the loaded entity through
-its default slot, and emits `saved` / `cancel`. Both rely only on the service contract, so the data layer
-is shared with the full tier and adopting the scaffold later is additive.
+its default slot, and emits `saved` / `cancel`. Both rely only on the service contract, so a lean app shares
+the full tier's data layer and can adopt the scaffold later without rework — a fallback for genuinely lean
+apps, not a license to defer the default on a normal one.
 
 ### Headless quick-start (data layer only)
 
@@ -206,7 +207,7 @@ class Product extends EntityBase {
     id = 0
     name = ""
     get $id() {
-        return this.id
+        return this.id || "new"
     }
     get $title() {
         return this.name

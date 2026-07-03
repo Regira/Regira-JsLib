@@ -1,7 +1,7 @@
 import { deepCopy } from "../../../utilities/object-utility"
 import { ref, unref, type Ref, getCurrentInstance } from "vue"
 import { type FeedbackOut } from "../../ui"
-import type { IEntity, IEntityService, SaveResult } from "../../entities/abstractions"
+import { type IEntity, type IEntityService, type SaveResult, isNewEntity } from "../../entities/abstractions"
 import type { FormEmits, FormProps } from "./form"
 
 export interface FormModalEmits<T extends IEntity> extends FormEmits<T> {
@@ -72,7 +72,7 @@ export function useModalForm<T extends IEntity>({
                 // make sure model is converted to an entity and $id is accessible
                 itemValue = entityService.toEntity(itemValue || defaultValues)
             }
-            if (entityService != null && itemValue.$id !== "new") {
+            if (entityService != null && !isNewEntity(itemValue.$id)) {
                 itemValue = (await entityService.details(itemValue.$id)) || itemValue
             }
             if (typeof itemDefaults === "function") {

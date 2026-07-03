@@ -1,6 +1,6 @@
 import { type Ref } from "vue";
 import { type FeedbackOut } from "../../ui";
-import type { IEntity, IEntityService, SaveResult } from "../../entities/abstractions";
+import { type IEntity, type IEntityService, type SaveResult } from "../../entities/abstractions";
 import type { FormEmits, FormProps } from "./form";
 export interface FormModalEmits<T extends IEntity> extends FormEmits<T> {
     (e: "open", item: T, update: (newItem: T) => void): void;

@@ -1,5 +1,5 @@
 import { type AxiosInstance } from "axios";
-import type { IEntity } from "./IEntity";
+import { type IEntity } from "./IEntity";
 import type { IConfig } from "./IConfig";
 import { type IPagingInfo } from "./PagingInfo";
 import type { ISortByInfo } from "./SortByInfo";

@@ -1,24 +1,25 @@
 import { C as e, g as t, w as n } from "./array-utility-3.2.5.js";
 import { t as r } from "./query-3.2.5.js";
-import { AxiosError as i } from "axios";
+import { isNewEntity as i } from "../vue/entities/abstractions/IEntity.js";
+import { AxiosError as a } from "axios";
 //#region src/vue/entities/abstractions/IConfig.ts
-var a = /* @__PURE__ */ function(e) {
+var o = /* @__PURE__ */ function(e) {
 	return e.dashboard = "Dashboard", e.navbar = "Navbar", e;
-}({}), o = 10, s = class {
+}({}), s = 10, c = class {
 	page = 1;
 	pageSize = 10;
 	constructor(e = 10, t = 1) {
 		this.pageSize = e, this.page = t;
 	}
-}, c = class {
+}, l = class {
 	sortBy = "";
 };
 //#endregion
 //#region src/vue/entities/utilities/query.ts
-function l(e, t) {
+function u(e, t) {
 	return Object.fromEntries(Object.entries(e).filter(([e, t]) => t != null && e[0] != "$" && (e !== "page" || t > 1)));
 }
-function u(e) {
+function d(e) {
 	let { page: t, pageSize: n, ...r } = e;
 	return {
 		searchObject: r,
@@ -30,9 +31,7 @@ function u(e) {
 }
 //#endregion
 //#region src/vue/entities/abstractions/EntityServiceBase.ts
-var d = class {
-	axios;
-	config;
+var f = class {
 	defaultPageSize = 10;
 	constructor(e, t) {
 		if (this.axios = e, this.config = t, e == null) throw Error(`EntityServiceBase ("${t?.key ?? "unknown entity"}") was constructed without an axios instance. Register the shared axios in the IoC container so services can resolve it: app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => initAxios({ api })) }).`);
@@ -62,14 +61,14 @@ var d = class {
 		};
 	}
 	async searchUnion(e, t) {
-		let n = r(l({
+		let n = r(u({
 			...this.config.baseQueryParams || {},
 			...t || {}
 		}, this.defaultPageSize)), i = `${this.requireUrl(this.config.searchUrl, "searchUrl")}?${n}`, { data: a } = await this.axios.post(i, e).then((e) => e);
 		return a;
 	}
 	async save(e) {
-		let t = e.$id == null || e.$id === "new", n = t ? await this.insert(e) : await this.update(e);
+		let t = i(e.$id), n = t ? await this.insert(e) : await this.update(e);
 		return {
 			saved: this.processItem(n),
 			isNew: t
@@ -86,20 +85,20 @@ var d = class {
 			prepared: n
 		});
 		let r = await this.axios.put(t, n);
-		if (r instanceof i) throw r;
-		let { item: a } = await r.data;
-		return this.processItem(a);
+		if (r instanceof a) throw r;
+		let { item: i } = await r.data;
+		return this.processItem(i);
 	}
 	async insert(e) {
 		let t = this.requireUrl(this.config.saveUrl, "saveUrl"), n = this.prepareItem(e), r = await this.axios.post(t, n);
-		if (r instanceof i) throw r;
-		let { item: a } = r.data;
-		return "id" in a && Object.defineProperty(e, "id", {
-			value: a.id,
+		if (r instanceof a) throw r;
+		let { item: i } = r.data;
+		return "id" in i && Object.defineProperty(e, "id", {
+			value: i.id,
 			writable: !0,
 			configurable: !0,
 			enumerable: !0
-		}), this.processItem(a);
+		}), this.processItem(i);
 	}
 	async fetchItems(e, t) {
 		let n = {
@@ -107,7 +106,7 @@ var d = class {
 			...t || {}
 		};
 		!n.pageSize && n.pageSize !== 0 && (n.pageSize = this.defaultPageSize), (!("isArchived" in n) || n.isArchived == null) && (n.isArchived = !1);
-		let i = `${e}?${r(l(n, this.defaultPageSize))}`, { data: a } = await this.axios.get(i).then((e) => e);
+		let i = `${e}?${r(u(n, this.defaultPageSize))}`, { data: a } = await this.axios.get(i).then((e) => e);
 		return a;
 	}
 	processItem(e) {
@@ -134,16 +133,15 @@ var d = class {
 	async newEntity(e) {
 		return this.toEntity(e || {});
 	}
-}, f = /* @__PURE__ */ new Map(), p = class extends d {
-	key;
+}, p = /* @__PURE__ */ new Map(), m = class extends f {
 	constructor(e, t, n) {
 		super(e, t), this.key = n;
 	}
 	get cachedItems() {
-		return f.get(this.key) || null;
+		return p.get(this.key) || null;
 	}
 	set cachedItems(e) {
-		f.set(this.key, e);
+		p.set(this.key, e);
 	}
 	async fetchJSONItems() {
 		return this.cachedItems ??= await super.list(), this.cachedItems;
@@ -164,9 +162,9 @@ var d = class {
 		};
 	}
 	async save(e) {
-		let n = this.processItem(e), r = n.$id == null || n.$id == "new", i = await this.fetchJSONItems();
+		let n = this.processItem(e), r = i(n.$id), a = await this.fetchJSONItems();
 		if (r) {
-			let e = (t(i, (e) => parseInt(e.$id.toString())) ?? 0) + 1;
+			let e = (t(a, (e) => parseInt(e.$id.toString())) ?? 0) + 1;
 			Object.defineProperty(n, "id", {
 				value: e,
 				enumerable: !0,
@@ -174,8 +172,8 @@ var d = class {
 				configurable: !0
 			}), this.cachedItems.push(n);
 		} else {
-			let e = i.findIndex((e) => e.$id == n.$id);
-			i.splice(e, 1, n);
+			let e = a.findIndex((e) => e.$id == n.$id);
+			a.splice(e, 1, n);
 		}
 		return {
 			saved: this.toEntity(n),
@@ -193,10 +191,10 @@ var d = class {
 		};
 		return Object.fromEntries(Object.entries(i).filter(([, e]) => e != null));
 	}
-}, m = class {
+}, h = class {
 	constructor() {}
 };
-Object.defineProperty(m.prototype, "entityType", {
+Object.defineProperty(h.prototype, "entityType", {
 	get() {
 		return this.constructor.name;
 	},
@@ -205,8 +203,8 @@ Object.defineProperty(m.prototype, "entityType", {
 });
 //#endregion
 //#region src/vue/entities/abstractions/SearchObjectBase.ts
-var h = class {
+var g = class {
 	q;
-}, g = class extends h {};
+}, _ = class extends g {};
 //#endregion
-export { d as a, c, a as d, p as i, o as l, h as n, l as o, m as r, u as s, g as t, s as u };
+export { f as a, l as c, o as d, m as i, s as l, g as n, u as o, h as r, d as s, _ as t, c as u };

@@ -27,11 +27,13 @@ Verbatim TypeScript signatures for the front-end CRUD client (`regira_modules/vu
 ## 1. Entity contracts
 
 ```ts
-import type { IEntity } from "regira_modules/vue/entities"
+import { type IEntity, isNewEntity } from "regira_modules/vue/entities"
 export interface IEntity {
     get $id(): number | string // uniform identifier
     get $title(): string | undefined // uniform label used for display
 }
+// true for an unsaved-entity sentinel: null | undefined | "new" | "" | a non-positive number (0 or a negative temp id). save() inserts these.
+export function isNewEntity(id: number | string | null | undefined): boolean
 ```
 
 ```ts

@@ -1,7 +1,7 @@
 import type { AxiosInstance } from "axios"
 import { page, max, query } from "../../../utilities/array-utility"
 import type { IConfig } from "./IConfig"
-import type { IEntity } from "./IEntity"
+import { type IEntity, isNewEntity } from "./IEntity"
 import EntityServiceBase from "./EntityServiceBase"
 import type { SearchResult } from "./IEntityService"
 import type { ISearchObject } from "./ISearchObject"
@@ -55,7 +55,7 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
     }
     override async save(item: T): Promise<{ saved: T; isNew: boolean }> {
         const processedItem = this.processItem(item)!
-        const isNew = processedItem.$id == null || processedItem.$id == "new"
+        const isNew = isNewEntity(processedItem.$id)
         const items = await this.fetchJSONItems()
         if (isNew) {
             const newId = ((max(items, (x: T) => parseInt(x.$id.toString())) as number | null) ?? 0) + 1

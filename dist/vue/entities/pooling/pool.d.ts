@@ -1,5 +1,5 @@
 import type { Ref } from "vue";
-import type { IEntity, IEntityService } from "../abstractions";
+import { type IEntity, type IEntityService } from "../abstractions";
 import { type IPoolService } from "./PoolService";
 import { PoolCache, type IPoolCache } from "./PoolCache";
 export interface IPoolHandler<T extends IEntity> extends IPoolService<T> {

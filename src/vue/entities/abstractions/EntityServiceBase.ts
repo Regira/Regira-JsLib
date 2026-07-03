@@ -1,5 +1,5 @@
 import { type AxiosInstance, type AxiosResponse, AxiosError } from "axios"
-import type { IEntity } from "./IEntity"
+import { type IEntity, isNewEntity } from "./IEntity"
 import type { IConfig } from "./IConfig"
 import { createQueryString } from "../../http/query"
 import { cleanQueryParams } from "../utilities/query"
@@ -83,7 +83,7 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     }
 
     async save(item: T): Promise<SaveResult<T>> {
-        const isNew = item.$id == null || item.$id === "new"
+        const isNew = isNewEntity(item.$id)
         const saved = isNew ? await this.insert(item) : await this.update(item)
         return { saved: this.processItem(saved)!, isNew }
     }

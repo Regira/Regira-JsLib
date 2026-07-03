@@ -1,5 +1,5 @@
 import type { Ref } from "vue"
-import type { IEntity, IEntityService } from "../abstractions"
+import { type IEntity, type IEntityService, isNewEntity } from "../abstractions"
 import { PoolService, type IPoolService } from "./PoolService"
 import { PoolCache, type IPoolCache } from "./PoolCache"
 
@@ -32,7 +32,7 @@ export function usePooling<T extends IEntity>(
         }
         if (!Array.isArray(input)) {
             const item = service.toEntity(input as unknown as T)
-            if (["new", null, undefined, "", 0].includes(item?.$id)) {
+            if (isNewEntity(item?.$id)) {
                 return item as unknown as P
             }
         }

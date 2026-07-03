@@ -67,7 +67,9 @@ back-end `Regira.Entities.Web` endpoints return:
 | `update(item)`     | PUT    | `{saveUrl}/{$id}`                             | `{ item }`         |
 | `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                           | —                  |
 
-`save(item)` inserts when `$id` is `null`/`"new"`, otherwise updates, and returns `{ saved, isNew }`.
+`save(item)` inserts when `$id` is an unsaved sentinel — `null`/`undefined`/`"new"`/`""` or a non-positive
+number (`0`, or a negative temp id) via the exported `isNewEntity($id)` predicate — otherwise updates, and
+returns `{ saved, isNew }`.
 
 ### Automatic query parameters
 
