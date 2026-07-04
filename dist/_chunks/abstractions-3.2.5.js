@@ -32,6 +32,8 @@ function d(e) {
 //#endregion
 //#region src/vue/entities/abstractions/EntityServiceBase.ts
 var f = class {
+	axios;
+	config;
 	defaultPageSize = 10;
 	constructor(e, t) {
 		if (this.axios = e, this.config = t, e == null) throw Error(`EntityServiceBase ("${t?.key ?? "unknown entity"}") was constructed without an axios instance. Register the shared axios in the IoC container so services can resolve it: app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => initAxios({ api })) }).`);
@@ -40,6 +42,11 @@ var f = class {
 	requireUrl(e, t) {
 		if (e == null || e === "") throw Error(`EntityServiceBase ("${this.config.key ?? "unknown entity"}"): config.${t} could not be resolved (config.api is also unset). Set config.api so the request URL can be built.`);
 		return e;
+	}
+	requireId(e, t) {
+		let n = e.$id;
+		if (n == null || n === "") throw Error(`EntityServiceBase ("${this.config.key ?? "unknown entity"}"): cannot ${t} — $id is ${String(n)}. $id/$title are prototype getters; spreading a model ({ ...item }) drops them. Mutate the instance in place (item.prop = …) instead of spreading before ${t}.`);
+		return n;
 	}
 	async details(e) {
 		let t = await this.axios.get(`${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${e}`);
@@ -75,16 +82,11 @@ var f = class {
 		};
 	}
 	async remove(e) {
-		let t = this.prepareItem(e), n = `${this.requireUrl(this.config.deleteUrl, "deleteUrl")}/${t.$id}`;
-		await this.axios.delete(n).then((e) => e.data);
+		let t = `${this.requireUrl(this.config.deleteUrl, "deleteUrl")}/${this.requireId(e, "delete")}`;
+		await this.axios.delete(t).then((e) => e.data);
 	}
 	async update(e) {
-		let t = `${this.requireUrl(this.config.saveUrl, "saveUrl")}/${e.$id}`, n = this.prepareItem(e);
-		console.debug("update", {
-			item: e,
-			prepared: n
-		});
-		let r = await this.axios.put(t, n);
+		let t = `${this.requireUrl(this.config.saveUrl, "saveUrl")}/${this.requireId(e, "update")}`, n = this.prepareItem(e), r = await this.axios.put(t, n);
 		if (r instanceof a) throw r;
 		let { item: i } = await r.data;
 		return this.processItem(i);
@@ -134,6 +136,7 @@ var f = class {
 		return this.toEntity(e || {});
 	}
 }, p = /* @__PURE__ */ new Map(), m = class extends f {
+	key;
 	constructor(e, t, n) {
 		super(e, t), this.key = n;
 	}

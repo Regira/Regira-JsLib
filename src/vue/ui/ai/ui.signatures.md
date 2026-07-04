@@ -172,7 +172,7 @@ import {
 // ConfirmButton props: { icon?: string; buttonLabel?: string; modalTitle?: string; modalType?: ModalType }
 // DateInput props: { modelValue?: string | Date; culture?: string }   (v-model)
 // DescriptionInput props: { label?: string; readonly?: boolean }   (v-model: string)
-// FormButtonsRow props: { item?: { isArchived?: boolean }; readonly?: boolean; feedback?: unknown; showDelete?: boolean } ; emits: cancel | remove | restore
+// FormButtonsRow props: { item?: unknown; readonly?: boolean; feedback?: unknown; showDelete?: boolean } (reads item.isArchived to gate Restore, item.$title for the delete prompt) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")
 ```
 
 Other input/gis components (`Anchor`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`,

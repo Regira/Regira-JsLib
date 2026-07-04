@@ -19,7 +19,11 @@ const logout = () => authStore.logout() // @auth:only
                 <NavBar @select="closeMenu" />
                 <div class="d-flex ms-auto align-items-center gap-2">
                     <NavSearch @search="closeMenu" />
-                    <button v-if="$auth.enabled && $auth.isAuthenticated" class="btn btn-outline-secondary btn-sm" @click="logout">{{ $t("signOut") }}</button> <!-- @auth:only -->
+                    <!-- @auth:block-start -->
+                    <button v-if="$auth.enabled && $auth.isAuthenticated" class="btn btn-outline-secondary btn-sm" @click="logout">
+                        {{ $t("signOut") }}
+                    </button>
+                    <!-- @auth:block-end -->
                 </div>
             </div>
         </div>

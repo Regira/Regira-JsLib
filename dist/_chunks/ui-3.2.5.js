@@ -11,16 +11,16 @@ import "./feedback-3.2.5.js";
 import "./modal-3.2.5.js";
 import { dateInputString as m } from "../vue/formatters/index.js";
 import "./icons-3.2.5.js";
-import { Fragment as h, Teleport as g, computed as _, createBlock as v, createCommentVNode as y, createElementBlock as b, createElementVNode as x, createTextVNode as S, createVNode as C, defineComponent as w, getCurrentInstance as T, inject as E, isRef as D, mergeDefaults as O, mergeModels as ee, mergeProps as k, normalizeClass as A, normalizeStyle as j, onMounted as te, onUnmounted as ne, openBlock as M, ref as N, renderList as P, renderSlot as F, resolveComponent as I, resolveDirective as L, resolveDynamicComponent as R, toDisplayString as z, toRefs as re, unref as B, useModel as ie, vModelText as V, vShow as H, watch as U, watchEffect as ae, withCtx as W, withDirectives as G, withKeys as K, withModifiers as q } from "vue";
-import { useRouter as J } from "vue-router";
-import { isValid as oe } from "date-fns";
+import { Fragment as h, Teleport as g, computed as _, createBlock as v, createCommentVNode as y, createElementBlock as b, createElementVNode as x, createTextVNode as S, createVNode as C, defineComponent as w, getCurrentInstance as T, inject as E, isRef as D, mergeDefaults as O, mergeModels as k, mergeProps as A, normalizeClass as j, normalizeStyle as M, onMounted as N, onUnmounted as ee, openBlock as P, ref as F, renderList as I, renderSlot as L, resolveComponent as R, resolveDirective as z, resolveDynamicComponent as B, toDisplayString as V, toRefs as te, unref as H, useModel as ne, vModelText as U, vShow as W, watch as G, watchEffect as re, withCtx as K, withDirectives as q, withKeys as J, withModifiers as Y } from "vue";
+import { useRouter as ie } from "vue-router";
+import { isValid as ae } from "date-fns";
 //#region src/vue/ui/autocomplete/autocomplete.ts
-var se = [
+var oe = [
 	"update:modelValue",
 	"update:idValue",
 	"select",
 	"qInput"
-], ce = {
+], se = {
 	idValue: [String, Number],
 	modelValue: { required: !1 },
 	data: {
@@ -55,25 +55,25 @@ var se = [
 		type: Number,
 		defaults: 250
 	}
-}, le = {
+}, ce = {
 	data: () => [],
 	maxResults: 10,
 	debounceTime: 250,
 	autoSelect: !1
 };
-function ue(e, { emit: t }) {
-	let n = N(""), a = N(-1), s = N(e.data), c = N(!1), l = N(!1), u = N(!1), d = _({
+function le(e, { emit: t }) {
+	let n = F(""), a = F(-1), s = F(e.data), c = F(!1), l = F(!1), u = F(!1), d = _({
 		get: () => e.modelValue,
 		set: (n) => {
 			e.modelValue !== n && (t("update:modelValue", n), t("update:idValue", y(n)), t("select", n));
 		}
-	}), f = _(() => y(d.value)), p = N(), m = N({
+	}), f = _(() => y(d.value)), p = F(), m = F({
 		top: 0,
 		left: 0
-	}), h = N({
+	}), h = F({
 		top: 0,
 		left: 0
-	}), g = N({
+	}), g = F({
 		top: 0,
 		left: 0
 	}), v = _(() => {
@@ -92,9 +92,9 @@ function ue(e, { emit: t }) {
 		return e.data?.filter((e) => b(e, n.value).toLowerCase().startsWith(t.toLowerCase()));
 	}
 	async function C(t = n.value) {
-		M(), u.value = !0, s.value = void 0;
+		P(), u.value = !0, s.value = void 0;
 		try {
-			let n = await L(t), r = e.maxResults || n.length;
+			let n = await z(t), r = e.maxResults || n.length;
 			s.value = n.slice(0, r), a.value = s.value?.findIndex((e) => y(e) == y(d.value));
 		} finally {
 			u.value = !1;
@@ -107,20 +107,20 @@ function ue(e, { emit: t }) {
 		}
 	}
 	function T() {
-		k(), C();
+		A(), C();
 	}
 	function E() {}
 	function D(e, t) {
-		P(), O(e, e ? t : -1);
+		I(), O(e, e ? t : -1);
 	}
 	function O(e, t) {
 		if (e == null && t == null) {
-			k(), n.value || P();
+			A(), n.value || I();
 			return;
 		}
 		e && (t == null || t < 0) ? t = (s.value || []).indexOf(e) : !e && t >= 0 && (e = s.value[t]), e != null && (a.value = t, d.value = e, n.value = x(d.value));
 	}
-	function ee(e) {
+	function k(e) {
 		console.debug("moveSelection", {
 			step: e,
 			selectedIndex: a.value,
@@ -129,13 +129,13 @@ function ue(e, { emit: t }) {
 		let t = a.value + e, n = s.value[t];
 		t >= 0 && t < s.value.length && O(n, t);
 	}
-	function k() {
+	function A() {
 		a.value = -1, d.value = void 0;
 	}
-	function A() {
-		n.value = "", k(), P();
+	function j() {
+		n.value = "", A(), I();
 	}
-	function j(e) {
+	function M(e) {
 		let t = 0, n = 0;
 		do
 			t += e?.offsetTop || 0, n += e?.offsetLeft || 0, e = e?.offsetParent;
@@ -145,33 +145,33 @@ function ue(e, { emit: t }) {
 			left: n
 		};
 	}
-	function M() {
-		R(), c.value = !0;
-	}
 	function P() {
+		B(), c.value = !0;
+	}
+	function I() {
 		c.value = !1;
 	}
-	function F() {
+	function L() {
 		c.value && setTimeout(() => {
-			w(!0), d.value ?? (n.value = ""), P();
+			w(!0), d.value ?? (n.value = ""), I();
 		}, 250);
 	}
-	function I(e) {
+	function R(e) {
 		throw e;
 	}
-	let L = r(e.search || e.data && S || I(/* @__PURE__ */ Error("prop search or data is required")), e.debounceTime), R = () => {
-		m.value = j(p.value), g.value = p.value ? i(p.value) : {
+	let z = r(e.search || e.data && S || R(/* @__PURE__ */ Error("prop search or data is required")), e.debounceTime), B = () => {
+		m.value = M(p.value), g.value = p.value ? i(p.value) : {
 			top: 0,
 			left: 0
 		};
-	}, z = r(R, 50);
-	return o(window, "resize", z), te(() => {
-		n.value = x(d.value), R(), document.addEventListener("scroll", z, !0);
-	}), ne(() => {
-		document.removeEventListener("scroll", z, !0);
-	}), U(d, (e, t) => {
+	}, V = r(B, 50);
+	return o(window, "resize", V), N(() => {
+		n.value = x(d.value), B(), document.addEventListener("scroll", V, !0);
+	}), ee(() => {
+		document.removeEventListener("scroll", V, !0);
+	}), G(d, (e, t) => {
 		e != t && e != d.value && O(e), e && (n.value = x(d.value));
-	}), U(n, () => t("qInput", n.value || "")), {
+	}), G(n, () => t("qInput", n.value || "")), {
 		q: n,
 		selectedItem: d,
 		selectedIndex: a,
@@ -189,22 +189,22 @@ function ue(e, { emit: t }) {
 		handleChange: E,
 		handleSelect: D,
 		handleSearch: C,
-		openResults: M,
-		closeResults: P,
-		closeGently: F,
-		moveSelection: ee,
+		openResults: P,
+		closeResults: I,
+		closeGently: L,
+		moveSelection: k,
 		checkMatch: w,
-		clearSelection: k,
-		reset: A
+		clearSelection: A,
+		reset: j
 	};
 }
 //#endregion
 //#region src/vue/ui/autocomplete/Autocomplete.vue?vue&type=script&setup=true&lang.ts
-var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTML"], me = /* @__PURE__ */ w({
+var ue = { class: "loading list-group-item" }, de = ["onClick"], fe = ["innerHTML"], pe = /* @__PURE__ */ w({
 	inheritAttrs: !1,
 	inheritAttrs: !1,
 	__name: "Autocomplete",
-	props: /* @__PURE__ */ O({
+	props: /*@__PURE__*/ O({
 		idValue: {},
 		modelValue: {},
 		data: {},
@@ -220,10 +220,10 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 		idSelector: { type: Function },
 		displayItemFormatter: { type: Function },
 		resultItemFormatter: { type: Function }
-	}, { ...le }),
-	emits: se,
+	}, { ...ce }),
+	emits: oe,
 	setup(e, { expose: t, emit: n }) {
-		let r = n, i = e, { q: a, selectedItem: o, selectedIndex: s, items: c, isFocus: l, inputEl: u, resultStyle: d, isLoading: f, resultItemFormatter: p, closeGently: m, moveSelection: g, handleInput: _, handleChange: v, handleSelect: y, handleSearch: S, reset: C } = ue(i, { emit: r });
+		let r = n, i = e, { q: a, selectedItem: o, selectedIndex: s, items: c, isFocus: l, inputEl: u, resultStyle: d, isLoading: f, resultItemFormatter: p, closeGently: m, moveSelection: g, handleInput: _, handleChange: v, handleSelect: y, handleSearch: S, reset: C } = le(i, { emit: r });
 		function w() {
 			l.value = !0, ((i.idSelector && i.idSelector(o.value) || "new") == "new" || o.value == null) && S();
 		}
@@ -246,41 +246,41 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 				l.value || (a.value = "");
 			}
 		}), (t, n) => {
-			let r = L("click-outside");
-			return M(), b(h, null, [G(x("input", k({
+			let r = z("click-outside");
+			return P(), b(h, null, [q(x("input", A({
 				autocomplete: "__away",
 				type: "text"
 			}, t.$attrs, {
 				"onUpdate:modelValue": n[0] ||= (e) => D(a) ? a.value = e : null,
-				onInput: n[1] ||= (...e) => B(_) && B(_)(...e),
+				onInput: n[1] ||= (...e) => H(_) && H(_)(...e),
 				onFocus: w,
 				onDblclick: E,
 				onBlur: T,
-				onChange: n[2] ||= (...e) => B(v) && B(v)(...e),
+				onChange: n[2] ||= (...e) => H(v) && H(v)(...e),
 				onKeydown: [
-					n[3] ||= K((e) => B(g)(1), ["down"]),
-					n[4] ||= K((e) => B(g)(-1), ["up"]),
-					n[5] ||= K(q((e) => B(y)(B(o), B(s)), ["prevent"]), ["enter"])
+					n[3] ||= J((e) => H(g)(1), ["down"]),
+					n[4] ||= J((e) => H(g)(-1), ["up"]),
+					n[5] ||= J(Y((e) => H(y)(H(o), H(s)), ["prevent"]), ["enter"])
 				],
 				ref_key: "inputEl",
 				ref: u
-			}), null, 16), [[V, B(a)]]), G((M(), b("div", {
-				class: A(["autocomplete-items bg-white border", e.resultClass]),
-				style: j(B(d))
-			}, [x("div", { class: A(["list-group", e.itemsClass]) }, [G(x("div", de, "Loading...", 512), [[H, B(f)]]), (M(!0), b(h, null, P(B(c), (n, r) => (M(), b("div", {
+			}), null, 16), [[U, H(a)]]), q((P(), b("div", {
+				class: j(["autocomplete-items bg-white border", e.resultClass]),
+				style: M(H(d))
+			}, [x("div", { class: j(["list-group", e.itemsClass]) }, [q(x("div", ue, "Loading...", 512), [[W, H(f)]]), (P(!0), b(h, null, I(H(c), (n, r) => (P(), b("div", {
 				key: r,
-				onClick: (e) => B(y)(n, r),
-				class: A(["autocomplete-item list-group-item list-group-item-action", [e.itemClass, { "bg-light": r == B(s) }]])
-			}, [F(t.$slots, "default", {
+				onClick: (e) => H(y)(n, r),
+				class: j(["autocomplete-item list-group-item list-group-item-action", [e.itemClass, { "bg-light": r == H(s) }]])
+			}, [L(t.$slots, "default", {
 				item: n,
-				q: B(a)
-			}, () => [x("div", { innerHTML: B(p)(n, B(a)) }, null, 8, pe)])], 10, fe))), 128))], 2)], 6)), [[r, O]])], 64);
+				q: H(a)
+			}, () => [x("div", { innerHTML: H(p)(n, H(a)) }, null, 8, fe)])], 10, de))), 128))], 2)], 6)), [[r, O]])], 64);
 		};
 	}
-}), he = ["name"], ge = {
+}), me = ["name"], he = {
 	key: 1,
 	class: "ms-1"
-}, _e = /* @__PURE__ */ w({
+}, ge = /* @__PURE__ */ w({
 	__name: "ConfirmButton",
 	props: {
 		icon: { default: "warning" },
@@ -295,7 +295,7 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 		"close"
 	],
 	setup(e, { emit: t }) {
-		let n = t, r = N(!1);
+		let n = t, r = F(!1);
 		function i() {
 			n("confirm"), s();
 		}
@@ -308,15 +308,15 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 		function s() {
 			n("close"), r.value = !1;
 		}
-		return (t, n) => (M(), b("button", {
+		return (t, n) => (P(), b("button", {
 			type: "button",
 			class: "btn",
 			name: e.icon,
 			onClick: a
-		}, [F(t.$slots, "button-content", {}, () => [e.icon == null ? y("", !0) : (M(), v(u, {
+		}, [L(t.$slots, "button-content", {}, () => [e.icon == null ? y("", !0) : (P(), v(u, {
 			key: 0,
 			name: e.icon
-		}, null, 8, ["name"])), e.buttonLabel ? (M(), b("span", ge, z(e.buttonLabel), 1)) : y("", !0)]), (M(), v(g, { to: "#modals" }, [F(t.$slots, "modal", {}, () => [C(l, {
+		}, null, 8, ["name"])), e.buttonLabel ? (P(), b("span", he, V(e.buttonLabel), 1)) : y("", !0)]), (P(), v(g, { to: "#modals" }, [L(t.$slots, "modal", {}, () => [C(l, {
 			"is-visible": r.value,
 			type: e.modalType,
 			title: e.modalTitle,
@@ -324,15 +324,15 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 			onCancel: o,
 			onClose: s
 		}, {
-			default: W(() => [F(t.$slots, "default")]),
+			default: K(() => [L(t.$slots, "default")]),
 			_: 3
 		}, 8, [
 			"is-visible",
 			"type",
 			"title"
-		])])]))], 8, he));
+		])])]))], 8, me));
 	}
-}), ve = ["href"], ye = /* @__PURE__ */ w({
+}), _e = ["href"], ve = /* @__PURE__ */ w({
 	__name: "Anchor",
 	props: { href: {} },
 	setup(r) {
@@ -344,9 +344,9 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 				"ftp:"
 			].some((e) => r.startsWith(e)) && (r = "http://" + r), r;
 		});
-		return (e, t) => (M(), b("a", { href: a.value }, [F(e.$slots, "default")], 8, ve));
+		return (e, t) => (P(), b("a", { href: a.value }, [L(e.$slots, "default")], 8, _e));
 	}
-}), be = ["value", "lang"], xe = /* @__PURE__ */ w({
+}), ye = ["value", "lang"], be = /* @__PURE__ */ w({
 	__name: "DateInput",
 	props: {
 		modelValue: {},
@@ -354,19 +354,19 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 	},
 	emits: ["update:modelValue"],
 	setup(e, { emit: t }) {
-		let n = t, r = e, i = _(() => oe(new Date(r.modelValue || ""))), a = _(() => i.value ? m(new Date(r.modelValue)) : r.modelValue), o = (e) => {
+		let n = t, r = e, i = _(() => ae(new Date(r.modelValue || ""))), a = _(() => i.value ? m(new Date(r.modelValue)) : r.modelValue), o = (e) => {
 			let t = new Date(e.target.value);
-			(!e.target.value || oe(t)) && n("update:modelValue", t || e.target.value);
+			(!e.target.value || ae(t)) && n("update:modelValue", t || e.target.value);
 		};
-		return (t, n) => (M(), b("input", {
+		return (t, n) => (P(), b("input", {
 			type: "date",
-			class: A(["form-control", { "is-invalid": a.value && !i.value }]),
+			class: j(["form-control", { "is-invalid": a.value && !i.value }]),
 			value: a.value,
 			onChange: o,
 			lang: e.culture
-		}, null, 42, be));
+		}, null, 42, ye));
 	}
-}), Se = /* @__PURE__ */ w({
+}), xe = /* @__PURE__ */ w({
 	__name: "FormLabel",
 	props: {
 		label: {},
@@ -376,11 +376,11 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 		}
 	},
 	setup(e) {
-		return (t, n) => (M(), b("small", { class: A(["form-text text-muted", e.autoHide ? "d-none d-md-inline" : "d-inline"]) }, z(e.label), 3));
+		return (t, n) => (P(), b("small", { class: j(["form-text text-muted", e.autoHide ? "d-none d-md-inline" : "d-inline"]) }, V(e.label), 3));
 	}
-}), Ce = { class: "description-input" }, we = ["readonly"], Te = /* @__PURE__ */ w({
+}), Se = { class: "description-input" }, Ce = ["readonly"], we = /* @__PURE__ */ w({
 	__name: "DescriptionInput",
-	props: /* @__PURE__ */ ee({
+	props: /*@__PURE__*/ k({
 		label: {},
 		readonly: { type: Boolean }
 	}, {
@@ -389,22 +389,18 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 	}),
 	emits: ["update:modelValue"],
 	setup(e) {
-		let t = ie(e, "modelValue");
-		return (n, r) => (M(), b("div", Ce, [G(x("textarea", {
+		let t = ne(e, "modelValue");
+		return (n, r) => (P(), b("div", Se, [q(x("textarea", {
 			"onUpdate:modelValue": r[0] ||= (e) => t.value = e,
 			readonly: e.readonly,
 			class: "form-control",
 			rows: "3"
-		}, null, 8, we), [[V, t.value]]), e.label ? (M(), v(Se, {
+		}, null, 8, Ce), [[U, t.value]]), e.label ? (P(), v(xe, {
 			key: 0,
 			label: e.label
 		}, null, 8, ["label"])) : y("", !0)]));
 	}
-}), Ee = { class: "form-buttons d-flex flex-wrap gap-2" }, De = {
-	key: 0,
-	type: "submit",
-	class: "btn btn-primary"
-}, Oe = /* @__PURE__ */ w({
+}), Te = { class: "form-buttons d-flex flex-wrap gap-2" }, Ee = /* @__PURE__ */ w({
 	__name: "FormButtonsRow",
 	props: {
 		item: {},
@@ -418,29 +414,51 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 		"restore"
 	],
 	setup(e, { emit: t }) {
-		let n = e, r = t, i = _(() => n.item?.isArchived === !0);
-		return (t, n) => (M(), b("div", Ee, [
-			e.readonly ? y("", !0) : (M(), b("button", De, "Save")),
-			x("button", {
+		let n = e, r = t, i = _(() => n.item?.isArchived === !0), a = _(() => n.item?.$title ?? "");
+		return (t, n) => (P(), b("div", Te, [
+			e.readonly ? y("", !0) : (P(), v(d, {
+				key: 0,
+				type: "submit",
+				icon: "save",
+				class: "btn-primary"
+			}, {
+				default: K(() => [...n[3] ||= [x("span", { class: "d-none d-md-inline ms-1" }, "Save", -1)]]),
+				_: 1
+			})),
+			C(d, {
 				type: "button",
-				class: "btn btn-outline-secondary",
+				icon: "cancel",
+				class: "btn-secondary",
 				onClick: n[0] ||= (e) => r("cancel")
-			}, "Cancel"),
-			e.showDelete && !i.value ? (M(), b("button", {
+			}, {
+				default: K(() => [...n[4] ||= [x("span", { class: "d-none d-md-inline ms-1" }, "Cancel", -1)]]),
+				_: 1
+			}),
+			e.showDelete && !i.value ? (P(), v(ge, {
 				key: 1,
-				type: "button",
-				class: "btn btn-outline-danger",
-				onClick: n[1] ||= (e) => r("remove")
-			}, "Delete")) : y("", !0),
-			i.value ? (M(), b("button", {
+				"modal-title": "Delete?",
+				"modal-type": H(c).danger,
+				class: "btn-danger",
+				disabled: e.readonly,
+				onConfirm: n[1] ||= (e) => r("remove")
+			}, {
+				"button-content": K(() => [C(u, { name: "delete" }), n[5] ||= x("span", { class: "d-none d-md-inline ms-1" }, "Delete", -1)]),
+				default: K(() => [L(t.$slots, "delete", {}, () => [S("Delete " + V(a.value) + "?", 1)])]),
+				_: 3
+			}, 8, ["modal-type", "disabled"])) : y("", !0),
+			i.value ? (P(), v(d, {
 				key: 2,
 				type: "button",
-				class: "btn btn-outline-secondary",
+				icon: "restore",
+				class: "btn-warning",
 				onClick: n[2] ||= (e) => r("restore")
-			}, "Restore")) : y("", !0)
+			}, {
+				default: K(() => [...n[6] ||= [x("span", { class: "d-none d-md-inline ms-1" }, "Restore", -1)]]),
+				_: 1
+			})) : y("", !0)
 		]));
 	}
-}), ke = ["checked"], Ae = /* @__PURE__ */ w({
+}), De = ["checked"], Oe = /* @__PURE__ */ w({
 	name: "NullableCheckBox",
 	props: { modelValue: { type: [
 		Boolean,
@@ -449,7 +467,7 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 	] } },
 	emits: ["update:modelValue", "change"],
 	setup(e, { emit: t }) {
-		let n = t, r = e, i = N(null), a = N(((e) => {
+		let n = t, r = e, i = F(null), a = F(((e) => {
 			if (e != null) return typeof e == "string" ? e === "true" ? !0 : e === "false" ? !1 : void 0 : new Boolean(e).valueOf();
 		})(r.modelValue)), o = _({
 			get() {
@@ -462,23 +480,23 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 		function c() {
 			o.value = o.value == null ? !0 : o.value ? !1 : void 0;
 		}
-		return ae(() => i.value && (i.value.indeterminate = o.value === void 0)), (e, t) => (M(), b("input", {
+		return re(() => i.value && (i.value.indeterminate = o.value === void 0)), (e, t) => (P(), b("input", {
 			type: "checkbox",
 			ref_key: "input",
 			ref: i,
 			onClick: c,
 			"true-value": !0,
 			checked: o.value,
-			style: j(s.value)
-		}, null, 12, ke));
+			style: M(s.value)
+		}, null, 12, De));
 	}
-}), je = /* @__PURE__ */ w({
+}), ke = /* @__PURE__ */ w({
 	__name: "NullableLabel",
 	props: { label: {} },
 	setup(e) {
-		return (t, n) => (M(), b("span", { class: A({ "italic-muted": !e.label }) }, [e.label ? (M(), b(h, { key: 0 }, [S(z(e.label), 1)], 64)) : F(t.$slots, "default", { key: 1 })], 2));
+		return (t, n) => (P(), b("span", { class: j({ "italic-muted": !e.label }) }, [e.label ? (P(), b(h, { key: 0 }, [S(V(e.label), 1)], 64)) : L(t.$slots, "default", { key: 1 })], 2));
 	}
-}), Me = { class: "form-section" }, Ne = { class: "form-section-title" }, Pe = { class: "row" }, Fe = { class: "p-2 mb-2" }, Ie = { class: "col-auto" }, Le = /* @__PURE__ */ w({
+}), Ae = { class: "form-section" }, je = { class: "form-section-title" }, Me = { class: "row" }, Ne = { class: "p-2 mb-2" }, Pe = { class: "col-auto" }, Fe = /* @__PURE__ */ w({
 	__name: "FormSection",
 	props: {
 		title: {},
@@ -489,74 +507,74 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 	},
 	emits: ["expand", "collapse"],
 	setup(e, { emit: t }) {
-		let n = t, r = e, i = T(), a = N(r.collapsed), o = N(r.readonly || r.showSummary), s = _({
+		let n = t, r = e, i = T(), a = F(r.collapsed), o = F(r.readonly || r.showSummary), s = _({
 			get: () => i?.slots.summary && (r.readonly || o.value),
 			set: (e) => o.value = !!e
 		});
 		function c() {
 			a.value = !a.value, a.value ? n("collapse") : n("expand");
 		}
-		return U(() => r.collapsed, () => {
+		return G(() => r.collapsed, () => {
 			a.value = r.collapsed, a.value ? n("collapse") : n("expand");
-		}), (t, n) => (M(), b("div", Me, [x("div", Ne, [F(t.$slots, "header", {
+		}), (t, n) => (P(), b("div", Ae, [x("div", je, [L(t.$slots, "header", {
 			collapsed: a.value,
 			showSummary: s.value
-		}, () => [x("div", Pe, [x("div", {
+		}, () => [x("div", Me, [x("div", {
 			class: "col",
 			onClick: n[0] ||= (e) => s.value = !s.value
-		}, [F(t.$slots, "title", { showSummary: s.value }, () => [x("h3", Fe, z(e.title), 1)])]), x("div", Ie, [!e.readonly && t.$slots.summary ? (M(), b("button", {
+		}, [L(t.$slots, "title", { showSummary: s.value }, () => [x("h3", Ne, V(e.title), 1)])]), x("div", Pe, [!e.readonly && t.$slots.summary ? (P(), b("button", {
 			key: 0,
 			type: "button",
 			class: "btn btn-default my-2 px-2 py-1 opacity-50",
-			onClick: n[1] ||= q((e) => s.value = !s.value, ["stop"])
+			onClick: n[1] ||= Y((e) => s.value = !s.value, ["stop"])
 		}, [C(u, { name: s.value ? "look" : "edit" }, null, 8, ["name"])])) : y("", !0), x("button", {
 			type: "button",
 			class: "btn btn-default my-2 px-2 py-1 opacity-50",
-			onClick: q(c, ["stop"])
-		}, [C(u, { name: a.value ? "maximize" : "minimize" }, null, 8, ["name"])])])])])]), G(x("div", { class: A(["form-section-body", s.value && e.summaryClass]) }, [
-			!t.$slots.summary || !s.value ? F(t.$slots, "default", {
+			onClick: Y(c, ["stop"])
+		}, [C(u, { name: a.value ? "maximize" : "minimize" }, null, 8, ["name"])])])])])]), q(x("div", { class: j(["form-section-body", s.value && e.summaryClass]) }, [
+			!t.$slots.summary || !s.value ? L(t.$slots, "default", {
 				key: 0,
 				collapsed: a.value
 			}) : y("", !0),
-			t.$slots.summary && s.value ? F(t.$slots, "summary", {
+			t.$slots.summary && s.value ? L(t.$slots, "summary", {
 				key: 1,
 				collapsed: a.value
 			}) : y("", !0),
-			F(t.$slots, "always")
-		], 2), [[H, !a.value]])]));
+			L(t.$slots, "always")
+		], 2), [[W, !a.value]])]));
 	}
-}), Re = /* @__PURE__ */ w({
+}), Ie = /* @__PURE__ */ w({
 	__name: "FileDropZone",
 	emits: ["drop-files"],
 	setup(e, { expose: t, emit: n }) {
-		let r = n, i = N();
+		let r = n, i = F();
 		async function a(e) {
 			r("drop-files", [...e.dataTransfer.files]);
 		}
-		return t({ isDropping: i }), (e, t) => (M(), b("div", {
-			onDrop: q(a, ["prevent"]),
-			onDragover: t[0] ||= q((e) => i.value = !0, ["prevent"]),
-			onDragleave: t[1] ||= q((e) => i.value = !1, ["prevent"])
-		}, [F(e.$slots, "default", { isDropping: i.value })], 32));
+		return t({ isDropping: i }), (e, t) => (P(), b("div", {
+			onDrop: Y(a, ["prevent"]),
+			onDragover: t[0] ||= Y((e) => i.value = !0, ["prevent"]),
+			onDragleave: t[1] ||= Y((e) => i.value = !1, ["prevent"])
+		}, [L(e.$slots, "default", { isDropping: i.value })], 32));
 	}
-}), ze = /* @__PURE__ */ w({
+}), Le = /* @__PURE__ */ w({
 	__name: "CopyToClipboardButton",
 	props: {
 		value: {},
 		timeout: { default: 2500 }
 	},
 	setup(e, { expose: t }) {
-		let n = e, r = N();
+		let n = e, r = F();
 		function i() {
 			a(n.value ?? ""), r.value = !0, setTimeout(() => r.value = void 0, n.timeout);
 		}
-		return t({ success: r }), (e, t) => (M(), v(d, {
+		return t({ success: r }), (e, t) => (P(), v(d, {
 			icon: r.value ? "check" : "copy",
 			disabled: r.value,
 			onClick: i
 		}, null, 8, ["icon", "disabled"]));
 	}
-}), Be = ["src"], Ve = /* @__PURE__ */ w({
+}), Re = ["src"], ze = /* @__PURE__ */ w({
 	__name: "GMap",
 	props: {
 		modelValue: {},
@@ -564,41 +582,41 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 	},
 	setup(e) {
 		let t = e, n = _(() => (Array.isArray(t.modelValue) ? t.modelValue : [t.modelValue]).filter((e) => e).join(" ")), r = _(() => `https://maps.google.com/maps?q=${encodeURIComponent(n.value)}&t=&z=${t.zoom || 10}&ie=UTF8&iwloc=&output=embed`);
-		return (e, t) => (M(), b("iframe", {
+		return (e, t) => (P(), b("iframe", {
 			src: r.value,
 			frameborder: "0",
 			scrolling: "no",
 			marginheight: "0",
 			marginwidth: "0",
 			allowfullscreen: ""
-		}, null, 8, Be));
+		}, null, 8, Re));
 	}
-}), He = ["href"], Ue = /* @__PURE__ */ w({
+}), Be = ["href"], Ve = /* @__PURE__ */ w({
 	__name: "GmapLink",
 	props: { modelValue: {} },
 	setup(e) {
 		let t = e, n = _(() => (Array.isArray(t.modelValue) ? t.modelValue : [t.modelValue]).filter((e) => e).join(" "));
-		return (e, t) => (M(), b("a", { href: `https://www.google.com/maps/?q=${n.value}` }, [C(u, { name: "map" }), F(e.$slots, "default")], 8, He));
+		return (e, t) => (P(), b("a", { href: `https://www.google.com/maps/?q=${n.value}` }, [C(u, { name: "map" }), L(e.$slots, "default")], 8, Be));
 	}
-}), We = /* @__PURE__ */ f(/* @__PURE__ */ w({
+}), He = /*#__PURE__*/ f(/* @__PURE__ */ w({
 	__name: "ModalButton",
 	props: {
 		modelValue: {},
 		zoom: {}
 	},
 	setup(e) {
-		let t = e, n = _(() => (Array.isArray(t.modelValue) ? t.modelValue : [t.modelValue]).filter((e) => e).join(" ")), r = N(!1);
-		return (t, i) => (M(), b("button", {
+		let t = e, n = _(() => (Array.isArray(t.modelValue) ? t.modelValue : [t.modelValue]).filter((e) => e).join(" ")), r = F(!1);
+		return (t, i) => (P(), b("button", {
 			type: "button",
 			onClick: i[1] ||= (e) => r.value = !0
-		}, [F(t.$slots, "default", {}, () => [C(u, { name: "map" })], !0), (M(), v(g, { to: "#modals" }, [C(B(l), {
+		}, [L(t.$slots, "default", {}, () => [C(u, { name: "map" })], !0), (P(), v(g, { to: "#modals" }, [C(H(l), {
 			"is-visible": r.value,
 			title: n.value,
 			"show-footer": !1,
 			"full-width": !0,
 			onClose: i[0] ||= (e) => r.value = !1
 		}, {
-			default: W(() => [C(Ve, {
+			default: K(() => [C(ze, {
 				id: "gmap_canvas",
 				modelValue: e.modelValue,
 				zoom: e.zoom,
@@ -607,50 +625,50 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 			_: 1
 		}, 8, ["is-visible", "title"])]))]));
 	}
-}), [["__scopeId", "data-v-d98fe386"]]), Ge = ["src"], Y = /* @__PURE__ */ w({
+}), [["__scopeId", "data-v-998cd3e5"]]), Ue = ["src"], X = /* @__PURE__ */ w({
 	__name: "Loading",
 	setup(e, { expose: t }) {
-		let n = E("loadingImg"), r = N(null);
+		let n = E("loadingImg"), r = F(null);
 		return t({
 			imgEl: r,
 			dimensions: () => [r.value?.width, r.value?.height],
 			height: () => r.value?.naturalHeight
-		}), (e, t) => (M(), b("img", {
-			src: B(n),
+		}), (e, t) => (P(), b("img", {
+			src: H(n),
 			ref_key: "imgEl",
 			ref: r
-		}, null, 8, Ge));
+		}, null, 8, Ue));
 	}
-}), Ke = ["disabled"], qe = /* @__PURE__ */ w({
+}), We = ["disabled"], Ge = /* @__PURE__ */ w({
 	__name: "LoadingButton",
 	props: {
 		isLoading: { type: Boolean },
 		disabled: { type: Boolean }
 	},
 	setup(e) {
-		return (t, n) => (M(), b("button", {
+		return (t, n) => (P(), b("button", {
 			type: "button",
 			class: "btn",
 			disabled: e.disabled || e.isLoading
-		}, [e.isLoading ? F(t.$slots, "loading", { key: 0 }, () => [C(Y, { style: { width: "1rem" } })]) : F(t.$slots, "default", { key: 1 })], 8, Ke));
+		}, [e.isLoading ? L(t.$slots, "loading", { key: 0 }, () => [C(X, { style: { width: "1rem" } })]) : L(t.$slots, "default", { key: 1 })], 8, We));
 	}
-}), Je = /* @__PURE__ */ w({
+}), Ke = /* @__PURE__ */ w({
 	__name: "LoadingContainer",
 	props: { isLoading: { type: Boolean } },
 	setup(e, { expose: t }) {
-		let n = N(null), r = N(null);
+		let n = F(null), r = F(null);
 		function i() {
 			return r.value?.imgEl?.width;
 		}
 		return t({
 			containerEl: n,
 			loadingImgEl: r.value?.imgEl
-		}), (t, a) => (M(), b("div", {
+		}), (t, a) => (P(), b("div", {
 			class: "position-relative",
-			style: j({ height: e.isLoading ? `${i()}px` : void 0 }),
+			style: M({ height: e.isLoading ? `${i()}px` : void 0 }),
 			ref_key: "containerEl",
 			ref: n
-		}, [F(t.$slots, "loading", {}, () => [e.isLoading ? (M(), v(Y, {
+		}, [L(t.$slots, "loading", {}, () => [e.isLoading ? (P(), v(X, {
 			key: 0,
 			class: "position-absolute top-0 start-50 translate-middle-x",
 			style: {
@@ -659,19 +677,19 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = ["innerHTM
 			},
 			ref_key: "loadingEl",
 			ref: r
-		}, null, 512)) : y("", !0)]), x("div", { style: j({ opacity: e.isLoading ? "0.4" : "" }) }, [F(t.$slots, "default")], 4)], 4));
+		}, null, 512)) : y("", !0)]), x("div", { style: M({ opacity: e.isLoading ? "0.4" : "" }) }, [L(t.$slots, "default")], 4)], 4));
 	}
-}), Ye = { install(e, t) {
-	e.provide("loadingImg", t.img), p.registerComponentsGlobally && (e.component("Loading", Y), e.component("LoadingButton", qe), e.component("LoadingContainer", Je));
-} }, Xe = { PAGESIZE: 10 }, X = /* @__PURE__ */ function(e) {
+}), qe = { install(e, t) {
+	e.provide("loadingImg", t.img), p.registerComponentsGlobally && (e.component("Loading", X), e.component("LoadingButton", Ge), e.component("LoadingContainer", Ke));
+} }, Je = { PAGESIZE: 10 }, Ye = /* @__PURE__ */ function(e) {
 	return e.anchor = "Anchor", e.button = "Button", e;
-}({}), Ze = {
+}({}), Xe = {
 	maxPages: 9,
-	buttonType: X.anchor
+	buttonType: "Anchor"
 };
-function Qe({ pagingInfo: e, count: t, maxPages: n, emit: r }) {
+function Ze({ pagingInfo: e, count: t, maxPages: n, emit: r }) {
 	n = window.innerWidth < 576 ? Math.ceil(n / 2) : n;
-	let i = _(() => (isNaN(parseInt(e.value.pageSize + "")) ? null : e.value.pageSize) || Xe.PAGESIZE), a = J();
+	let i = _(() => (isNaN(parseInt(e.value.pageSize + "")) ? null : e.value.pageSize) || Je.PAGESIZE), a = ie();
 	function o(e) {
 		let { name: t, path: n, hash: r, query: i } = a.currentRoute.value, o = {
 			name: t,
@@ -711,7 +729,7 @@ function Qe({ pagingInfo: e, count: t, maxPages: n, emit: r }) {
 }
 //#endregion
 //#region src/vue/ui/paging/PagingAnchor.vue
-var $e = /* @__PURE__ */ w({
+var Qe = /* @__PURE__ */ w({
 	__name: "PagingAnchor",
 	props: {
 		to: {},
@@ -719,98 +737,98 @@ var $e = /* @__PURE__ */ w({
 	},
 	setup(e) {
 		return (t, n) => {
-			let r = I("RouterLink");
-			return M(), v(r, {
+			let r = R("RouterLink");
+			return P(), v(r, {
 				class: "page-link",
 				to: e.to,
 				title: "page " + e.page,
 				activeClass: "active-page"
 			}, {
-				default: W(() => [F(t.$slots, "default", {}, () => [S(z(e.page), 1)])]),
+				default: K(() => [L(t.$slots, "default", {}, () => [S(V(e.page), 1)])]),
 				_: 3
 			}, 8, ["to", "title"]);
 		};
 	}
-}), et = ["title"], tt = /* @__PURE__ */ w({
+}), $e = ["title"], et = /* @__PURE__ */ w({
 	__name: "PagingButton",
 	props: {
 		to: {},
 		page: {}
 	},
 	setup(e) {
-		return (t, n) => (M(), b("button", {
+		return (t, n) => (P(), b("button", {
 			type: "button",
 			class: "btn btn-link page-link",
 			title: "page " + e.page
-		}, [F(t.$slots, "default", {}, () => [S(z(e.page), 1)])], 8, et));
+		}, [L(t.$slots, "default", {}, () => [S(V(e.page), 1)])], 8, $e));
 	}
-}), nt = { "aria-label": "Pagination" }, rt = { class: "pagination" }, it = { class: "page-item" }, at = { class: "page-item" }, ot = /* @__PURE__ */ w({
+}), tt = { "aria-label": "Pagination" }, nt = { class: "pagination" }, rt = { class: "page-item" }, it = { class: "page-item" }, at = /* @__PURE__ */ w({
 	__name: "Paging",
-	props: /* @__PURE__ */ O({
+	props: /*@__PURE__*/ O({
 		modelValue: {},
 		count: {},
 		maxPages: {},
 		buttonType: {}
-	}, { ...Ze }),
+	}, { ...Xe }),
 	emits: ["update:modelValue", "change"],
 	setup(e, { emit: t }) {
-		let n = t, r = e, i = s(r, n), { count: a } = re(r), o = r.buttonType == X.button ? tt : $e, { pagedRoute: c, page: l, totalPages: u, pages: d, handleChangePage: f } = Qe({
+		let n = t, r = e, i = s(r, n), { count: a } = te(r), o = r.buttonType == Ye.button ? et : Qe, { pagedRoute: c, page: l, totalPages: u, pages: d, handleChangePage: f } = Ze({
 			pagingInfo: i,
 			count: a,
 			maxPages: r.maxPages,
 			emit: n
 		});
-		return (e, t) => (M(), b("nav", nt, [x("ul", rt, [
-			x("li", it, [F(e.$slots, "firstPage", { page: 1 }, () => [(M(), v(R(B(o)), {
+		return (e, t) => (P(), b("nav", tt, [x("ul", nt, [
+			x("li", rt, [L(e.$slots, "firstPage", { page: 1 }, () => [(P(), v(B(H(o)), {
 				page: 1,
-				to: B(c)(1),
-				onClick: t[0] ||= q((e) => B(f)(1), ["prevent"]),
+				to: H(c)(1),
+				onClick: t[0] ||= Y((e) => H(f)(1), ["prevent"]),
 				"aria-label": "Previous"
 			}, {
-				default: W(() => [...t[2] ||= [S("«", -1)]]),
+				default: K(() => [...t[2] ||= [S("«", -1)]]),
 				_: 1
 			}, 8, ["to"]))])]),
-			(M(!0), b(h, null, P(B(d), (t) => (M(), b("li", {
-				class: A(["page-item", { active: t == B(l) }]),
+			(P(!0), b(h, null, I(H(d), (t) => (P(), b("li", {
+				class: j(["page-item", { active: t == H(l) }]),
 				key: t
-			}, [F(e.$slots, "default", {
+			}, [L(e.$slots, "default", {
 				page: t,
-				route: B(c)(t),
-				handleChange: B(f)
-			}, () => [(M(), v(R(B(o)), {
+				route: H(c)(t),
+				handleChange: H(f)
+			}, () => [(P(), v(B(H(o)), {
 				page: t,
-				to: B(c)(t),
-				onClick: q((e) => B(f)(t), ["prevent"])
+				to: H(c)(t),
+				onClick: Y((e) => H(f)(t), ["prevent"])
 			}, {
-				default: W(() => [S(z(t), 1)]),
+				default: K(() => [S(V(t), 1)]),
 				_: 2
 			}, 1032, [
 				"page",
 				"to",
 				"onClick"
 			]))])], 2))), 128)),
-			x("li", at, [F(e.$slots, "lastPage", { page: B(u) }, () => [(M(), v(R(B(o)), {
-				page: B(u),
-				to: B(c)(B(u)),
-				onClick: t[1] ||= q((e) => B(f)(B(u)), ["prevent"]),
+			x("li", it, [L(e.$slots, "lastPage", { page: H(u) }, () => [(P(), v(B(H(o)), {
+				page: H(u),
+				to: H(c)(H(u)),
+				onClick: t[1] ||= Y((e) => H(f)(H(u)), ["prevent"]),
 				"aria-label": "Next"
 			}, {
-				default: W(() => [...t[3] ||= [S(" » ", -1)]]),
+				default: K(() => [...t[3] ||= [S(" » ", -1)]]),
 				_: 1
 			}, 8, ["page", "to"]))])])
 		])]));
 	}
-}), st = { class: "result-summary text-muted small" }, ct = /* @__PURE__ */ w({
+}), ot = { class: "result-summary text-muted small" }, st = /* @__PURE__ */ w({
 	__name: "ResultSummary",
 	props: {
 		visibleCount: {},
 		totalCount: {}
 	},
 	setup(e) {
-		return (t, n) => (M(), b("span", st, z(e.visibleCount ?? 0) + " / " + z(e.totalCount ?? 0), 1));
+		return (t, n) => (P(), b("span", ot, V(e.visibleCount ?? 0) + " / " + V(e.totalCount ?? 0), 1));
 	}
-}), lt = { install(e, { defaultPageSize: t = 10 } = {}) {
-	Xe.PAGESIZE = t, p.registerComponentsGlobally && e.component("Paging", ot);
+}), ct = { install(e, { defaultPageSize: t = 10 } = {}) {
+	Je.PAGESIZE = t, p.registerComponentsGlobally && e.component("Paging", at);
 } };
 //#endregion
 //#region src/vue/ui/screen/screen.ts
@@ -825,8 +843,8 @@ var Q = {
 	xl: 1200,
 	xxl: 1400
 };
-function ut() {
-	let e = N(Z());
+function lt() {
+	let e = F(Z());
 	return {
 		size: e,
 		screen: {
@@ -863,15 +881,15 @@ function ut() {
 }
 //#endregion
 //#region src/vue/ui/screen/plugin.ts
-function dt(e, t) {
+function ut(e, t) {
 	let n;
 	return (...r) => {
 		n && clearTimeout(n), n = setTimeout(() => e(...r), t);
 	};
 }
-var ft = { install: (e, { sizes: t } = {}) => {
+var dt = { install: (e, { sizes: t } = {}) => {
 	if (t) for (let e in t) e in Q && (Q[e] = t[e]);
-	let { screen: n } = ut(), r = dt(() => n.updateSize(Z()), 250);
+	let { screen: n } = lt(), r = ut(() => n.updateSize(Z()), 250);
 	window.addEventListener("resize", r), window.addEventListener("orientationchange", r), e.config.globalProperties.$screen = n, e.provide("screen", n);
 } }, $ = class e {
 	key;
@@ -886,7 +904,7 @@ var ft = { install: (e, { sizes: t } = {}) => {
 	static create(t, n) {
 		return Object.assign(new e(t), n || {});
 	}
-}, pt = ["href", "onClick"], mt = /* @__PURE__ */ w({
+}, ft = ["href", "onClick"], pt = /* @__PURE__ */ w({
 	__name: "TabNavigation",
 	props: {
 		tabs: {},
@@ -895,15 +913,15 @@ var ft = { install: (e, { sizes: t } = {}) => {
 	emits: ["select"],
 	setup(e) {
 		let t = _(() => (e) => typeof e.isVisible == "function" ? e.isVisible() : e.isVisible);
-		return (n, r) => (M(), b("ul", { class: A(["nav", {
+		return (n, r) => (P(), b("ul", { class: j(["nav", {
 			"nav-pills": !n.$screen?.isLarge,
 			"nav-tabs": n.$screen?.isLarge
-		}]) }, [(M(!0), b(h, null, P(e.tabs, (r) => (M(), b(h, { key: r.key }, [t.value(r) ? (M(), b("li", {
+		}]) }, [(P(!0), b(h, null, I(e.tabs, (r) => (P(), b(h, { key: r.key }, [t.value(r) ? (P(), b("li", {
 			key: 0,
-			class: A(["nav-item", { disabled: r.isDisabled }])
+			class: j(["nav-item", { disabled: r.isDisabled }])
 		}, [x("a", {
 			href: `#${r.key}`,
-			class: A([
+			class: j([
 				"py-1 px-2",
 				"nav-link",
 				{
@@ -911,16 +929,16 @@ var ft = { install: (e, { sizes: t } = {}) => {
 					disabled: r.isDisabled
 				}
 			]),
-			onClick: q((e) => n.$emit("select", r.key), ["prevent"])
-		}, [r.icon ? (M(), v(u, {
+			onClick: Y((e) => n.$emit("select", r.key), ["prevent"])
+		}, [r.icon ? (P(), v(u, {
 			key: 0,
 			name: r.icon
-		}, null, 8, ["name"])) : y("", !0), x("span", { class: A({ "d-none d-lg-inline ms-1": r.icon }) }, z(r.title), 3)], 10, pt)], 2)) : y("", !0)], 64))), 128))], 2));
+		}, null, 8, ["name"])) : y("", !0), x("span", { class: j({ "d-none d-lg-inline ms-1": r.icon }) }, V(r.title), 3)], 10, ft)], 2)) : y("", !0)], 64))), 128))], 2));
 	}
-}), ht = { class: "tab-container" }, gt = {
+}), mt = { class: "tab-container" }, ht = {
 	key: 0,
 	class: "tab-content pt-2"
-}, _t = /* @__PURE__ */ w({
+}, gt = /* @__PURE__ */ w({
 	__name: "TabContainer",
 	props: {
 		tabs: {},
@@ -932,7 +950,7 @@ var ft = { install: (e, { sizes: t } = {}) => {
 	},
 	emits: ["select"],
 	setup(e, { emit: t }) {
-		let n = t, r = e, i = J(), a = _(() => r.tabs.filter((e) => e != null).map((e) => e instanceof $ ? e : new $(e))), o = _(() => (a.value.find((e) => e.isDefault) || a.value[0]).key), s = N(r.active), c = _({
+		let n = t, r = e, i = ie(), a = _(() => r.tabs.filter((e) => e != null).map((e) => e instanceof $ ? e : new $(e))), o = _(() => (a.value.find((e) => e.isDefault) || a.value[0]).key), s = F(r.active), c = _({
 			get: () => (r.useRouteNav ? i.currentRoute.value.hash?.substring(1) : s.value) || o.value,
 			set: (e) => {
 				let t = s.value != null;
@@ -949,14 +967,14 @@ var ft = { install: (e, { sizes: t } = {}) => {
 		function l(e) {
 			s.value !== e && (c.value = e);
 		}
-		return te(() => {
+		return N(() => {
 			s.value == null && r.useRouteNav && l((r.useRouteNav ? i.currentRoute.value.hash?.substring(1) : null) || o.value);
-		}), (e, t) => (M(), b("div", ht, [C(mt, {
+		}), (e, t) => (P(), b("div", mt, [C(pt, {
 			tabs: a.value,
 			activeTab: c.value,
 			onSelect: l
-		}, null, 8, ["tabs", "activeTab"]), (M(!0), b(h, null, P(a.value, (t) => (M(), b(h, { key: t.key }, [c.value == t.key ? (M(), b("div", gt, [F(e.$slots, t.key)])) : y("", !0)], 64))), 128))]));
+		}, null, 8, ["tabs", "activeTab"]), (P(!0), b(h, null, I(a.value, (t) => (P(), b(h, { key: t.key }, [c.value == t.key ? (P(), b("div", ht, [L(e.$slots, t.key)])) : y("", !0)], 64))), 128))]));
 	}
 });
 //#endregion
-export { ue as A, Se as C, me as D, _e as E, se as O, Te as S, ye as T, Re as _, lt as a, Ae as b, X as c, Je as d, Y as f, ze as g, Ve as h, ut as i, ce as k, Ze as l, Ue as m, $ as n, ct as o, We as p, ft as r, ot as s, _t as t, Ye as u, Le as v, xe as w, Oe as x, je as y };
+export { le as A, xe as C, pe as D, ge as E, oe as O, we as S, ve as T, Ie as _, ct as a, Oe as b, Ye as c, Ke as d, X as f, Le as g, ze as h, lt as i, se as k, Xe as l, Ve as m, $ as n, st as o, He as p, dt as r, at as s, gt as t, qe as u, Fe as v, be as w, Ee as x, ke as y };

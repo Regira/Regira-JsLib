@@ -16,6 +16,8 @@ export declare abstract class EntityServiceBase<T extends IEntity> implements IE
     constructor(axios: AxiosInstance, config: IConfig);
     /** Returns the URL or throws a clear error instead of issuing a request to `undefined`. */
     private requireUrl;
+    /** Returns the item's `$id` or throws instead of building a `/undefined` URL. */
+    private requireId;
     details(id: string | number): Promise<T | null>;
     list(so?: ISearchObject & IPagingInfo): Promise<Array<T>>;
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>;

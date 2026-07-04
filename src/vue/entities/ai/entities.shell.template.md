@@ -347,11 +347,11 @@ const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
         <template v-for="group in dashboardTree.roots" :key="group.value.id">
             <section v-if="group.children.length" class="mb-4">
                 <h3 class="mb-3"><Icon :name="group.value.icon ?? ''" class="me-1" /> {{ $t(group.value.title) }}</h3>
-                <div class="row">
-                    <div v-for="node in group.children" :key="node.value.id" class="col-6 col-md-3 col-lg-2 mb-3 text-center">
-                        <router-link :to="to(node.value as INavItem)" class="btn btn-link d-block">
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                    <div v-for="node in group.children" :key="node.value.id" class="col">
+                        <router-link :to="to(node.value as INavItem)" class="dashboard-card card h-100 text-center text-decoration-none py-3">
                             <Icon :name="node.value.icon ?? ''" size="xl" />
-                            <div>{{ $t(node.value.title) }}</div>
+                            <div class="mt-2 small">{{ $t(node.value.title) }}</div>
                         </router-link>
                     </div>
                 </div>
@@ -359,6 +359,17 @@ const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
         </template>
     </div>
 </template>
+
+<style scoped>
+.dashboard-card {
+    color: inherit;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.dashboard-card:hover {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+</style>
 ```
 
 ## `src/components/entity-navigation/NavBar.vue`
@@ -377,11 +388,11 @@ const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
     <ul v-if="navbarTree" class="navbar-nav me-auto">
         <li v-for="node in navbarTree.roots" :key="node.value.id" class="nav-item" :class="{ dropdown: !isNavItem(node.value) }">
             <router-link v-if="isNavItem(node.value)" class="nav-link" :to="to(node.value as INavItem)">
-                <Icon :name="node.value.icon ?? ''" /> {{ $t(node.value.title) }}
+                <Icon :name="node.value.icon ?? ''" /><span class="d-sm-none d-lg-inline ms-1">{{ $t(node.value.title) }}</span>
             </router-link>
             <template v-else>
                 <a class="nav-link dropdown-toggle" href="#" @click.prevent="openId = openId === node.value.id ? undefined : node.value.id">
-                    <Icon :name="node.value.icon ?? ''" /> {{ $t(node.value.title) }}
+                    <Icon :name="node.value.icon ?? ''" /><span class="d-sm-none d-lg-inline ms-1">{{ $t(node.value.title) }}</span>
                 </a>
                 <ul class="dropdown-menu" :class="{ show: openId === node.value.id }" v-click-outside="() => (openId = undefined)">
                     <li v-for="child in node.children" :key="child.value.id">
@@ -457,10 +468,11 @@ const logout = () => authStore.logout() // @auth:only
                 <NavBar @select="closeMenu" />
                 <div class="d-flex ms-auto align-items-center gap-2">
                     <NavSearch @search="closeMenu" />
+                    <!-- @auth:block-start -->
                     <button v-if="$auth.enabled && $auth.isAuthenticated" class="btn btn-outline-secondary btn-sm" @click="logout">
                         {{ $t("signOut") }}
                     </button>
-                    <!-- @auth:only -->
+                    <!-- @auth:block-end -->
                 </div>
             </div>
         </div>

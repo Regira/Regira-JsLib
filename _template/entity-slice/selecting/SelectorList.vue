@@ -5,7 +5,7 @@
             <!-- TODO: column headers -->
             <div class="col">{{ $t("name") }}</div>
         </div>
-        <div v-for="(item, i) in items" :key="item.$id" class="row border-bottom py-2" :class="{ 'is-selected': isSelected(item) }">
+        <div v-for="item in items" :key="item.$id" class="row border-bottom py-2" :class="{ 'is-selected': isSelected(item) }">
             <div class="col-auto">
                 <IconButton :icon="isSelected(item) ? 'selected' : 'select'" @click="handleSelect(item)" />
             </div>

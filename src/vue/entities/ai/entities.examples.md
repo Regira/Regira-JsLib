@@ -717,7 +717,6 @@ import { LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
 import { useDetails } from "@/regira_modules/vue/entities/details"
 import { FormStates } from "@/regira_modules/vue/entities/form"
 import config from "../config/config"
-import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 
 const { service } = useEntityStore()
@@ -946,7 +945,7 @@ Modify this file when the text to display is not just `$title`.
         :placeholder="placeholder"
         ref="autoEl"
     >
-        <template #default="{ item, q }">
+        <template #default="{ item }">
             <div class="row">
                 <div class="col">{{ item.$title }}</div>
             </div>

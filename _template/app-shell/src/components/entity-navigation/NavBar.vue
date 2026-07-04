@@ -11,11 +11,11 @@ const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
     <ul v-if="navbarTree" class="navbar-nav me-auto">
         <li v-for="node in navbarTree.roots" :key="node.value.id" class="nav-item" :class="{ dropdown: !isNavItem(node.value) }">
             <router-link v-if="isNavItem(node.value)" class="nav-link" :to="to(node.value as INavItem)">
-                <Icon :name="node.value.icon ?? ''" /> {{ $t(node.value.title) }}
+                <Icon :name="node.value.icon ?? ''" /><span class="d-sm-none d-lg-inline ms-1">{{ $t(node.value.title) }}</span>
             </router-link>
             <template v-else>
                 <a class="nav-link dropdown-toggle" href="#" @click.prevent="openId = openId === node.value.id ? undefined : node.value.id">
-                    <Icon :name="node.value.icon ?? ''" /> {{ $t(node.value.title) }}
+                    <Icon :name="node.value.icon ?? ''" /><span class="d-sm-none d-lg-inline ms-1">{{ $t(node.value.title) }}</span>
                 </a>
                 <ul class="dropdown-menu" :class="{ show: openId === node.value.id }" v-click-outside="() => (openId = undefined)">
                     <li v-for="child in node.children" :key="child.value.id">

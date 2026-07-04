@@ -12,7 +12,7 @@ const config: IConfig = {
     baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
     initialQuery: {},
 
-    overviewTitle: "__entities__", // TODO: i18n keys
+    overviewTitle: "__entities__", // i18n keys — add matching entries to public/data/translations.json, or the nav renders the raw key
     detailsTitle: "__entity__",
     description: "__entity__.description",
     icon: "bi bi-question-circle", // TODO: a Bootstrap-Icons class

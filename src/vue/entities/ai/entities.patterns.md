@@ -134,6 +134,8 @@ Use the pooled store `service` for ordinary CRUD (so views share the reactive ca
 
 ## Entity selector (relation picker) — `selecting/`
 
+**Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M → `Selector` (bind an array).
+
 Each entity ships a thin **`selecting/Selector.vue`** so other entities' forms can pick it (e.g. choosing
 an Article's categories, or a list's shopper). It `v-model`s the related entity and resolves it through
 the **pooled** store, so the picked value shares the reactive cache:

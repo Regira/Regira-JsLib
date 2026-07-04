@@ -8,7 +8,7 @@
         :placeholder="placeholder"
         ref="autoEl"
     >
-        <template #default="{ item, q }">
+        <template #default="{ item }">
             <div class="row">
                 <div class="col">{{ item.$title }}</div>
             </div>

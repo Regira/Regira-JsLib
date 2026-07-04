@@ -139,7 +139,7 @@ const config: IConfig = {
     baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
     initialQuery: {},
 
-    overviewTitle: "foos", // TODO: i18n keys
+    overviewTitle: "foos", // i18n keys — add matching entries to public/data/translations.json, or the nav renders the raw key
     detailsTitle: "foo",
     description: "foo.description",
     icon: "bi bi-question-circle", // TODO: a Bootstrap-Icons class
@@ -200,7 +200,7 @@ const emit = defineEmits<Emits & { "update:modelValue": (v: SearchObject) => tru
 defineProps<{ resultCount?: number }>()
 
 const searchObject = defineModel<SearchObject>({ required: true })
-const { filterIsActive, handleReset } = useFilter({ searchObject, emit, Constructor: SearchObject })
+const { handleReset } = useFilter({ searchObject, emit, Constructor: SearchObject })
 </script>
 ```
 
@@ -343,7 +343,7 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
             <!-- TODO: column headers -->
             <div class="col">{{ $t("name") }}</div>
         </div>
-        <div v-for="(item, i) in items" :key="item.$id" class="row border-bottom py-2" :class="{ 'is-selected': isSelected(item) }">
+        <div v-for="item in items" :key="item.$id" class="row border-bottom py-2" :class="{ 'is-selected': isSelected(item) }">
             <div class="col-auto">
                 <IconButton :icon="isSelected(item) ? 'selected' : 'select'" @click="handleSelect(item)" />
             </div>

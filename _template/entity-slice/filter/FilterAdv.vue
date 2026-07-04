@@ -20,5 +20,5 @@ const emit = defineEmits<Emits & { "update:modelValue": (v: SearchObject) => tru
 defineProps<{ resultCount?: number }>()
 
 const searchObject = defineModel<SearchObject>({ required: true })
-const { filterIsActive, handleReset } = useFilter({ searchObject, emit, Constructor: SearchObject })
+const { handleReset } = useFilter({ searchObject, emit, Constructor: SearchObject })
 </script>

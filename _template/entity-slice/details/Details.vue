@@ -23,7 +23,6 @@ import { LoadingContainer, Feedback } from "regira_modules/vue/ui"
 import { useDetails } from "regira_modules/vue/entities/details"
 import { FormStates } from "regira_modules/vue/entities/form"
 import config from "../config/config"
-import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 
 const { service } = useEntityStore()

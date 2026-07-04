@@ -45,6 +45,19 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         return url
     }
 
+    /** Returns the item's `$id` or throws instead of building a `/undefined` URL. */
+    private requireId(item: T, op: string): string | number {
+        const id = item.$id
+        if (id == null || id === "") {
+            throw new Error(
+                `EntityServiceBase ("${this.config.key ?? "unknown entity"}"): cannot ${op} — $id is ${String(id)}. ` +
+                    `$id/$title are prototype getters; spreading a model ({ ...item }) drops them. ` +
+                    `Mutate the instance in place (item.prop = …) instead of spreading before ${op}.`
+            )
+        }
+        return id
+    }
+
     public async details(id: string | number): Promise<T | null> {
         const response = await this.axios.get<DetailsResult<T>>(`${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${id}`)
         if (response?.status == 200) {
@@ -88,15 +101,13 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         return { saved: this.processItem(saved)!, isNew }
     }
     async remove(item: T): Promise<void> {
-        const prepared = this.prepareItem(item)
-        const url = `${this.requireUrl(this.config.deleteUrl, "deleteUrl")}/${prepared.$id}`
+        const url = `${this.requireUrl(this.config.deleteUrl, "deleteUrl")}/${this.requireId(item, "delete")}`
         await this.axios.delete<DeleteResult<T>>(url).then((r) => r.data)
     }
 
     async update(item: T) {
-        const url = `${this.requireUrl(this.config.saveUrl, "saveUrl")}/${item.$id}`
+        const url = `${this.requireUrl(this.config.saveUrl, "saveUrl")}/${this.requireId(item, "update")}`
         const prepared = this.prepareItem(item)
-        console.debug("update", { item, prepared })
         const response = (await this.axios.put<SavedResult<T>>(url, prepared)) as any
         if (response instanceof AxiosError) {
             throw response

@@ -100,9 +100,11 @@ export default defineConfig({
 ```
 
 ```jsonc
-// tsconfig.app.json → compilerOptions
-// On TS 6+ use `paths` WITHOUT `baseUrl` — `vue-tsc -b` (npm run build) errors on baseUrl (TS5101).
-"paths": { "@/*": ["./src/*"] }
+// tsconfig.app.json
+// Use `paths` WITHOUT `baseUrl` — `vue-tsc -b` (npm run build) errors on baseUrl (TS5101).
+"compilerOptions": { "paths": { "@/*": ["./src/*"] } },
+// `env.d.ts` MUST be in `include`, or CSS side-effect imports and `import.meta.env` fail to type-check.
+"include": ["env.d.ts", "src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
 ```
 
 > **tsconfig & build note.** On TypeScript 6+ use `paths` **without `baseUrl`** — `vue-tsc -b` (what
@@ -131,7 +133,7 @@ export default defineConfig({
 </body>
 ```
 
-`env.d.ts` keeps the Vite client types; declare the `__APP_VERSION__` define where `app-config.ts` reads it:
+`env.d.ts` keeps the Vite client types (and must be in the tsconfig `include`, above); declare the `__APP_VERSION__` define where `app-config.ts` reads it:
 
 ```ts
 // env.d.ts

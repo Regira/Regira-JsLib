@@ -1,44 +1,44 @@
 //#region src/utilities/string-utility.ts
-var e = 26, t = " 	\v\f﻿\n\r\u2028\u2029", n = (e, t, n = !1) => n ? e.toLowerCase() === t.toLowerCase() : e === t, r = (e, t, n = !1) => n ? e.toLowerCase().indexOf(t.toLowerCase()) !== -1 : e.indexOf(t) !== -1, i = (e, t, n = !1) => n ? e.toLowerCase().indexOf(t.toLowerCase()) === 0 : e.indexOf(t) === 0, a = (e, t, n = !1) => n ? e.toLowerCase().indexOf(t.toLowerCase(), e.length - t.length) !== -1 : e.indexOf(t, e.length - t.length) !== -1, o = (e, n = t) => {
-	let r = "" + e;
-	for (let t = 0; t < e.length; t++) if (n.includes(e[t])) r = r.substring(1);
+var e = " 	\v\f﻿\n\r\u2028\u2029", t = (e, t, n = !1) => n ? e.toLowerCase() === t.toLowerCase() : e === t, n = (e, t, n = !1) => n ? e.toLowerCase().indexOf(t.toLowerCase()) !== -1 : e.indexOf(t) !== -1, r = (e, t, n = !1) => n ? e.toLowerCase().indexOf(t.toLowerCase()) === 0 : e.indexOf(t) === 0, i = (e, t, n = !1) => n ? e.toLowerCase().indexOf(t.toLowerCase(), e.length - t.length) !== -1 : e.indexOf(t, e.length - t.length) !== -1, a = (t, n = e) => {
+	let r = "" + t;
+	for (let e = 0; e < t.length; e++) if (n.includes(t[e])) r = r.substring(1);
 	else return r;
 	return r;
-}, s = (e, n = t) => {
-	let r = "" + e;
-	for (let t = e.length - 1; t >= 0; t--) if (n.includes(e[t])) r = r.substring(0, t);
+}, o = (t, n = e) => {
+	let r = "" + t;
+	for (let e = t.length - 1; e >= 0; e--) if (n.includes(t[e])) r = r.substring(0, e);
 	else return r;
 	return r;
-}, c = (e, n = t) => n == null ? e.trim() : s(o(e, n), n), l = (e, t, n) => e.replace(new RegExp(t, "g"), n);
-function u(t = 10) {
-	return [...Array(t)].map(() => Math.floor(Math.random() * (10 + e * 2))).map((t) => t > 10 + e ? (t - e).toString(36).toUpperCase() : t.toString(36)).join("");
+}, s = (t, n = e) => n == null ? t.trim() : o(a(t, n), n), c = (e, t, n) => e.replace(new RegExp(t, "g"), n);
+function l(e = 10) {
+	return [...Array(e)].map(() => Math.floor(Math.random() * 62)).map((e) => e > 36 ? (e - 26).toString(36).toUpperCase() : e.toString(36)).join("");
 }
-function d() {
-	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (e) => (e ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> e / 4).toString(16));
+function u() {
+	return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (e) => (e ^ crypto.getRandomValues(/* @__PURE__ */ new Uint8Array(1))[0] & 15 >> e / 4).toString(16));
 }
-var f = (e = Math.floor(Math.random() * 24) + 8) => u(e);
-function p(e) {
+var d = (e = Math.floor(Math.random() * 24) + 8) => l(e);
+function f(e) {
 	return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(e);
 }
-function m(e) {
+function p(e) {
 	return /^(?:http(s)?:\/\/)?[\w.-]+((?:\.[\w.-]+)+([\w\-._~:/?#[\]@!$&'()*+,;=. ]|(%20))+)$/gi.test(e);
 }
-function h(e) {
+function m(e) {
 	return /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$/gi.test(e);
 }
-function g(e) {
-	return h(e) || _(e) ? !1 : /^[+]?(\d{1,3})([-./ ]?)([(-]?(\d{1,4})[)-]?(\d{1,4})?)?([-./ ]?(\d{2,4})){2,4}$/gi.test(e);
+function h(e) {
+	return m(e) || g(e) ? !1 : /^[+]?(\d{1,3})([-./ ]?)([(-]?(\d{1,4})[)-]?(\d{1,4})?)?([-./ ]?(\d{2,4})){2,4}$/gi.test(e);
 }
-function _(e) {
+function g(e) {
 	return /^(0?[1-9]|[12][0-9]|3[01])[\/\. -](0?[1-9]|1[1,2])[\/\. -](19|20)?\d{2}$/gi.test(e) || /^(0?[1-9]|1[1,2])[\/\. -](0?[1-9]|[12][0-9]|3[01])[\/\. -](19|20)?\d{2}$/gi.test(e) || /^(19|20)\d{2}[\/\. -](0[1-9]|1[1,2])[\/\. -](0[1-9]|[12][0-9]|3[01])$/gi.test(e);
 }
-function v(e) {
+function _(e) {
 	return /^(\\)(\\[\w.-_]+){2,}(\\?)$/gi.test(e);
 }
-function y(e) {
+function v(e) {
 	return /^(\\)(\\[\w.-_]+){2,}\.\w$/gi.test(e);
 }
-function b(e) {
+function y(e) {
 	if (typeof e != "string") return "";
 	if (e.length === 12 && e.indexOf("00323") === 0) {
 		let t = e.match(/(\d{4})(\d{1})(\d{3})(\d{2})(\d{2})/);
@@ -49,13 +49,13 @@ function b(e) {
 	}
 	return e;
 }
-function x(e) {
+function b(e) {
 	return e.replace(/[\u00A0-\u9999<>&]/gim, (e) => "&#" + e.charCodeAt(0) + ";");
 }
-function S(e) {
+function x(e) {
 	return e.replace(/&#(\d+);/g, (e, t) => String.fromCharCode(t));
 }
-function C(e) {
+function S(e) {
 	let t = [
 		{
 			base: "A",
@@ -405,35 +405,35 @@ function C(e) {
 	for (let n = 0; n < t.length; n++) e = e.replace(t[n].letters, t[n].base);
 	return e;
 }
-var w = (e) => e ? e[0].toUpperCase() + e.substring(1).replace(/\s(.)/g, (e) => e.toUpperCase()) : "", T = (e) => e ? c(e.replace(/[^\w ]+/g, " ").replace(/\s+/g, "-").toLowerCase(), "-") : "", E = (e) => e ? T(e).replace(/-+/g, "_") : "", D = (e) => e ? w(T(e).replace(/-+/g, " ")).replace(/\s+/g, "-") : "", O = (e) => e ? T(e).replace(/-/g, " ").replace(/\s(.)/g, (e) => e.toUpperCase()).replace(/\s/g, "").replace(/^(.)/, (e) => e.toLowerCase()) : "", k = (e) => e ? w(O(e)) : "", A = (e) => e ? T(C(e)) : "", j = {
-	equals: n,
-	contains: r,
-	startsWith: i,
-	endsWith: a,
-	trimLeft: o,
-	trimRight: s,
-	trim: c,
-	replaceAll: l,
-	randomize: u,
-	newGuid: d,
-	isEmail: p,
-	isIP: h,
-	isUrl: m,
-	isPhone: g,
-	isDate: _,
-	isPhysicalFolder: v,
-	isPhysicalPath: y,
-	formatBelgianPhone: b,
-	htmlEncode: x,
-	htmlDecode: S,
-	normalizeDiacritics: C,
-	capitalize: w,
-	toKebabCase: T,
-	toSnakeCase: E,
-	toTrainCase: D,
-	toCamelCase: O,
-	toPascalCase: k,
-	slugify: A
+var C = (e) => e ? e[0].toUpperCase() + e.substring(1).replace(/\s(.)/g, (e) => e.toUpperCase()) : "", w = (e) => e ? s(e.replace(/[^\w ]+/g, " ").replace(/\s+/g, "-").toLowerCase(), "-") : "", T = (e) => e ? w(e).replace(/-+/g, "_") : "", E = (e) => e ? C(w(e).replace(/-+/g, " ")).replace(/\s+/g, "-") : "", D = (e) => e ? w(e).replace(/-/g, " ").replace(/\s(.)/g, (e) => e.toUpperCase()).replace(/\s/g, "").replace(/^(.)/, (e) => e.toLowerCase()) : "", O = (e) => e ? C(D(e)) : "", k = (e) => e ? w(S(e)) : "", A = {
+	equals: t,
+	contains: n,
+	startsWith: r,
+	endsWith: i,
+	trimLeft: a,
+	trimRight: o,
+	trim: s,
+	replaceAll: c,
+	randomize: l,
+	newGuid: u,
+	isEmail: f,
+	isIP: m,
+	isUrl: p,
+	isPhone: h,
+	isDate: g,
+	isPhysicalFolder: _,
+	isPhysicalPath: v,
+	formatBelgianPhone: y,
+	htmlEncode: b,
+	htmlDecode: x,
+	normalizeDiacritics: S,
+	capitalize: C,
+	toKebabCase: w,
+	toSnakeCase: T,
+	toTrainCase: E,
+	toCamelCase: D,
+	toPascalCase: O,
+	slugify: k
 };
 //#endregion
-export { w as capitalize, r as contains, j as default, a as endsWith, n as equals, b as formatBelgianPhone, S as htmlDecode, x as htmlEncode, _ as isDate, p as isEmail, h as isIP, g as isPhone, v as isPhysicalFolder, y as isPhysicalPath, m as isUrl, d as newGuid, f as newPassword, C as normalizeDiacritics, u as randomize, l as replaceAll, A as slugify, i as startsWith, O as toCamelCase, T as toKebabCase, k as toPascalCase, E as toSnakeCase, D as toTrainCase, c as trim, o as trimLeft, s as trimRight };
+export { C as capitalize, n as contains, A as default, i as endsWith, t as equals, y as formatBelgianPhone, x as htmlDecode, b as htmlEncode, g as isDate, f as isEmail, m as isIP, h as isPhone, _ as isPhysicalFolder, v as isPhysicalPath, p as isUrl, u as newGuid, d as newPassword, S as normalizeDiacritics, l as randomize, c as replaceAll, k as slugify, r as startsWith, D as toCamelCase, w as toKebabCase, O as toPascalCase, T as toSnakeCase, E as toTrainCase, s as trim, a as trimLeft, o as trimRight };
