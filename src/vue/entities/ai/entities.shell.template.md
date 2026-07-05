@@ -18,11 +18,12 @@ node node_modules/regira_modules/_template/scaffold.mjs --shell            # aut
 node node_modules/regira_modules/_template/scaffold.mjs --shell --no-auth  # no-auth app shell
 ```
 
-`--shell` writes `src/**` + `public/config.json` + `public/data/translations.json` into the current app,
-**skipping any file that already exists** (pass `--force` to overwrite — e.g. to replace the `npm create vue`
-`main.ts`/`App.vue`). It does **not** write the build tooling (`vite.config.ts`, `tsconfig*`, `index.html`,
-`env.d.ts`, `package.json`) — set those up from [entities.setup.md → Install](entities.setup.md#install)
-first. Then scaffold entities and register them in `src/entities/index.ts`.
+`--shell` writes the root toolchain (`index.html`, `vite.config.ts`, `tsconfig*`, `env.d.ts`) + `src/**` +
+`public/config.json` + `public/data/translations.json` into the current app, **skipping any file that
+already exists** (pass `--force` to overwrite — e.g. to replace the `npm create vue` files). Only
+`package.json` is yours to author — copy the known-good dependency set from
+[entities.setup.md → Install](entities.setup.md#install). Then scaffold entities and register them in
+`src/entities/index.ts`.
 
 > **`--no-auth`** strips the auth wiring (lines tagged `@auth:only` / blocks between `@auth:block-start` and
 > `@auth:block-end`) and omits the auth-only files (`infrastructure/user-plugin.ts`, `shims.d.ts`). The default
@@ -31,6 +32,126 @@ first. Then scaffold entities and register them in `src/entities/index.ts`.
 
 Every library import uses the **plain npm specifier** (`regira_modules/…`); app-local imports use the `@ → src`
 alias. Verify any API in [entities.signatures.md](entities.signatures.md) / [entities.namespaces.md](entities.namespaces.md).
+
+---
+
+# Toolchain
+
+The root-level build tooling — a known-good Vite + `vue-tsc` setup that builds green with the generated
+shell and slices. Styles come from the npm `bootstrap` / `bootstrap-icons` packages (imported in
+`main.ts`), so no CDN links are needed.
+
+## `index.html`
+
+```html
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>My App</title>
+    </head>
+    <body>
+        <div id="app"></div>
+        <div id="modals" class="fixed-top"></div>
+        <div id="loginModal" class="fixed-top"></div> <!-- @auth:only -->
+        <script type="module" src="/src/main.ts"></script>
+    </body>
+</html>
+```
+
+## `vite.config.ts`
+
+```ts
+import { fileURLToPath, URL } from "node:url"
+import { defineConfig } from "vite"
+import vue from "@vitejs/plugin-vue"
+
+export default defineConfig({
+    plugins: [vue()],
+    resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
+    define: { __APP_VERSION__: JSON.stringify(process.env.npm_package_version) },
+    server: { port: Number(process.env.PORT) || 5173 }, // honor a harness/preview-assigned PORT (Vite ignores it by default)
+    // calling the API through a dev proxy instead of its origin? add server.proxy — see entities.setup.md → The URL contract
+})
+```
+
+## `env.d.ts`
+
+```ts
+/// <reference types="vite/client" />
+
+declare const __APP_VERSION__: string
+```
+
+## `tsconfig.json`
+
+```json
+{
+    "files": [],
+    "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.app.json" }]
+}
+```
+
+## `tsconfig.app.json`
+
+```json
+{
+    "compilerOptions": {
+        "composite": true,
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "lib": ["ESNext", "DOM", "DOM.Iterable"],
+        "types": ["vite/client"],
+
+        "jsx": "preserve",
+        "jsxImportSource": "vue",
+
+        "strict": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noFallthroughCasesInSwitch": true,
+
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "useDefineForClassFields": true,
+        "noEmit": true,
+
+        "paths": { "@/*": ["./src/*"] }
+    },
+    "include": ["env.d.ts", "src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+}
+```
+
+## `tsconfig.node.json`
+
+```json
+{
+    "compilerOptions": {
+        "composite": true,
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "lib": ["ESNext"],
+        "types": ["node"],
+
+        "strict": true,
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "noEmit": true
+    },
+    "include": ["vite.config.ts"]
+}
+```
 
 ---
 
@@ -49,6 +170,8 @@ import { plugin as langPlugin } from "regira_modules/vue/lang"
 import { useLang } from "regira_modules/vue/lang" // @auth:only
 import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "regira_modules/vue/ui"
 import { focus, grow, clickOutside } from "regira_modules/vue/directives"
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap-icons/font/bootstrap-icons.css"
 import "regira_modules/style.css"
 import { plugin as authPlugin, LocalStorageTokenManager } from "regira_modules/vue/auth" // @auth:only
 import { plugin as userPlugin } from "@/infrastructure/user-plugin" // @auth:only

@@ -99,8 +99,8 @@ import { EntityBase } from "@/regira_modules/vue/entities"
 
 export class Foo extends EntityBase {
     id: number = 0
-    title = "" // initialize non-optional fields (strictPropertyInitialization); optional ones get `?`
-    // TODO: your fields, e.g.
+    title = "" // placeholder label — rename/remove it here AND in the (c) views that bind it (Form, List/ListItem, SelectorList)
+    // TODO: your fields — initialize non-optional ones (strictPropertyInitialization); optional ones get `?`, e.g.
     // code?: string
     // barId?: number
     // bar?: Bar                          // a related entity (navigation property)
@@ -164,7 +164,7 @@ import { SearchObjectBase } from "@/regira_modules/vue/entities"
 
 export class EntitySearchObject extends SearchObjectBase {
     // `q` (free-text) is inherited from SearchObjectBase. Add your filters:
-    title?: string // TODO: your filter fields
+    title?: string // TODO: your filter fields — placeholder; rename/remove it here AND in FilterAdv.vue
     // barId?: number | Array<number>     // arrays serialize as repeated query keys
 
     minCreated?: Date
@@ -183,7 +183,7 @@ export default EntitySearchObject
         <!-- keywords (free-text q) -->
         <input v-model.lazy.trim="searchObject.q" class="form-control mb-2" :placeholder="$t('keywords')" />
 
-        <!-- TODO: your filter inputs, e.g. -->
+        <!-- TODO: inputs for your SearchObject filter fields (placeholder `title` — keep in sync with SearchObject.ts), e.g. -->
         <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" />
 
         <IconButton icon="clear" :showText="true" @click="handleReset" />

@@ -108,7 +108,9 @@ Vue view  ──uses──▶  composable (useSearchView / useForm / useDetails 
 - One **axios** instance is created once (`initAxios`) and shared; the auth plugin layers a bearer
   interceptor on it, so every entity request is authenticated automatically.
 - Each service is registered in the **IoC** container keyed by `Entity.name` and resolved with `get()`.
-- The store wraps the resolved service in a **pool** (`createStore`) so views share a reactive cache.
+- The store wraps the resolved service in a **pool** (`createStore`) so views share a reactive cache: a save
+  through the pooled service updates the one shared instance, so an edit anywhere propagates to every view
+  automatically.
 
 ### Generic type system
 
@@ -175,9 +177,13 @@ axios `baseURL` (set from app config).
   see [entities.patterns.md → Date hydration](entities.patterns.md#date-hydration)).
 - `prepareItem` strips every property whose key starts with **`_`** before sending to the server — use
   `_`-prefixed fields for transient client-only state (e.g. `_deleted` on child rows).
-- **Nested included relations are plain JSON objects** — only the root item runs through `toEntity`. On an
-  included relation the `EntityBase` getters (`$id`, `$title`, …) are `undefined`; bind the **plain DTO
-  field** the API projects (`item.vehicle?.title`), **never** `item.vehicle?.$title`.
+- **Nested included relations are plain JSON objects** — only the root item runs through `toEntity`, so on an
+  included relation the `EntityBase` getters (`$id`, `$title`, …) are `undefined`. Either bind the **plain DTO
+  field** the API projects (`item.vehicle?.title`), or resolve the relation through the pool —
+  `fromPool(item.vehicle)?.$title` — which rehydrates it into the shared reactive model so the getters work
+  (the preferred path for display; see
+  [entities.patterns.md → Resolving relations with `fromPool`](entities.patterns.md#resolving-relations-with-frompool)).
+  What you must **not** do is read `item.vehicle?.$title` off the **raw** relation.
 
 ---
 
@@ -267,9 +273,9 @@ Both expose the same overview surface (`items`, `pagingInfo`, `itemsCount`, `isL
 ## App Creation Workflow
 
 Standing up a new app — deps, runtime config, the shared axios, the plugin install order, the app shell —
-is a one-time **project-setup** task. Scaffold it in one command:
-`node node_modules/regira_modules/_template/scaffold.mjs --shell` (`--no-auth` for a no-auth app), then set
-up the toolchain per [entities.setup.md → Install](entities.setup.md#install).
+is a one-time **project-setup** task. Author `package.json` from the known-good dependency set
+([entities.setup.md → Install](entities.setup.md#install)), `npm install`, then scaffold everything else in
+one command: `node node_modules/regira_modules/_template/scaffold.mjs --shell` (`--no-auth` for a no-auth app).
 
 > **→ See:** [entities.shell.template.md](entities.shell.template.md) — every generated shell file ·
 > [entities.setup.md](entities.setup.md) — the full project template (`main.ts`, `App.vue`,
@@ -314,7 +320,10 @@ A **lookup** entity keeps the folders but drops the list UI (omit the views and 
 3. **Service** — `data/EntityService.ts`: `extends EntityServiceBase<Entity>`; ctor `super(axios, config)`;
    implement **only** `toEntity(item)` (override `prepareItem` / add bespoke endpoints if needed).
 4. **Store** — `data/store.ts`: a Pinia store around `createStore<Entity>(get(Entity.name)!, Entity.name)`.
-   Views use the **pooled** `service` from this store, never the raw IoC service.
+   Views use the **pooled** `service` from this store, never the raw IoC service. The pooled handler exposes
+   the full `IEntityService` surface (`details` / `list` / `search` / `searchUnion` / `save` / `remove` —
+   `save` dispatches insert vs update) plus the cache accessors (`get` / `getMany` / `set` / `setMany` /
+   `fromPool` / `fromCache`) — exact shapes in [entities.signatures.md §7](entities.signatures.md#7-pooling-entity-cache).
 5. **Search object** — `filter/SearchObject.ts` (c): `extends SearchObjectBase` with filter fields.
 6. **Filter** — `filter/`: `Filter.vue` (inline bar + advanced-modal shell), `FilterInline.vue`,
    `FilterAdv.vue` (c) — all call `useFilter`.
@@ -424,6 +433,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | `update`/`remove` hit `/{id}/undefined` (400/404 that type-checks) | Spreading a model (`{ ...item }`) copies only own-enumerable props, dropping the `$id`/`$title` **prototype getters**; an `as Entity` cast hides it | Never spread a model — mutate the instance (`item.x = …; await service.update(item)`). `update`/`remove` throw a named error when `$id` is missing |
 | Archived rows missing | `isArchived` defaults to `false` | Set `isArchived` on the search object to include them |
 | Pager-less overview shows only 10 rows | `defaultPageSize` of `0`/unset falls back to 10 in the overview composables | Set `defaultPageSize` to a large number (up to the server's `MaxPageSize`); `pageSize: 0` at the service layer returns all rows capped by `MaxPageSize`, and larger sets use the `Autocomplete` selector |
+| Nested collections empty on the overview (List/Search) | On complex entities the API loads navigations only when the request sends `?includes=` | Set `baseQueryParams: { includes: "All" }` (or the needed flags) in `config/config.ts` — List/Search send it on every request |
 | Nested collection empty on a detail/edit form | `includes` may not apply to the Details GET | Ensure the API eager-loads it for Details, or fetch children with a dedicated call |
 | Custom service method not found on the store `service` | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface) | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`) |
 | Overview total wrong / count missing | `useSearchView` bound to an endpoint that returns `{ items }` without `count` | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview)) |

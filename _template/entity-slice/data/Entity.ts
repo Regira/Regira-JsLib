@@ -2,8 +2,8 @@ import { EntityBase } from "regira_modules/vue/entities"
 
 export class __Entity__ extends EntityBase {
     id: number = 0
-    title = "" // initialize non-optional fields (strictPropertyInitialization); optional ones get `?`
-    // TODO: your fields, e.g.
+    title = "" // placeholder label — rename/remove it here AND in the (c) views that bind it (Form, List/ListItem, SelectorList)
+    // TODO: your fields — initialize non-optional ones (strictPropertyInitialization); optional ones get `?`, e.g.
     // code?: string
     // barId?: number
     // bar?: Bar                          // a related entity (navigation property)

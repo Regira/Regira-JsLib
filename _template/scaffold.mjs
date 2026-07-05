@@ -5,10 +5,10 @@
 //   node node_modules/regira_modules/_template/scaffold.mjs --shell [options]    # the app shell (once per app)
 //
 //   <Entity>            PascalCase class name, e.g. Product
-//   --plural <name>     route prefix / API path (default: lowercased Entity + "s")
+//   --plural <name>     route prefix / API path (default: derived — Category → categories, Box → boxes)
 //   --singular <name>   singular i18n key (default: lowercased Entity)
 //   --dir <path>        target base folder for a slice (default: src/entities)
-//   --shell             scaffold the app shell (main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
+//   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
 //   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
 //   --force             (--shell) overwrite files that already exist
 //
@@ -42,7 +42,8 @@ if (!name) {
     process.exit(1)
 }
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1)
-const plural = lowerFirst(opt("--plural", name.toLowerCase() + "s"))
+const pluralize = (s) => (/(?:s|x|z|ch|sh)$/i.test(s) ? s + "es" : /[^aeiou]y$/i.test(s) ? s.slice(0, -1) + "ies" : s + "s")
+const plural = lowerFirst(opt("--plural", pluralize(name.toLowerCase())))
 const singular = lowerFirst(opt("--singular", name.toLowerCase()))
 const baseDir = opt("--dir", "src/entities")
 
@@ -117,7 +118,7 @@ function scaffoldShell() {
         console.log(`  Skipped ${skipped.length} existing file(s); pass --force to overwrite:`)
         for (const f of skipped) console.log(`    · ${f}`)
     }
-    console.log("  Next: set up the toolchain (vite.config/tsconfig/index.html) per entities.setup.md → Install,")
+    console.log("  Next: ensure package.json has the known-good dependency set (entities.setup.md → Install),")
     console.log("  then scaffold entities and register them in src/entities/index.ts.")
 }
 

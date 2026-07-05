@@ -337,6 +337,45 @@ not the raw IoC service. Register `defaultPoolCache` once at startup
 (`sp.add(PoolCache.name, () => defaultPoolCache)`); mark types that should never expire via
 `cache.persistentTypes`.
 
+The payoff is **live shared state**, not just fewer fetches: every consumer holds the *same* `Ref<T>`, and a
+save through the pooled `service` writes the result back into that ref in place (`cache.set`). So editing an
+entity anywhere — a `FormModalButton` bound to the store's `service`, a details form, a bulk action —
+re-renders every overview row, detail pane, and relation label that pooled it, with no manual refetch or
+event wiring.
+
+### Resolving relations with `fromPool`
+
+`fromPool(input)` is the store accessor views use to turn an entity — or a **nested included relation** —
+into its pooled counterpart. Pass a single object or an array; each input runs through `toEntity` and comes
+back as the **canonical cached instance** for that `$id` (cached on first sight). It therefore does two jobs
+at once:
+
+1. **Rehydrates** a plain relation DTO into a real model instance, so the `EntityBase` getters (`$id`,
+   `$title`, …) work — a nested relation arrives as plain JSON and lacks them otherwise.
+2. **Deduplicates** to the one shared `Ref<T>`, so an edit to that entity anywhere reflects here.
+
+Unsaved inputs pass straight through, unpooled (the `isNewEntity($id)` guard — `null`/`undefined`/`"new"`/
+`""`/≤ 0). It needs an **object carrying `id`**, not a bare foreign-key number: `fromPool(item.unitType)`,
+never `fromPool(item.unitTypeId)`. The canonical shape for a view's own rows is
+`computed(() => fromPool(props.modelValue))`.
+
+To render a **foreign relation's** label, alias a sibling entity's store `fromPool` and read the getter off
+the result:
+
+```ts
+const { fromPool: getUnitType } = useUnitTypeStore()
+// template: {{ getUnitType(item.unitType)?.$title }}
+```
+
+This is the supported way to show a related entity's `$title`, and it supersedes binding the raw DTO field
+(`item.unitType?.title`): the returned instance is the shared, reactive one. The label resolves in full only
+when that entity is already pooled — loaded by its own overview, or warmed by a preloader (`usePreloader`) —
+**or** the nested DTO carries the display fields; otherwise the getter is `undefined`.
+
+`fromCache(id?)` is the read-only counterpart: with an id it returns the cached `Ref<T>` (or `null`); with no
+argument, every cached `Ref<T>` of the type (`Array<Ref<T>>`). It never fetches — it reports only what
+pooling has already seen.
+
 ## Auth reload hooks (login-driven refresh)
 
 In an auth-enabled app, data requested before the user logs in fails or comes back empty, so the

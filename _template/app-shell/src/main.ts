@@ -8,6 +8,8 @@ import { plugin as langPlugin } from "regira_modules/vue/lang"
 import { useLang } from "regira_modules/vue/lang" // @auth:only
 import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "regira_modules/vue/ui"
 import { focus, grow, clickOutside } from "regira_modules/vue/directives"
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap-icons/font/bootstrap-icons.css"
 import "regira_modules/style.css"
 import { plugin as authPlugin, LocalStorageTokenManager } from "regira_modules/vue/auth" // @auth:only
 import { plugin as userPlugin } from "@/infrastructure/user-plugin" // @auth:only

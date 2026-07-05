@@ -2301,6 +2301,14 @@ const items = computed<Array<Entity>>({
 
 ## 7. List item — `overview/ListItem.vue` (c)
 
+> This row renders **foreign relations** — `item.unitType`, `item.facets[].facet`, `item.components[].component`
+> — by aliasing each owning store's `fromPool` (`getUnitType` / `getFacet` / `getProduct`) and reading the
+> getter off the pooled instance: `getUnitType(item.unitType)?.$title`. `fromPool` rehydrates the plain nested
+> relation into a shared, reactive model so `$title` resolves — pass the relation **object**, not its id.
+> Because that model is shared, editing it anywhere (its own `FormModalButton`, a details form) updates every
+> row that pooled it, live. See
+> [entities.patterns.md → Resolving relations with `fromPool`](entities.patterns.md#resolving-relations-with-frompool).
+
 ```vue
 <template>
     <div class="border-bottom border-bottom-1 py-2">

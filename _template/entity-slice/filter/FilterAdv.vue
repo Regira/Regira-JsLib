@@ -3,7 +3,7 @@
         <!-- keywords (free-text q) -->
         <input v-model.lazy.trim="searchObject.q" class="form-control mb-2" :placeholder="$t('keywords')" />
 
-        <!-- TODO: your filter inputs, e.g. -->
+        <!-- TODO: inputs for your SearchObject filter fields (placeholder `title` — keep in sync with SearchObject.ts), e.g. -->
         <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" />
 
         <IconButton icon="clear" :showText="true" @click="handleReset" />

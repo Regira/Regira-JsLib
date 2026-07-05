@@ -40,8 +40,9 @@ Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`.
 > [The URL contract](#the-url-contract--four-owners-one-request).
 
 Skip `npm create vue` — it prompts interactively and can't be driven headless. Hand-author `package.json`
-from the **known-good dependency set** below (copy it as-is, one `npm install`; do not resolve majors one at a
-time), plus the `vite.config.ts` / `tsconfig` / `index.html` / `env.d.ts` under _Tooling_:
+from the **known-good dependency set** below (copy it as-is, one `npm install`; do not resolve majors one at
+a time); `scaffold.mjs --shell` then writes the rest of the toolchain (`index.html`, `vite.config.ts`,
+`tsconfig*`, `env.d.ts`) — documented under _Tooling_:
 
 ```jsonc
 // package.json — known-good set (runtime peers + the build toolchain they require)
@@ -85,6 +86,10 @@ time), plus the `vite.config.ts` / `tsconfig` / `index.html` / `env.d.ts` under 
 
 ### Tooling — `vite.config.ts`, `tsconfig`, `index.html`, `env.d.ts`
 
+> `scaffold.mjs --shell` writes all of these ([entities.shell.template.md](entities.shell.template.md) →
+> Toolchain). The snippets below document what it emits — and what to align when adapting an existing Vite
+> project.
+
 ```ts
 // vite.config.ts
 import { fileURLToPath, URL } from "node:url"
@@ -118,17 +123,13 @@ export default defineConfig({
 > `npm create vue@latest` scaffold includes it.
 
 ```html
-<!-- index.html — Bootstrap + icons via CDN (or import the npm CSS in main.ts instead) -->
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet" />
-</head>
+<!-- index.html — styles come from the npm bootstrap/bootstrap-icons imports in main.ts (see Styling) -->
 <body>
     <div id="app"></div>
     <div id="modals" class="fixed-top"></div>
     <!-- modal teleport host (DefaultModal) -->
     <div id="loginModal" class="fixed-top"></div>
-    <!-- LoginModal teleport target -->
+    <!-- LoginModal teleport target (auth-on) -->
     <script type="module" src="/src/main.ts"></script>
 </body>
 ```
@@ -242,7 +243,7 @@ The concrete, filled-in tree — `scaffold.mjs --shell` writes the **load-bearin
 [App shell](#app-shell--components-infrastructure--styling)):
 
 ```
-index.html                       # Bootstrap CSS/Icons CDN links + #app / #modals / #loginModal mounts
+index.html                       # #app / #modals / #loginModal mounts (Bootstrap CSS imported in main.ts)
 vite.config.ts                   # @ → ./src alias
 tsconfig.app.json                # paths: { "@/*": ["./src/*"] }  (no baseUrl — see Install § Tooling)
 env.d.ts                         # /// <reference types="vite/client" />
@@ -559,6 +560,8 @@ import { plugin as appPlugin, AppStatus, whenAppReady } from "@/regira_modules/v
 import { plugin as langPlugin, useLang } from "@/regira_modules/vue/lang"
 import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "@/regira_modules/vue/ui"
 import { focus, grow, clickOutside } from "@/regira_modules/vue/directives"
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap-icons/font/bootstrap-icons.css"
 import "@/regira_modules/style.css" // library component styles (modal backdrop, autocomplete dropdown)
 import { plugin as authPlugin, LocalStorageTokenManager } from "@/regira_modules/vue/auth"
 import { preloaderPlugin, defaultPoolCache, PoolCache } from "@/regira_modules/vue/entities"
@@ -780,9 +783,9 @@ still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--
 > `isDebug` option is set.
 
 > **Icon fonts aren't bundled.** `iconPlugin({ source: "bs" })` only emits Bootstrap-Icons class names
-> (`bi bi-*`); install the `bootstrap-icons` npm package and import its CSS in `main.ts`
-> (`import "bootstrap-icons/font/bootstrap-icons.css"`) or every icon renders blank. (`source: "fa"` →
-> Font Awesome the same way.)
+> (`bi bi-*`); the `bootstrap-icons` CSS must be imported in `main.ts`
+> (`import "bootstrap-icons/font/bootstrap-icons.css"` — the scaffolded `main.ts` does) or every icon
+> renders blank. (`source: "fa"` → Font Awesome the same way.)
 
 > **No global component registration.** Library components and the scaffolded views import everything they
 > use (`Icon`, `IconButton`, `DefaultModal`, form inputs, …) locally from `regira_modules/vue/ui`. `iconPlugin`
@@ -853,9 +856,9 @@ disabled), make these four changes:
 Beyond entity slices, a real app needs a thin shell — a config-driven **dashboard + navbar**
 (`entity-navigation/`), the **layout chrome** (`layout/`), shared **form inputs** (the common
 `FormButtonsRow` / `DescriptionInput` ship in `vue/ui`), and the **auth UI** (`users/`, when auth is
-enabled). **Scaffold the load-bearing baseline** — bootstrap, runtime config, router, dashboard/navbar,
-`layout/` (`TheHeader` / `TheFooter` / `Main`), error views, and infrastructure — in one command, then
-customize:
+enabled). **Scaffold the load-bearing baseline** — the toolchain (`index.html`, `vite.config.ts`,
+`tsconfig*`, `env.d.ts`), bootstrap, runtime config, router, dashboard/navbar, `layout/` (`TheHeader` /
+`TheFooter` / `Main`), error views, and infrastructure — in one command, then customize:
 
 ```bash
 node node_modules/regira_modules/_template/scaffold.mjs --shell            # auth-on
@@ -1035,11 +1038,8 @@ is a `<RouterView />` wrapper for the `account/*` children in [Router](#router).
 ### Styling — Bootstrap 5
 
 The `regira_modules/vue/ui` components use **Bootstrap 5** class names and emit `bi bi-*` icon classes.
-Install and import the stylesheets once, at the top of `main.ts`:
-
-```bash
-npm i bootstrap bootstrap-icons
-```
+Both packages are in the known-good dependency set ([Install](#install)), and the scaffolded `main.ts`
+imports their stylesheets — keep them above your own SCSS:
 
 ```ts
 // main.ts — before your own SCSS

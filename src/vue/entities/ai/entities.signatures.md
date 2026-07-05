@@ -499,8 +499,8 @@ export interface IPoolHandler<T extends IEntity> extends IPoolService<T> {
     cache: IPoolCache
     set(item: T): Ref<T>
     setMany(items: Array<T>): Array<Ref<T>>
-    fromPool<P = Array<T> | T>(input: P): P
-    fromCache(id?: string | number): Ref<T> | null | Array<Ref<T>>
+    fromPool<P = Array<T> | T>(input: P): P // entity/relation (or array) → its shared pooled instance; runs toEntity, dedups by $id, caches on first sight (unsaved inputs pass through)
+    fromCache(id?: string | number): Ref<T> | null | Array<Ref<T>> // read-only: id → that cached Ref (or null); no arg → all cached refs of the type; never fetches
 }
 export interface IPoolCache {
     persistentTypes: Array<string>
