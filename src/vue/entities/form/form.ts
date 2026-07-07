@@ -63,7 +63,8 @@ export function useForm<T extends IEntity>({ entityService, props, emit, feedbac
 
     function handleCancel(): void {
         emit("cancel", { canceled: item.value, original: original.value as T })
-        item.value = original.value as T
+        // restore a fresh copy so `original` stays pristine and Cancel works on every click, not just the first
+        item.value = entityService.toEntity(deepCopy(original.value))
     }
 
     function checkReadonly(): void {
@@ -132,9 +133,19 @@ export function useForm<T extends IEntity>({ entityService, props, emit, feedbac
         } catch (ex) {
             console.error("Deleting failed", { item, ex })
             const error = ex as any
-            feedback.fail("Deleting failed", error.response?.data?.errors)
+            const status = error.response?.status
+            if (status == 400) {
+                feedback.fail("Deleting failed", error.response?.data?.errors)
+            } else if (status == 404) {
+                feedback.fail("Item not found", error.response?.data?.message || error.message)
+            } else {
+                // 409/500 etc. — surface the server's message (e.g. an FK-constraint "still referenced" reason)
+                feedback.fail("Deleting failed", error.response?.data?.message || error.message)
+            }
             emit("changeState", FormStates.error)
-            throw ex
+            // no re-throw: feedback surfaces the error, and `remove` only emits on success (above), so a
+            // consumer that navigates/closes on @remove correctly does nothing on failure. Re-throwing here
+            // only produced an unhandled-rejection warning from the delete button's event handler.
         } finally {
             emit("changeState", FormStates.removed)
         }

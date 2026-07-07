@@ -18,7 +18,7 @@ function p({ entityService: t, props: n, emit: r, feedback: a = i() }) {
 		r("cancel", {
 			canceled: f.value,
 			original: p.value
-		}), f.value = p.value;
+		}), f.value = t.toEntity(e(p.value));
 	}
 	function h() {
 		if (c) throw a.fail("Readonly"), Error("Readonly");
@@ -63,8 +63,8 @@ function p({ entityService: t, props: n, emit: r, feedback: a = i() }) {
 				item: f,
 				ex: e
 			});
-			let t = e;
-			throw a.fail("Deleting failed", t.response?.data?.errors), r("changeState", "Error"), e;
+			let t = e, n = t.response?.status;
+			n == 400 ? a.fail("Deleting failed", t.response?.data?.errors) : n == 404 ? a.fail("Item not found", t.response?.data?.message || t.message) : a.fail("Deleting failed", t.response?.data?.message || t.message), r("changeState", "Error");
 		} finally {
 			r("changeState", "Removed");
 		}
