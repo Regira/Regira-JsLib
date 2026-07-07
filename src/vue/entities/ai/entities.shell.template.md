@@ -6,9 +6,20 @@ a **copy-on-disk template** in the package — scaffold it once per app, then sc
 with [entities.template.md](entities.template.md).
 
 > **Indicative, not prescriptive.** The generated shell is a working baseline — freely **restructure the
-> layout and redesign/restyle the dashboard, navbar, header/footer, and views**. Only the wiring is
-> load-bearing: the plugin install order in `main.ts`, the config-driven `useNavigation`, and the router /
-> `app-config` contract.
+> layout and redesign/restyle the dashboard, navbar, header/footer, and views**. Load-bearing is the _wiring_
+> (plugin install order in `main.ts`, the config-driven `useNavigation`, the router / `app-config` contract)
+> **and a few behaviours that live in the shell components, not their CSS**. Restyle the markup, but keep the
+> behaviour — or reuse the component:
+>
+> - **Navbar dropdowns are a self-contained Vue toggle** (`NavBar.vue`: an `openId` ref + `v-click-outside`),
+>   not Bootstrap's JS — the shell imports Bootstrap **CSS only** (see [Bootstrap](#bootstrap) below). If you
+>   re-author them with `data-bs-toggle="dropdown"` you must also `import "bootstrap/dist/js/bootstrap.bundle.min.js"`;
+>   the CSS alone never opens a dropdown. Simplest: keep `NavBar.vue` and restyle around it.
+> - **Dashboard entries are route links/tiles** — keep `text-decoration-none` and the tile/card class, or the
+>   nav collapses to bare underlined `<a>`s.
+> - **Modals teleport into `#modals`** — keep that host `<div>` in `index.html`, or every popup silently fails
+>   to mount. `--shell` won't overwrite an existing `index.html` without `--force`, so verify the host is
+>   present after scaffolding.
 
 ## How to use
 

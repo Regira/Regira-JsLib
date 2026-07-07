@@ -6,8 +6,20 @@ route prefix `foos`) — rename it to your entity throughout.
 
 > **Indicative, not prescriptive.** The templates fix the _functional wiring_ (service ↔ store ↔ composable ↔
 > `IConfig`, DI, routing) so a scaffolded slice is green out of the box — the **markup, columns, layout, and
-> styling are yours to restructure and restyle freely**. Preserve the composable/service contract and the
-> `(c)` fill-ins; own the looks.
+> styling are yours to restructure and restyle freely**. Preserve the composable/service contract, the `(c)`
+> fill-ins, and these **slice behaviours that live in the components, not their CSS** — restyle the markup, but
+> keep the behaviour or reuse the component:
+>
+> - **Form action buttons** — reuse the library `FormButtonsRow` (`regira_modules/vue/ui`): it ships the icons,
+>   the solid `btn-primary` / `btn-secondary` / `btn-danger` variants, and a **confirmed** delete
+>   (`ConfirmButton`). Re-emitting plain `<button>`s loses all three.
+> - **Removing an owned/related row marks `_deleted`** — the row stays (greyed) until save; `useOwnedCollection`
+>   / `useListItemInput` drive this and `prepareItem` filters it out on write. Never `splice` it, or the server
+>   never sees the delete.
+> - **A relation picker adds on `@select`** — the event only emits the chosen row; append it to the bound array
+>   yourself, and mark `_deleted` to remove (see [entities.patterns.md](entities.patterns.md)).
+> - **Edit/create popups use `FormModalButton`** (teleporting into `#modals`) — wire the "New" action the same
+>   way as a row's edit, or the button opens nothing.
 
 This is the _skeleton_. For the same files **filled in with real code**, see
 [entities.examples.md](entities.examples.md) (a simple `UnitType` slice and a standard `Product` slice).

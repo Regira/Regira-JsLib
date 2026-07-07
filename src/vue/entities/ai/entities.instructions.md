@@ -142,6 +142,12 @@ the exported `isNewEntity($id)` predicate, otherwise **update**; it returns `Sav
 A model whose `$id` returns a bare `this.id` therefore inserts correctly at `id <= 0`. The `*Url` fields default off `config.api` and are **relative** to the
 axios `baseURL` (set from app config).
 
+> **Owned/related children can be built on an unsaved parent.** New child rows carry negative temp-id
+> sentinels, so a form may add them _before_ the parent is saved — `save(parent)` inserts the parent and its
+> pending children together. Don't gate "add a child" on saving the parent first. (A child modelled as a
+> **first-class entity** with its own service does need the parent's real id, so it saves after — see
+> [entities.patterns.md → Owned (child) collections](entities.patterns.md#owned-child-collections).)
+
 > Each `*Url` is a **resource base**, not a literal endpoint: `update` appends `/{$id}` (`PUT {saveUrl}/{$id}`)
 > and `remove` appends `/{$id}` (`DELETE {deleteUrl}/{$id}`). Leave them at `config.api` (or a sub-resource);
 > never set `saveUrl` to a `/save` path or **updates 404 while inserts still pass** — a silent half-working trap.
@@ -225,9 +231,12 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 >   one tested whole; opting out of one piece means re-implementing the others.
 > - **A non-grid UX is still the slice.** A category-tree filter, an active/inactive toggle, or a storefront
 >   card list is normal customization of `Filter.vue` / `List.vue` / `ListItem.vue`.
-> - **The look is yours.** The scaffold fixes the _wiring_, not the _design_ — freely restructure the markup,
->   columns, and layout and restyle the views. The templates are indicative of functionality, not a mandated
->   appearance.
+> - **The look is yours — the behaviour isn't.** The scaffold fixes the _wiring_, not the _design_: freely
+>   restructure the markup, columns, and layout and restyle the views. But a few behaviours live in the
+>   components, not their CSS — navbar dropdowns (a Vue toggle, not Bootstrap JS), dashboard route-tiles, the
+>   library `FormButtonsRow`, the `_deleted` remove-marks-not-splices flow, and modal teleport into `#modals`.
+>   Restyle the markup; keep the behaviour, or reuse the component. Per-file checklists:
+>   [entities.template.md](entities.template.md) (slice), [entities.shell.template.md](entities.shell.template.md) (shell).
 >
 > Downgrade to lean or headless **only** when the user's request names it — "demo", "embed", "storefront",
 > "headless", "lean", "no scaffold", "just the data layer" — and state the tier you picked.

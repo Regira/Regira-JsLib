@@ -134,6 +134,13 @@ export default defineConfig({
 </body>
 ```
 
+> **The `#modals` host is required — a missing one silently breaks every popup.** `DefaultModal` (hence
+> `FormModalButton`, `ConfirmButton`, and every edit/create dialog) teleports into `#modals`; with no such
+> `<div>` the teleport target is absent and the modal never mounts — no error, the trigger just looks dead.
+> Two traps: `scaffold.mjs --shell` **won't overwrite** an existing (`npm create vue`) `index.html` without
+> `--force`, and hand-authored files routinely omit the host. After scaffolding, confirm `#modals` (and
+> `#loginModal` when auth is on) exist, then verify a modal actually opens.
+
 `env.d.ts` keeps the Vite client types (and must be in the tsconfig `include`, above); declare the `__APP_VERSION__` define where `app-config.ts` reads it:
 
 ```ts

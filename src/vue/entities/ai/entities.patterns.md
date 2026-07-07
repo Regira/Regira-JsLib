@@ -75,6 +75,16 @@ class OrderLine extends EntityBase {
 
 `useListItemInput` / `useOwnedCollection` already drive `_deleted` for owned rows.
 
+**Show the pending state.** A `_deleted` row stays in the list until save, so render it visibly tinted /
+struck-through — otherwise the delete looks like a no-op and invites splicing the row out (which skips the
+server-side delete). Toggle the flag so it doubles as undo:
+
+```vue
+<tr :class="{ 'table-danger text-decoration-line-through': row._deleted }">
+    <!-- … --><IconButton icon="delete" @click="row._deleted = !row._deleted" />
+</tr>
+```
+
 ## Paging
 
 Paging is automatic: `pageSize` defaults to `config.defaultPageSize` (`DEFAULT_PAGESIZE` = 10) and
@@ -134,7 +144,7 @@ Use the pooled store `service` for ordinary CRUD (so views share the reactive ca
 
 ## Entity selector (relation picker) — `selecting/`
 
-**Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M → `Selector` (bind an array).
+**Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M (entity-backed) → `Selector` (bind an array); multi-value over a **fixed option set (enum, no service)** → a checkbox group, never a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)).
 
 Each entity ships a thin **`selecting/Selector.vue`** so other entities' forms can pick it (e.g. choosing
 an Article's categories, or a list's shopper). It `v-model`s the related entity and resolves it through
@@ -168,6 +178,18 @@ so forms do `import { Selector as CategorySelector } from "@/entities/categories
 (an Article's many categories) bind an **array** and push/remove picked entities; mark removed owned rows
 with `_deleted` (see below).
 
+> **The picker only emits — you add.** `@select` (and the `v-model` set) fire with the chosen row; the bound
+> array does not change until _you_ push into it. A selector that "adds nothing on pick" is a missing handler,
+> not a broken component:
+>
+> ```ts
+> function handleSelect(picked: Category) {
+>     if (!items.value.some((c) => c.$id === picked.$id)) items.value.push(picked)
+> }
+> // remove keeps the row (greyed) so the server deletes it on save — never splice
+> const handleRemove = (row: Category & { _deleted?: boolean }) => (row._deleted = true)
+> ```
+
 Type optional relations `Category | undefined`, not `| null` — selector/autocomplete `v-model`s are
 `T | undefined` (JSON `null` still deserializes fine).
 
@@ -198,6 +220,31 @@ Bind `selectedCategories` to the related entity's multi-select; the join collect
 join rows are reused (so their ids survive), removed picks drop their row, and the server-side
 `e.Related(...)` applies the add/remove on save.
 
+### Multi-value over a fixed option set (enum)
+
+A `Status`-style field has no entity/service behind it, so the entity `Selector` doesn't apply — and a native
+`<select multiple>` is the wrong reach. Model the values as an erasableSyntaxOnly-safe union and bind a
+checkbox group to an array (Regira APIs accept enum members **by name**):
+
+```vue
+<script setup lang="ts">
+type Status = "Planned" | "Scheduled" | "InProgress" | "Completed"
+const STATUSES: Status[] = ["Planned", "Scheduled", "InProgress", "Completed"]
+const model = defineModel<Status[]>({ default: () => [] })
+const toggle = (s: Status) => (model.value = model.value.includes(s) ? model.value.filter((x) => x !== s) : [...model.value, s])
+</script>
+
+<template>
+    <div v-for="s in STATUSES" :key="s" class="form-check">
+        <input class="form-check-input" type="checkbox" :id="s" :checked="model.includes(s)" @change="toggle(s)" />
+        <label class="form-check-label" :for="s">{{ s }}</label>
+    </div>
+</template>
+```
+
+For a chip UI instead of checkboxes, feed the same static array to an `Autocomplete` (options from the array,
+not `service.search`) and bind the picked list — same model, richer control.
+
 ## Owned (child) collections
 
 For master-detail forms, drive a child collection with `useOwnedCollection` (inline rows) or
@@ -209,6 +256,15 @@ const { items, newItem, handleSort, handleSave } = useOwnedCollection<OrderLine>
 ```
 
 `useListInput` / `useListItemInput` are the lower-level building blocks for editable lists.
+
+**Owned vs first-class child — and the "add before the parent is saved" consequence.** An **owned** collection
+(`useOwnedCollection`, embedded in the parent DTO, persisted via `e.Related(...)` on save) can be edited on a
+brand-new parent: its rows mint negative temp ids and insert together with the parent, so a form adds children
+before the first save. A child promoted to a **first-class entity** (its own service/store/routes — e.g. to
+toggle one row with a single `PATCH`) instead needs the parent's real id for its FK, so its editor only works
+after the parent exists. Pick owned for "edit the whole graph in one form" (no save-first gate); pick
+first-class for "operate on one row independently" (accept the save-first step, or persist the parent silently
+on open).
 
 ## Form validation & error handling
 
