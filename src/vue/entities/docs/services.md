@@ -55,9 +55,10 @@ reference data, not frequently changing entities. See
 ## HTTP contract
 
 `EntityServiceBase` builds requests from `IConfig` and expects item-wrapped envelopes — the shape the
-back-end `Regira.Entities.Web` endpoints return:
+back-end `Regira.Entities.Web` endpoints return (the **HTTP body** column below), then unwraps them for
+you, so the method return types are _not_ these envelopes (see the note under the table):
 
-| Method             | HTTP   | URL                                           | Response           |
+| Method             | HTTP   | URL                                           | HTTP body          |
 | ------------------ | ------ | --------------------------------------------- | ------------------ |
 | `details(id)`      | GET    | `{detailsUrl}/{id}`                           | `{ item }`         |
 | `list(so)`         | GET    | `{listUrl}?{query}`                           | `{ items }`        |
@@ -66,6 +67,12 @@ back-end `Regira.Entities.Web` endpoints return:
 | `insert(item)`     | POST   | `{saveUrl}`                                   | `{ item }`         |
 | `update(item)`     | PUT    | `{saveUrl}/{$id}`                             | `{ item }`         |
 | `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                           | —                  |
+
+> **The methods return _unwrapped_ values, not these envelopes.** `list()` resolves to `Array<T>` (not
+> `{ items }`), `details()` to `T | null`, `search()`/`searchUnion()` to `SearchResult<T>` (`{ items, count }`),
+> `save()`/`insert()`/`update()` to `SaveResult<T>`/`T | null`. Destructure accordingly —
+> `const items = await service.list()`, never `const { items } = await service.list()`. Exact signatures:
+> [../ai/entities.signatures.md](../ai/entities.signatures.md).
 
 `save(item)` inserts when `$id` is an unsaved sentinel — `null`/`undefined`/`"new"`/`""` or a non-positive
 number (`0`, or a negative temp id) via the exported `isNewEntity($id)` predicate — otherwise updates, and

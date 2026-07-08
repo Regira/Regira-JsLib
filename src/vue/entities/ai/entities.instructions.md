@@ -124,9 +124,10 @@ Vue view  ──uses──▶  composable (useSearchView / useForm / useDetails 
 ### The API contract it mirrors
 
 `EntityServiceBase<T>` builds requests from `IConfig` and expects **item-wrapped** envelopes — the exact
-shape the back-end `Regira.Entities.Web` endpoints return.
+shape the back-end `Regira.Entities.Web` endpoints return (the **HTTP body** column below), then **unwraps
+them for you**, so the method return types are *not* these envelopes — see the note under the table.
 
-| Method             | HTTP   | URL                                                    | Response           |
+| Method             | HTTP   | URL                                                    | HTTP body          |
 | ------------------ | ------ | ------------------------------------------------------ | ------------------ |
 | `details(id)`      | GET    | `{detailsUrl}/{id}`                                    | `{ item }`         |
 | `list(so)`         | GET    | `{listUrl}?{query}`                                    | `{ items }`        |
@@ -135,6 +136,8 @@ shape the back-end `Regira.Entities.Web` endpoints return.
 | `insert(item)`     | POST   | `{saveUrl}`                                            | `{ item }`         |
 | `update(item)`     | PUT    | `{saveUrl}/{$id}`                                      | `{ item }`         |
 | `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                                    | —                  |
+
+> **The methods return *unwrapped* values, not these envelopes.** `list()` resolves to `Array<T>` (not `{ items }`), `details()` to `T | null`, `search()`/`searchUnion()` to `SearchResult<T>` (`{ items, count }`), `save()`/`insert()`/`update()` to `SaveResult<T>`/`T | null`. Destructure accordingly — `const items = await service.list()`, never `const { items } = await service.list()`. Verify in [entities.signatures.md](entities.signatures.md).
 
 `save(item)` dispatches: **insert** when `$id` is an unsaved sentinel — `null`, `undefined`, `"new"`, `""`,
 or a **non-positive number** (`0`, or the negative temp ids owned/related collections mint for new rows) via

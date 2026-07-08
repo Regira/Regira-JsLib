@@ -114,7 +114,9 @@ export default defineConfig({
 
 > **tsconfig & build note.** On TypeScript 6+ use `paths` **without `baseUrl`** — `vue-tsc -b` (what
 > `npm run build` runs) errors on `baseUrl` (TS5101) even though `vue-tsc --noEmit` tolerates it, so
-> always verify with `npm run build`, not only a `--noEmit` typecheck. If your tsconfig enables
+> always verify with `npm run build`, not only a `--noEmit` typecheck. `vue-tsc -b` also _emits_ `.js` next
+> to your sources unless `compilerOptions.noEmit: true` is set in **both** project tsconfigs (the scaffold's
+> already are; set it if you hand-author them, and add `*.tsbuildinfo` to `.gitignore`). If your tsconfig enables
 > `erasableSyntaxOnly` (the current Vite `vue-ts` template default), define enum-like values as `const`
 > objects + a value type instead of `enum`. `@vue/tsconfig` (0.9) ships `tsconfig.json` / `.dom.json` /
 > `.lib.json` but **no `tsconfig.node.json`** — point `tsconfig.node.json` at the base
