@@ -52,8 +52,11 @@ node node_modules/regira_modules/_template/scaffold.mjs Product --no-auth   # no
 3. Run `npm run build` (not just a `--noEmit` type-check) — a freshly scaffolded slice must build green
    before you customize.
 
-> **Nested relation columns:** bind the plain projected field (`item.bar?.title`), **never**
-> `item.bar?.$title` — only the root item is hydrated into an `EntityBase`
+> **Nested relation columns:** only the root item is hydrated into an `EntityBase`, so `item.bar?.$title`
+> on a nested relation is `undefined` — **never** read `$title` off the raw relation. Prefer resolving it
+> through the sibling store's pool helper so the label stays reactive to edits —
+> `const { fromPool: getBar } = useBarStore()`, then `{{ getBar(item.bar)?.$title }}`; the raw projected
+> field (`item.bar?.title`) is the static fallback
 > (see [entities.instructions.md → Item hydration](entities.instructions.md#item-hydration)).
 
 The skeletons below are the same `(c)` files the scaffold writes (placeholder `Foo`) — a reference for what
@@ -222,7 +225,13 @@ const { handleReset } = useFilter({ searchObject, emit, Constructor: SearchObjec
 <template>
     <div class="entity-list">
         <div class="row fw-bold border-bottom pb-2">
-            <!-- TODO: column headers -->
+            <!-- TODO: your column headers — must mirror ListItem.vue 1:1. Keep the row inside the viewport:
+                 the list must never scroll horizontally. Use flexible `col` (+ text-truncate on the cell) for
+                 text, drop secondary columns on small screens with d-none d-md-block / d-lg-block, and reserve
+                 fixed-width col-auto for a couple of narrow cells only (they don't shrink). e.g.:
+                     <div class="col d-none d-md-block fw-bold">{{ $t("code") }}</div>
+                     <div class="col-auto d-none d-lg-block fw-bold" style="width: 9rem">{{ $t("created") }}</div>
+                 See entities.patterns.md → Overview list layout (no horizontal scroll). -->
             <div class="col">{{ $t("name") }}</div>
         </div>
         <ListItem
@@ -267,7 +276,14 @@ const items = computed<Array<Entity>>({
             <FormModalButton v-model="item" @save="$emit('save', $event)" />
         </div>
 
-        <!-- TODO: columns -->
+        <!-- TODO: your columns — mirror List.vue's headers 1:1 and keep the row inside the viewport (no
+             horizontal scroll): flexible `col text-truncate` for text, drop secondary columns with
+             d-none d-md-block / d-lg-block, few fixed-width col-auto cells. Render a foreign relation's label
+             through the sibling store's pool helper so it re-renders when that entity is edited — alias its
+             fromPool (const { fromPool: getBar } = useBarStore()) and read $title off the result; the raw
+             item.bar?.title is a static snapshot and item.bar?.$title is undefined (nested DTOs aren't
+             hydrated). See entities.patterns.md → Resolving relations with fromPool. e.g.:
+                 <div class="col d-none d-md-block text-truncate">{{ getBar(item.bar)?.$title }}</div> -->
         <div class="col text-truncate">{{ item.$title }}</div>
 
         <div class="col-auto">
@@ -318,7 +334,10 @@ const item = defineModel<Entity>({ required: true })
                 <input v-model="item.title" :readonly="readonly" class="form-control" />
                 <FormLabel :label="$t('name')" />
             </div>
-            <!-- relation pickers go here, e.g. <BarInputSelector v-model="item.bar" v-model:idValue="item.barId" /> -->
+            <!-- single relation (FK) → the related entity's InputSelector, e.g. <BarInputSelector v-model="item.bar" v-model:idValue="item.barId" /> -->
+            <!-- many-to-many → the related entity's <Selector> (multi-select) bound to a bridged array of the
+                 join rows (toggle _deleted to remove) — never a hand-rolled checkbox list. See
+                 entities.advanced.example.md §5 and entities.patterns.md → Editing a many-to-many join. -->
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
         </FormSection>
     </form>

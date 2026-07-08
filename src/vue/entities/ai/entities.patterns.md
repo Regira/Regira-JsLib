@@ -44,6 +44,9 @@ const svc = get<EntityService>(Entity.name)!
 await svc.setActive(item.id, !item.isActive)
 ```
 
+This is a custom save, so wrap it in feedback (`pending` → `success`/`fail`) like any call outside `useForm` —
+see [Feedback for custom saves](#feedback-for-custom-saves-outside-useform).
+
 `isArchived` / `handleRestore` ([Soft delete](#soft-delete--archived-rows)) stay reserved for true removal.
 
 ## Date hydration
@@ -100,6 +103,33 @@ const { updateOverviewRoute } = useRouteOverview({ searchObject, pagingInfo, han
 // Paging @change → updateOverviewRoute()
 ```
 
+## Overview list layout (no horizontal scroll)
+
+`overview/List.vue` (headers) and `overview/ListItem.vue` (rows) render one Bootstrap `.row` per line. A
+fixed-width `col-auto` column does **not** shrink, so stacking several of them (plus a few flexible `col`s)
+pushes the row past narrow viewports and the whole page scrolls sideways. Keep it responsive so the row always
+fits:
+
+- **Flex + clip text columns** — `class="col text-truncate"`, not a fixed width.
+- **Drop secondary columns on smaller breakpoints** — `d-none d-md-block` / `d-none d-lg-block`, so mobile
+  shows only the 1–2 essential columns.
+- **Reserve `col-auto` (with a `width`) for genuinely fixed cells** — an icon/edit button, a short status —
+  and keep them few.
+- **Headers and cells must use the same breakpoint classes**, or columns stop lining up.
+
+```vue
+<!-- List.vue header cell + ListItem.vue body cell — identical column classes, mirrored 1:1. A foreign
+     relation's label goes through the sibling store's fromPool (const { fromPool: getBrand } =
+     useBrandStore()) so it stays reactive to edits — see "Resolving relations with fromPool" below. -->
+<div class="col text-truncate">{{ item.$title }}</div>
+<div class="col d-none d-md-block text-truncate">{{ getBrand(item.brand)?.$title }}</div>
+<div class="col d-none d-lg-block text-truncate">{{ item.model }}</div>
+<div class="col-auto" style="width: 8rem">{{ item.status }}</div>
+```
+
+The `Vehicle` slice in [entities.advanced.example.md](entities.advanced.example.md) §9–10 is the worked
+example (a multi-column list that stays inside the viewport).
+
 ## Union search (OR across filters)
 
 `searchUnion` POSTs an **array** of search objects and returns the union as one `{ items, count }`:
@@ -142,9 +172,43 @@ const family = await svc.getFamily([1, 2, 3])
 Use the pooled store `service` for ordinary CRUD (so views share the reactive cache); reach for the raw
 `get<EntityService>(Entity.name)` only to call bespoke endpoints like this.
 
+## Feedback for custom saves (outside useForm)
+
+`useForm` / `useSearchView` / `useDetails` already drive a `FeedbackOut` (pending → success/fail), and the
+scaffolded views render it (`<Feedback>` / `FormButtonsRow`). Anything you save **yourself** — an inline row
+toggle, a quantity edit, a custom action button, a storefront checkout that calls `service.save()` / `remove()`
+directly — gets none of that. Give it its own feedback so the user sees the result; a bare `await service.save()`
+reads as a no-op (and swallows the error path):
+
+```ts
+import { useFeedback } from "regira_modules/vue/ui" // useFeedback, Feedback, FeedbackStatus all live here
+const feedback = useFeedback()
+
+async function toggleActive(row: Row) {
+    feedback.pending("Saving…")
+    try {
+        row.isActive = !row.isActive
+        await service.save(row)
+        feedback.success("Saved")
+    } catch (ex: any) {
+        feedback.fail("Save failed", ex.response?.data?.errors ?? ex.response?.data?.message ?? ex.message)
+    }
+}
+```
+
+Render it with `<Feedback :feedback="feedback" />` (styling + the 400 field-map in
+[Form validation & error handling](#form-validation--error-handling)), or reuse the surrounding form's
+`feedback` (`useForm` returns it) instead of minting a second one.
+
 ## Entity selector (relation picker) — `selecting/`
 
 **Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M (entity-backed) → `Selector` (bind an array); multi-value over a **fixed option set (enum, no service)** → a checkbox group, never a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)).
+
+> **Entity-backed = has a service/store — even a short, fully-loaded set** (a dozen intervention types, an
+> article's categories). Those are a `Selector`, not a checkbox list: a checkbox/radio group of rows loaded
+> from `service.list()` / `service.search()` is the single most common wrong reach here (it re-implements the
+> picker badly and can't scale past one page). Reserve the checkbox group for a **serviceless** union/enum —
+> no id, no service — see [Multi-value over a fixed option set (enum)](#multi-value-over-a-fixed-option-set-enum).
 
 Each entity ships a thin **`selecting/Selector.vue`** so other entities' forms can pick it (e.g. choosing
 an Article's categories, or a list's shopper). It `v-model`s the related entity and resolves it through
@@ -393,7 +457,7 @@ not the raw IoC service. Register `defaultPoolCache` once at startup
 (`sp.add(PoolCache.name, () => defaultPoolCache)`); mark types that should never expire via
 `cache.persistentTypes`.
 
-The payoff is **live shared state**, not just fewer fetches: every consumer holds the *same* `Ref<T>`, and a
+The payoff is **live shared state**, not just fewer fetches: every consumer holds the _same_ `Ref<T>`, and a
 save through the pooled `service` writes the result back into that ref in place (`cache.set`). So editing an
 entity anywhere — a `FormModalButton` bound to the store's `service`, a details form, a bulk action —
 re-renders every overview row, detail pane, and relation label that pooled it, with no manual refetch or

@@ -402,7 +402,9 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 - **Paging** — `pagingInfo` + `itemsCount`; `pageSize: 0` returns all rows capped by the server's `MaxPageSize` (send a positive `pageSize` to page).
 - **Union search** — `searchUnion` (OR across filters).
 - **Custom endpoints on a service** — reach the raw `get<EntityService>(Entity.name)`, not the pooled store.
-- **Entity selector (relation picker)** — the `selecting/` set for picking related entities in forms; to bind a **many-to-many join** to a multi-select, see [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector).
+- **Entity selector (relation picker)** — the `selecting/` set for picking related entities in forms; to bind a **many-to-many join** to a multi-select, see [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector). A relation is entity-backed even when the set is small — use the `Selector`, never a checkbox list.
+- **Overview list layout** — responsive columns so the list row never scrolls horizontally ([entities.patterns.md](entities.patterns.md#overview-list-layout-no-horizontal-scroll)).
+- **Feedback for custom saves** — `useFeedback` + `<Feedback>` around any `service.save()`/`remove()` you call outside the standard composables ([entities.patterns.md](entities.patterns.md#feedback-for-custom-saves-outside-useform)).
 - **Owned (child) collections** — `useOwnedCollection` / `useOwnedModal` / `useListInput` for master-detail.
 - **Hierarchical (tree) entities** — `useTree` + `useDragDrop`.
 - **Static / lookup data** — `JSONService`.
@@ -451,6 +453,9 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | Overview total wrong / count missing | `useSearchView` bound to an endpoint that returns `{ items }` without `count` | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview)) |
 | Import not found / wrong path | Guessed an import specifier | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess |
 | Wrong method name/params/return | Guessed a signature | Look it up in [entities.signatures.md](entities.signatures.md) |
+| Overview list row scrolls horizontally on narrow screens | Several fixed-width `col-auto` columns (they don't shrink) stacked in the list row | Make columns responsive: flexible `col text-truncate`, drop secondary ones with `d-none d-md-block`/`d-lg-block`, keep few `col-auto`. See [entities.patterns.md → Overview list layout](entities.patterns.md#overview-list-layout-no-horizontal-scroll) |
+| A checkbox/radio list used to pick related entities (m2m) | An entity relation modelled like a serviceless enum | Entity-backed relations (loaded from a service) use the entity `Selector` + join bridge — even a small closed set; checkboxes are only for a serviceless enum. See [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector) |
+| A custom save/toggle/checkout shows no feedback | Only `useForm`/`useSearchView`/`useDetails` auto-drive feedback | Drive your own `useFeedback()` + `<Feedback>` around the direct `service.save()`/`remove()` call. See [entities.patterns.md → Feedback for custom saves](entities.patterns.md#feedback-for-custom-saves-outside-useform) |
 
 > **Dormant code — do not use:**
 >

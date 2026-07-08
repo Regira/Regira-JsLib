@@ -1,7 +1,13 @@
 <template>
     <div class="entity-list">
         <div class="row fw-bold border-bottom pb-2">
-            <!-- TODO: column headers -->
+            <!-- TODO: your column headers — must mirror ListItem.vue 1:1. Keep the row inside the viewport:
+                 the list must never scroll horizontally. Use flexible `col` (+ text-truncate on the cell) for
+                 text, drop secondary columns on small screens with d-none d-md-block / d-lg-block, and reserve
+                 fixed-width col-auto for a couple of narrow cells only (they don't shrink). e.g.:
+                     <div class="col d-none d-md-block fw-bold">{{ $t("code") }}</div>
+                     <div class="col-auto d-none d-lg-block fw-bold" style="width: 9rem">{{ $t("created") }}</div>
+                 See entities.patterns.md → Overview list layout (no horizontal scroll). -->
             <div class="col">{{ $t("name") }}</div>
         </div>
         <ListItem

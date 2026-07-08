@@ -16,7 +16,10 @@
                 <input v-model="item.title" :readonly="readonly" class="form-control" />
                 <FormLabel :label="$t('name')" />
             </div>
-            <!-- relation pickers go here, e.g. <BarInputSelector v-model="item.bar" v-model:idValue="item.barId" /> -->
+            <!-- single relation (FK) → the related entity's InputSelector, e.g. <BarInputSelector v-model="item.bar" v-model:idValue="item.barId" /> -->
+            <!-- many-to-many → the related entity's <Selector> (multi-select) bound to a bridged array of the
+                 join rows (toggle _deleted to remove) — never a hand-rolled checkbox list. See
+                 entities.advanced.example.md §5 and entities.patterns.md → Editing a many-to-many join. -->
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
         </FormSection>
     </form>
