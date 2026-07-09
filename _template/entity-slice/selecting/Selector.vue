@@ -63,7 +63,7 @@ function handleRemove(selected: Entity) {
 
 onMounted(async () => {
     if ((props.idsValue?.length || 0) > 0 && props.modelValue?.length != props.idsValue?.length) {
-        const models = await list({ id: props.idsValue })
+        const models = await list({ ids: props.idsValue })
         emit("update:modelValue", models)
     }
 })

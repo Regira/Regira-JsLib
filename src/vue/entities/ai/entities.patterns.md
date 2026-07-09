@@ -275,7 +275,7 @@ watch(
 )
 watch(selectedCategories, (cats) => {
     item.value.articleCategories = cats.map(
-        (c) => item.value.articleCategories?.find((j) => j.categoryId === c.$id) ?? { categoryId: c.$id as number }
+        (c) => item.value.articleCategories?.find((j) => j.categoryId === c.id) ?? { categoryId: c.id as number }
     )
 })
 ```
@@ -283,6 +283,10 @@ watch(selectedCategories, (cats) => {
 Bind `selectedCategories` to the related entity's multi-select; the join collection follows. Existing
 join rows are reused (so their ids survive), removed picks drop their row, and the server-side
 `e.Related(...)` applies the add/remove on save.
+
+> **Key on the plain `id`, never `$id`.** A nested `category` from an included relation is un-hydrated JSON —
+> its `$id`/`$title` getters are `undefined`. Reading `$id` here writes `categoryId: undefined`, which the
+> server rejects on the **second** save (`Related()` re-syncs the join rows). The `.id` field is always present.
 
 ### Multi-value over a fixed option set (enum)
 

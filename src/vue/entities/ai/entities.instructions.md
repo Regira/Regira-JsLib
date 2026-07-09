@@ -359,9 +359,11 @@ Keep every view thin: bind the refs the composables return.
 > **Verify after wiring a slice:** the service resolves (`get<IEntityService>(Entity.name)` non-null after
 > startup); the overview lists and pages (archived rows hidden unless `searchObject.isArchived` is set);
 > save round-trips (new `$id === "new"` inserts, existing updates — bind to `saved`); routes resolve
-> (`${key}Overview`, `${key}Details` → `${key}Form`/`${key}Fiche`). Then **smoke-test at runtime**: a green
-> `npm run build` only proves it compiles — run the app against the live API and load one view per entity
-> to confirm the wiring (most wiring/contract mismatches surface only here).
+> (`${key}Overview`, `${key}Details` → `${key}Form`/`${key}Fiche`). Then **drive each feature at runtime** — a
+> green `npm run build` only proves it compiles. Against the live API, exercise every entity once, don't just
+> load it: **open a navbar dropdown**, **save the same record twice** (a `Related()`/m2m re-sync is the classic
+> 2nd-save 500), **toggle a status flag**, **apply a filter and reopen it** (multi-value restore), and **delete
+> a referenced row** (FK-block feedback). Wiring/contract bugs surface only here — `vue-tsc` never exercises them.
 
 ---
 
