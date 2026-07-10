@@ -18,12 +18,14 @@ form inputs, and responsive layout.
 | autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`                                 |
 | buttons      | `ConfirmButton`                                                                                                                                                       | —                                                 |
 | input        | `Anchor`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                 |
-| gis          | `GMap`, `GmapLink`, `ModalButton` (Google Maps)                                                                                                                       | —                                                 |
+| gis          | `GMap`, `GMapLink`, `GMapButton` (Google Maps)                                                                                                                        | —                                                 |
 
 ## Plugins & imports
 
 Components are **imported locally** from `regira_modules/vue/ui` (or a sub-path) by default — no
-component is registered globally. Import the library styles once in `main.ts`:
+component is registered globally. The whole kit works **à la carte**: any component or composable drops
+into any Vue 3 app on its own, with no entity scaffold, no plugin stack, and no other module required —
+lean and headless builds included. Import the library styles once in `main.ts`:
 
 ```ts
 import "regira_modules/style.css" // modal backdrop, autocomplete dropdown, …
@@ -50,8 +52,9 @@ friendly key or a raw icon class. Most-used in entity UIs: `Paging`, `LoadingCon
 
 - The barrel `regira_modules/vue/ui` re-exports everything; `feedback`, `icons`, and `modal` also have
   dedicated sub-paths for extra exports (e.g. `Pending`/`Success`, `IIconProvider`).
-- Modal is a component (`DefaultModal` + `v-model:is-visible`), not an `openModal()` composable; for
-  entity edit-in-modal use `useModalForm` from the entities module.
+- Modal is a component (`DefaultModal` + `:is-visible` — one-way, flip your own state on
+  `@close`/`@cancel`/`@submit`), not an `openModal()` composable; for entity edit-in-modal use
+  `useModal` from the entities module.
 
 ## Reference
 

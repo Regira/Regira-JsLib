@@ -10,6 +10,12 @@ modal, tabs, icons, autocomplete, form inputs, and a reactive screen helper.
 
 ## Import
 
+**The kit works à la carte.** Every component and composable here imports individually into any Vue 3
+app — no entity scaffold, no plugin stack, no other module required. On a lean or headless build, reach
+for these before hand-rolling a pager, spinner, toast/feedback banner, modal, tab strip, confirm button,
+or autocomplete: the hand-rolled version is the expensive path and a deviation to declare
+([frontend bootstrap](../../../bootstrap/ai/frontend.bootstrap.md) → _Pick the build tier first_).
+
 Everything is re-exported from the barrel; three areas also have dedicated sub-paths for their extra
 exports:
 

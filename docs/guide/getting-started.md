@@ -61,6 +61,23 @@ resolve: {
 }
 ```
 
+## Scaffold an app
+
+The library ships its reference app as a template — don't hand-write the boilerplate. One command
+writes the app shell (`main.ts`, `App.vue`, router, dashboard + navbar, layout, views, runtime config),
+and one command per entity writes a complete, type-checked CRUD slice (~23 files; you customize ~8):
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs --shell     # app shell, once (--no-auth for apps without login)
+node node_modules/regira_modules/_template/scaffold.mjs Product     # one slice per entity
+```
+
+The scaffolded views are indicative of functionality, not appearance — restyle and restructure the
+markup freely; the wiring (composables, services, plugin order, routing) is the part to keep. For a
+lighter build, the UI kit ([UI reference](/reference/vue-ui/)) and
+[formatters](/reference/vue-formatters/) also work à la carte — paging, loading, feedback, modals, and
+autocomplete import individually into any Vue 3 app, no scaffold required.
+
 ## Where to go next
 
 - **[The module stack](/guide/module-stack)** — what each module does and whether you need it.

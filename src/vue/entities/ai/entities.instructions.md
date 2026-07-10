@@ -125,7 +125,7 @@ Vue view  ──uses──▶  composable (useSearchView / useForm / useDetails 
 
 `EntityServiceBase<T>` builds requests from `IConfig` and expects **item-wrapped** envelopes — the exact
 shape the back-end `Regira.Entities.Web` endpoints return (the **HTTP body** column below), then **unwraps
-them for you**, so the method return types are *not* these envelopes — see the note under the table.
+them for you**, so the method return types are _not_ these envelopes — see the note under the table.
 
 | Method             | HTTP   | URL                                                    | HTTP body          |
 | ------------------ | ------ | ------------------------------------------------------ | ------------------ |
@@ -137,7 +137,7 @@ them for you**, so the method return types are *not* these envelopes — see the
 | `update(item)`     | PUT    | `{saveUrl}/{$id}`                                      | `{ item }`         |
 | `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                                    | —                  |
 
-> **The methods return *unwrapped* values, not these envelopes.** `list()` resolves to `Array<T>` (not `{ items }`), `details()` to `T | null`, `search()`/`searchUnion()` to `SearchResult<T>` (`{ items, count }`), `save()`/`insert()`/`update()` to `SaveResult<T>`/`T | null`. Destructure accordingly — `const items = await service.list()`, never `const { items } = await service.list()`. Verify in [entities.signatures.md](entities.signatures.md).
+> **The methods return _unwrapped_ values, not these envelopes.** `list()` resolves to `Array<T>` (not `{ items }`), `details()` to `T | null`, `search()`/`searchUnion()` to `SearchResult<T>` (`{ items, count }`), `save()`/`insert()`/`update()` to `SaveResult<T>`/`T | null`. Destructure accordingly — `const items = await service.list()`, never `const { items } = await service.list()`. Verify in [entities.signatures.md](entities.signatures.md).
 
 `save(item)` dispatches: **insert** when `$id` is an unsaved sentinel — `null`, `undefined`, `"new"`, `""`,
 or a **non-positive number** (`0`, or the negative temp ids owned/related collections mint for new rows) via
@@ -202,15 +202,21 @@ axios `baseURL` (set from app config).
 
 ### How much to build
 
-**Default to the full reference scaffold** — a scalable, production-ready SPA using the full `regira_modules`
-package. Treat every build request as production-bound unless the user says otherwise; drop to a lighter tier
-**only when the user explicitly asks** for a demo, an embed, or a headless/custom UX, and declare the choice.
+**Default to the full reference scaffold — whatever the app type.** It's the path that scales to many
+entities and stays production-ready (typed slices, server-side relation pickers, pooling, navigation), and
+implementing the full building-block set is what makes it so. A storefront, demo, or embed still defaults to
+the full scaffold: the **app type is not a downgrade signal**. A lighter tier is a sound choice only when the
+**user asks for a lighter build** — pick it deliberately and state which tier and why.
 
-| Tier                                    | You build                                                                                                              | Files you edit | Pick when                                                               |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------- |
-| **Full reference scaffold** _(default)_ | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth) | ~8 of ~23      | any real app — batteries-included CRUD UX, relation pickers, navigation |
-| **Lean (generic views)**                | the data layer + the library's `EntityOverview` / `EntityForm` bound via slots; skip the slice scaffold                | ~4             | an explicitly-requested focused admin, storefront, or embed             |
-| **Headless data-layer**                 | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                      | 1–2            | an explicitly-requested storefront / custom UI, or embedding            |
+> **The user has the final say.** These tiers are strong defaults, not rules — if the user wants a custom,
+> hand-rolled, or creative UI, build it their way. The building blocks exist to make the default path scale, not
+> to fence off other approaches.
+
+| Tier                                    | You build                                                                                                              | Files you edit | Pick when                                                             |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------- |
+| **Full reference scaffold** _(default)_ | the per-entity slice (`config`/`data`/`overview`/`details`/`filter`/`selecting`/`setup`) + app shell (nav/layout/auth) | ~8 of ~23      | any app with no explicit lighter ask — storefronts and demos included |
+| **Lean (generic views)**                | the data layer + the library's `EntityOverview` / `EntityForm` bound via slots; skip the slice scaffold                | ~4             | the user asks for a lighter build with standard lists                 |
+| **Headless data-layer**                 | `initAxios` + `EntityServiceBase<T>` subclasses + your own views; no plugin stack                                      | 1–2            | the user asks for data-only access or a fully custom/bespoke UI       |
 
 The full tier _generates_ ~23 files/entity but you edit only the **8** marked `(c)` — the other 15 are
 `vue-tsc`-verified boilerplate you never touch. Compare the authored ~8, not the generated ~23, against lean's ~4.
@@ -225,7 +231,7 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 >
 > - **It type-checks green out of the box — and more entities don't compound that.** Each slice is generated
 >   and `vue-tsc`-verified independently, so a 5-entity app is not 5× the type-check risk of one. `scaffold.mjs
->   <Entity>` emits ~23 files; you edit only the **8** marked `(c)`, and the rest is verified boilerplate. File
+<Entity>` emits ~23 files; you edit only the **8** marked `(c)`, and the rest is verified boilerplate. File
 >   count is not effort — you are not signing up to debug generated code.
 > - **The relation pickers are the payoff.** `selecting/Autocomplete.vue` is a server-searchable picker: it
 >   selects one row out of thousands without loading them all (a plain dropdown can't). Hand-rolled forms
@@ -239,12 +245,20 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 > - **The look is yours — the behaviour isn't.** The scaffold fixes the _wiring_, not the _design_: freely
 >   restructure the markup, columns, and layout and restyle the views. But a few behaviours live in the
 >   components, not their CSS — navbar dropdowns (a Vue toggle, not Bootstrap JS), dashboard route-tiles, the
->   library `FormButtonsRow`, the `_deleted` remove-marks-not-splices flow, and modal teleport into `#modals`.
+>   library `FormButtonsRow`, `_deleted` marking for rendered join/owned child rows (kept until save), and modal teleport into `#modals`.
 >   Restyle the markup; keep the behaviour, or reuse the component. Per-file checklists:
 >   [entities.template.md](entities.template.md) (slice), [entities.shell.template.md](entities.shell.template.md) (shell).
 >
-> Downgrade to lean or headless **only** when the user's request names it — "demo", "embed", "storefront",
-> "headless", "lean", "no scaffold", "just the data layer" — and state the tier you picked.
+> A lighter tier fits when the **user requests it** — "keep it minimal", "no scaffold", "just the data
+> layer", "a quick throwaway demo" are the usual signals, and they are requests for **less build**, not app
+> descriptors: an app merely _being_ a storefront, demo, or embed is not one of them. Choose it on purpose and
+> state the tier; when in doubt, scaffold — it scales, and it's the cheaper path to change later.
+>
+> **A lighter tier drops the scaffold, not the UI kit.** Lean and headless builds still import
+> `vue/ui` (paging, loading, feedback, modal, tabs, autocomplete, confirm buttons), `vue/formatters`
+> (dates/currency), and `treelist` (hierarchies) à la carte — no plugins or slice required. Hand-rolling
+> those primitives is a deviation to declare, not part of going lean
+> ([entities.setup.md → UI building blocks without the scaffold](entities.setup.md#ui-building-blocks-without-the-scaffold)).
 
 ### Choosing a service base
 
@@ -256,8 +270,8 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 Set `config.isComplex = true` for entities with child collections / heavier forms (used by navigation
 and routing conventions); simple lookups leave it unset.
 
-> **Data-layer only?** For a storefront or headless view that doesn't use the CRUD scaffolding, you can
-> skip the heavy plugin stack: `initAxios({ api })` once + `EntityServiceBase<T>` subclasses + your own
+> **Data-layer only?** On a user-requested headless build (no CRUD scaffolding), you can skip the heavy
+> plugin stack: `initAxios({ api })` once + `EntityServiceBase<T>` subclasses + your own
 > views. `service.search(so)` still merges `baseQueryParams`, strips `$`-keys, serializes arrays as
 > repeated keys, and defaults `pageSize`/`isArchived`. The reference apps all wire the full stack — this
 > is the minimal variant, not the norm.
@@ -345,7 +359,7 @@ A **lookup** entity keeps the folders but drops the list UI (omit the views and 
    the overview pages for simple **and** complex entities; swap to `useListView` only for a lookup that needs
    no count) + `List.vue` (c) + `ListItem.vue` (c).
 8. **Details & form** — `details/`: `Details.vue` (`useDetails`, loads `:id`, hosts `Fiche`/`Form`),
-   `Form.vue` (c) (`useForm`), `FormModalButton.vue` (`useModalForm`).
+   `Form.vue` (c) (`useForm`), `FormModalButton.vue` (`useModal`).
 9. **Selecting** — `selecting/`: the relation-picker set built on the store; only `SelectorList.vue` (c) is
    per-entity, the rest is verbatim boilerplate. See
    [entities.patterns.md](entities.patterns.md#entity-selector-relation-picker--selecting).
@@ -406,9 +420,11 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 - **Paging** — `pagingInfo` + `itemsCount`; `pageSize: 0` returns all rows capped by the server's `MaxPageSize` (send a positive `pageSize` to page).
 - **Union search** — `searchUnion` (OR across filters).
 - **Custom endpoints on a service** — reach the raw `get<EntityService>(Entity.name)`, not the pooled store.
-- **Entity selector (relation picker)** — the `selecting/` set for picking related entities in forms; to bind a **many-to-many join** to a multi-select, see [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector). A relation is entity-backed even when the set is small — use the `Selector`, never a checkbox list.
+- **Entity selector (relation picker)** — the `selecting/` set for picking related entities in forms; to bind a **many-to-many join** to a multi-select, see [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector). A relation is entity-backed even when the set is small — prefer the `Selector` (it searches server-side and scales past one page).
 - **Overview list layout** — responsive columns so the list row never scrolls horizontally ([entities.patterns.md](entities.patterns.md#overview-list-layout-no-horizontal-scroll)).
 - **Feedback for custom saves** — `useFeedback` + `<Feedback>` around any `service.save()`/`remove()` you call outside the standard composables ([entities.patterns.md](entities.patterns.md#feedback-for-custom-saves-outside-useform)).
+- **Tabbed forms** — split a heavy form into `TabContainer` tabs, driven by the form's `initialTab` + URL-hash nav ([entities.patterns.md](entities.patterns.md#tabbed-forms)).
+- **Debug panel** — the global `<Debug>` component + `$isDebug`/`$setDebug` for a dev-only payload dump ([entities.patterns.md](entities.patterns.md#debug-panel-dev-only)).
 - **Owned (child) collections** — `useOwnedCollection` / `useOwnedModal` / `useListInput` for master-detail.
 - **Hierarchical (tree) entities** — `useTree` + `useDragDrop`.
 - **Static / lookup data** — `JSONService`.
@@ -429,7 +445,9 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | List + search + URL sync (counted) | `useSearchView` + `useRouteOverview`                       |
 | Plain list (no count)              | `useListView`                                              |
 | Load one item                      | `useDetails`                                               |
-| Create/edit/delete form            | `useForm` (modal: `useModalForm`)                          |
+| Create/edit/delete form            | `useForm` (modal: `useModal`)                              |
+| Tabbed form                        | `TabContainer` + `Tab.create` (`initialTab`)               |
+| Debug panel (dev-only)             | `<Debug :modelValue>` · `$isDebug` / `$setDebug`           |
 | Filter UI                          | `useFilter`                                                |
 | Reactive shared cache              | `createStore` (Pinia store)                                |
 | Child collections                  | `useOwnedCollection` / `useOwnedModal` / `useListInput`    |
@@ -441,25 +459,27 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 
 ## Gotchas
 
-| Symptom | Cause | Fix |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --- | ------ |
-| `v-for` over `items` throws a null error on first render | Overview refs are **lazy** — `items` / `itemsCount` are `undefined` until `searchHandler`/`listHandler` runs (the type says `Array<T>`, but the initial value is `undefined`) | Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`, `(items?.length ?? 0) === 0` |
-| `Fiche`/`Form` receive `null` | `useDetails().item` is `null` until the `onMounted` load resolves | Gate the child: `<RouterView v-if="item" v-model="item" …>` |
-| Save result binds to nothing / wrong shape | Binding to `item` instead of `saved` | `SaveResult` exposes `saved` (not `item`); `SaveResult` and the raw server `SavedResult` differ — bind to `saved` |
-| New entity not treated as insert | `$id` returns a non-sentinel value for a fresh model | `save()` inserts when `$id` is `null`/`undefined`/`"new"`/`""` or `≤ 0` (`isNewEntity` — covers the negative temp ids of new related rows), so a bare `this.id` getter is fine (`this.id \|\| "new"` is the convention); new-entity routes use `:id = "new"` |
-| Updates 404 while inserts pass | `saveUrl` set to a literal `/save` path | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves |
-| `update`/`remove` hit `/{id}/undefined` (400/404 that type-checks) | Spreading a model (`{ ...item }`) copies only own-enumerable props, dropping the `$id`/`$title` **prototype getters**; an `as Entity` cast hides it | Never spread a model — mutate the instance (`item.x = …; await service.update(item)`). `update`/`remove` throw a named error when `$id` is missing |
-| Archived rows missing | `isArchived` defaults to `false` | Set `isArchived` on the search object to include them |
-| Pager-less overview shows only 10 rows | `defaultPageSize` of `0`/unset falls back to 10 in the overview composables | Set `defaultPageSize` to a large number (up to the server's `MaxPageSize`); `pageSize: 0` at the service layer returns all rows capped by `MaxPageSize`, and larger sets use the `Autocomplete` selector |
-| Nested collections empty on the overview (List/Search) | On complex entities the API loads navigations only when the request sends `?includes=` | Set `baseQueryParams: { includes: "All" }` (or the needed flags) in `config/config.ts` — List/Search send it on every request |
-| Nested collection empty on a detail/edit form | `includes` may not apply to the Details GET | Ensure the API eager-loads it for Details, or fetch children with a dedicated call |
-| Custom service method not found on the store `service` | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface) | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`) |
-| Overview total wrong / count missing | `useSearchView` bound to an endpoint that returns `{ items }` without `count` | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview)) |
-| Import not found / wrong path | Guessed an import specifier | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess |
-| Wrong method name/params/return | Guessed a signature | Look it up in [entities.signatures.md](entities.signatures.md) |
-| Overview list row scrolls horizontally on narrow screens | Several fixed-width `col-auto` columns (they don't shrink) stacked in the list row | Make columns responsive: flexible `col text-truncate`, drop secondary ones with `d-none d-md-block`/`d-lg-block`, keep few `col-auto`. See [entities.patterns.md → Overview list layout](entities.patterns.md#overview-list-layout-no-horizontal-scroll) |
-| A checkbox/radio list used to pick related entities (m2m) | An entity relation modelled like a serviceless enum | Entity-backed relations (loaded from a service) use the entity `Selector` + join bridge — even a small closed set; checkboxes are only for a serviceless enum. See [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector) |
-| A custom save/toggle/checkout shows no feedback | Only `useForm`/`useSearchView`/`useDetails` auto-drive feedback | Drive your own `useFeedback()` + `<Feedback>` around the direct `service.save()`/`remove()` call. See [entities.patterns.md → Feedback for custom saves](entities.patterns.md#feedback-for-custom-saves-outside-useform) |
+| Symptom                                                            | Cause                                                                                                                                                                         | Fix                                                                                                                                                                                                                                                                                                                |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `v-for` over `items` throws a null error on first render           | Overview refs are **lazy** — `items` / `itemsCount` are `undefined` until `searchHandler`/`listHandler` runs (the type says `Array<T>`, but the initial value is `undefined`) | Guard every template use: `v-for="x in items ?? []"`, `:count="itemsCount ?? 0"`, `(items?.length ?? 0) === 0`                                                                                                                                                                                                     |
+| `Fiche`/`Form` receive `null`                                      | `useDetails().item` is `null` until the `onMounted` load resolves                                                                                                             | Gate the child: `<RouterView v-if="item" v-model="item" …>`                                                                                                                                                                                                                                                        |
+| Save result binds to nothing / wrong shape                         | Binding to `item` instead of `saved`                                                                                                                                          | `SaveResult` exposes `saved` (not `item`); `SaveResult` and the raw server `SavedResult` differ — bind to `saved`                                                                                                                                                                                                  |
+| New entity not treated as insert                                   | `$id` returns a non-sentinel value for a fresh model                                                                                                                          | `save()` inserts when `$id` is `null`/`undefined`/`"new"`/`""` or `≤ 0` (`isNewEntity` — covers the negative temp ids of new related rows), so a bare `this.id` getter is fine (`this.id \|\| "new"` is the convention); new-entity routes use `:id = "new"`                                                       |
+| Updates 404 while inserts pass                                     | `saveUrl` set to a literal `/save` path                                                                                                                                       | Leave `*Url` at `config.api` (a resource base); `update`/`remove` append `/{$id}` themselves                                                                                                                                                                                                                       |
+| `update`/`remove` hit `/{id}/undefined` (400/404 that type-checks) | Spreading a model (`{ ...item }`) copies only own-enumerable props, dropping the `$id`/`$title` **prototype getters**; an `as Entity` cast hides it                           | Never spread a model — mutate the instance (`item.x = …; await service.update(item)`). `update`/`remove` throw a named error when `$id` is missing                                                                                                                                                                 |
+| Archived rows missing                                              | `isArchived` defaults to `false`                                                                                                                                              | Set `isArchived` on the search object to include them                                                                                                                                                                                                                                                              |
+| Pager-less overview shows only 10 rows                             | `defaultPageSize` of `0`/unset falls back to 10 in the overview composables                                                                                                   | Set `defaultPageSize` to a large number (up to the server's `MaxPageSize`); `pageSize: 0` at the service layer returns all rows capped by `MaxPageSize`, and larger sets use the `Autocomplete` selector                                                                                                           |
+| Nested collections empty on the overview (List/Search)             | On complex entities the API loads navigations only when the request sends `?includes=`                                                                                        | Set `baseQueryParams: { includes: "All" }` (or the needed flags) in `config/config.ts` — List/Search send it on every request                                                                                                                                                                                      |
+| Nested collection empty on a detail/edit form                      | `includes` may not apply to the Details GET                                                                                                                                   | Ensure the API eager-loads it for Details, or fetch children with a dedicated call                                                                                                                                                                                                                                 |
+| Custom service method not found on the store `service`             | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface)                                                                                       | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`)                                                                                                                                                                                                                        |
+| Overview total wrong / count missing                               | `useSearchView` bound to an endpoint that returns `{ items }` without `count`                                                                                                 | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview))                                                                                                                                                                                     |
+| Import not found / wrong path                                      | Guessed an import specifier                                                                                                                                                   | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess                                                                                                                                                                                                                                       |
+| Wrong method name/params/return                                    | Guessed a signature                                                                                                                                                           | Look it up in [entities.signatures.md](entities.signatures.md)                                                                                                                                                                                                                                                     |
+| Overview list row scrolls horizontally on narrow screens           | Several fixed-width `col-auto` columns (they don't shrink) stacked in the list row                                                                                            | Make columns responsive: flexible `col text-truncate`, drop secondary ones with `d-none d-md-block`/`d-lg-block`, keep few `col-auto`. See [entities.patterns.md → Overview list layout](entities.patterns.md#overview-list-layout-no-horizontal-scroll)                                                           |
+| A checkbox/radio list used to pick related entities (m2m)          | An entity relation modelled like a serviceless enum                                                                                                                           | Prefer the entity `Selector` + join bridge for service-loaded relations — even a small closed set (it scales server-side); a checkbox group suits a serviceless enum. See [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector) |
+| A custom save/toggle/checkout shows no feedback                    | Only `useForm`/`useSearchView`/`useDetails` auto-drive feedback                                                                                                               | Drive your own `useFeedback()` + `<Feedback>` around the direct `service.save()`/`remove()` call. See [entities.patterns.md → Feedback for custom saves](entities.patterns.md#feedback-for-custom-saves-outside-useform)                                                                                           |
+| Standard form/details save shows no confirmation                   | The composable drives `feedback`, but the view renders no `<Feedback>`                                                                                                        | Render `<Feedback :feedback="feedback" />` (the scaffolded `Form.vue`/`Details.vue` do; a hand-rolled form must add it)                                                                                                                                                                                            |
+| New Guid/string-keyed entity 400s on create                        | The model initializes `id = ""`; `EntityServiceBase` serializes it and the server can't bind `""` to a nullable `Guid?` InputDto                                              | Declare the key so JSON omits it when new — `id?: string` (or `id?: number` for int keys); `$id` still returns `"new"`, so `save()` routes to insert                                                                                                                                                               |
 
 > **Dormant code — do not use:**
 >

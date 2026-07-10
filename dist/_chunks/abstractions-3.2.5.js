@@ -32,8 +32,6 @@ function d(e) {
 //#endregion
 //#region src/vue/entities/abstractions/EntityServiceBase.ts
 var f = class {
-	axios;
-	config;
 	defaultPageSize = 10;
 	constructor(e, t) {
 		if (this.axios = e, this.config = t, e == null) throw Error(`EntityServiceBase ("${t?.key ?? "unknown entity"}") was constructed without an axios instance. Register the shared axios in the IoC container so services can resolve it: app.use(servicesPlugin, { configure: (sp) => sp.add("axios", () => initAxios({ api })) }).`);
@@ -136,7 +134,6 @@ var f = class {
 		return this.toEntity(e || {});
 	}
 }, p = /* @__PURE__ */ new Map(), m = class extends f {
-	key;
 	constructor(e, t, n) {
 		super(e, t), this.key = n;
 	}

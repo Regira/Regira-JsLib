@@ -187,11 +187,15 @@ Use the pooled store `service` for ordinary CRUD (so views share the reactive ca
 
 ## Feedback for custom saves (outside useForm)
 
-`useForm` / `useSearchView` / `useDetails` already drive a `FeedbackOut` (pending → success/fail), and the
-scaffolded views render it (`<Feedback>` / `FormButtonsRow`). Anything you save **yourself** — an inline row
-toggle, a quantity edit, a custom action button, a storefront checkout that calls `service.save()` / `remove()`
-directly — gets none of that. Give it its own feedback so the user sees the result; a bare `await service.save()`
-reads as a no-op (and swallows the error path):
+`useForm` / `useSearchView` / `useDetails` each drive a `FeedbackOut` (pending → success/fail), but a view
+shows it only where it **renders** `<Feedback :feedback="feedback" />` — the scaffolded `Form.vue` / `Details.vue`
+do (a form that renders none saves silently). `FormButtonsRow` takes the same `feedback` only to disable its
+Save/Delete/Restore buttons while an operation is in flight. The global `$feedback` (`feedbackPlugin`, shown once in `App.vue`) is a **separate**
+instance for app-level notices — route cross-cutting messages there via `inject("feedback")`, not the form's.
+
+Anything you save **yourself** — an inline row toggle, a quantity edit, a custom action button, a storefront
+checkout that calls `service.save()` / `remove()` directly — gets none of the composable's feedback. Give it its
+own so the user sees the result; a bare `await service.save()` reads as a no-op (and swallows the error path):
 
 ```ts
 import { useFeedback } from "regira_modules/vue/ui" // useFeedback, Feedback, FeedbackStatus all live here
@@ -215,13 +219,13 @@ Render it with `<Feedback :feedback="feedback" />` (styling + the 400 field-map 
 
 ## Entity selector (relation picker) — `selecting/`
 
-**Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M (entity-backed) → `Selector` (bind an array); multi-value over a **fixed option set (enum, no service)** → a checkbox group, never a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)).
+**Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M (entity-backed) → `Selector` (bind an array); multi-value over a **fixed option set (enum, no service)** → a checkbox group rather than a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)).
 
 > **Entity-backed = has a service/store — even a short, fully-loaded set** (a dozen intervention types, an
-> article's categories). Those are a `Selector`, not a checkbox list: a checkbox/radio group of rows loaded
-> from `service.list()` / `service.search()` is the single most common wrong reach here (it re-implements the
-> picker badly and can't scale past one page). Reserve the checkbox group for a **serviceless** union/enum —
-> no id, no service — see [Multi-value over a fixed option set (enum)](#multi-value-over-a-fixed-option-set-enum).
+> article's categories). Prefer the `Selector` here: it searches server-side and shares the pooled cache, so it
+> scales past one page where a checkbox/radio group loaded from `service.list()` / `service.search()` won't. A
+> checkbox group is the natural fit for a **serviceless** union/enum (no id, no service) — see
+> [Multi-value over a fixed option set (enum)](#multi-value-over-a-fixed-option-set-enum).
 
 Each entity ships a thin **`selecting/Selector.vue`** so other entities' forms can pick it (e.g. choosing
 an Article's categories, or a list's shopper). It `v-model`s the related entity and resolves it through
@@ -252,8 +256,8 @@ const selected = computed<Category | undefined>({
 
 Re-export it from the slice `index.ts` (`export { default as Selector } from "./selecting/Selector.vue"`)
 so forms do `import { Selector as CategorySelector } from "@/entities/categories"`. For a multi-select
-(an Article's many categories) bind an **array** and push/remove picked entities; mark removed owned rows
-with `_deleted` (see below).
+(an Article's many categories) bind an **array** of related entities and add/remove picks; the shipped
+`Selector` rebuilds that array, and the server's `e.Related(...)` re-syncs the join from its contents.
 
 > **The picker only emits — you add.** `@select` (and the `v-model` set) fire with the chosen row; the bound
 > array does not change until _you_ push into it. A selector that "adds nothing on pick" is a missing handler,
@@ -263,10 +267,13 @@ with `_deleted` (see below).
 > function handleSelect(picked: Category) {
 >     if (!items.value.some((c) => c.$id === picked.$id)) items.value.push(picked)
 > }
-> // mark for the struck-through undo UX, never splice; a per-collection `prepareItem` filter drops
-> // `_deleted` rows so `Related()` deletes them on save (see Transient client-only fields)
-> const handleRemove = (row: Category & { _deleted?: boolean }) => (row._deleted = true)
+> const handleRemove = (row: Category) => (items.value = items.value.filter((c) => c.$id !== row.$id))
 > ```
+>
+> Rebuilding the array is right for a **plain entity/id set**. When you instead **render join/owned rows** (a join
+> entity carrying extra fields, or an inline child editor) and want a visible pending-delete with undo, keep the
+> row and toggle `_deleted` — [Transient client-only fields](#transient-client-only-fields) /
+> [Owned collections](#owned-child-collections) — filtered out in `EntityService.prepareItem`.
 
 Type optional relations `Category | undefined`, not `| null` — selector/autocomplete `v-model`s are
 `T | undefined` (JSON `null` still deserializes fine).
@@ -427,6 +434,35 @@ const fieldError = (name: string) => errors.value[name] ?? (typeof feedback.erro
 > `404`/`500`, `feedback.error` is a plain string, so lean on the `<Feedback>` summary (`feedback.message`)
 > instead. `FeedbackStatus` (`"" | "Pending" | "Success" | "Failed"`) comes from `regira_modules/vue/ui`;
 > gating the button on `FeedbackStatus.pending` prevents double-submits.
+
+## Tabbed forms
+
+Split a heavy form into tabs with `TabContainer` (global from `vue/ui`); the scaffolded `Form.vue` already
+exposes `initialTab` / `isPopup` for it. Pass `Tab.create(key, { icon, title, isDefault?, isDisabled? })` entries
+and one `<template #key>` per tab; `:use-route-nav="!isPopup"` mirrors the active tab in the URL hash
+(deep-linkable, back-button aware), and returning `null` from the list drops a tab responsively:
+
+```vue
+<TabContainer :tabs="tabs" :active="initialTab" :use-route-nav="!isPopup">
+    <template #form><FormSection>…</FormSection></template>
+    <template #lines><LineOverview v-model="item" /></template>
+    <template #files><AttachmentOverview v-model="item" /></template>
+</TabContainer>
+```
+
+```ts
+const { translate } = useLang()
+const { screen } = useScreen()
+const tabs = computed(() =>
+    [
+        Tab.create("form", { icon: "form", title: translate("form"), isDefault: true }),
+        Tab.create("lines", { icon: "list", title: translate("lines"), isDisabled: !item.value.id }), // gate until saved
+        !screen.isLarge ? Tab.create("files", { icon: "attachment", title: translate("files") }) : null,
+    ].filter((t) => t)
+)
+```
+
+Worked example: the `Vehicle` slice in [entities.advanced.example.md](entities.advanced.example.md) §5.
 
 ## Hierarchical (tree) entities
 
@@ -625,6 +661,20 @@ export class Article extends EntityBase {
 > catch-all that eager-loads every relation. Keep a small `const` map on the client for these
 > instead of the generated numeric type. (Run the generator via `npx openapi-typescript` to avoid TS
 > peer-dep conflicts; see the tsconfig note in [entities.setup.md](entities.setup.md#install).)
+
+## Debug panel (dev-only)
+
+`debugPlugin` (installed in `main.ts` with `{ isDebug }`) exposes `$isDebug` / `$setDebug`, and with
+`configureGlobals({ registerComponentsGlobally: true })` a global `<Debug>` component. Drop it into any form or
+details view to dump the live payload — it self-gates on `$isDebug` (no `v-if` needed) and stays out of production:
+
+```vue
+<Debug title="product" :modelValue="{ item, unitType: item.unitType?.title }" />
+```
+
+`$isDebug` turns on via `$setDebug(true)` or `?debug=1` and is reactive, so panels appear/disappear live. Curate
+the `modelValue` to what you're debugging (resolved relations, paging state), not the raw model. The app shell's
+`AppDebug` bar (screen / route / culture, `$setDebug(false)` to close) is the same mechanism.
 
 ## See also
 

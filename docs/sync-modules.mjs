@@ -30,6 +30,7 @@ const MODULES = [
   { id: "vue-directives", dir: "vue/directives", title: "Directives", group: "Vue modules" },
   { id: "vue-online", dir: "vue/online", title: "Online", group: "Vue modules" },
   { id: "vue-debug", dir: "vue/debug", title: "Debug", group: "Vue modules" },
+  { id: "vue-helper", dir: "vue/vue-helper", title: "Vue Helper", group: "Vue modules" },
   // Core (framework-agnostic)
   { id: "utilities", dir: "utilities", title: "Utilities", group: "Core" },
   { id: "extensions", dir: "extensions", title: "Extensions", group: "Core" },

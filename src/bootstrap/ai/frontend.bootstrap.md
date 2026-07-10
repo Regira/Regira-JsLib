@@ -11,16 +11,27 @@ CRUD client) against a **Regira.Entities** API. Use this when the target is a SP
 ## Pick the build tier first
 
 Decide the tier **before reading any further guides** — it determines which docs you need at all.
-**Default: a scalable, production-ready app on the full reference scaffold** — treat every build request as
-production-bound unless the user says otherwise. Drop to a lighter tier only when the user explicitly asks
-for a storefront, embed, demo, or custom/headless UX — and declare the choice (tier definitions:
+**Default: a scalable, production-ready app on the full reference scaffold — whatever the app type.** Treat
+every build request as production-bound: implementing the full building-block set is what makes the app
+scalable, and a storefront, demo, or embed still gets the full scaffold by default. Drop to a lighter tier
+only when the **user explicitly asks for a lighter build** ("keep it minimal", "just the data layer", "no
+scaffold") — the app type alone is never the signal. The user holds the highest authority: when they request
+a lighter or custom approach, follow it. Declare the chosen tier either way (tier definitions:
 `entities.instructions` → _How much to build_).
 
-| Tier                        | Build when…                                                | Read (everything else is skippable)                                                                                  |
-| --------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Full scaffold** (default) | admin / back-office CRUD; no explicit lighter ask          | the full reading order below                                                                                         |
-| **Lean** (generic views)    | focused admin or embed with standard lists — explicit ask  | `entities.instructions` → _How much to build_ + `entities.setup` → _Install_ / _Lean tier_                           |
-| **Headless** (data layer)   | bespoke UX that only needs typed API access — explicit ask | `entities.setup` → _Install_ / _Headless quick-start_ + `entities.namespaces`; skip the plugin/composable/shell docs |
+| Tier                        | Build when…                                                   | Read (everything else is skippable)                                                                                                         |
+| --------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full scaffold** (default) | any app, no explicit lighter ask — storefronts/demos included | the full reading order below                                                                                                                |
+| **Lean** (generic views)    | the user asks for a lighter build with standard lists         | `entities.instructions` → _How much to build_ + `entities.setup` → _Install_ / _Lean tier_ + `ui.instructions`                              |
+| **Headless** (data layer)   | the user asks for data-only access / a fully bespoke UI       | `entities.setup` → _Install_ / _Headless quick-start_ + `entities.namespaces` + `ui.instructions` for any list/form UI; skip the shell docs |
+
+**Every tier keeps the building blocks.** A lighter tier drops the slice scaffold and the shell — **not**
+the UI kit. `Paging`/`ResultSummary`, `LoadingContainer`, `Feedback`/`useFeedback`, `DefaultModal`,
+`TabContainer`, `ConfirmButton`, and `Autocomplete` import à la carte from `vue/ui` into any Vue 3 app
+(no plugins required); dates/currency come from `vue/formatters`; hierarchies from `treelist`. On a lean
+or headless build, hand-rolling a pager, spinner, toast, modal, currency string, or category tree is a
+deviation to declare, not a shortcut — see `entities.setup` → _UI building blocks without the scaffold_
+and `ui.instructions`.
 
 **Full scaffold** = the complete plugin stack, the per-entity slice
 (`config`/`data`/`filter`/`overview`/`details`/`selecting`/`setup`), the app shell (dashboard + navbar),

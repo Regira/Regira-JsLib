@@ -1,8 +1,18 @@
+import { type FeedbackOut } from "../feedback";
 type __VLS_Props = {
     item?: unknown;
     readonly?: boolean;
-    feedback?: unknown;
+    feedback?: FeedbackOut;
     showDelete?: boolean;
+    /** button-label overrides (i18n); defaults are English */
+    labels?: {
+        save?: string;
+        cancel?: string;
+        delete?: string;
+        restore?: string;
+    };
+    /** delete-confirm modal title; pair with the `delete` slot for a translated body */
+    modalTitle?: string;
 };
 declare var __VLS_29: {};
 type __VLS_Slots = {} & {

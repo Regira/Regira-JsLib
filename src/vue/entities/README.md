@@ -40,6 +40,9 @@ the app-level [entity aggregator](ai/entities.setup.md#add-entities), and the np
 
 Pick a **build tier** first — the lean tier (the data layer + the library's `EntityOverview` / `EntityForm`)
 or the full per-entity scaffold; see [How much to build](ai/entities.instructions.md#how-much-to-build).
+Every tier keeps the [UI kit](../ui/README.md) à la carte — paging, loading, feedback, modals, tabs,
+autocomplete and the [formatters](../formatters/README.md) import individually, with no scaffold or
+plugins required ([UI building blocks without the scaffold](ai/entities.setup.md#ui-building-blocks-without-the-scaffold)).
 
 A complete entity slice lives under `src/entities/<name>/` with the standard folder set
 (`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`). See the full worked

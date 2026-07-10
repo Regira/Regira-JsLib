@@ -37,13 +37,13 @@ returning `updateOverviewRoute`. (`useOverviewCore` is the shared base.)
 passing `item`. `item` is `null` until the `onMounted` load resolves — gate the child with
 `<RouterView v-if="item" …>`.
 
-## Form — `useForm` (and `useModalForm`)
+## Form — `useForm` (and `useModal`)
 
 `useForm({ entityService, props, emit })` returns `item` plus `handleSubmit`, `handleCancel`,
 `handleRemove`, `handleRestore`, and `feedback`. Note the form's `handleRemove()` takes **no arguments**
 (it removes the bound `item.value`) — unlike the overview's `handleRemove(item)`. Define props with `withDefaults(defineProps<FormProps &
 …>(), { ...formDefaults })` and emits via `FormEmits<T>`; `FormStates` enumerates pending/saved/removed/
-error. `useModalForm` (alias `useModal`) is the in-modal variant for editing without leaving the page.
+error. `useModal` is the in-modal variant for editing without leaving the page.
 
 For child/owned collections inside a form, use `useOwnedCollection`, `useOwnedModal`, `useListInput`, and
 `useListItemInput` — see [../ai/entities.patterns.md](../ai/entities.patterns.md#owned-child-collections).
