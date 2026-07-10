@@ -87,7 +87,7 @@ protected override prepareItem(item: Order): Order {
 }
 ```
 
-Removal is always a **mark**, never a splice — but only `useListItemInput` toggles `_deleted` for you (on a
+For an owned/join collection like this, removal is a **mark**, not a splice — but only `useListItemInput` toggles `_deleted` for you (on a
 per-row `handleRemove`). `useOwnedCollection` / `useListInput` just expose the writable collection, so you set
 `row._deleted = true` yourself in the template. The override is what turns that mark into a delete.
 
@@ -342,8 +342,8 @@ const { items, newItem, handleSort, handleSave } = useOwnedCollection<OrderLine>
 // items is a writable computed bound to the parent's collection; mark removed rows with _deleted
 ```
 
-`useListInput` / `useListItemInput` are the lower-level building blocks for editable lists. Removal is a
-`_deleted` **mark**, never a splice — `useListItemInput` toggles it on `handleRemove`, while `useListInput`
+`useListInput` / `useListItemInput` are the lower-level building blocks for editable lists. For these owned
+rows, removal is a `_deleted` **mark**, not a splice — `useListItemInput` toggles it on `handleRemove`, while `useListInput`
 exposes only the array and leaves the mark to you. Finalize it with a per-collection `prepareItem` filter so
 `Related()` deletes the row ([Transient client-only fields](#transient-client-only-fields)).
 

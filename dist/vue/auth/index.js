@@ -29,6 +29,8 @@ var E = class {
 		return this.hasClaim("permissions", e);
 	}
 }, D = () => new E(), O = class {
+	axios;
+	tokenManager;
 	options;
 	constructor(e, t, n) {
 		this.axios = e, this.tokenManager = t, this.options = n || {};
@@ -96,6 +98,7 @@ var E = class {
 		return t.$patch({ authRequired: !0 }), !0;
 	});
 }, A = "auth:token", j = class {
+	prefix;
 	constructor(e = "") {
 		this.prefix = e;
 	}
@@ -109,6 +112,7 @@ var E = class {
 		return this.prefix + A;
 	}
 }, ee = class {
+	_token;
 	constructor(e) {
 		this._token = e;
 	}
@@ -119,6 +123,7 @@ var E = class {
 		this._token = e;
 	}
 }, M = class {
+	prefix;
 	constructor(e = "") {
 		this.prefix = e;
 	}

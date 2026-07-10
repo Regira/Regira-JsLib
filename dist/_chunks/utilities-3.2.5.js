@@ -39,6 +39,7 @@ var f = () => location.hostname === "localhost" || location.hostname === "127.0.
 	objectUtility: t,
 	promiseUtility: a,
 	stringUtility: e,
+	//webpackUtility,
 	clipboardUtility: d
 };
 //#endregion

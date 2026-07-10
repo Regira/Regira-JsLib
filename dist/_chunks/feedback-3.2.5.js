@@ -82,21 +82,21 @@ var S = { class: "bg-light text-info" }, C = /* @__PURE__ */ p({
 	return e.none = "", e.pending = "Pending", e.success = "Success", e.failed = "Failed", e;
 }({});
 function V({ autoHideDelay: e = 1500 } = {}) {
-	let t = g(B.none), n = g(""), r = g(null), i;
+	let t = g(""), n = g(""), r = g(null), i;
 	function a() {
 		e > 0 && (clearTimeout(i), i = setTimeout(o, e));
 	}
 	function o() {
-		t.value = B.none, n.value = "", r.value = null;
+		t.value = "", n.value = "", r.value = null;
 	}
 	function s(e) {
-		t.value = B.pending, n.value = e, r.value = null;
+		t.value = "Pending", n.value = e, r.value = null;
 	}
 	function c(i) {
-		t.value = B.success, n.value = i, r.value = null, e && a();
+		t.value = "Success", n.value = i, r.value = null, e && a();
 	}
 	function l(e, i) {
-		t.value = B.failed, n.value = e, typeof i == "string" ? n.value = `${n.value}: ${i.split("\n")[0]}` : r.value = i?.message || i;
+		t.value = "Failed", n.value = e, typeof i == "string" ? n.value = `${n.value}: ${i.split("\n")[0]}` : r.value = i?.message || i;
 	}
 	return {
 		status: t,
