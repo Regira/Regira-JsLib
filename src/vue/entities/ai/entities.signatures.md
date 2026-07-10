@@ -95,7 +95,7 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     insert(item: T): Promise<T | null>
     protected fetchItems<TResult extends { items: Array<T> }>(api: string, so?: ISearchObject & IPagingInfo): Promise<TResult>
     protected processItem(item: T | null): T | null // hydrates `created`/`lastModified` strings to Date
-    protected prepareItem(item: T): T // strips properties whose key starts with "_"
+    protected prepareItem(item: T): T // strips top-level properties whose key starts with "_" (does not recurse)
     protected createInstance<T>(type: { new (): T }): T
     newEntity(values?: Record<string, any>): Promise<T>
     abstract toEntity(item: Object): T // the ONLY required override

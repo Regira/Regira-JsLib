@@ -184,8 +184,10 @@ axios `baseURL` (set from app config).
 - `processItem` converts the string fields **`created`** and **`lastModified`** into `Date` instances
   on every fetched/saved item. Other date fields are not auto-converted (convert them in `toEntity` —
   see [entities.patterns.md → Date hydration](entities.patterns.md#date-hydration)).
-- `prepareItem` strips every property whose key starts with **`_`** before sending to the server — use
-  `_`-prefixed fields for transient client-only state (e.g. `_deleted` on child rows).
+- `prepareItem` strips **top-level** `_`-prefixed properties before sending — use them for transient
+  client-only state. The strip does **not** recurse, so a `_deleted` child row is still sent; drop such rows
+  in a per-collection `prepareItem` override to delete them ([entities.patterns.md → Transient client-only
+  fields](entities.patterns.md#transient-client-only-fields)).
 - **Nested included relations are plain JSON objects** — only the root item runs through `toEntity`, so on an
   included relation the `EntityBase` getters (`$id`, `$title`, …) are `undefined`. Either bind the **plain DTO
   field** the API projects (`item.vehicle?.title`), or resolve the relation through the pool —

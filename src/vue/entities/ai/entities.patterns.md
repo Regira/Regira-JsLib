@@ -65,9 +65,8 @@ override toEntity(item: object): Entity {
 
 ## Transient client-only fields
 
-`prepareItem` strips every property whose key starts with **`_`** before sending to the server. Use
-this for UI-only state — most importantly **`_deleted`** to mark a child row for removal without
-sending it:
+`prepareItem` strips **top-level** properties whose key starts with **`_`** before sending — use them for
+UI-only state, most importantly **`_deleted`** to flag a child row for removal:
 
 ```ts
 class OrderLine extends EntityBase {
@@ -76,7 +75,21 @@ class OrderLine extends EntityBase {
 }
 ```
 
-`useListItemInput` / `useOwnedCollection` already drive `_deleted` for owned rows.
+**Marking is not deleting.** The strip is root-only — it does **not** recurse, so a `_deleted` child row is
+still sent, and `e.Related(...)` keeps every row it receives. The delete happens by **omission**: filter the
+marked rows out so they are **absent** from the payload, then `Related(...)` removes them on save. Do it in a
+per-collection `prepareItem` override on the parent's service:
+
+```ts
+protected override prepareItem(item: Order): Order {
+    item.orderLines = item.orderLines?.filter((x) => !x._deleted) ?? []
+    return super.prepareItem(item) // keep the root `_`-strip
+}
+```
+
+Removal is always a **mark**, never a splice — but only `useListItemInput` toggles `_deleted` for you (on a
+per-row `handleRemove`). `useOwnedCollection` / `useListInput` just expose the writable collection, so you set
+`row._deleted = true` yourself in the template. The override is what turns that mark into a delete.
 
 **Show the pending state.** A `_deleted` row stays in the list until save, so render it visibly tinted /
 struck-through — otherwise the delete looks like a no-op and invites splicing the row out (which skips the
@@ -250,7 +263,8 @@ with `_deleted` (see below).
 > function handleSelect(picked: Category) {
 >     if (!items.value.some((c) => c.$id === picked.$id)) items.value.push(picked)
 > }
-> // remove keeps the row (greyed) so the server deletes it on save — never splice
+> // mark for the struck-through undo UX, never splice; a per-collection `prepareItem` filter drops
+> // `_deleted` rows so `Related()` deletes them on save (see Transient client-only fields)
 > const handleRemove = (row: Category & { _deleted?: boolean }) => (row._deleted = true)
 > ```
 
@@ -274,9 +288,7 @@ watch(
     { immediate: true }
 )
 watch(selectedCategories, (cats) => {
-    item.value.articleCategories = cats.map(
-        (c) => item.value.articleCategories?.find((j) => j.categoryId === c.id) ?? { categoryId: c.id as number }
-    )
+    item.value.articleCategories = cats.map((c) => item.value.articleCategories?.find((j) => j.categoryId === c.id) ?? { categoryId: c.id as number })
 })
 ```
 
@@ -323,7 +335,10 @@ const { items, newItem, handleSort, handleSave } = useOwnedCollection<OrderLine>
 // items is a writable computed bound to the parent's collection; mark removed rows with _deleted
 ```
 
-`useListInput` / `useListItemInput` are the lower-level building blocks for editable lists.
+`useListInput` / `useListItemInput` are the lower-level building blocks for editable lists. Removal is a
+`_deleted` **mark**, never a splice — `useListItemInput` toggles it on `handleRemove`, while `useListInput`
+exposes only the array and leaves the mark to you. Finalize it with a per-collection `prepareItem` filter so
+`Related()` deletes the row ([Transient client-only fields](#transient-client-only-fields)).
 
 **Owned vs first-class child — and the "add before the parent is saved" consequence.** An **owned** collection
 (`useOwnedCollection`, embedded in the parent DTO, persisted via `e.Related(...)` on save) can be edited on a

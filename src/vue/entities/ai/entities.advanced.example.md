@@ -430,6 +430,56 @@ const tabs = computed(() =>
 </script>
 ```
 
+### The many-to-many link, end to end
+
+The four moving parts of an editable, **undoable** link — join model, form bridge, pooled display, and the
+save-time filter — collected in one place (full files in §3–§5):
+
+```ts
+// 1. Join model (§3): key on the plain `.id`; `_deleted` marks a row (never splice); `create()` from a payload.
+class VehicleInterventionType extends EntityBase {
+    id = 0; interventionTypeId = 0; vehicleId = 0
+    interventionType?: InterventionType
+    _deleted = false
+    override get $id() { return this.id || "new" }
+    static create(v?: object) { return Object.assign(new VehicleInterventionType(), v || {}) }
+}
+
+// 2. Form bridge (§5): flatten links → InterventionType[] for the multi-select; rebuild on change,
+//    reusing existing rows by `.id` so their ids and `_deleted` survive.
+const { service: entityService } = useEntityStore()
+const itemInterventionTypes = computed({
+    get: () => item.value?.interventionTypes?.map((x) => InterventionType.create({ ...x.interventionType, _deleted: x._deleted })) || [],
+    set: (values: InterventionType[]) => (item.value = entityService.toEntity({
+        ...item.value,
+        interventionTypes: values.map((x) =>
+            VehicleInterventionType.create({
+                ...(item.value?.interventionTypes?.find((l) => l.interventionTypeId === x.id)
+                    || { interventionType: x, interventionTypeId: x.id, vehicleId: item.value?.id }),
+                _deleted: x._deleted,
+            })),
+    })),
+})
+// bind `itemInterventionTypes` to the InterventionType multi-select; the join collection follows.
+
+// 3. Show a current link elsewhere (chip/summary): the nested relation is plain JSON, so hydrate it
+//    through its pooled store for a reactive `$title` — or bind the projected field directly.
+const { fromPool } = useInterventionTypeStore() // the intervention-types slice store
+const linkTitle = (l: VehicleInterventionType) => fromPool(l.interventionType)?.$title ?? l.interventionType?.title
+
+// 4. Save-time filter (§4, EntityService): drop `_deleted` links so they are ABSENT from the payload —
+//    `e.Related(...)` then deletes them. Marking alone won't: prepareItem strips only top-level `_` keys,
+//    so a marked link is still sent and Related() keeps it.
+protected override prepareItem(item: Entity): Entity {
+    item.interventionTypes = item.interventionTypes?.filter((x) => !x._deleted)
+    return super.prepareItem(item)
+}
+```
+
+**Key on `.id`, never `$id`** — an included relation's `$id` getter is `undefined`, so `interventionTypeId:
+undefined` slips through and the **second** save 400s. **Mark → filter → absent → deleted** is the whole
+delete path.
+
 ## 6. Interventions overview (owned child collection) — `vehicle-interventions/Overview.vue`
 
 A read-mostly list of the owning vehicle's interventions, embedded as the form's `interventions` tab. It

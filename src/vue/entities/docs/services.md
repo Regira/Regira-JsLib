@@ -37,8 +37,9 @@ The constructor takes the shared `axios` instance and the entity's `IConfig`; bo
 IoC registration in `setup.ts`. Useful protected members:
 
 - **`toEntity(item)`** _(abstract)_ — converts a plain server object into a model instance.
-- **`prepareItem(item)`** — runs before save; strips every property whose key starts with `_`
-  (transient client state). Override to drop soft-deleted children, etc.
+- **`prepareItem(item)`** — runs before save; strips **top-level** properties whose key starts with `_`
+  (transient client state). The strip does not recurse, so a `_deleted` child row is still sent — override
+  and filter such rows out per collection to drop soft-deleted children.
 - **`processItem(item)`** — runs after fetch/save; hydrates `created` / `lastModified` strings to `Date`.
 - **`createInstance(Type)`** — `new`s a model without arguments (used inside `toEntity`).
 - **`newEntity(values?)`** — builds a blank/seeded instance for create forms.

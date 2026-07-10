@@ -13,9 +13,11 @@ route prefix `foos`) — rename it to your entity throughout.
 > - **Form action buttons** — reuse the library `FormButtonsRow` (`regira_modules/vue/ui`): it ships the icons,
 >   the solid `btn-primary` / `btn-secondary` / `btn-danger` variants, and a **confirmed** delete
 >   (`ConfirmButton`). Re-emitting plain `<button>`s loses all three.
-> - **Removing an owned/related row marks `_deleted`** — the row stays (greyed) until save; `useOwnedCollection`
->   / `useListItemInput` drive this and `prepareItem` filters it out on write. Never `splice` it, or the server
->   never sees the delete.
+> - **Removing an owned/related row marks `_deleted`** — the row stays (greyed) until save. `useListItemInput`
+>   toggles the mark; with `useOwnedCollection` you set `row._deleted = true` yourself. A per-collection
+>   `prepareItem` override then filters the marked rows out on write (the base `prepareItem` strips only
+>   top-level `_` keys, so a marked child row is otherwise still sent). Never `splice` it, or the server never
+>   sees the delete.
 > - **A relation picker adds on `@select`** — the event only emits the chosen row; append it to the bound array
 >   yourself, and mark `_deleted` to remove (see [entities.patterns.md](entities.patterns.md)).
 > - **Edit/create popups use `FormModalButton`** (teleporting into `#modals`) — wire the "New" action the same
