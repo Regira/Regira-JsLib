@@ -24,6 +24,7 @@ SPA against a Regira.Entities API; it points into the per-module guides below.
 | Directives | [src/vue/directives](src/vue/directives/README.md) | [src/vue/directives/ai](src/vue/directives/ai) |
 | Online (connectivity) | [src/vue/online](src/vue/online/README.md) | [src/vue/online/ai](src/vue/online/ai) |
 | Debug | [src/vue/debug](src/vue/debug/README.md) | [src/vue/debug/ai](src/vue/debug/ai) |
+| Vue Helper (composition helpers) | [src/vue/vue-helper](src/vue/vue-helper/README.md) | [src/vue/vue-helper/ai](src/vue/vue-helper/ai) |
 
 **Core (framework-agnostic)**
 

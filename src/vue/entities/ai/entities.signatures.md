@@ -371,7 +371,7 @@ export interface FormOut<T> {
 > pass the item to the form's `handleRemove` — it's a common type error.
 
 ```ts
-import { useModalForm, useModal, formModalDefaults } from "regira_modules/vue/entities"
+import { useModal, formModalDefaults } from "regira_modules/vue/entities"
 export interface FormModalProps<T> extends FormProps<T> {
     title?: string
     fullWidth?: boolean
@@ -383,8 +383,9 @@ export interface FormModalEmits<T> extends FormEmits<T> {
     (e: "close", item?: T): void
 }
 export const formModalDefaults: { closeOnSave: boolean; closeOnDelete: boolean }
+// declared as useModalForm; the barrels re-export ONLY the useModal alias — always import useModal
 export const useModal: typeof useModalForm
-export function useModalForm<T extends IEntity>({
+declare function useModalForm<T extends IEntity>({
     entityService,
     model,
     itemDefaults,

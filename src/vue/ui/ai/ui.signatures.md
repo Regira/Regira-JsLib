@@ -172,7 +172,7 @@ import {
 // ConfirmButton props: { icon?: string; buttonLabel?: string; modalTitle?: string; modalType?: ModalType }
 // DateInput props: { modelValue?: string | Date; culture?: string }   (v-model)
 // DescriptionInput props: { label?: string; readonly?: boolean }   (v-model: string)
-// FormButtonsRow props: { item?: unknown; readonly?: boolean; feedback?: unknown; showDelete?: boolean } (reads item.isArchived to gate Restore, item.$title for the delete prompt) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")
+// FormButtonsRow props: { item?: unknown; readonly?: boolean; feedback?: FeedbackOut; showDelete?: boolean; labels?: { save?: string; cancel?: string; delete?: string; restore?: string }; modalTitle?: string } (reads item.isArchived — truthy, 0/1 ok — to gate Restore, item.$title for the delete prompt; feedback busy-gates Save/Delete/Restore against double-submits; labels/modalTitle override the English defaults for i18n) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")
 ```
 
 Other input/gis components (`Anchor`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`,

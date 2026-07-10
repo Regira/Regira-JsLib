@@ -78,7 +78,11 @@ function copyDir(from, to) {
 
 copyDir(srcRoot, destRoot)
 console.log(`✓ Scaffolded ${name} → ${join(baseDir, plural)}${noAuth ? " (auth hooks stripped)" : ""}`)
-console.log(`  Next: register its plugin in ${join(baseDir, "index.ts")} (see the entities setup guide → Add entities).`)
+// The files you actually edit — everything else is vue-tsc-verified boilerplate you leave untouched.
+const customize = ["data/Entity.ts", "config/config.ts", "filter/SearchObject.ts", "filter/FilterAdv.vue", "overview/List.vue", "overview/ListItem.vue", "details/Form.vue", "selecting/SelectorList.vue"]
+console.log(`  Customize these ${customize.length} (c) files (a lookup drops the overview trio List/ListItem/FilterAdv):`)
+for (const f of customize) console.log(`    · ${join(baseDir, plural, f)}`)
+console.log(`  Then register its plugin in ${join(baseDir, "index.ts")} (see the entities setup guide → Add entities).`)
 
 // -------------------------------------------------------------- app-shell impl
 function scaffoldShell() {

@@ -25,8 +25,8 @@ been authored cleanly, with no record of prior errors or revisions.
 
 ## 2. Layout
 
-- **Core:** `src/{utilities,extensions,treelist,events,io}`. **Vue:** `src/vue/{entities,http,ioc,auth,ui,app,lang,formatters,directives,online,debug}`.
-- Each module: `README.md` (developer docs) + `ai/` = `<m>.instructions.md`, `<m>.signatures.md`, `<m>.examples.md`, `module.json`. Entities adds `namespaces.md`, `patterns.md`, `setup.md`, `template.md`, `vue-entities-agent.md`, `docs/`.
+- **Core:** `src/{utilities,extensions,treelist,events,io}`. **Vue:** `src/vue/{entities,http,ioc,auth,ui,app,lang,formatters,directives,online,debug}` + `src/vue/vue-helper.ts` (code; its docs live in `src/vue/vue-helper/`).
+- Each module: `README.md` (developer docs) + `ai/` = `<m>.instructions.md`, `<m>.signatures.md`, `<m>.examples.md`, `module.json`. Entities adds `namespaces.md`, `patterns.md`, `setup.md`, `template.md`, `shell.template.md`, `advanced.example.md`, a `docs/` folder, and `vue-entities-agent.md` at the module root.
 - Root `README.md` indexes all modules; each is published via a `package.json` `exports` subpath (`regira_modules/<m>`).
 - `dist/**/*.d.ts` (committed) = authoritative public API.
 - **Meta package:** `src/bootstrap/ai/` (`frontend.bootstrap.md` + `module.json`, id `regira_modules`) holds the *front-end consumer bootstrap* — the SPA routing entry the MCP serves as `get_package id="regira_modules" section="frontend.bootstrap"`. Documentation-only: no `src` code, no `package.json` `exports` subpath. Distinct from this `AGENTS.md`/`CLAUDE.md`, which guide agents *working in* this repo.
@@ -43,8 +43,9 @@ been authored cleanly, with no record of prior errors or revisions.
 - After changing a public type, rebuild and reconcile `ai/*.signatures.md` with the new `.d.ts`.
 - Match local style; import across modules via their `exports` subpath, not deep relative paths;
   run `npm run format` before finishing.
-- **Dormant — don't use:** `src/entities/*` (commented-out; use `regira_modules/vue/entities`) and
-  `src/identity/*` (legacy).
+- **Dormant — don't use:** `src/entities/*` (commented-out; use `regira_modules/vue/entities`),
+  `src/identity/*` (legacy), and `src/firebase/*` (legacy, undocumented — still exported from the root
+  barrel and the `./firebase` subpath, but not part of the documented module set).
 
 ## 5. Adding/renaming/removing a module
 

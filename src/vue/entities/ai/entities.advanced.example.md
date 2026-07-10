@@ -589,7 +589,6 @@ onMounted(load)
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { useVModelField } from "@/regira_modules/vue/vue-helper"
 import { useFilter, type FilterEmits } from "@/regira_modules/vue/entities"
 import { useAuthStore } from "@/regira_modules/vue/auth"
 import { Entity as Brand, InputSelector as BrandSelector } from "../../brands"
@@ -599,12 +598,11 @@ import SearchObject from "./SearchObject"
 interface Emits extends /* @vue-ignore */ FilterEmits {}
 
 const emit = defineEmits<Emits>()
-const props = defineProps<{
-    modelValue: SearchObject
+defineProps<{
     resultCount?: number | null
 }>()
 
-const searchObject = useVModelField<SearchObject>(props, emit)
+const searchObject = defineModel<SearchObject>({ required: true })
 
 const brand = ref<Brand>()
 const vehicleType = ref<VehicleType>()
@@ -726,7 +724,7 @@ const items = computed<Array<Entity>>({
 </template>
 
 <script setup lang="ts">
-import { useVModelField, createFromComputedPool } from "@/regira_modules/vue/vue-helper"
+import { createFromComputedPool } from "@/regira_modules/vue/vue-helper"
 import type { SaveResult } from "@/regira_modules/vue/entities"
 import Entity from "../data/Entity"
 import { FormModalButton as BrandButton, useEntityStore as useBrandStore } from "../../brands"
@@ -740,12 +738,11 @@ const emit = defineEmits<{
     (e: "request-save", args: Entity): void
     (e: "request-remove", args: Entity): void
 }>()
-const props = defineProps<{
-    modelValue: Entity
+defineProps<{
     readonly?: boolean
 }>()
 
-const item = useVModelField<Entity>(props, emit)
+const item = defineModel<Entity>({ required: true })
 const getBrand = createFromComputedPool(useBrandStore()) as any
 const getVehicleType = createFromComputedPool(useVehicleTypeStore()) as any
 </script>

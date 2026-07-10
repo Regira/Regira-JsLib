@@ -19,6 +19,7 @@ client. The core modules are framework-agnostic and usable on their own.
 | [Directives](/reference/vue-directives/) | `regira_modules/vue/directives` | Custom Vue directives (registered as plugins). |
 | [Online](/reference/vue-online/) | `regira_modules/vue/online` | Connectivity state. |
 | [Debug](/reference/vue-debug/) | `regira_modules/vue/debug` | Debug helpers. |
+| [Vue Helper](/reference/vue-helper/) | `regira_modules/vue/vue-helper` | Composition helpers: `createFromComputedPool`, `useEventListener`, `useVModelField` (v-model bridge for composables — components use native `defineModel`). |
 
 ## Core (framework-agnostic)
 

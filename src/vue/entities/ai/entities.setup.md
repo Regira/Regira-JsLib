@@ -160,10 +160,11 @@ App-specific globals (e.g. `$isAdmin`) go in `src/shims.d.ts` — see
 > below); take the lean tier only on an explicit request — see
 > [How much to build](entities.instructions.md#how-much-to-build).
 
-The full per-entity slice (below) is a back-office scaffold. For a focused admin, a storefront, or an
-embed, the **lean tier** pairs the per-entity data layer (model + `config` + service + `SearchObject`,
-from [entities.template.md](entities.template.md)) with two generic components the library ships —
-`EntityOverview` and `EntityForm` — bound to your columns and fields through slots.
+The full per-entity slice (below) is the default for every app type — storefronts and demos included.
+When the user asks for a lighter build, the **lean tier** pairs the per-entity data layer (model +
+`config` + service + `SearchObject`, from [entities.template.md](entities.template.md)) with two generic
+components the library ships — `EntityOverview` and `EntityForm` — bound to your columns and fields
+through slots.
 
 Create each service once over the shared axios:
 
@@ -207,6 +208,10 @@ its default slot, and emits `saved` / `cancel`. Both rely only on the service co
 the full tier's data layer and can adopt the scaffold later without rework — a fallback for genuinely lean
 apps, not a license to defer the default on a normal one.
 
+For everything around the generic views — feedback banners, modals, confirm buttons, tabs, formatting —
+keep importing the kit à la carte: see
+[UI building blocks without the scaffold](#ui-building-blocks-without-the-scaffold) below.
+
 ### Headless quick-start (data layer only)
 
 Also opt-in only. For a bespoke UI that just needs typed access to the API — no plugins, no shell:
@@ -240,6 +245,61 @@ const { items, count } = await products.search({ q: "blue", pageSize: 10 })
 
 Add `baseQueryParams: { includes: "All" }` to the config when the API gates nested collections behind
 `?includes=` (complex entities do — `Details` loads them, `List`/`Search` omit them by default).
+
+### UI building blocks without the scaffold
+
+Headless means you own the **views** — not that you re-build the **primitives**. The UI kit imports à la
+carte into any Vue 3 app (no plugins, no slice scaffold —
+[ui.instructions](../../ui/ai/ui.instructions.md)); pair it with the service above instead of
+hand-rolling a pager, spinner, feedback banner, or currency string:
+
+```vue
+<!-- src/views/Products.vue — a bespoke view that still reuses the kit -->
+<script setup lang="ts">
+import { ref, onMounted } from "vue"
+import { Paging, ResultSummary, LoadingContainer, Feedback, useFeedback } from "regira_modules/vue/ui"
+import { PagingInfo } from "regira_modules/vue/entities"
+import { formatCurrency } from "regira_modules/vue/formatters"
+import { products, Product } from "@/services" // the headless data layer above
+
+const items = ref<Product[]>([])
+const count = ref(0)
+const isLoading = ref(false)
+const q = ref("")
+const pagingInfo = ref(new PagingInfo(20)) // pageSize 20, page 1
+const feedback = useFeedback()
+
+async function search() {
+    isLoading.value = true
+    try {
+        const result = await products.search({ q: q.value, ...pagingInfo.value })
+        items.value = result.items
+        count.value = result.count
+    } catch {
+        feedback.fail("Could not load products")
+    } finally {
+        isLoading.value = false
+    }
+}
+onMounted(search)
+</script>
+
+<template>
+    <input v-model="q" class="form-control" placeholder="Search…" @keyup.enter="search" />
+    <Feedback :feedback="feedback" />
+    <LoadingContainer :is-loading="isLoading">
+        <div v-for="item in items" :key="item.id" class="card p-2 my-1">{{ item.$title }} — {{ formatCurrency(item.price) }}</div>
+        <ResultSummary :visible-count="items.length" :total-count="count" />
+        <Paging v-model="pagingInfo" :count="count" @change="search" />
+    </LoadingContainer>
+</template>
+```
+
+Same rule for the rest of the kit: pick-one modals (`DefaultModal` from `vue/ui/modal` +
+`regira_modules/style.css`), server-searchable pickers (`Autocomplete`), tabs (`TabContainer` +
+`Tab.create`), confirm buttons (`ConfirmButton`), dates/numbers (`vue/formatters`), and hierarchies
+(`TreeList` from `regira_modules/treelist`) all work standalone. Hand-rolling one of these on a lean or
+headless build is a deviation to declare, not a shortcut.
 
 ## Project structure
 
