@@ -22,8 +22,8 @@ Views read the cache through two store accessors. **`fromPool(entityOrRelation)`
 input through `toEntity` and returns the shared, deduplicated instance for its `$id` — rehydrating a plain
 nested relation into a real model so `$id`/`$title` work, and pooling it on first sight (unsaved inputs pass
 through untouched). Alias a sibling store's `fromPool` to display a relation's label —
-`const { fromPool: getUnitType } = useUnitTypeStore()` → `{{ getUnitType(item.unitType)?.$title }}` — passing
-the relation **object**, not its id. **`fromCache(id?)`** is read-only: an id returns that `Ref<T>` (or
+`const { fromPool: getUnitType } = useUnitTypeStore()`, then bind `getUnitType(item.unitType)?.$title` in a
+template — passing the relation **object**, not its id. **`fromCache(id?)`** is read-only: an id returns that `Ref<T>` (or
 `null`), no argument returns all cached refs of the type; it never fetches. Full details:
 [../ai/entities.patterns.md](../ai/entities.patterns.md#resolving-relations-with-frompool).
 
