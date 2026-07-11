@@ -59,6 +59,7 @@ including ones not yet installed locally. Use it to discover and read guides on 
 | ---------------------------------------------------------- | -------------------------------------------------------------- |
 | `list_packages` (filter `vue` / `frontend`)                | Browse the front-end module catalog.                           |
 | `recommend_packages` / `search_packages`                   | First-pass / keyword package discovery.                        |
+| `get_package_card`                                         | **Orient first** — the must-know card (e.g. `regira_modules.vue.entities`); often enough on its own. |
 | `get_package_toc`                                          | List a package's documentation sections.                       |
 | `get_section_toc`                                          | List a section's headings before loading content.              |
 | `get_package` (`section=`, `heading=`, `maxChars`, `page`) | Read the actual guidance, scoped.                              |
@@ -67,7 +68,8 @@ including ones not yet installed locally. Use it to discover and read guides on 
 
 Context economy: orient with `get_package_card` first; read only your tier's primary guides in full; for
 everything else prefer `get_section_toc` + heading-scoped `get_package` and `get_example(pattern=…)` over
-whole-section reads.
+whole-section reads. Once `regira_modules` is installed, the committed `dist/**/*.d.ts` files are the
+cheapest authoritative signature source — read those before pulling a signatures section.
 
 ## Pre-flight checklist
 
@@ -91,6 +93,8 @@ whole-section reads.
 Read in this order; consult the deep references by section on demand. Keep this list identical to the
 reading-order note in `regira_modules.vue.entities` → `entities.setup`.
 
+0. `get_package_card id="regira_modules.vue.entities"` — the must-know bullets (built-ins checklist,
+   owned-collection rule, save/paging contract). Orient here; it decides which sections you need at all.
 1. `get_package id="regira_modules.vue.entities" section="entities.instructions"` — the entity-slice
    workflow and conventions (incl. the list-vs-search / simple-vs-complex composable mapping). Read in
    full before writing a slice.

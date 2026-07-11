@@ -28,7 +28,7 @@
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
         </FormSection>
 
-        <!-- Dev aid: the globally-registered <Debug> dumps the live payload, self-gated on $isDebug ($setDebug / ?debug=1). -->
+        <!-- Dev aid: <Debug> (import { Debug } from "regira_modules/vue/debug") dumps the live payload, self-gated on $isDebug ($setDebug / ?debug=1). -->
         <!-- <Debug :modelValue="{ item }" /> -->
     </form>
 </template>

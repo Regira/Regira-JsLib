@@ -221,6 +221,13 @@ Render it with `<Feedback :feedback="feedback" />` (styling + the 400 field-map 
 
 **Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M (entity-backed) → `Selector` (bind an array); multi-value over a **fixed option set (enum, no service)** → a checkbox group rather than a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)).
 
+> **Adding to a collection? Exclude what's already in it.** Pass the current ids as a filter default so
+> picked rows disappear from the picker — omitting this is the classic "duplicate add" UX bug:
+>
+> ```vue
+> <InputSelector v-model="newItem" :filter-defaults="{ exclude: item.articleCategories?.map((x) => x.categoryId) }" @select="handleSelect" />
+> ```
+
 > **Entity-backed = has a service/store — even a short, fully-loaded set** (a dozen intervention types, an
 > article's categories). Prefer the `Selector` here: it searches server-side and shares the pooled cache, so it
 > scales past one page where a checkbox/radio group loaded from `service.list()` / `service.search()` won't. A
@@ -333,6 +340,22 @@ For a chip UI instead of checkboxes, feed the same static array to an `Autocompl
 not `service.search`) and bind the picked list — same model, richer control.
 
 ## Owned (child) collections
+
+**This is the blessed end-to-end pattern for every collection edited inside a parent's form** (order
+lines, join rows, shares/members). One decision on the back-end drives the whole chain — decide it
+*before* scaffolding (`Regira.Entities` → `entities.instructions` → Step 0):
+
+| Layer      | Piece                                                                                                        |
+| ---------- | ------------------------------------------------------------------------------------------------------------ |
+| back-end   | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot     |
+| contract   | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together    |
+| form       | `useOwnedCollection` / `useOwnedModal` rows; adds via `InputSelector` (+ `filter-defaults` `exclude`, above) |
+| removal    | mark `_deleted` (visible, undoable) — never splice, never per-row `DELETE` calls                             |
+| service    | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission             |
+
+For rows only ever edited inside the parent's form, modelling them first-class instead (own
+service/routes, separate `DELETE` flushes) is the classic expensive rework — the parent's `Related()`
+sync overwrites them on every save. The genuine owned-vs-first-class trade-off is below.
 
 For master-detail forms, drive a child collection with `useOwnedCollection` (inline rows) or
 `useOwnedModal` (edit each child in a modal). Children must be `IEntity & { id: number }`:

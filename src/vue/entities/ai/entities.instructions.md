@@ -340,6 +340,11 @@ A **lookup** entity keeps the folders but drops the list UI (omit the views and 
 > `filter/SearchObject.ts`, `filter/FilterAdv.vue`, `overview/List.vue`, `overview/ListItem.vue`,
 > `details/Form.vue`, `selecting/SelectorList.vue`. Everything else is verbatim boilerplate the scaffold writes;
 > a **lookup** drops the overview trio (`List`/`ListItem`/`FilterAdv`).
+>
+> **Edit the `(c)` views in lockstep with the model.** The scaffold seeds them binding a placeholder
+> `title` / `searchObject.title` — whenever you change `Entity.ts` or `SearchObject.ts`, rebind
+> `Form.vue` / `FilterAdv.vue` / `List(Item).vue` in the same pass, or the next `vue-tsc` build fails on
+> the stale placeholder bindings.
 
 1. **Model** — `data/Entity.ts` (c): `extends EntityBase` with concrete fields; `override get $id()`
    (`this.id || "new"`) and `override get $title()`. Export the class, `export const Entity = …`, and a default.
@@ -371,6 +376,21 @@ A **lookup** entity keeps the folders but drops the list UI (omit the views and 
     ([entities.setup.md → App shell](entities.setup.md#app-shell--components-infrastructure--styling)).
 
 Keep every view thin: bind the refs the composables return.
+
+### Form design checklist — built-ins first
+
+Run through this before writing any `Form.vue`; each row is a shipped composable/component, and
+hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](entities.patterns.md)):
+
+| The form has…                        | Reach for                                                                                                                       |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| 2+ related collections / many fields | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                  |
+| an editable child/join collection    | the **owned-collection** pattern: rows in the parent DTO, `_deleted` marking, `prepareItem` filter — never per-row `DELETE` calls |
+| "add related entity" controls        | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows); multi-select → `Selector`           |
+| any save/remove path                 | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                             |
+| relation labels                      | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                   |
+| tricky state while developing        | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                       |
+| breakpoint-dependent layout          | CSS/flex first; `useScreen` when the structure itself changes (e.g. dropping a tab)                                               |
 
 > **Verify after wiring a slice:** the service resolves (`get<IEntityService>(Entity.name)` non-null after
 > startup); the overview lists and pages (archived rows hidden unless `searchObject.isArchived` is set);
@@ -480,6 +500,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | A custom save/toggle/checkout shows no feedback                    | Only `useForm`/`useSearchView`/`useDetails` auto-drive feedback                                                                                                               | Drive your own `useFeedback()` + `<Feedback>` around the direct `service.save()`/`remove()` call. See [entities.patterns.md → Feedback for custom saves](entities.patterns.md#feedback-for-custom-saves-outside-useform)                                                                                           |
 | Standard form/details save shows no confirmation                   | The composable drives `feedback`, but the view renders no `<Feedback>`                                                                                                        | Render `<Feedback :feedback="feedback" />` (the scaffolded `Form.vue`/`Details.vue` do; a hand-rolled form must add it)                                                                                                                                                                                            |
 | New Guid/string-keyed entity 400s on create                        | The model initializes `id = ""`; `EntityServiceBase` serializes it and the server can't bind `""` to a nullable `Guid?` InputDto                                              | Declare the key so JSON omits it when new — `id?: string` (or `id?: number` for int keys); `$id` still returns `"new"`, so `save()` routes to insert                                                                                                                                                               |
+| Attachment images/thumbnails 401 in `<img>` tags                   | `<img src>` sends no `Authorization` header; the download endpoint is guarded                                                                                                 | Back-end concern: expose the download anonymously — `Regira.Entities` → `entities.patterns` → _Public (anonymous) attachment downloads_                                                                                                                                                                            |
 
 > **Dormant code — do not use:**
 >

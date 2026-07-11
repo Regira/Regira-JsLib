@@ -1,0 +1,49 @@
+# regira_modules.vue.entities — index card (front-end)
+
+> The must-know bullets before building a Vue 3 SPA on the Regira entities client. Drill into
+> `entities.instructions` (the spine), `entities.setup` (project + app shell), `entities.namespaces` /
+> `entities.signatures` (never guess an import or signature), and the examples/patterns sections for
+> detail. Back-end counterpart: `get_package_card("Regira.Entities")`.
+
+- **Default = the full reference scaffold, whatever the app type.** `scaffold.mjs --shell` once
+  (`--no-auth` variant exists), `scaffold.mjs <Entity>` per entity; you edit only the eight `(c)` files.
+  Pick a lighter tier only on an explicit user ask.
+- **Use the built-ins — hand-rolling one is a deviation to declare:** feedback (`useFeedback` +
+  `<Feedback>`), tabs (`TabContainer` + `Tab.create`), modals (`DefaultModal` / `FormModalButton`),
+  paging (`Paging`), loading (`LoadingContainer`), relation pickers (`Autocomplete` / `InputSelector` /
+  `Selector`), pending-delete marking (`_deleted`), debug (`<Debug>`), breakpoints (`useScreen`).
+- **Model/view lockstep.** The scaffolded `(c)` views bind a placeholder `title` — when you change
+  `data/Entity.ts` or `filter/SearchObject.ts`, update `Form.vue` / `FilterAdv.vue` / `List(Item).vue`
+  in the same pass, or `vue-tsc` breaks on the stale bindings.
+- **A slice is:** model (`EntityBase`, override `$id`/`$title`) + `IConfig` + service
+  (`EntityServiceBase<T>`, implement only `toEntity`) + pooled Pinia store (`createStore`) + thin views
+  driven by `useSearchView` / `useDetails` / `useForm` / `useFilter`.
+- **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
+  inside the parent form; mark removals with `_deleted` (row stays visible, tinted, until save) and drop
+  them in a `prepareItem` override so `Related()` deletes by omission — never flush per-row `DELETE`s.
+  New rows mint negative temp ids, so children can be added before the parent's first save.
+- **Relation picks go through the entity `Selector`/`InputSelector`** (server-side search + pooled cache —
+  scales past one page). When adding to a collection, pass `:filter-defaults="{ exclude: currentIds }"`
+  so already-added rows leave the picker. A checkbox group is only for serviceless enum sets.
+- **Counted paging comes from `/search`:** `useSearchView` + `useRouteOverview` → `{ items, count }` —
+  on simple and complex entities alike; `list()` has no count. `pageSize: 0` returns all rows capped by
+  the server's `MaxPageSize`.
+- **Forms show state through feedback.** `useForm` drives it, but only a rendered
+  `<Feedback :feedback="feedback" />` shows it; any save you call yourself gets its own `useFeedback()`.
+  A form with 2+ related collections splits into `TabContainer` tabs; overview rows use flexible
+  `col text-truncate` + breakpoint-hidden columns — never horizontal scroll.
+- **Pooling is the point of the store.** Views use the store's pooled `service` (saves propagate to every
+  view); render relation labels via `fromPool(item.relation)?.$title` — a raw nested DTO has no `$`
+  getters. Custom endpoints live on the raw `get<EntityService>(Entity.name)`, not the pooled store.
+- **The URL contract has four owners** — `config.json → api` (axios base), `IConfig.api` (relative
+  resource), the Vite dev proxy, the server route prefix. Align them once or every call 404s; and
+  `config.json → clientApp` must equal the API's JWT audience or every call 401s.
+- **List rows get relations via `baseQueryParams: { includes: [...] }`** (complex entities); a detail
+  form's children come from the back-end's Details eager-load, not from `includes`.
+- **Never spread a model** — `{ ...item }` drops the `$id` prototype getter and `PUT`s to `/undefined`;
+  mutate the instance. Overview refs are lazy: guard with `items ?? []`.
+- **Verify at runtime, not just `npm run build`.** Drive each slice once against the live API: save the
+  same record **twice** (the classic m2m re-sync 500), toggle a flag, apply + reopen a filter, delete a
+  referenced row. `vue-tsc` proves none of this.
+- **`<Debug :modelValue="…" />` while developing** — self-gates on `$isDebug` (`?debug=1`), inert in
+  production; curate the payload (resolved relations, paging state).

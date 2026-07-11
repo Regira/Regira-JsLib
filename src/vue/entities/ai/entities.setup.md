@@ -13,7 +13,8 @@ plus a `Category` lookup — so it lines up with the basic example.
 > **A skeleton, not a dependency.** Copy these files into your repo and evolve them — they are a starting
 > point to own and adapt, not something to vendor or symlink.
 
-> **Reading order:** [entities.instructions.md](entities.instructions.md) → **entities.setup.md** (this
+> **Reading order:** [entities.card.md](entities.card.md) (the index card — orient here first) →
+> [entities.instructions.md](entities.instructions.md) → **entities.setup.md** (this
 > file) → [entities.namespaces.md](entities.namespaces.md) → [entities.signatures.md](entities.signatures.md)
 > → [entities.examples.md](entities.examples.md) (simple `UnitType` + standard `Product` slices) /
 > [entities.advanced.example.md](entities.advanced.example.md) (complex slice) →
