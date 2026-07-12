@@ -751,7 +751,9 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
         <RouterView />
     </LoadingContainer>
 
-    <LoginModal :is-visible="showLogin" :title="$t('signIn')">
+    <!-- v-if, not :is-visible — unmounting removes mask + dialog atomically; a bound-but-mounted
+         modal can strand its leave-transition and leave an invisible click-swallowing mask -->
+    <LoginModal v-if="showLogin" :title="$t('signIn')">
         <LoginForm />
     </LoginModal>
 </template>
@@ -793,7 +795,7 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
         <footer class="container-fluid bg-light"><TheFooter /></footer>
 
         <Teleport to="#loginModal">
-            <LoginModal :is-visible="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
+            <LoginModal v-if="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
         </Teleport>
     </div>
 </template>
@@ -1119,6 +1121,12 @@ import "bootstrap-icons/font/bootstrap-icons.css"
 
 You don't need Bootstrap's JavaScript (the UI components bring their own behaviour). Put overrides in
 `src/assets/*.scss` and import them after Bootstrap.
+
+**Restyling is encouraged** — the library defaults are deliberately plain. Common app-level hooks: a
+tinted `.is-deleted` (pending-delete rows, incl. `InputSelectorInline` chips), `.is-selected`, a sticky
+`.form-buttons` toolbar (`position: sticky; top: 0`), `.form-section` framing, zebra `.striped` rows.
+Preserve behaviour, not looks — see [entities.patterns.md → Restyling & overriding the
+built-ins](entities.patterns.md#restyling--overriding-the-built-ins).
 
 ## See also
 

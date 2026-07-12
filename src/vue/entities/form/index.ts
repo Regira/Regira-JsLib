@@ -3,3 +3,4 @@ export { useModal, type FormModalEmits, type FormModalProps, formModalDefaults }
 export { useListInput, useListItemInput } from "./listInput"
 export { useOwnedCollection } from "./ownedCollections"
 export { useOwnedModal } from "./ownedModal"
+export { default as InputSelectorInline } from "./InputSelectorInline.vue"

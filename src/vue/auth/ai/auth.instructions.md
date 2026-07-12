@@ -111,7 +111,10 @@ Both are installed automatically by the plugin and are **not exported** from `re
 
 Ready-made components and composables (emit `success` / `fail` / `forgotPassword` / `signingIn`):
 
-- `LoginForm`, `LoginModal` (props `username?`, `title?`), `LogoutForm`, `ForgotPasswordModal`.
+- `LoginForm`, `LoginModal` (props `username?`, `title?`, `isVisible?` — defaults on), `LogoutForm`, `ForgotPasswordModal`.
+- **Gate `LoginModal` with `v-if="showLogin"`** (the canonical `App.vue` does): unmounting removes the
+  mask and dialog atomically. Keeping it mounted and toggling visibility can strand the leave-transition,
+  leaving an invisible full-screen mask that swallows every click.
 - `useLoginForm(props, emit)` → `{ username, password, failed, signingIn, isLockedOut, handleSubmit, handleForgotPassword }`.
 - `useForgotPasswordForm(props, emit, { siteUrl, siteName? })` → `{ username, isLoading, isFormValid, isSuccess, handleSubmit }`.
 

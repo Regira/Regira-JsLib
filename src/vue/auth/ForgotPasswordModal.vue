@@ -1,5 +1,5 @@
 <template>
-    <DefaultModal is-visible title="Forgot password" :showFooter="false">
+    <DefaultModal :is-visible="isVisible" title="Forgot password" :showFooter="false">
         <slot v-bind="{ username }"></slot>
     </DefaultModal>
 </template>
@@ -7,7 +7,11 @@
 <script setup lang="ts">
 import DefaultModal from "../ui/modal/DefaultModal.vue"
 
-defineProps<{
-    username?: string
-}>()
+withDefaults(
+    defineProps<{
+        username?: string
+        isVisible?: boolean
+    }>(),
+    { isVisible: true }
+)
 </script>

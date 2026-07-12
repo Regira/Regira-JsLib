@@ -155,11 +155,13 @@ axios `baseURL` (set from app config).
 > and `remove` appends `/{$id}` (`DELETE {deleteUrl}/{$id}`). Leave them at `config.api` (or a sub-resource);
 > never set `saveUrl` to a `/save` path or **updates 404 while inserts still pass** — a silent half-working trap.
 
-> **`includes` may not apply to the Details GET.** The `includes` flags drive eager-loading on
-> `list`/`search`, but the single-item `details(id)` endpoint (`GET {detailsUrl}/{id}`) does not
-> necessarily honor them — nested collections can come back **empty on a detail/edit form** even though
-> `baseQueryParams.includes` is set. If a form needs child data, ensure the API eager-loads it for the
-> Details endpoint (a back-end concern) or fetch the children with a dedicated call.
+> **`includes` doesn't apply to the Details GET.** The client `includes` flags (via
+> `baseQueryParams.includes`) drive eager-loading on `list`/`search` only; the single-item `details(id)`
+> endpoint (`GET {detailsUrl}/{id}`) ignores them and eager-loads **every include registered in the API's
+> `e.Includes(...)`** (the OR of all flags — the server default, opt-out per entity). Set
+> `baseQueryParams.includes` only to hydrate related collections in List/Search rows; a relation missing
+> on the detail form means it isn't registered in the API's `Includes(...)` — fix the back-end, not the
+> client.
 
 #### Automatic query behaviour (`list` / `search`)
 
@@ -382,11 +384,12 @@ Keep every view thin: bind the refs the composables return.
 Run through this before writing any `Form.vue`; each row is a shipped composable/component, and
 hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](entities.patterns.md)):
 
-| The form has…                        | Reach for                                                                                                                       |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| 2+ related collections / many fields | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                  |
-| an editable child/join collection    | the **owned-collection** pattern: rows in the parent DTO, `_deleted` marking, `prepareItem` filter — never per-row `DELETE` calls |
-| "add related entity" controls        | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows); multi-select → `Selector`           |
+| The form has…                        | Reach for                                                                                                                         |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| 2+ related collections / many fields | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                   |
+| an editable child/join collection    | **`InputSelectorInline`** chips (`_deleted` marking + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls |
+| a related entity displayed anywhere  | that entity's **`FormModalButton`** (chip/badge that opens its form in a modal) — a bare label is the exception, not the default  |
+| "add related entity" controls        | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows)                                      |
 | any save/remove path                 | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                             |
 | relation labels                      | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                   |
 | tricky state while developing        | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                       |
@@ -445,7 +448,8 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 - **Feedback for custom saves** — `useFeedback` + `<Feedback>` around any `service.save()`/`remove()` you call outside the standard composables ([entities.patterns.md](entities.patterns.md#feedback-for-custom-saves-outside-useform)).
 - **Tabbed forms** — split a heavy form into `TabContainer` tabs, driven by the form's `initialTab` + URL-hash nav ([entities.patterns.md](entities.patterns.md#tabbed-forms)).
 - **Debug panel** — the global `<Debug>` component + `$isDebug`/`$setDebug` for a dev-only payload dump ([entities.patterns.md](entities.patterns.md#debug-panel-dev-only)).
-- **Owned (child) collections** — `useOwnedCollection` / `useOwnedModal` / `useListInput` for master-detail.
+- **Owned (child) collections** — the numbered `InputSelectorInline` recipe (chips, `_deleted`, `exclude`, `prepareItem`); `useOwnedCollection` / `useOwnedModal` / `useListInput` for heavier master-detail.
+- **Restyling & overriding the built-ins** — CSS hooks, component wrappers, app-wide modal replacement; the default styling is deliberately plain and **improving it is encouraged**.
 - **Hierarchical (tree) entities** — `useTree` + `useDragDrop`.
 - **Static / lookup data** — `JSONService`.
 - **Pooling & the shared cache** — `createStore` / `PoolService` / `PoolCache`.
@@ -470,6 +474,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | Debug panel (dev-only)             | `<Debug :modelValue>` · `$isDebug` / `$setDebug`           |
 | Filter UI                          | `useFilter`                                                |
 | Reactive shared cache              | `createStore` (Pinia store)                                |
+| Owned/join chips (marked delete)   | `InputSelectorInline` (+ `prepareItem` filter)             |
 | Child collections                  | `useOwnedCollection` / `useOwnedModal` / `useListInput`    |
 | Hierarchy                          | `useTree`                                                  |
 | Navigation from configs            | `importDashboard` / `importNavbar` / `buildNavigationTree` |
@@ -490,7 +495,8 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | Archived rows missing                                              | `isArchived` defaults to `false`                                                                                                                                              | Set `isArchived` on the search object to include them                                                                                                                                                                                                                                                              |
 | Pager-less overview shows only 10 rows                             | `defaultPageSize` of `0`/unset falls back to 10 in the overview composables                                                                                                   | Set `defaultPageSize` to a large number (up to the server's `MaxPageSize`); `pageSize: 0` at the service layer returns all rows capped by `MaxPageSize`, and larger sets use the `Autocomplete` selector                                                                                                           |
 | Nested collections empty on the overview (List/Search)             | On complex entities the API loads navigations only when the request sends `?includes=`                                                                                        | Set `baseQueryParams: { includes: "All" }` (or the needed flags) in `config/config.ts` — List/Search send it on every request                                                                                                                                                                                      |
-| Nested collection empty on a detail/edit form                      | `includes` may not apply to the Details GET                                                                                                                                   | Ensure the API eager-loads it for Details, or fetch children with a dedicated call                                                                                                                                                                                                                                 |
+| Nested collection empty on a detail/edit form                      | Details ignores `?includes=` and loads what the API registered in `e.Includes(...)` — the relation isn't registered there (or the API opted out of Details-loads-all)         | Register the relation in the API's `Includes(...)` (back-end), or fetch children with a dedicated call                                                                                                                                                                                                             |
+| Deleting a chip/row removes it instantly (no undo, no `_deleted`)  | The multi-`Selector` hard-removes on its delete icon — it cannot deliver marked-delete                                                                                        | Render join/owned rows with `InputSelectorInline` (toggle `_deleted`, filter in `prepareItem`) — [entities.patterns.md → owned-m2m recipe](entities.patterns.md#the-owned-m2m-recipe--inputselectorinline)                                                                                                          |
 | Custom service method not found on the store `service`             | The store's `service` is a **pooled** `PoolService` (only the `IEntityService` surface)                                                                                       | Resolve the raw service: `get<EntityService>(Entity.name)` (registered under `Entity.name`)                                                                                                                                                                                                                        |
 | Overview total wrong / count missing                               | `useSearchView` bound to an endpoint that returns `{ items }` without `count`                                                                                                 | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview))                                                                                                                                                                                     |
 | Import not found / wrong path                                      | Guessed an import specifier                                                                                                                                                   | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess                                                                                                                                                                                                                                       |

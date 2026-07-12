@@ -140,8 +140,10 @@ pattern, and declare any **intended deviations** and why. This applies especiall
 generic views (`EntityOverview` / `EntityForm`) rather than re-implementing them —
 the **per-entity slice / project structure** (`entities.setup` → _Project structure_), and **Bootstrap 5**
 styling (`entities.setup` → _Bootstrap — main.ts_). The scaffolded templates are **indicative of
-functionality, not appearance** — restructure their markup and layout and restyle them freely; what you
-preserve is the wiring (composables, services, DI, plugin order, routing), not the look.
+functionality, not appearance** — their default styling is deliberately plain, and **improving it is
+encouraged and expected** (`entities.patterns` → _Restyling & overriding the built-ins_): restructure
+markup and layout and restyle freely; what you preserve is the wiring (composables, services, DI, plugin
+order, routing, `_deleted` marking), not the look.
 
 ## Code-generation workflow
 

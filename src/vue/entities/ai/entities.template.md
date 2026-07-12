@@ -13,11 +13,12 @@ route prefix `foos`) — rename it to your entity throughout.
 > - **Form action buttons** — reuse the library `FormButtonsRow` (`regira_modules/vue/ui`): it ships the icons,
 >   the solid `btn-primary` / `btn-secondary` / `btn-danger` variants, and a **confirmed** delete
 >   (`ConfirmButton`). Re-emitting plain `<button>`s loses all three.
-> - **Removing an owned/related row marks `_deleted`** — the row stays (greyed) until save. `useListItemInput`
->   toggles the mark; with `useOwnedCollection` you set `row._deleted = true` yourself. A per-collection
->   `prepareItem` override then filters the marked rows out on write (the base `prepareItem` strips only
->   top-level `_` keys, so a marked child row is otherwise still sent). Never `splice` it, or the server never
->   sees the delete.
+> - **Removing an owned/related row marks `_deleted`** — the row stays (tinted) until save. The library
+>   `InputSelectorInline` (`regira_modules/vue/entities`) is the default chip editor for these rows (it
+>   toggles the mark and hands the picker an `exclude` list); `useListItemInput` toggles the mark in custom
+>   row editors. A per-collection `prepareItem` override then filters the marked rows out on write (the base
+>   `prepareItem` strips only top-level `_` keys, so a marked child row is otherwise still sent). Never
+>   `splice` it, or the server never sees the delete.
 > - **A relation picker adds on `@select`** — the event only emits the chosen row; append it to the bound array
 >   yourself, and mark `_deleted` to remove (see [entities.patterns.md](entities.patterns.md)).
 > - **Edit/create popups use `FormModalButton`** (teleporting into `#modals`) — wire the "New" action the same
@@ -345,9 +346,10 @@ const item = defineModel<Entity>({ required: true })
                 <FormLabel :label="$t('name')" />
             </div>
             <!-- single relation (FK) → the related entity's InputSelector, e.g. <BarInputSelector v-model="item.bar" v-model:idValue="item.barId" /> -->
-            <!-- many-to-many → prefer the related entity's <Selector> bound to a bridged entity array (rebuilt on
-                 change), or render join/owned rows and mark removed ones _deleted (filtered in EntityService.prepareItem);
-                 it scales better than a hand-rolled checkbox list. See entities.advanced.example.md §5 and entities.patterns.md. -->
+            <!-- many-to-many / owned rows → InputSelectorInline (regira_modules/vue/entities): chips that mark
+                 _deleted (undoable until save) with the related entity's FormModalButton inside, adds via its
+                 InputSelector + exclude; filter _deleted rows in EntityService.prepareItem. The multi-Selector
+                 hard-removes — don't use it here. See entities.patterns.md → owned-m2m recipe. -->
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
         </FormSection>
 

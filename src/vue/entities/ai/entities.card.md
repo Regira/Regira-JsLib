@@ -10,8 +10,13 @@
   Pick a lighter tier only on an explicit user ask.
 - **Use the built-ins — hand-rolling one is a deviation to declare:** feedback (`useFeedback` +
   `<Feedback>`), tabs (`TabContainer` + `Tab.create`), modals (`DefaultModal` / `FormModalButton`),
-  paging (`Paging`), loading (`LoadingContainer`), relation pickers (`Autocomplete` / `InputSelector` /
-  `Selector`), pending-delete marking (`_deleted`), debug (`<Debug>`), breakpoints (`useScreen`).
+  paging (`Paging`), loading (`LoadingContainer`), relation pickers (`Autocomplete` / `InputSelector`),
+  owned/join chips (`InputSelectorInline` + `_deleted`), debug (`<Debug>`), breakpoints (`useScreen`).
+- **A displayed related entity defaults to its `FormModalButton`** — every chip, badge, or list cell that
+  shows a related row should open that row's form in a modal; a bare text label is the exception.
+- **Restyle freely — it's encouraged.** The default styling is deliberately plain; improve it (CSS after
+  the library css, wrap components, swap the app-wide modal via `modalPlugin`) while preserving the
+  wiring: composables, events, `_deleted` marking, modal teleport.
 - **Model/view lockstep.** The scaffolded `(c)` views bind a placeholder `title` — when you change
   `data/Entity.ts` or `filter/SearchObject.ts`, update `Form.vue` / `FilterAdv.vue` / `List(Item).vue`
   in the same pass, or `vue-tsc` breaks on the stale bindings.
@@ -19,15 +24,17 @@
   (`EntityServiceBase<T>`, implement only `toEntity`) + pooled Pinia store (`createStore`) + thin views
   driven by `useSearchView` / `useDetails` / `useForm` / `useFilter`.
 - **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
-  inside the parent form; mark removals with `_deleted` (row stays visible, tinted, until save) and drop
-  them in a `prepareItem` override so `Related()` deletes by omission — never flush per-row `DELETE`s.
-  New rows mint negative temp ids, so children can be added before the parent's first save.
-- **Relation picks go through the entity `Selector`/`InputSelector`** (server-side search + pooled cache —
-  scales past one page). When adding to a collection, pass `:filter-defaults="{ exclude: currentIds }"`
-  so already-added rows leave the picker. A checkbox group is only for serviceless enum sets.
+  inside the parent form with **`InputSelectorInline`**: chips mark removals `_deleted` (visible, tinted,
+  undoable until save), a `prepareItem` override drops them so `Related()` deletes by omission — never
+  flush per-row `DELETE`s. The multi-`Selector` **hard-removes** and cannot deliver this UX. New rows mint
+  negative temp ids, so children can be added before the parent's first save.
+- **Relation picks go through the entity `InputSelector`** (server-side search + pooled cache — scales
+  past one page). When adding to a collection, pass `:filter-defaults="{ exclude: currentIds }"` so
+  already-added rows leave the picker. A checkbox group is only for serviceless enum sets.
 - **Counted paging comes from `/search`:** `useSearchView` + `useRouteOverview` → `{ items, count }` —
   on simple and complex entities alike; `list()` has no count. `pageSize: 0` returns all rows capped by
-  the server's `MaxPageSize`.
+  the server's `MaxPageSize`. In `IConfig`, set **only** `searchUrl` (`api + "/search"`) — every other
+  `*Url` defaults off `api`, and `saveUrl` must stay the resource base or updates 404 while inserts pass.
 - **Forms show state through feedback.** `useForm` drives it, but only a rendered
   `<Feedback :feedback="feedback" />` shows it; any save you call yourself gets its own `useFeedback()`.
   A form with 2+ related collections splits into `TabContainer` tabs; overview rows use flexible

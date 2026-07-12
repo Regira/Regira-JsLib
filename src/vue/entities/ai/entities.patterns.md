@@ -219,7 +219,12 @@ Render it with `<Feedback :feedback="feedback" />` (styling + the 400 field-map 
 
 ## Entity selector (relation picker) — `selecting/`
 
-**Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; multi-value / M2M (entity-backed) → `Selector` (bind an array); multi-value over a **fixed option set (enum, no service)** → a checkbox group rather than a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)).
+**Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; join/owned rows edited in a form → **`InputSelectorInline`** (marked-delete — the default for m2m, [below](#owned-child-collections)); multi-value over a **fixed option set (enum, no service)** → a checkbox group rather than a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)); a plain entity array where instant removal is genuinely wanted → `Selector`.
+
+> **⚠️ Delete semantics differ.** The multi-`Selector` **hard-removes** on its delete icon — the row leaves
+> the array immediately, so it cannot deliver the marked-deleted UX (visible, undoable until save). For any
+> join/owned collection edited in a form, marked-delete is the **default**: use `InputSelectorInline`
+> (`regira_modules/vue/entities`), not `Selector`.
 
 > **Adding to a collection? Exclude what's already in it.** Pass the current ids as a filter default so
 > picked rows disappear from the picker — omitting this is the classic "duplicate add" UX bug:
@@ -345,17 +350,69 @@ not `service.search`) and bind the picked list — same model, richer control.
 lines, join rows, shares/members). One decision on the back-end drives the whole chain — decide it
 *before* scaffolding (`Regira.Entities` → `entities.instructions` → Step 0):
 
-| Layer      | Piece                                                                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------ |
-| back-end   | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot     |
-| contract   | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together    |
-| form       | `useOwnedCollection` / `useOwnedModal` rows; adds via `InputSelector` (+ `filter-defaults` `exclude`, above) |
-| removal    | mark `_deleted` (visible, undoable) — never splice, never per-row `DELETE` calls                             |
-| service    | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission             |
+| Layer      | Piece                                                                                                     |
+| ---------- | ---------------------------------------------------------------------------------------------------------- |
+| back-end   | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot  |
+| contract   | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together |
+| form       | **`InputSelectorInline`** chips (below); heavier per-row editing → `useOwnedCollection` / `useOwnedModal` |
+| removal    | mark `_deleted` (visible, undoable) — never splice, never per-row `DELETE` calls                          |
+| service    | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission          |
 
 For rows only ever edited inside the parent's form, modelling them first-class instead (own
 service/routes, separate `DELETE` flushes) is the classic expensive rework — the parent's `Related()`
 sync overwrites them on every save. The genuine owned-vs-first-class trade-off is below.
+
+### The owned-m2m recipe — `InputSelectorInline`
+
+Four numbered steps, one per layer:
+
+1. **Model** — the join rows live on the parent: `articleCategories?: Array<ArticleCategory>` where the
+   row type carries `categoryId`, the nested `category?`, and `_deleted?: boolean`. New rows need no id —
+   `Related()` inserts rows that arrive without one.
+2. **Render** — `InputSelectorInline` (`regira_modules/vue/entities`) renders each row as a chip with a
+   toggle-delete button (`_deleted` mark, tinted, click again to restore) and hands the `#selector` slot
+   an `add` function plus the `exclude` id list:
+
+    ```vue
+    <script setup lang="ts">
+    import { InputSelectorInline } from "regira_modules/vue/entities"
+    import { InputSelector as CategorySelector, FormModalButton as CategoryButton } from "@/entities/categories"
+    import type { Category } from "@/entities/categories"
+    import type Article from "../data/Entity"
+
+    const item = defineModel<Article>({ required: true })
+    </script>
+
+    <template>
+        <InputSelectorInline v-model="item.articleCategories" :row-key="(r) => r.categoryId" :exclude-key="(r) => r.categoryId">
+            <template #chip="{ row }">
+                <CategoryButton :modelValue="row.category" />
+                {{ row.category?.title }}
+            </template>
+            <template #selector="{ add, exclude }">
+                <CategorySelector :filter-defaults="{ exclude }" @select="(c: Category) => add({ categoryId: c.id!, category: c })" />
+            </template>
+        </InputSelectorInline>
+    </template>
+    ```
+
+    The chip embeds the related entity's `FormModalButton`, so every linked row is also an edit affordance.
+3. **Purge on save** — the `prepareItem` override from [Transient client-only fields](#transient-client-only-fields)
+   filters `_deleted` rows per collection; `Related()` then deletes by omission. Purge **every nesting
+   level** that carries the flag:
+
+    ```ts
+    protected override prepareItem(item: Party): Party {
+        item.addresses = item.addresses?.filter((x) => !x._deleted)
+        item.parentRelationships = item.parentRelationships
+            ?.filter((x) => !x._deleted)
+            .map((x) => ({ ...x, contactData: x.contactData?.filter((cd) => !cd._deleted) })) // nested level too
+        return super.prepareItem(item)
+    }
+    ```
+
+4. **Verify** — save the **same record twice** and reopen the form: the second save is where a mis-modelled
+   join re-syncs and 500s, and reopening proves the Details eager-load returns the rows.
 
 For master-detail forms, drive a child collection with `useOwnedCollection` (inline rows) or
 `useOwnedModal` (edit each child in a modal). Children must be `IEntity & { id: number }`:
@@ -487,6 +544,26 @@ const tabs = computed(() =>
 
 Worked example: the `Vehicle` slice in [entities.advanced.example.md](entities.advanced.example.md) §5.
 
+> **Dual-render for responsive forms:** render a section inline for large screens (`class="d-none d-lg-block"`)
+> **and** expose the same component as a small-screen-only tab (`!screen.isLarge ? Tab.create(…) : null`) —
+> one component, two placements, no duplication.
+
+## Restyling & overriding the built-ins
+
+The library's default styling is **deliberately plain — improving it is encouraged and expected.** Restyle
+and restructure markup freely; what you preserve is the *wiring* (composables, events, `_deleted` marking,
+modal teleport), never the look. Three sanctioned override levels:
+
+- **CSS only** — global SCSS loaded after the library css. Useful hooks: `.is-deleted` (pending-delete tint,
+  incl. inside `InputSelectorInline`), `.is-selected`, a sticky `.form-buttons` toolbar
+  (`position: sticky; top: 0`), `.form-section` framing. No component changes needed.
+- **Wrap a component** — e.g. a local `FormButtonsRow.vue` that renders the library one with translated
+  labels (`$t`) and a `busy` guard off `feedback.status`, then import the wrapper everywhere. Same
+  props/events, richer skin.
+- **Replace the app-wide modal** — `useModal`/`FormModalButton` render the `MyModal` component the modal
+  plugin registered; inject your own: `app.use(modalPlugin, { DefaultModal: MyBrandedModal })` (same
+  props/slots contract as `DefaultModal`). One line restyles every modal in the app.
+
 ## Hierarchical (tree) entities
 
 `useTree` builds a client-side `TreeList` from a **flat** array. `init(values, data, findParents)`:
@@ -602,7 +679,10 @@ authStore.$onAction(({ name, after }) => name == "login" && after(() => item.val
 ```
 
 The same primitive drives any other login-sensitive work — see
-[auth.examples.md → Re-run work on login / refresh](../../auth/ai/auth.examples.md).
+[auth.examples.md → Re-run work on login / refresh](../../auth/ai/auth.examples.md). A common one:
+**preload the lookup/reference entities on login** so relation labels resolve app-wide —
+`onAuthenticationChange: (isAuthenticated) => isAuthenticated && preload([Country, UnitType])` (the
+`usePreloader` primitive) instead of every view fetching them lazily.
 
 ## Navigation from the config map
 

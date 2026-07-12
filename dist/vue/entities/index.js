@@ -6,9 +6,9 @@ import { isNewEntity as i } from "./abstractions/IEntity.js";
 import { a, c as o, d as s, i as c, l, n as u, o as d, r as f, s as p, t as m, u as h } from "../../_chunks/abstractions-3.2.5.js";
 import { i as g } from "../../_chunks/feedback-3.2.5.js";
 import { n as ee, t as te } from "../../_chunks/details-3.2.5.js";
-import { a as ne, c as re, i as ie, l as ae, n as oe, o as se, r as _, s as ce, t as v } from "../../_chunks/form-3.2.5.js";
+import { a as ne, c as re, i as ie, l as ae, n as oe, o as se, r as ce, s as _, t as le, u as ue } from "../../_chunks/form-3.2.5.js";
 import "../../_chunks/ui-3.2.5.js";
-import { Fragment as le, computed as y, createCommentVNode as ue, createElementBlock as b, createElementVNode as x, defineComponent as S, onMounted as C, openBlock as w, ref as T, renderList as de, renderSlot as E, toDisplayString as D, toRaw as fe, watch as pe, withModifiers as me } from "vue";
+import { Fragment as de, computed as v, createCommentVNode as fe, createElementBlock as y, createElementVNode as b, defineComponent as x, onMounted as S, openBlock as C, ref as w, renderList as pe, renderSlot as T, toDisplayString as E, toRaw as me, watch as he, withModifiers as D } from "vue";
 import { useRouter as O } from "vue-router";
 //#region src/vue/entities/config/EntityDescriptor.ts
 var k = class {
@@ -56,7 +56,7 @@ function N({ searchObject: e, emit: t, Constructor: n }) {
 		t("filter", e.value);
 	};
 	return {
-		filterIsActive: y(() => {
+		filterIsActive: v(() => {
 			let t = n ? new n() : new m(), r = Object.keys(t), i = Object.entries(e.value || {}).filter(([, e]) => e != null).map(([e]) => e);
 			return r.some((e) => i.some((t) => e == t));
 		}),
@@ -72,7 +72,7 @@ function N({ searchObject: e, emit: t, Constructor: n }) {
 }
 //#endregion
 //#region src/vue/entities/lean/EntityOverview.vue?vue&type=script&setup=true&lang.ts
-var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "entity-paging d-flex align-items-center gap-2" }, L = ["disabled"], R = { class: "text-muted small" }, z = ["disabled"], he = /* @__PURE__ */ S({
+var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "entity-paging d-flex align-items-center gap-2" }, L = ["disabled"], R = { class: "text-muted small" }, ge = ["disabled"], _e = /* @__PURE__ */ x({
 	__name: "EntityOverview",
 	props: {
 		service: {},
@@ -80,7 +80,7 @@ var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "enti
 		pageSize: { default: 10 }
 	},
 	setup(e, { expose: t }) {
-		let n = e, r = T([]), i = T(0), a = T(1), o = y(() => Math.max(1, Math.ceil(i.value / n.pageSize)));
+		let n = e, r = w([]), i = w(0), a = w(1), o = v(() => Math.max(1, Math.ceil(i.value / n.pageSize)));
 		async function s() {
 			let e = await n.service.search({
 				...n.query,
@@ -95,42 +95,42 @@ var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "enti
 		async function l(e) {
 			await n.service.remove(e), await s();
 		}
-		return C(s), t({
+		return S(s), t({
 			reload: s,
 			setPage: c
-		}), (e, t) => (w(), b("div", P, [
-			E(e.$slots, "toolbar", {
+		}), (e, t) => (C(), y("div", P, [
+			T(e.$slots, "toolbar", {
 				reload: s,
 				setPage: c
 			}),
-			x("table", F, [x("thead", null, [E(e.$slots, "head")]), x("tbody", null, [(w(!0), b(le, null, de(r.value, (t) => (w(), b("tr", { key: t.$id }, [E(e.$slots, "row", {
+			b("table", F, [b("thead", null, [T(e.$slots, "head")]), b("tbody", null, [(C(!0), y(de, null, pe(r.value, (t) => (C(), y("tr", { key: t.$id }, [T(e.$slots, "row", {
 				item: t,
 				remove: l,
 				reload: s
-			}, () => [x("td", null, D(t.$title), 1)])]))), 128))])]),
-			x("div", I, [E(e.$slots, "paging", {
+			}, () => [b("td", null, E(t.$title), 1)])]))), 128))])]),
+			b("div", I, [T(e.$slots, "paging", {
 				page: a.value,
 				pageCount: o.value,
 				count: i.value,
 				setPage: c
 			}, () => [
-				x("button", {
+				b("button", {
 					type: "button",
 					class: "btn btn-sm btn-outline-secondary",
 					disabled: a.value <= 1,
 					onClick: t[0] ||= (e) => c(a.value - 1)
 				}, "Previous", 8, L),
-				x("span", R, "Page " + D(a.value) + " / " + D(o.value) + " · " + D(i.value), 1),
-				x("button", {
+				b("span", R, "Page " + E(a.value) + " / " + E(o.value) + " · " + E(i.value), 1),
+				b("button", {
 					type: "button",
 					class: "btn btn-sm btn-outline-secondary",
 					disabled: a.value >= o.value,
 					onClick: t[1] ||= (e) => c(a.value + 1)
-				}, "Next", 8, z)
+				}, "Next", 8, ge)
 			])])
 		]));
 	}
-}), ge = { class: "mt-3" }, _e = ["disabled"], ve = /* @__PURE__ */ S({
+}), ve = { class: "mt-3" }, ye = ["disabled"], be = /* @__PURE__ */ x({
 	__name: "EntityForm",
 	props: {
 		service: {},
@@ -138,8 +138,8 @@ var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "enti
 	},
 	emits: ["saved", "cancel"],
 	setup(e, { emit: t }) {
-		let n = e, r = t, i = T(), a = T(!1);
-		C(async () => {
+		let n = e, r = t, i = w(), a = w(!1);
+		S(async () => {
 			i.value = n.id === "new" ? await n.service.newEntity() : await n.service.details(n.id) ?? void 0;
 		});
 		async function o() {
@@ -153,21 +153,21 @@ var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "enti
 				}
 			}
 		}
-		return (e, t) => i.value ? (w(), b("form", {
+		return (e, t) => i.value ? (C(), y("form", {
 			key: 0,
 			class: "entity-form",
-			onSubmit: me(o, ["prevent"])
-		}, [E(e.$slots, "default", { item: i.value }), x("div", ge, [x("button", {
+			onSubmit: D(o, ["prevent"])
+		}, [T(e.$slots, "default", { item: i.value }), b("div", ve, [b("button", {
 			type: "submit",
 			class: "btn btn-primary",
 			disabled: a.value
-		}, "Save", 8, _e), x("button", {
+		}, "Save", 8, ye), b("button", {
 			type: "button",
 			class: "btn btn-link",
 			onClick: t[0] ||= (e) => r("cancel")
-		}, "Cancel")])], 32)) : ue("", !0);
+		}, "Cancel")])], 32)) : fe("", !0);
 	}
-}), B = class {
+}), z = class {
 	id;
 	name;
 	icon;
@@ -176,7 +176,7 @@ var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "enti
 	description;
 	initialQuery;
 	parentId;
-}, V = class {
+}, B = class {
 	id;
 	title;
 	parentId;
@@ -184,11 +184,11 @@ var P = { class: "entity-overview" }, F = { class: "table" }, I = { class: "enti
 };
 //#endregion
 //#region src/vue/entities/navigation/functions.ts
-function H(e) {
-	return Object.assign(new V(), e);
+function V(e) {
+	return Object.assign(new B(), e);
 }
-function U(e, t) {
-	return Object.assign(new B(), {
+function H(e, t) {
+	return Object.assign(new z(), {
 		id: e.key,
 		parentId: t,
 		icon: e.key ?? e.name,
@@ -198,37 +198,37 @@ function U(e, t) {
 		initialQuery: e.initialQuery ?? {}
 	});
 }
-function ye(e) {
+function xe(e) {
 	function t(t) {
 		return e.configs.find((e) => e.key == t);
 	}
-	let n = e.entities.flatMap(([n, r]) => r.map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => U(e, n)));
-	return e.groups.filter((e) => n.some((t) => t.parentId == e.id)).map((e) => H(e)).concat(n);
+	let n = e.entities.flatMap(([n, r]) => r.map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => H(e, n)));
+	return e.groups.filter((e) => n.some((t) => t.parentId == e.id)).map((e) => V(e)).concat(n);
 }
-function be(e) {
+function Se(e) {
 	function t(t) {
 		return e.configs.find((e) => e.key == t);
 	}
-	let n = e.groups?.map(H);
+	let n = e.groups?.map(V);
 	return e.entities.flatMap((r) => {
 		if (r.length == 2 && Array.isArray(r[1])) {
 			let i = n.find((e) => e.id == r[0]);
-			return [i, ...r[1].map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => U(e, i.id))];
+			return [i, ...r[1].map((e) => t(e)).filter((t) => e.hasAccess(t)).map((e) => H(e, i.id))];
 		}
 		let i = t(r);
-		return e.hasAccess(i) ? [U(i)] : [];
+		return e.hasAccess(i) ? [H(i)] : [];
 	});
 }
-function xe(e) {
+function Ce(e) {
 	return new n().init(e, (e, t) => t.filter((t) => t.id == e.parentId));
 }
-function Se(e) {
-	return e instanceof B;
+function we(e) {
+	return e instanceof z;
 }
 //#endregion
 //#region src/vue/entities/overview/overview-core.ts
-function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
-	let r = T(t), i = T(new h(n || 10)), a = T(), o = T(), s = T(!1), c = g();
+function U({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
+	let r = w(t), i = w(new h(n || 10)), a = w(), o = w(), s = w(!1), c = g();
 	async function l(t) {
 		s.value = !0;
 		try {
@@ -299,8 +299,8 @@ function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
 }
 //#endregion
 //#region src/vue/entities/overview/search-view.ts
-function Ce({ service: e, searchObject: n, defaultPageSize: r = 10, debounceDelay: i = 250 }) {
-	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = W({
+function Te({ service: e, searchObject: n, defaultPageSize: r = 10, debounceDelay: i = 250 }) {
+	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = U({
 		service: e,
 		searchObject: n,
 		defaultPageSize: r
@@ -342,8 +342,8 @@ function Ce({ service: e, searchObject: n, defaultPageSize: r = 10, debounceDela
 }
 //#endregion
 //#region src/vue/entities/overview/list-view.ts
-function we({ service: e, searchObject: n, defaultPageSize: r = 10, debounceDelay: i = 250 }) {
-	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = W({
+function Ee({ service: e, searchObject: n, defaultPageSize: r = 10, debounceDelay: i = 250 }) {
+	let { searchObject: a, pagingInfo: o, items: s, itemsCount: c, isLoading: l, feedback: u, applySave: d, applyRemove: f, handleSave: p, handleRemove: m, resetPage: h } = U({
 		service: e,
 		searchObject: n,
 		defaultPageSize: r
@@ -381,7 +381,7 @@ function we({ service: e, searchObject: n, defaultPageSize: r = 10, debounceDela
 }
 //#endregion
 //#region src/vue/entities/overview/route-overview.ts
-function Te({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: r }) {
+function De({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: r }) {
 	let i = O();
 	function a(r = !1) {
 		r && e != null && (e.value = {
@@ -402,10 +402,10 @@ function Te({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 		let { searchObject: a, pagingInfo: o } = p(i.currentRoute.value.query);
 		o.page ||= 1, (isNaN(o.pageSize) || o.pageSize == null) && n > 0 && (o.pageSize = n), t.value != null && (t.value = a), e.value != null && (e.value = o), await r();
 	}
-	let s = pe(i.currentRoute, async (e, t) => {
+	let s = he(i.currentRoute, async (e, t) => {
 		e.name === t.name && await o();
 	});
-	return C(o), {
+	return S(o), {
 		updateOverviewRoute: a,
 		routeSearchHandler: o,
 		routeWatcher: s
@@ -413,7 +413,7 @@ function Te({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 }
 //#endregion
 //#region src/vue/entities/pooling/PoolService.ts
-var G = class {
+var W = class {
 	service;
 	cache;
 	type;
@@ -471,21 +471,21 @@ var G = class {
 	newEntity(e) {
 		return this.service.newEntity(e);
 	}
-}, K = {
+}, G = {
 	INTERVAL: 60,
 	EXPIRES: 600,
 	MAX_ITEMS: 1e3
-}, q = class {
+}, K = class {
 	_cache = /* @__PURE__ */ new Map();
 	_expires;
 	_maxItems;
 	persistentTypes = [];
-	constructor({ interval: e = K.INTERVAL, expires: t = K.EXPIRES, maxItems: n = K.MAX_ITEMS } = {}) {
+	constructor({ interval: e = G.INTERVAL, expires: t = G.EXPIRES, maxItems: n = G.MAX_ITEMS } = {}) {
 		e > 0 && setInterval(() => this.cleanup(), e * 1e3), this._expires = t, this._maxItems = n;
 	}
 	set(e) {
 		let t = this.getEntityMap(e.constructor.name), n = this.get(e.constructor.name, e.$id);
-		return n == null ? n = T(e) : n.value = e, n.timestamp = +/* @__PURE__ */ new Date(), t.set(e.$id, n), n;
+		return n == null ? n = w(e) : n.value = e, n.timestamp = +/* @__PURE__ */ new Date(), t.set(e.$id, n), n;
 	}
 	get(e, t) {
 		return this.getEntityMap(e).get(t);
@@ -524,9 +524,9 @@ var G = class {
 			}
 		});
 	}
-}, J = new q();
-function Y(e, t, n = J, r = !1) {
-	let a = e instanceof G ? e : new G(e, n, t);
+}, q = new K();
+function J(e, t, n = q, r = !1) {
+	let a = e instanceof W ? e : new W(e, n, t);
 	r && !n.persistentTypes.includes(t) && n.persistentTypes.push(t);
 	function o(t) {
 		if (t == null) return t;
@@ -557,8 +557,8 @@ function Y(e, t, n = J, r = !1) {
 }
 //#endregion
 //#region src/vue/entities/pooling/store.ts
-function Ee(e, t) {
-	return Y(e, t);
+function Y(e, t) {
+	return J(e, t);
 }
 //#endregion
 //#region src/vue/entities/preloading/preloader.ts
@@ -567,7 +567,7 @@ function Q(e) {
 	Z.length = 0, X.length = 0;
 	for (let t of e) {
 		X.push(t.name);
-		let { list: e } = Y(r(t.name), t.name, void 0, !0), n = e({ pageSize: 0 });
+		let { list: e } = J(r(t.name), t.name, void 0, !0), n = e({ pageSize: 0 });
 		Z.push(n);
 	}
 	return $();
@@ -584,12 +584,12 @@ async function $() {
 		t();
 	});
 }
-var De = {
+var Oe = {
 	install(e) {},
 	preload: Q,
 	ready: $
 };
-function Oe() {
+function ke() {
 	return {
 		preload: Q,
 		ready: $
@@ -597,13 +597,13 @@ function Oe() {
 }
 //#endregion
 //#region src/vue/entities/tree/tree.ts
-function ke(e, t) {
+function Ae(e, t) {
 	return e.$id != null && e.$id == t.$id && e.constructor == t.constructor;
 }
-function Ae(e) {
-	let t = T(), r = T(), i = e?.equals || ke, a = y(() => t.value?.filter((e) => r.value?.some((t) => i(e.value, t))) || []), o = y(() => a.value.flatMap((e) => e.getAncestors())), s = y(() => a.value.flatMap((e) => e.getOffspring())), c = y(() => [...new Set(a.value.flatMap((e) => e.getAncestors()).concat(a.value).concat(a.value.flatMap((e) => e.getOffspring())))]);
+function je(e) {
+	let t = w(), r = w(), i = e?.equals || Ae, a = v(() => t.value?.filter((e) => r.value?.some((t) => i(e.value, t))) || []), o = v(() => a.value.flatMap((e) => e.getAncestors())), s = v(() => a.value.flatMap((e) => e.getOffspring())), c = v(() => [...new Set(a.value.flatMap((e) => e.getAncestors()).concat(a.value).concat(a.value.flatMap((e) => e.getOffspring())))]);
 	function l(e, i, a) {
-		r.value = e, t.value = new n().init(i.map((e) => fe(e)), a), t.value.filter((e) => e.parent == null ? !1 : e.parent.getOffspring().some((t) => t != e && t.value == e.value)).forEach((e) => t.value.remove(e));
+		r.value = e, t.value = new n().init(i.map((e) => me(e)), a), t.value.filter((e) => e.parent == null ? !1 : e.parent.getOffspring().some((t) => t != e && t.value == e.value)).forEach((e) => t.value.remove(e));
 	}
 	return {
 		tree: t,
@@ -614,8 +614,8 @@ function Ae(e) {
 		init: l
 	};
 }
-function je({ emit: e }) {
-	let t = T();
+function Me({ emit: e }) {
+	let t = w();
 	function n(n) {
 		n != null && (t.value = n, e("drag", n));
 	}
@@ -636,4 +636,4 @@ function je({ emit: e }) {
 	};
 }
 //#endregion
-export { l as DEFAULT_PAGESIZE, m as DefaultSearchObject, te as DetailsSummary, f as EntityBase, k as EntityDescriptor, ve as EntityForm, he as EntityOverview, a as EntityServiceBase, ce as FormStates, c as JSONService, V as NavGroup, B as NavItem, s as NavTypes, h as PagingInfo, q as PoolCache, G as PoolService, u as SearchObjectBase, o as SortByInfo, xe as buildNavigationTree, d as cleanQueryParams, H as createNavGroup, U as createNavItem, Ee as createStore, J as defaultPoolCache, re as formDefaults, ne as formModalDefaults, ye as importDashboard, be as importNavbar, Se as isNavItem, i as isNewEntity, p as parseQueryParams, De as preloaderPlugin, ee as useDetails, je as useDragDrop, M as useEntityDescribers, N as useFilter, ae as useForm, _ as useListInput, ie as useListItemInput, we as useListView, se as useModal, W as useOverviewCore, oe as useOwnedCollection, v as useOwnedModal, Y as usePooling, Oe as usePreloader, Te as useRouteOverview, Ce as useSearchView, Ae as useTree };
+export { l as DEFAULT_PAGESIZE, m as DefaultSearchObject, te as DetailsSummary, f as EntityBase, k as EntityDescriptor, be as EntityForm, _e as EntityOverview, a as EntityServiceBase, re as FormStates, le as InputSelectorInline, c as JSONService, B as NavGroup, z as NavItem, s as NavTypes, h as PagingInfo, K as PoolCache, W as PoolService, u as SearchObjectBase, o as SortByInfo, Ce as buildNavigationTree, d as cleanQueryParams, V as createNavGroup, H as createNavItem, Y as createStore, q as defaultPoolCache, ae as formDefaults, se as formModalDefaults, xe as importDashboard, Se as importNavbar, we as isNavItem, i as isNewEntity, p as parseQueryParams, Oe as preloaderPlugin, ee as useDetails, Me as useDragDrop, M as useEntityDescribers, N as useFilter, ue as useForm, ie as useListInput, ne as useListItemInput, Ee as useListView, _ as useModal, U as useOverviewCore, ce as useOwnedCollection, oe as useOwnedModal, J as usePooling, ke as usePreloader, De as useRouteOverview, Te as useSearchView, je as useTree };

@@ -22,9 +22,10 @@
                 <FormLabel :label="$t('name')" />
             </div>
             <!-- single relation (FK) → the related entity's InputSelector, e.g. <BarInputSelector v-model="item.bar" v-model:idValue="item.barId" /> -->
-            <!-- many-to-many → prefer the related entity's <Selector> bound to a bridged entity array (rebuilt on
-                 change), or render join/owned rows and mark removed ones _deleted (filtered in EntityService.prepareItem);
-                 it scales better than a hand-rolled checkbox list. See entities.advanced.example.md §5 and entities.patterns.md. -->
+            <!-- many-to-many / owned rows → InputSelectorInline (regira_modules/vue/entities): chips that mark
+                 _deleted (undoable until save) with the related entity's FormModalButton inside, adds via its
+                 InputSelector + exclude; filter _deleted rows in EntityService.prepareItem. The multi-Selector
+                 hard-removes — don't use it here. See entities.patterns.md → owned-m2m recipe. -->
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
         </FormSection>
 

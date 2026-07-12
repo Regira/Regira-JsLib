@@ -45,8 +45,12 @@ passing `item`. `item` is `null` until the `onMounted` load resolves — gate th
 …>(), { ...formDefaults })` and emits via `FormEmits<T>`; `FormStates` enumerates pending/saved/removed/
 error. `useModal` is the in-modal variant for editing without leaving the page.
 
-For child/owned collections inside a form, use `useOwnedCollection`, `useOwnedModal`, `useListInput`, and
-`useListItemInput` — see [../ai/entities.patterns.md](../ai/entities.patterns.md#owned-child-collections).
+For child/owned collections inside a form, render the rows with **`InputSelectorInline`** — chips that
+mark removals `_deleted` (undoable until save, filtered out in the service's `prepareItem` override) and
+hand the picker slot an `exclude` list. The heavier per-row editors are `useOwnedCollection`,
+`useOwnedModal`, `useListInput`, and `useListItemInput` — see
+[../ai/entities.patterns.md](../ai/entities.patterns.md#owned-child-collections). The multi-`Selector`
+hard-removes on delete, so it does not fit collections that need the marked-delete UX.
 
 ## Filter — `useFilter`
 

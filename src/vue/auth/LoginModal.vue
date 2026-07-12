@@ -1,5 +1,5 @@
 <template>
-    <DefaultModal is-visible :title="title" :showFooter="false">
+    <DefaultModal :is-visible="isVisible" :title="title" :showFooter="false">
         <slot v-bind="{ username }">
             <LoginForm
                 @success="$emit('success', $event)"
@@ -23,9 +23,13 @@ const props = withDefaults(
     defineProps<{
         username?: string
         title?: string
+        // visibility is a real prop (defaults on); prefer gating the whole component with v-if —
+        // it unmounts mask + dialog in one go and cannot strand a leave-transition
+        isVisible?: boolean
     }>(),
     {
         title: "Sign in",
+        isVisible: true,
     }
 )
 </script>

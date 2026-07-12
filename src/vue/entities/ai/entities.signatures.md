@@ -481,6 +481,24 @@ export function useListItemInput<T extends IEntity & { id: number; _deleted: boo
 }
 ```
 
+`InputSelectorInline` is the default chip editor for an owned/join (m2m) collection — the marked-delete
+UX the `useOwned*` composables and the multi-`Selector` can't deliver (recipe:
+[entities.patterns.md → owned-m2m](entities.patterns.md#the-owned-m2m-recipe--inputselectorinline)):
+
+```ts
+import { InputSelectorInline } from "regira_modules/vue/entities"
+
+// InputSelectorInline — inline chip editor for an owned/join collection edited inside the parent form.
+//   Generic over the row type: <T extends { _deleted?: boolean }>. Removal MARKS each row
+//   (`_deleted`, tinted, undoable until save) — it never splices; pair with a `prepareItem` override
+//   that filters marked rows so `Related()` deletes by omission.
+//   props: { modelValue?: Array<T> (v-model);
+//            rowKey?: (row: T) => string | number | undefined;      // stable :key per row, falls back to index
+//            excludeKey?: (row: T) => number | undefined }          // related id per row → feeds the #selector `exclude`
+//   slots: chip({ row }), selector({ add, exclude })                // add: (row: T) => void; exclude: number[] (every current row, marked ones included)
+//   emits: "add" (row: T) | "remove" (row: T) | "update:modelValue" (value: T[] | undefined)
+```
+
 ---
 
 ## 7. Pooling (entity cache)

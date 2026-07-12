@@ -1705,7 +1705,8 @@ export default Product
 
 `isComplex: true` flips the standard-tier behaviour: the Overview's "new" button navigates to the Details
 page and the Form is tabbed. (`searchUrl` is `api + "/search"` for every entity — the overview always pages
-through it.) `baseQueryParams.includes` requests the related collections on every fetch.
+through it.) `baseQueryParams.includes` requests the related collections on every list/search (the Details
+GET ignores it and passes `EntityIncludes.All` to the server regardless).
 
 ```ts
 import type { IConfig } from "@/regira_modules/vue/entities"

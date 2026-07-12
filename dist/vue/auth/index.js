@@ -375,7 +375,11 @@ var U = {
 	__name: "LoginModal",
 	props: {
 		username: {},
-		title: { default: "Sign in" }
+		title: { default: "Sign in" },
+		isVisible: {
+			type: Boolean,
+			default: !0
+		}
 	},
 	emits: [
 		"forgotPassword",
@@ -385,7 +389,7 @@ var U = {
 	],
 	setup(e, { emit: t }) {
 		return (t, r) => (m(), i(n, {
-			"is-visible": "",
+			"is-visible": e.isVisible,
 			title: e.title,
 			showFooter: !1
 		}, {
@@ -396,20 +400,26 @@ var U = {
 				onFail: r[3] ||= (e) => t.$emit("fail", e)
 			})])]),
 			_: 3
-		}, 8, ["title"]));
+		}, 8, ["is-visible", "title"]));
 	}
 }), le = /* @__PURE__ */ u({
 	__name: "ForgotPasswordModal",
-	props: { username: {} },
+	props: {
+		username: {},
+		isVisible: {
+			type: Boolean,
+			default: !0
+		}
+	},
 	setup(e) {
 		return (t, r) => (m(), i(n, {
-			"is-visible": "",
+			"is-visible": e.isVisible,
 			title: "Forgot password",
 			showFooter: !1
 		}, {
 			default: x(() => [g(t.$slots, "default", p(d({ username: e.username })))]),
 			_: 3
-		}));
+		}, 8, ["is-visible"]));
 	}
 });
 //#endregion

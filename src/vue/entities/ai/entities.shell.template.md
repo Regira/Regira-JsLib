@@ -288,7 +288,8 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 
         <!-- @auth:block-start -->
         <Teleport to="#loginModal">
-            <LoginModal :is-visible="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
+            <!-- v-if (not :is-visible): unmounting removes mask + dialog atomically — no stranded overlay -->
+            <LoginModal v-if="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
         </Teleport>
         <!-- @auth:block-end -->
     </div>
