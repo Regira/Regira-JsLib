@@ -27,7 +27,7 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 	}
 	let f = D();
 	async function p() {
-		d(), r("changeState", "Pending");
+		d(), r("changeState", O.pending);
 		try {
 			i.pending("Saving...");
 			let { saved: n, isNew: a } = await t.save(c.value);
@@ -51,13 +51,13 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 		} catch (e) {
 			console.error("Saving failed", { ex: e });
 			let t = e, n = t.response?.status;
-			throw n == 400 ? i.fail("Saving failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Server error", t.response?.data?.message || t.message), r("changeState", "Error"), e;
+			throw n == 400 ? i.fail("Saving failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Server error", t.response?.data?.message || t.message), r("changeState", O.error), e;
 		} finally {
-			r("changeState", "Saved");
+			r("changeState", O.saved);
 		}
 	}
 	async function m() {
-		d(), r("changeState", "Pending");
+		d(), r("changeState", O.pending);
 		try {
 			i.pending("Deleting..."), await t.remove(c.value), i.success("Deleted"), r("remove", c.value);
 		} catch (e) {
@@ -66,14 +66,14 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 				ex: e
 			});
 			let t = e, n = t.response?.status;
-			n == 400 ? i.fail("Deleting failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Deleting failed", t.response?.data?.message || t.message), r("changeState", "Error");
+			n == 400 ? i.fail("Deleting failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Deleting failed", t.response?.data?.message || t.message), r("changeState", O.error);
 		} finally {
-			r("changeState", "Removed");
+			r("changeState", O.removed);
 		}
 	}
 	async function h() {
 		let n = t.toEntity(e(c.value));
-		n.isArchived = !1, r("changeState", "Pending");
+		n.isArchived = !1, r("changeState", O.pending);
 		try {
 			i.pending("Restoring...");
 			let { saved: a, isNew: o } = await t.save(n);
@@ -87,9 +87,9 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 				ex: e
 			});
 			let t = e;
-			throw i.fail("Restoring failed", t.response?.data?.errors), r("changeState", "Error"), e;
+			throw i.fail("Restoring failed", t.response?.data?.errors), r("changeState", O.error), e;
 		} finally {
-			r("changeState", "Saved");
+			r("changeState", O.saved);
 		}
 	}
 	return E(() => n.modelValue, () => {
@@ -243,16 +243,16 @@ function L(t, { props: n, emit: r }) {
 }
 //#endregion
 //#region src/vue/entities/form/InputSelectorInline.vue?vue&type=script&setup=true&lang.ts
-var R = { class: "input-selector-inline row align-items-center" }, z = { class: "col-auto mb-2" }, B = /*#__PURE__*/ i(/* @__PURE__ */ f({
+var R = { class: "input-selector-inline row align-items-center" }, z = { class: "col-auto mb-2" }, B = /* @__PURE__ */ i(/* @__PURE__ */ f({
 	__name: "InputSelectorInline",
-	props: /*@__PURE__*/ h({
+	props: /* @__PURE__ */ h({
 		rowKey: { type: Function },
 		excludeKey: { type: Function }
 	}, {
 		modelValue: {},
 		modelModifiers: {}
 	}),
-	emits: /*@__PURE__*/ h(["remove", "add"], ["update:modelValue"]),
+	emits: /* @__PURE__ */ h(["remove", "add"], ["update:modelValue"]),
 	setup(e, { emit: t }) {
 		let n = T(e, "modelValue"), i = e, a = t, o = c(() => (n.value ?? []).map((e) => i.excludeKey?.(e)).filter((e) => e != null));
 		function f(e) {
@@ -274,6 +274,6 @@ var R = { class: "input-selector-inline row align-items-center" }, z = { class: 
 			exclude: o.value
 		})), void 0, !0)])]));
 	}
-}), [["__scopeId", "data-v-b3fe2e67"]]);
+}), [["__scopeId", "data-v-e770f37f"]]);
 //#endregion
 export { F as a, O as c, P as i, k as l, L as n, j as o, I as r, N as s, B as t, A as u };

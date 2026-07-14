@@ -414,9 +414,6 @@ function De({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 //#endregion
 //#region src/vue/entities/pooling/PoolService.ts
 var W = class {
-	service;
-	cache;
-	type;
 	constructor(e, t, n) {
 		this.service = e, this.cache = t, this.type = n;
 	}

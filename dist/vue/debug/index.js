@@ -3,7 +3,7 @@ import { t } from "../../_chunks/_plugin-vue_export-helper-3.2.5.js";
 import { n } from "../../_chunks/ioc-3.2.5.js";
 import { computed as r, createCommentVNode as i, createElementBlock as a, createElementVNode as o, createVNode as s, defineComponent as c, getCurrentInstance as l, normalizeClass as u, openBlock as d, ref as f, toDisplayString as p, withModifiers as m } from "vue";
 //#region src/vue/debug/Display.vue?vue&type=script&setup=true&lang.ts
-var h = { class: "value" }, g = /*#__PURE__*/ t(/* @__PURE__ */ c({
+var h = { class: "value" }, g = /* @__PURE__ */ t(/* @__PURE__ */ c({
 	__name: "Display",
 	props: {
 		title: {},
@@ -27,7 +27,7 @@ var h = { class: "value" }, g = /*#__PURE__*/ t(/* @__PURE__ */ c({
 			o("div", h, p(v.value), 1)
 		], 2)) : i("", !0);
 	}
-}), [["__scopeId", "data-v-3de56375"]]), _ = { install(e, t) {
+}), [["__scopeId", "data-v-3fa13e7f"]]), _ = { install(e, t) {
 	let r = f(!!t?.isDebug), i = f(!0);
 	n.registerComponentsGlobally && e.component("Debug", g), Object.defineProperty(e.config.globalProperties, "$isDebug", {
 		get() {
