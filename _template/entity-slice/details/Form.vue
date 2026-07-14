@@ -1,4 +1,5 @@
 <template>
+    <!-- Built-ins are the slice defaults — hand-rolling feedback/buttons/tabs/debug/owned-row editors is a deviation (see entities.card). -->
     <form @submit.prevent="handleSubmit">
         <!-- useForm drives `feedback` (Saving… → Saved / 400 field-map); render it here or the save shows nothing. -->
         <Feedback :feedback="feedback" />
@@ -29,14 +30,15 @@
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
         </FormSection>
 
-        <!-- Dev aid: <Debug> (import { Debug } from "regira_modules/vue/debug") dumps the live payload, self-gated on $isDebug ($setDebug / ?debug=1). -->
-        <!-- <Debug :modelValue="{ item }" /> -->
+        <!-- <Debug> dumps the live payload, self-gated on $isDebug (?debug=1) — inert in production; curate the payload. -->
+        <Debug :modelValue="{ item }" />
     </form>
 </template>
 
 <script setup lang="ts">
 import type { RouteRecordRaw } from "vue-router"
 import { Feedback, FormButtonsRow, FormSection, FormLabel } from "regira_modules/vue/ui"
+import { Debug } from "regira_modules/vue/debug"
 import { useForm, type FormEmits, formDefaults } from "regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"

@@ -393,6 +393,11 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 > `infrastructure/` ([App shell](#app-shell--components-infrastructure--styling)), the [Router](#router),
 > and [Runtime config](#runtime-config--publicconfigjson) — is the project template.
 
+> **Cross-slice imports use the barrel's generic names.** It re-exports the model as `Entity` and the relation
+> picker as `InputSelector` (never the entity's class name); from a sibling slice import
+> `{ Entity as Employee, InputSelector as EmployeeInputSelector } from "@/entities/employees"` — importing by
+> the class name is the `TS2305 "has no exported member"` trap.
+
 > **Title-agnostic, archive-agnostic by default.** The display boilerplate (overview rows, selectors)
 > renders `item.$title` — the accessor every `Entity` implements — so point `$title` at your label field in
 > `data/Entity.ts` (it defaults to `title`) and the slice works whether or not the entity has a `title`. The
@@ -472,6 +477,13 @@ The `BasicApi` server template calls `app.UseHttpsRedirection()`, so a request t
     server: { proxy: { "/api": { target: "https://localhost:7001", changeOrigin: true, secure: false } } }
     ```
 - **Skip the redirect in Development** on the API: `if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection();`.
+
+### Simplest dev setup — direct origin + CORS
+
+While iterating, skip the Vite proxy: point `config.json → api` at the API origin
+(e.g. `https://localhost:7001/api`) and enable CORS on the API (`AllowAnyOrigin` in Development). Only two of
+the four owners below then apply — axios base and each entity's relative `IConfig.api` — with no proxy prefix
+or route-prefix to align. Switch to the proxy contract when you want the SPA and API on one origin (cookie auth).
 
 ### The URL contract — four owners, one request
 

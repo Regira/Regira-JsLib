@@ -7,12 +7,12 @@ export class EntityService extends EntityServiceBase<Entity> {
         super(axios, config)
     }
 
-    // Add this override only if the entity owns child collections — the `_deleted` pattern: drop rows the
-    // user removed (marked `_deleted` by useOwnedCollection) so the server deletes them. One per collection:
-    // protected override prepareItem(item: Entity): Entity {
-    //     item.children = item.children?.filter((x) => !x._deleted) || []
-    //     return item
-    // }
+    // Owned child collections use the `_deleted` mark (never splice): removed rows are filtered out here so
+    // the server deletes them by omission. Add one filter line per owned collection; `super` strips root `_`-fields.
+    protected override prepareItem(item: Entity): Entity {
+        // TODO (owned collections only): item.children = item.children?.filter((x) => !x._deleted) || []
+        return super.prepareItem(item)
+    }
 
     override toEntity(item: object): Entity {
         return item instanceof Entity ? item : Object.assign(this.createInstance(Entity as new () => Entity), item || {})

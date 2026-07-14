@@ -519,8 +519,9 @@ const fieldError = (name: string) => errors.value[name] ?? (typeof feedback.erro
 
 Split a heavy form into tabs with `TabContainer` (global from `vue/ui`); the scaffolded `Form.vue` already
 exposes `initialTab` / `isPopup` for it. Pass `Tab.create(key, { icon, title, isDefault?, isDisabled? })` entries
-and one `<template #key>` per tab; `:use-route-nav="!isPopup"` mirrors the active tab in the URL hash
-(deep-linkable, back-button aware), and returning `null` from the list drops a tab responsively:
+and one `<template #key>` per tab. Always pass `:use-route-nav="!isPopup"` — the prop defaults to `false`, so
+without it a refresh silently drops back to the first tab; with it the active tab mirrors to the URL hash
+(deep-linkable, back-button aware). Returning `null` from the list drops a tab responsively:
 
 ```vue
 <TabContainer :tabs="tabs" :active="initialTab" :use-route-nav="!isPopup">

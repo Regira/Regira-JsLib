@@ -323,6 +323,7 @@ const item = defineModel<Entity>({ required: true })
 
 ```vue
 <template>
+    <!-- Built-ins are the slice defaults — hand-rolling feedback/buttons/tabs/debug/owned-row editors is a deviation (see entities.card). -->
     <form @submit.prevent="handleSubmit">
         <!-- useForm drives `feedback` (Saving… → Saved / 400 field-map); render it here or the save shows nothing. -->
         <Feedback :feedback="feedback" />
@@ -353,14 +354,15 @@ const item = defineModel<Entity>({ required: true })
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
         </FormSection>
 
-        <!-- Dev aid: <Debug> (import { Debug } from "@/regira_modules/vue/debug") dumps the live payload, self-gated on $isDebug ($setDebug / ?debug=1). -->
-        <!-- <Debug :modelValue="{ item }" /> -->
+        <!-- <Debug> dumps the live payload, self-gated on $isDebug (?debug=1) — inert in production; curate the payload. -->
+        <Debug :modelValue="{ item }" />
     </form>
 </template>
 
 <script setup lang="ts">
 import type { RouteRecordRaw } from "vue-router"
 import { Feedback, FormButtonsRow, FormSection, FormLabel } from "@/regira_modules/vue/ui"
+import { Debug } from "@/regira_modules/vue/debug"
 import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
@@ -436,12 +438,12 @@ export class EntityService extends EntityServiceBase<Entity> {
         super(axios, config)
     }
 
-    // Add this override only if the entity owns child collections — the `_deleted` pattern: drop rows the
-    // user removed (marked `_deleted` by useOwnedCollection) so the server deletes them. One per collection:
-    // protected override prepareItem(item: Entity): Entity {
-    //     item.children = item.children?.filter((x) => !x._deleted) || []
-    //     return item
-    // }
+    // Owned child collections use the `_deleted` mark (never splice): removed rows are filtered out here so
+    // the server deletes them by omission. Add one filter line per owned collection; `super` strips root `_`-fields.
+    protected override prepareItem(item: Entity): Entity {
+        // TODO (owned collections only): item.children = item.children?.filter((x) => !x._deleted) || []
+        return super.prepareItem(item)
+    }
 
     override toEntity(item: object): Entity {
         return item instanceof Entity ? item : Object.assign(this.createInstance(Entity as new () => Entity), item || {})
