@@ -1,5 +1,6 @@
 <template>
     <input
+        class="rg-autocomplete"
         autocomplete="__away"
         type="text"
         v-bind="$attrs"
@@ -11,7 +12,7 @@
         @change="handleChange"
         @keydown.down="moveSelection(1)"
         @keydown.up="moveSelection(-1)"
-        @keydown.enter.prevent="handleSelect(selectedItem, selectedIndex)"
+        @keydown.enter.prevent="handleSelect(selectedItem!, selectedIndex)"
         ref="inputEl"
     />
     <div class="autocomplete-items bg-white border" :class="resultClass" :style="resultStyle" v-click-outside="handleClickOutside">
@@ -25,7 +26,12 @@
                 :class="[itemClass, { 'bg-light': i == selectedIndex }]"
             >
                 <slot :item="item" :q="q">
-                    <div v-html="resultItemFormatter(item, q)"></div>
+                    <div>
+                        <template v-for="(part, pi) in highlightParts(item)" :key="pi">
+                            <strong v-if="part.match">{{ part.text }}</strong>
+                            <template v-else>{{ part.text }}</template>
+                        </template>
+                    </div>
                 </slot>
             </div>
         </div>
@@ -39,35 +45,13 @@ export default {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T">
 import "./style.scss"
-import { useAutocomplete, autocompleteEmits, propsDefaults } from "./autocomplete"
+import { useAutocomplete, autocompleteDefaults, type AutocompleteProps, type AutocompleteEmits, type AutocompleteSlots } from "./autocomplete"
 
-const emit = defineEmits(autocompleteEmits)
-const props = withDefaults(
-    defineProps<{
-        idValue?: number | string
-        modelValue?: object | string
-        data?: Array<any>
-        maxResults?: number
-        debounceTime?: number
-        enableDblClick?: boolean
-        autoSelect?: boolean
-        allowFreeInput?: boolean
-
-        resultClass?: string
-        itemsClass?: string
-        itemClass?: string
-
-        search?(term?: string): Promise<Array<any>>
-        idSelector?(item?: object): number | string | undefined
-        displayItemFormatter?(item?: object): string
-        resultItemFormatter?(item?: object, q?: string): string
-    }>(),
-    {
-        ...propsDefaults,
-    }
-)
+const emit = defineEmits<AutocompleteEmits<T>>()
+const props = withDefaults(defineProps<AutocompleteProps<T>>(), { ...autocompleteDefaults })
+defineSlots<AutocompleteSlots<T>>()
 
 defineOptions({
     inheritAttrs: false,
@@ -82,7 +66,7 @@ const {
     inputEl,
     resultStyle,
     isLoading,
-    resultItemFormatter,
+    displayItemFormatter,
     closeGently,
     moveSelection,
     handleInput,
@@ -90,7 +74,25 @@ const {
     handleSelect,
     handleSearch,
     reset,
-} = useAutocomplete(props, { emit })
+} = useAutocomplete<T>(props, { emit })
+
+// default result rendering: display string with the matched term in bold (no innerHTML)
+function highlightParts(item: T): Array<{ text: string; match: boolean }> {
+    const text = displayItemFormatter(item) ?? ""
+    const term = q.value?.trim()
+    if (!term) {
+        return [{ text, match: false }]
+    }
+    const index = text.toLowerCase().indexOf(term.toLowerCase())
+    if (index < 0) {
+        return [{ text, match: false }]
+    }
+    return [
+        { text: text.slice(0, index), match: false },
+        { text: text.slice(index, index + term.length), match: true },
+        { text: text.slice(index + term.length), match: false },
+    ].filter((part) => part.text)
+}
 
 function handleFocus() {
     isFocus.value = true

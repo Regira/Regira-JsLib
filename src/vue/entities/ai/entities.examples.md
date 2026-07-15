@@ -73,7 +73,7 @@ composable, or drop the Details route.
 > **Front-end `isComplex` is not enforced against the back-end's simple/complex split, but aligning them is
 > encouraged.** Nothing binds the two flags: a back-end **complex** entity (typed `TIncludes`/`TSortBy`) behind
 > a front-end `isComplex: false` slice is perfectly correct — you only trade the Details-page UX for modal
-> editing, never correctness. So when they diverge, let the *form's* richness (child collections / many fields)
+> editing, never correctness. So when they diverge, let the _form's_ richness (child collections / many fields)
 > decide `isComplex`. In practice the two usually track each other, and keeping them aligned is the recommended
 > default; treat a mismatch as a deliberate choice, not an accident.
 
@@ -220,7 +220,8 @@ export default EntitySearchObject
         </slot>
 
         <Teleport to="#modals">
-            <DefaultModal
+            <component
+                :is="Modal"
                 :is-visible="showAdv"
                 :title="props.modalTitle || 'Advanced search'"
                 :show-footer="true"
@@ -232,18 +233,20 @@ export default EntitySearchObject
                 <slot name="adv" :handleUpdate="handleUpdate" :handleSubmit="handleSubmit" :handleClose="handleClose"> </slot>
 
                 <Debug :modelValue="searchObject" />
-            </DefaultModal>
+            </component>
         </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
-import { DefaultModal } from "@/regira_modules/vue/ui"
+import { injectModal } from "@/regira_modules/vue/ui"
 import { Debug } from "@/regira_modules/vue/debug"
 import { useFilter, type FilterEmits } from "@/regira_modules/vue/entities"
 import type SearchObject from "./SearchObject"
 import FilterInline from "./FilterInline.vue"
+
+const Modal = injectModal() // resolves the app-wide modal (modalPlugin swap-aware)
 
 interface Emits extends /* @vue-ignore */ FilterEmits<SearchObject> {}
 const emit = defineEmits<
@@ -860,7 +863,8 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
             <Icon :name="config.key" />
         </slot>
         <Teleport to="#modals">
-            <DefaultModal
+            <component
+                :is="Modal"
                 :is-visible="isOpen"
                 :title="modalTitle || $t(config.detailsTitle || '')"
                 :showFooter="false"
@@ -879,19 +883,21 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
                     @save="handleSave"
                     @remove="handleRemove"
                 />
-            </DefaultModal>
+            </component>
         </Teleport>
     </button>
 </template>
 
 <script setup lang="ts">
 import { computed, type Ref } from "vue"
-import { Icon, DefaultModal } from "@/regira_modules/vue/ui"
+import { Icon, injectModal } from "@/regira_modules/vue/ui"
 import { FormStates, useModal, type FormModalEmits, type SaveResult } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 import Form from "./Form.vue"
+
+const Modal = injectModal() // resolves the app-wide modal (modalPlugin swap-aware)
 
 interface Emits extends /* @vue-ignore */ FormModalEmits<Entity> {}
 const emit = defineEmits<
@@ -1295,7 +1301,8 @@ function handleSelect(item?: Entity) {
     <button type="button" class="btn btn-default" @click="open">
         <slot><Icon name="search" /></slot>
         <Teleport to="#modals">
-            <DefaultModal
+            <component
+                :is="Modal"
                 :is-visible="isOpen"
                 :title="modalTitle || $t(config.overviewTitle || '')"
                 :showFooter="true"
@@ -1305,18 +1312,20 @@ function handleSelect(item?: Entity) {
                 @submit="handleSubmit"
             >
                 <SelectorSearch v-model="selected" :filter-defaults="filterDefaults" :item-defaults="itemDefaults" :page-size="maxResults" />
-            </DefaultModal>
+            </component>
         </Teleport>
     </button>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watchEffect, type Ref } from "vue"
-import { Icon, DefaultModal } from "@/regira_modules/vue/ui"
+import { Icon, injectModal } from "@/regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 import SelectorSearch from "./SelectorSearch.vue"
+
+const Modal = injectModal() // resolves the app-wide modal (modalPlugin swap-aware)
 
 const emit = defineEmits<{
     (e: "update:modelValue", selected?: Entity): void

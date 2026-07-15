@@ -25,39 +25,13 @@
 </template>
 
 <script setup lang="ts" generic="T extends IEntity">
-import { ref, computed, onMounted, type Ref } from "vue"
-import { DEFAULT_PAGESIZE } from "../abstractions"
-import type { IEntity, IEntityService } from "../abstractions"
+import type { IEntity } from "../abstractions"
+import { useLeanOverview, leanOverviewDefaults, type LeanOverviewProps, type LeanOverviewSlots } from "./overview"
 
-const props = withDefaults(defineProps<{ service: IEntityService<T>; query?: Record<string, any>; pageSize?: number }>(), {
-    pageSize: DEFAULT_PAGESIZE,
-})
-defineSlots<{
-    toolbar(props: { reload: () => Promise<void>; setPage: (p: number) => Promise<void> }): any
-    head(): any
-    row(props: { item: T; remove: (item: T) => Promise<void>; reload: () => Promise<void> }): any
-    paging(props: { page: number; pageCount: number; count: number; setPage: (p: number) => Promise<void> }): any
-}>()
+const props = withDefaults(defineProps<LeanOverviewProps<T>>(), { ...leanOverviewDefaults })
+defineSlots<LeanOverviewSlots<T>>()
 
-const items = ref([]) as Ref<Array<T>>
-const count = ref(0)
-const page = ref(1)
-const pageCount = computed(() => Math.max(1, Math.ceil(count.value / props.pageSize)))
+const { items, count, page, pageCount, reload, setPage, remove } = useLeanOverview<T>(props)
 
-async function reload(): Promise<void> {
-    const result = await props.service.search({ ...props.query, page: page.value, pageSize: props.pageSize })
-    items.value = result.items
-    count.value = result.count
-}
-async function setPage(p: number): Promise<void> {
-    page.value = Math.min(Math.max(1, p), pageCount.value)
-    await reload()
-}
-async function remove(item: T): Promise<void> {
-    await props.service.remove(item)
-    await reload()
-}
-
-onMounted(reload)
 defineExpose({ reload, setPage })
 </script>

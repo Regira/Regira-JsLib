@@ -76,8 +76,8 @@ Or build a custom form with the composable:
 
 ```vue
 <script setup lang="ts">
-import { useLoginForm, type ILoginEmits } from "@/regira_modules/vue/auth"
-const emit = defineEmits<ILoginEmits>()
+import { useLoginForm, type LoginFormEmits } from "@/regira_modules/vue/auth"
+const emit = defineEmits<LoginFormEmits>()
 const props = defineProps<{ username?: string }>()
 const { username, password, failed, signingIn, isLockedOut, handleSubmit, handleForgotPassword } = useLoginForm(props, emit)
 </script>

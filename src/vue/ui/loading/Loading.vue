@@ -1,5 +1,5 @@
 <template>
-    <img :src="img" ref="imgEl" />
+    <img class="rg-loading" :src="img" ref="imgEl" />
 </template>
 
 <script setup lang="ts">

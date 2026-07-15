@@ -39,23 +39,17 @@
 <script setup lang="ts">
 import { ref, computed, watch, getCurrentInstance } from "vue"
 import Icon from "../icons/Icon.vue"
-const emit = defineEmits<{
-    (e: "expand"): void
-    (e: "collapse"): void
-}>()
-const props = defineProps<{
-    title?: string
-    readonly?: boolean
-    showSummary?: boolean
-    collapsed?: boolean
-    summaryClass?: string | Array<string> | Record<string, string>
-}>()
+import type { FormSectionProps, FormSectionEmits, FormSectionSlots } from "./inputs"
+
+const emit = defineEmits<FormSectionEmits>()
+const props = defineProps<FormSectionProps>()
+defineSlots<FormSectionSlots>()
 
 const current = getCurrentInstance()
 const collapsed = ref(props.collapsed)
 const _showSummary = ref(props.readonly || props.showSummary)
 const showSummary = computed({
-    get: () => current?.slots.summary && (props.readonly || _showSummary.value),
+    get: () => !!(current?.slots.summary && (props.readonly || _showSummary.value)),
     set: (value) => (_showSummary.value = !!value),
 })
 

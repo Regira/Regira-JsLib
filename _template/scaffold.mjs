@@ -1,24 +1,29 @@
 #!/usr/bin/env node
-// Scaffold a Regira app — one entity slice, or the one-time app shell.
+// Scaffold a Regira app — one entity slice, the one-time app shell, or an ejected UI skin.
 //
 //   node node_modules/regira_modules/_template/scaffold.mjs <Entity> [options]   # an entity slice
 //   node node_modules/regira_modules/_template/scaffold.mjs --shell [options]    # the app shell (once per app)
+//   node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>     # eject a UI-kit reference skin
+//   node node_modules/regira_modules/_template/scaffold.mjs --ui list            # list the ejectable components
 //
 //   <Entity>            PascalCase class name, e.g. Product
 //   --plural <name>     route prefix / API path (default: derived — Category → categories, Box → boxes)
 //   --singular <name>   singular i18n key (default: lowercased Entity)
-//   --dir <path>        target base folder for a slice (default: src/entities)
+//   --dir <path>        target base folder for a slice (default: src/entities) or an ejected skin (default: src/components/ui)
 //   --owns <Child>      also scaffold an editable owned-collection sub-slice (a `_deleted`-marked scalar-row
 //                       table via useOwnedCollection) under the entity, for a back-end `e.Related(...)` child.
 //                       Repeatable. PascalCase, e.g. --owns OrderLine --owns OrderNote
 //   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
+//   --ui <Component>    copy a UI-kit component's reference skin into the app for free restyling; the copy
+//                       imports only public regira_modules/... API, so behavior keeps flowing from the library
 //   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
-//   --force             (--shell) overwrite files that already exist
+//   --force             (--shell / --ui) overwrite files that already exist
 //
 // Examples:
 //   node .../scaffold.mjs Category --plural categories
 //   node .../scaffold.mjs Order --owns OrderLine
 //   node .../scaffold.mjs --shell --no-auth
+//   node .../scaffold.mjs --ui DefaultModal
 
 import { readdirSync, mkdirSync, readFileSync, writeFileSync, existsSync } from "fs"
 import { resolve, dirname, join, relative } from "path"
@@ -37,6 +42,48 @@ const here = dirname(fileURLToPath(import.meta.url))
 if (argv.includes("--shell")) {
     scaffoldShell()
     process.exit(0)
+}
+
+// ------------------------------------------------------------ ejected UI skin
+if (argv.includes("--ui")) {
+    scaffoldUi(opt("--ui"))
+    process.exit(0)
+}
+
+function scaffoldUi(component) {
+    const uiRoot = resolve(here, "ui")
+    if (!existsSync(uiRoot)) {
+        console.error(`✗ ${uiRoot} not found — regira_modules is missing the generated ui template.`)
+        process.exit(1)
+    }
+    const manifest = JSON.parse(readFileSync(join(uiRoot, "manifest.json"), "utf8"))
+    if (!component || component === "list") {
+        console.log("Ejectable UI components (scaffold.mjs --ui <Component>):")
+        for (const entry of manifest) console.log(`  · ${entry.name}  (${entry.files.join(", ")})`)
+        return
+    }
+    const entry = manifest.find((e) => e.name.toLowerCase() === component.toLowerCase())
+    if (!entry) {
+        console.error(`✗ Unknown UI component "${component}" — run --ui list to see what's available.`)
+        process.exit(1)
+    }
+    const targetDir = resolve(process.cwd(), opt("--dir", "src/components/ui"))
+    mkdirSync(targetDir, { recursive: true })
+    const written = []
+    const skipped = []
+    for (const file of entry.files) {
+        const dest = join(targetDir, file)
+        if (existsSync(dest) && !force) {
+            skipped.push(file)
+            continue
+        }
+        writeFileSync(dest, readFileSync(join(uiRoot, entry.name, file), "utf8"))
+        written.push(file)
+    }
+    console.log(`✓ Ejected ${entry.name} → ${relative(process.cwd(), targetDir)} (${written.join(", ") || "nothing new"})`)
+    if (skipped.length) console.log(`  Skipped existing: ${skipped.join(", ")} (pass --force to overwrite)`)
+    console.log(`  Wiring: ${entry.note}`)
+    console.log("  The copy is yours — restyle freely; keep the documented contract (props/emits/slots, rg-*/is-* hooks, responsive).")
 }
 
 // --------------------------------------------------------------- entity slice

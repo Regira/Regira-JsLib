@@ -183,6 +183,7 @@ var p = /* @__PURE__ */ r({
 	setup(n) {
 		let r = i("icons.config", null), a = e(() => r?.source === "fa" ? m : p);
 		return (e, r) => (s(), t(c(a.value), {
+			class: "rg-icon",
 			name: n.name,
 			size: n.size
 		}, null, 8, ["name", "size"]));

@@ -1,9 +1,7 @@
-import type { IEntity, IEntityService } from "../abstractions";
+import type { IEntity } from "../abstractions";
+import { type LeanFormProps, type LeanFormEmits, type LeanFormSlots } from "./form";
 declare const __VLS_export: <T extends IEntity>(__VLS_props: NonNullable<Awaited<typeof __VLS_setup>>["props"], __VLS_ctx?: __VLS_PrettifyLocal<Pick<NonNullable<Awaited<typeof __VLS_setup>>, "attrs" | "emit" | "slots">>, __VLS_exposed?: NonNullable<Awaited<typeof __VLS_setup>>["expose"], __VLS_setup?: Promise<{
-    props: import("vue").PublicProps & __VLS_PrettifyLocal<{
-        service: IEntityService<T>;
-        id: string | number;
-    } & {
+    props: import("vue").PublicProps & __VLS_PrettifyLocal<LeanFormProps<T> & {
         onCancel?: (() => any) | undefined;
         onSaved?: ((item: T) => any) | undefined;
     }> & (typeof globalThis extends {
@@ -11,12 +9,8 @@ declare const __VLS_export: <T extends IEntity>(__VLS_props: NonNullable<Awaited
     } ? P : {});
     expose: (exposed: {}) => void;
     attrs: any;
-    slots: {
-        default(props: {
-            item: T;
-        }): any;
-    };
-    emit: ((evt: "cancel") => void) & ((evt: "saved", item: T) => void);
+    slots: LeanFormSlots<T>;
+    emit: LeanFormEmits<T>;
 }>) => import("vue").VNode & {
     __ctx?: Awaited<typeof __VLS_setup>;
 };

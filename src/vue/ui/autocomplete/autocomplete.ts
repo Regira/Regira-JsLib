@@ -3,34 +3,17 @@ import { useEventListener } from "../../vue-helper"
 import { debounceToPromise } from "../../../utilities/promise-utility"
 import { getAbsScrollPosition } from "../../../utilities/html-utility"
 
-export const autocompleteEmits = ["update:modelValue", "update:idValue", "select", "qInput"]
-export const autocompleteProps = {
-    idValue: [String, Number],
-    modelValue: { required: false },
-    data: { type: Array, default: () => [] },
-    search: Function,
-    idSelector: Function,
-    displayItemFormatter: Function, // convert item to q (pure String)
-    resultItemFormatter: Function, // can return HTML
-    enableDblClick: { type: Boolean, default: false },
-    resultClass: { type: String, default: "" },
-    itemsClass: { type: String, default: "" },
-    itemClass: { type: String, default: "" },
-    maxResults: { type: Number, default: 10 },
-    debounceTime: { type: Number, defaults: 250 },
-}
-
 type IDefaultKey = number | string
 type IOffset = { top: number; left: number }
 type IResultStyle = StyleValue & { visibility: string; top?: string; left?: string; transform?: string; width: string }
 
-interface Emits<T = any, TKey = IDefaultKey | T> {
+export interface AutocompleteEmits<T = any, TKey = IDefaultKey | T> {
     (e: "update:modelValue", args: T | undefined): void
     (e: "update:idValue", args: TKey | undefined): void
     (e: "select", args: T | undefined): void
     (e: "qInput", args: string): void
 }
-interface Props<T = any, TKey = IDefaultKey | T> {
+export interface AutocompleteProps<T = any, TKey = IDefaultKey | T> {
     idValue?: TKey
     modelValue?: T
     data?: Array<T>
@@ -46,16 +29,20 @@ interface Props<T = any, TKey = IDefaultKey | T> {
 
     search?(term?: string): Promise<Array<T>>
     idSelector?(item?: T): TKey | undefined
+    /** converts an item to its display string (input value + default result rendering) */
     displayItemFormatter?(item?: T): string
-    resultItemFormatter?(item?: T, q?: string): string
 }
-export const propsDefaults = {
+export type AutocompleteSlots<T = any> = {
+    /** result-item rendering seam; the fallback renders the display string with the matched term in bold */
+    default?(props: { item: T; q: string }): any
+}
+export const autocompleteDefaults = {
     data: () => [],
     maxResults: 10,
     debounceTime: 250,
     autoSelect: false,
 }
-type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
+export type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
     q: Ref<string>
     selectedItem: Ref<T | undefined>
     selectedIndex: Ref<number>
@@ -67,8 +54,7 @@ type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
     inputEl: Ref<(HTMLElement & { value: string }) | undefined>
     resultOffset: Ref<IOffset>
     resultStyle: Ref<IResultStyle>
-    displayItemFormatter(item: T): string
-    resultItemFormatter(item: T, q?: string): string
+    displayItemFormatter(item?: T): string
     handleInput(): void
     handleChange(): void
     handleSelect(item: T, index: number): void
@@ -83,8 +69,8 @@ type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
 }
 
 export function useAutocomplete<T = any, TKey = IDefaultKey | T>(
-    props: Props<T, TKey>,
-    { emit }: { emit: Emits<T, TKey> }
+    props: AutocompleteProps<T, TKey>,
+    { emit }: { emit: AutocompleteEmits<T, TKey> }
 ): AutocompleteOut<T, TKey> {
     const q = ref("")
     const selectedIndex = ref(-1)
@@ -118,11 +104,10 @@ export function useAutocomplete<T = any, TKey = IDefaultKey | T>(
     })
 
     const idSelector = props.idSelector || ((item?: T): TKey | undefined => item as TKey)
-    const resultItemFormatter = props.resultItemFormatter || ((item: T, _) => (item || "").toString())
-    const displayItemFormatter = props.displayItemFormatter || resultItemFormatter
+    const displayItemFormatter = props.displayItemFormatter || ((item?: T) => (item ?? "").toString())
 
     async function dataItemsSearch(term = "") {
-        return props.data?.filter((x) => (resultItemFormatter(x, q.value) as string).toLowerCase().startsWith(term.toLowerCase()))
+        return props.data?.filter((x) => displayItemFormatter(x).toLowerCase().startsWith(term.toLowerCase()))
     }
 
     async function handleSearch(term = q.value): Promise<void> {
@@ -286,7 +271,6 @@ export function useAutocomplete<T = any, TKey = IDefaultKey | T>(
         resultOffset,
         resultStyle,
         displayItemFormatter,
-        resultItemFormatter,
         handleInput,
         handleChange,
         handleSelect,

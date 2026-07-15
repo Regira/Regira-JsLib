@@ -58,7 +58,26 @@ const tabs = computed(() =>
 </script>
 <template>
     <TabContainer :tabs="tabs">
-        <!-- tab panes -->
+        <!-- one named slot per tab key: <template #form>…</template> -->
+    </TabContainer>
+</template>
+```
+
+Hash-routed tabs for a big entity form — a main `#form` tab plus related-data tabs; the hash keeps
+tabs deep-linkable and back-button friendly (disable route nav inside popups):
+
+```vue
+<script setup lang="ts">
+const props = defineProps<{ modelValue: Entity; isPopup?: boolean; initialTab?: string }>()
+const tabs = computed(() => [
+    Tab.create("form", { icon: "form", title: $t("form"), isDefault: true }),
+    Tab.create("products", { icon: "products", title: $t("products") }),
+])
+</script>
+<template>
+    <TabContainer :tabs="tabs" :active="initialTab" :use-route-nav="!isPopup">
+        <template #form><!-- the entity's own fields --></template>
+        <template #products><ProductsOverview :parent="item" /></template>
     </TabContainer>
 </template>
 ```
@@ -124,7 +143,12 @@ const service = get<IEntityService<Product>>("Product")!
         :search="(term) => service.list({ q: term })"
         :display-item-formatter="(p) => p?.$title ?? ''"
         @select="onSelect"
-    />
+    >
+        <!-- optional: custom result-item rendering (default: display string, matched term bolded) -->
+        <template #default="{ item, q }">
+            <strong>{{ item.code }}</strong> — {{ item.$title }}
+        </template>
+    </Autocomplete>
 </template>
 ```
 
@@ -139,6 +163,37 @@ import { DateInput } from "@/regira_modules/vue/ui"
 </template>
 ```
 
+## Customize the look
+
+Full guide: [ui.customize.md](ui.customize.md). The three most-used moves:
+
+```scss
+// 1) src/assets/theme.scss (imported after bootstrap + regira_modules/style.css) — app-wide re-theme
+:root {
+    --rg-accent: #7c3aed;
+    --rg-accent-bg: rgba(124, 58, 237, 0.12);
+}
+.btn-primary {
+    --bs-btn-bg: var(--rg-accent); // precompiled Bootstrap reads component-level vars, not --bs-primary
+    --bs-btn-border-color: var(--rg-accent);
+}
+.rg-modal__header {
+    border-bottom: 3px solid var(--rg-accent); // stable rg-* hooks — no ::v-deep, no !important
+}
+```
+
+```ts
+// 2) main.ts — swap EVERY modal in the app (incl. the ones inside library components) for a branded skin
+import MyBrandedModal from "@/components/ui/MyBrandedModal.vue" // implements ModalProps/ModalEmits/ModalSlots
+app.use(modalPlugin, { Modal: MyBrandedModal })
+```
+
+```bash
+# 3) eject a reference skin and restyle the copy (imports stay on public regira_modules API)
+node node_modules/regira_modules/_template/scaffold.mjs --ui list
+node node_modules/regira_modules/_template/scaffold.mjs --ui Paging
+```
+
 ## See also
 
-- [ui.instructions.md](ui.instructions.md) · [ui.signatures.md](ui.signatures.md)
+- [ui.instructions.md](ui.instructions.md) · [ui.signatures.md](ui.signatures.md) · [ui.customize.md](ui.customize.md)

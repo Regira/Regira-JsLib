@@ -4,3 +4,4 @@ export { useListInput, useListItemInput } from "./listInput";
 export { useOwnedCollection } from "./ownedCollections";
 export { useOwnedModal } from "./ownedModal";
 export { default as InputSelectorInline } from "./InputSelectorInline.vue";
+export { type InputSelectorInlineProps, type InputSelectorInlineEmits, type InputSelectorInlineSlots } from "./inputSelectorInline";

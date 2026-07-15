@@ -1,5 +1,5 @@
 <template>
-    <button :type="type" class="btn">
+    <button :type="type" class="rg-icon-button btn">
         <Icon :name="icon" :size="size" />
         <slot></slot>
     </button>

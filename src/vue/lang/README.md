@@ -15,6 +15,7 @@ global properties. Entity labels and any user-facing strings are translated thro
 | `formatText(input, formatArgs)`                    | Fill `{param}` placeholders, or pass a function to transform the string.                             |
 | `ITranslationMessages` / `ITranslationMessage`     | The dictionary and per-language message types.                                                       |
 | `IFormatInput`                                     | Interpolation args: a value map or a `(input) => string` function.                                   |
+| `LangSelector`                                     | Inline language switcher (`langs: string[]`) — show it in the header of any multilanguage app.       |
 
 ## How it fits
 

@@ -21,8 +21,12 @@ import {
     LoginModal,
     LogoutForm,
     ForgotPasswordModal,
+    ChangePasswordForm,
+    ResetPasswordForm,
     useLoginForm,
     useForgotPasswordForm,
+    useChangePasswordForm,
+    useResetPasswordForm,
 } from "regira_modules/vue/auth"
 ```
 
@@ -107,16 +111,41 @@ Both are installed automatically by the plugin and are **not exported** from `re
 - Not authenticated: sets `authRequired` and **allows navigation** (the app shows a login popup rather
   than redirecting). Define an `allowAnonymous` route for public pages and a `forbidden` route.
 
-## Login UI
+## Account UI — wire the FULL surface, shown on time
 
-Ready-made components and composables (emit `success` / `fail` / `forgotPassword` / `signingIn`):
+**When an app has authentication, build the complete account surface, not just a login form.** The
+components and composables exist for all of it — use them instead of hand-rolling:
 
-- `LoginForm`, `LoginModal` (props `username?`, `title?`, `isVisible?` — defaults on), `LogoutForm`, `ForgotPasswordModal`.
+| Concern                                 | Component                                           | Composable              |
+| --------------------------------------- | --------------------------------------------------- | ----------------------- |
+| Sign in                                 | `LoginForm` (inside `LoginModal`)                   | `useLoginForm`          |
+| Forgot password (request recovery mail) | slot into `ForgotPasswordModal`                     | `useForgotPasswordForm` |
+| Reset password (from the mail link)     | `ResetPasswordForm`                                 | `useResetPasswordForm`  |
+| Change password (signed-in user)        | `ChangePasswordForm`                                | `useChangePasswordForm` |
+| Sign out                                | `LogoutForm` (or `store.logout()` in a header menu) | —                       |
+
+- **Show the login form on time.** Gate the main content and pop the login modal immediately for
+  anonymous users — never render a dashboard an anonymous user can't do anything with:
+
+    ```vue
+    <LoadingContainer :isLoading="$appStatus != AppStatus.Ready && (!$auth.enabled || $auth.isAuthenticated)"><Main /></LoadingContainer>
+    <LoginModal v-if="showLogin" ... />
+    ```
+
+    ```ts
+    const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
+    ```
+
 - **Gate `LoginModal` with `v-if="showLogin"`** (the canonical `App.vue` does): unmounting removes the
   mask and dialog atomically. Keeping it mounted and toggling visibility can strand the leave-transition,
   leaving an invisible full-screen mask that swallows every click.
 - `useLoginForm(props, emit)` → `{ username, password, failed, signingIn, isLockedOut, handleSubmit, handleForgotPassword }`.
 - `useForgotPasswordForm(props, emit, { siteUrl, siteName? })` → `{ username, isLoading, isFormValid, isSuccess, handleSubmit }`.
+- `useChangePasswordForm(emit)` / `useResetPasswordForm({ token }, emit)` → password fields + match/validity
+  state + `handleSubmit` (see [auth.signatures.md](auth.signatures.md)).
+- All form components are plain-Bootstrap reference skins — restyle, wrap, or eject them
+  (`scaffold.mjs --ui LoginForm|ChangePasswordForm|ResetPasswordForm`); the modals render the app-wide
+  modal via `injectModal()`, so a `modalPlugin { Modal }` swap reskins them too.
 
 ## `$auth` global
 

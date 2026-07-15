@@ -1,16 +1,21 @@
 <template>
-    <div v-if="isPending || isSuccess || isFailed" class="mb-1 position-relative border h-100">
+    <div v-if="isPending || isSuccess || isFailed" class="rg-feedback mb-1 position-relative border h-100">
         <slot name="close-button" v-if="!hideCloseButton">
-            <IconButton icon="close" class="btn btn-sm position-absolute end-0 p-1" :class="{ 'text-light': isFailed }" @click="handleClose" />
+            <IconButton
+                icon="close"
+                class="rg-feedback__close-button btn btn-sm position-absolute end-0 p-1"
+                :class="{ 'text-light': isFailed }"
+                @click="handleClose"
+            />
         </slot>
         <slot name="pending" v-if="isPending">
-            <Pending :msg="message" class="px-2 py-1 border h-100" />
+            <Pending :msg="message" class="rg-feedback__pending px-2 py-1 border h-100" />
         </slot>
         <slot name="success" v-if="isSuccess">
-            <Success :msg="message" class="px-2 py-1 border h-100" />
+            <Success :msg="message" class="rg-feedback__success px-2 py-1 border h-100" />
         </slot>
         <slot name="error" v-if="isFailed">
-            <ErrorSummary :msg="message" :error="error" :enable-popup="enableErrorPopup" class="px-2 border h-100" />
+            <ErrorSummary :msg="message" :error="error" :enable-popup="enableErrorPopup" class="rg-feedback__error px-2 border h-100" />
         </slot>
     </div>
 </template>
@@ -20,23 +25,13 @@ import IconButton from "../icons/IconButton.vue"
 import Pending from "./Pending.vue"
 import Success from "./Success.vue"
 import ErrorSummary from "./ErrorSummary.vue"
-import { FeedbackStatus, type FeedbackEmits, type FeedbackOut } from "./feedback"
+import { FeedbackStatus, feedbackDefaults, type FeedbackEmits, type FeedbackProps, type FeedbackSlots } from "./feedback"
 
 import { computed } from "vue"
 
-interface Emits extends FeedbackEmits {}
-const emit = defineEmits<Emits>()
-const props = withDefaults(
-    defineProps<{
-        hideCloseButton?: boolean
-        feedback: FeedbackOut
-        enableErrorPopup?: boolean
-    }>(),
-    {
-        hideCloseButton: false,
-        enableErrorPopup: false,
-    }
-)
+const emit = defineEmits<FeedbackEmits>()
+const props = withDefaults(defineProps<FeedbackProps>(), { ...feedbackDefaults })
+defineSlots<FeedbackSlots>()
 
 const { status, message, error, reset } = props.feedback
 

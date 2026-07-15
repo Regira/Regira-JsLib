@@ -1,20 +1,13 @@
 .modal-mask {
     position: fixed;
-    z-index: 9998;
+    z-index: var(--rg-modal-z, 9998);
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--rg-backdrop, rgba(0, 0, 0, 0.5));
     display: table;
     transition: opacity 0.3s ease;
-}
-
-.modal-header {
-    &.bg-normal {
-        // background-color: rgba(0, 0, 0, 0.03);
-        background-color: rgba(0, 0, 255, 0.1);
-    }
 }
 
 .modal-wrapper {
@@ -31,8 +24,4 @@
     .modal-dialog.full-width {
         max-width: 90vw;
     }
-}
-
-.is-dragging {
-    opacity: 0.6;
 }

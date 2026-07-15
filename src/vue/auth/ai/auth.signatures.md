@@ -176,14 +176,14 @@ export const routeGuard: (args: { router: Router; store: Store & { isAuthenticat
 // reads route meta: allowAnonymous, policy(store) => boolean, permissions: string[]
 ```
 
-## Login UI
+## Account UI
 
 ```ts
 export type LoginInput = { username: string; password: string }
 
 export function useLoginForm(
-    props: { username?: string },
-    emit: ILoginEmits
+    props: LoginFormProps, // { username?: string }
+    emit: LoginFormEmits
 ): {
     username: Ref<string>
     password: Ref<string>
@@ -193,11 +193,11 @@ export function useLoginForm(
     handleSubmit: () => Promise<void>
     handleForgotPassword: () => void
 }
-// ILoginEmits: "forgotPassword" | "signingIn" | "success" | "fail", each (username?: string)
+// LoginFormEmits: "forgotPassword" | "signingIn" | "success" | "fail", each (username?: string)
 
 export function useForgotPasswordForm(
-    props: { username?: string },
-    emit: IForgotPasswordEmits,
+    props: ForgotPasswordFormProps, // { username?: string }
+    emit: ForgotPasswordFormEmits,
     options: { siteUrl: string; siteName?: string }
 ): {
     username: Ref<string>
@@ -206,11 +206,41 @@ export function useForgotPasswordForm(
     isSuccess: Ref<boolean | undefined>
     handleSubmit: () => Promise<void>
 }
-// IForgotPasswordEmits: "success" | "fail" | "login"
+// ForgotPasswordFormEmits: "success" | "fail" | "login"
 
-// Components (default exports): LoginForm, LoginModal, LogoutForm, ForgotPasswordModal
-// LoginForm/LoginModal props: { username?: string; signingIn?: boolean } / { username?; title? }
-//   emits: success | forgotPassword | signingIn | fail   (each username?: string)
+export function useChangePasswordForm(emit: ChangePasswordFormEmits): {
+    currentPassword: Ref<string>
+    newPassword: Ref<string>
+    confirmPassword: Ref<string>
+    isLoading: Ref<boolean>
+    isSuccess: Ref<boolean | undefined>
+    passwordsMatch: ComputedRef<boolean>
+    isFormValid: ComputedRef<boolean>
+    handleSubmit: () => Promise<void>
+}
+// ChangePasswordFormEmits: "success" | "fail"
+
+export function useResetPasswordForm(
+    props: ResetPasswordFormProps, // { token: string } — the reset token from the recovery link
+    emit: ResetPasswordFormEmits
+): {
+    password: Ref<string>
+    confirmPassword: Ref<string>
+    isLoading: Ref<boolean>
+    isSuccess: Ref<boolean | undefined>
+    passwordsMatch: ComputedRef<boolean>
+    isFormValid: ComputedRef<boolean>
+    handleSubmit: () => Promise<void>
+}
+// ResetPasswordFormEmits: "success" | "fail" | "login"
+
+// Components (default exports): LoginForm, LoginModal, LogoutForm, ForgotPasswordModal,
+//                                ChangePasswordForm, ResetPasswordForm
+// LoginForm props: LoginFormProps { username?: string } ; emits: LoginFormEmits
+// LoginModal props: LoginModalProps { username?; title?; isVisible? } ; slots: default{ username } (replace the form)
+// ForgotPasswordModal props: ForgotPasswordModalProps { username?; isVisible? } ; slots: default{ username }
+// ChangePasswordForm emits: ChangePasswordFormEmits ; ResetPasswordForm props: ResetPasswordFormProps, emits: ResetPasswordFormEmits
+// LoginModal/ForgotPasswordModal render the app-wide modal via injectModal() — a modalPlugin { Modal } swap reskins them too
 ```
 
 ## See also

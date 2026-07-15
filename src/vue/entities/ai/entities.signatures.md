@@ -497,6 +497,7 @@ import { InputSelectorInline } from "regira_modules/vue/entities"
 //            excludeKey?: (row: T) => number | undefined }          // related id per row → feeds the #selector `exclude`
 //   slots: chip({ row }), selector({ add, exclude })                // add: (row: T) => void; exclude: number[] (every current row, marked ones included)
 //   emits: "add" (row: T) | "remove" (row: T) | "update:modelValue" (value: T[] | undefined)
+//   contract types (for a replacement skin): InputSelectorInlineProps<T> / InputSelectorInlineEmits<T> / InputSelectorInlineSlots<T>
 ```
 
 ---
@@ -661,17 +662,21 @@ Generic, service-driven components for the lean tier (see
 they run without plugins, stores, or routes.
 
 ```ts
-import { EntityOverview, EntityForm } from "regira_modules/vue/entities"
+import { EntityOverview, EntityForm, useLeanOverview, useLeanForm, leanOverviewDefaults } from "regira_modules/vue/entities"
 
 // EntityOverview — list + built-in server paging + delete
-//   props:   { service: IEntityService<T>; query?: Record<string, any>; pageSize?: number }   // pageSize default 10
-//   slots:   toolbar({ reload, setPage }), head(), row({ item, remove, reload }), paging({ page, pageCount, count, setPage })
+//   props:   LeanOverviewProps<T> = { service: IEntityService<T>; query?: Record<string, any>; pageSize?: number }   // pageSize default 10
+//   slots:   LeanOverviewSlots<T> = toolbar({ reload, setPage }), head(), row({ item, remove, reload }), paging({ page, pageCount, count, setPage })
 //   exposes: { reload(): Promise<void>; setPage(p): Promise<void> }       // search({ ...query, page, pageSize })
 
 // EntityForm — create ("new") / edit one item
-//   props: { service: IEntityService<T>; id: string | number }
-//   slots: default({ item })                                              // item from newEntity() or details(id)
-//   emits: "saved" (item: T) | "cancel"                                   // save() result is the `saved` field
+//   props: LeanFormProps<T> = { service: IEntityService<T>; id: string | number }
+//   slots: LeanFormSlots<T> = default({ item })                           // item from newEntity() or details(id)
+//   emits: LeanFormEmits<T> = "saved" (item: T) | "cancel"                // save() result is the `saved` field
+
+// behavior for replacement skins (reload-on-mount, page clamping, remove; load/save + double-submit guard):
+export function useLeanOverview<T extends IEntity>(props: LeanOverviewProps<T>): LeanOverviewOut<T> // { items, count, page, pageCount, reload, setPage, remove }
+export function useLeanForm<T extends IEntity>(props: LeanFormProps<T>, { emit }): LeanFormOut<T> // { item, saving, submit }
 ```
 
 ---

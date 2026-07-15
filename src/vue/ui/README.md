@@ -6,19 +6,19 @@ form inputs, and responsive layout.
 
 ## Areas
 
-| Area         | Components                                                                                                                                                            | Programmatic                                      |
-| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`    |
-| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                   |
-| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin` |
-| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`                        |
-| tabs         | `TabContainer`                                                                                                                                                        | `Tab` / `ITab`                                    |
-| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`                         |
-| screen       | —                                                                                                                                                                     | `useScreen`, `screenPlugin`                       |
-| autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`                                 |
-| buttons      | `ConfirmButton`                                                                                                                                                       | —                                                 |
-| input        | `Anchor`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                 |
-| gis          | `GMap`, `GMapLink`, `GMapButton` (Google Maps)                                                                                                                        | —                                                 |
+| Area         | Components                                                                                                                                                            | Programmatic                                                |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| paging       | `Paging`, `ResultSummary`                                                                                                                                             | `usePaging`, `pagingDefaults`, `ButtonType`, `pagingPlugin` |
+| loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                             |
+| feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`           |
+| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`, `injectModal`                   |
+| tabs         | `TabContainer`, `TabNavigation`                                                                                                                                       | `Tab` / `ITab`                                              |
+| icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`                                   |
+| screen       | —                                                                                                                                                                     | `useScreen`, `screenPlugin`                                 |
+| autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`                                           |
+| buttons      | `ConfirmButton`                                                                                                                                                       | —                                                           |
+| input        | `Anchor`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                           |
+| gis          | `GMap`, `GMapLink`, `GMapButton` (Google Maps)                                                                                                                        | —                                                           |
 
 ## Plugins & imports
 
@@ -48,6 +48,21 @@ glyph **font CSS** (`bootstrap-icons`/Font Awesome) must be imported separately.
 friendly key or a raw icon class. Most-used in entity UIs: `Paging`, `LoadingContainer`, `Feedback`,
 `TabContainer` + `Tab.create`, `Icon`, and `useScreen`.
 
+## Customizing the look
+
+The default styling is deliberately plain Bootstrap 5 — restyling is encouraged and expected. Five
+layers, cheapest first (canonical guide: [ai/ui.customize.md](ai/ui.customize.md)):
+
+1. **Theme tokens** — override the `--rg-*` CSS variables (+ Bootstrap component-level vars) in the
+   app's `theme.scss`, loaded after `regira_modules/style.css`.
+2. **CSS hooks** — every component carries stable `rg-*` root/part classes and `is-*` state classes.
+3. **Slots** — typed via each component's exported `XxxSlots`.
+4. **Replace the skin** — a new SFC declaring the exported contract (`XxxProps`/`XxxEmits`/`XxxSlots`)
+   with behavior from the exported `useXxx` composable; the modal swaps app-wide via
+   `app.use(modalPlugin, { Modal })` — every library-internal modal resolves it through `injectModal()`.
+5. **Eject** — `node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>` copies the
+   reference skin into the app, imports rewritten to public API.
+
 ## Notes
 
 - The barrel `regira_modules/vue/ui` re-exports everything; `feedback`, `icons`, and `modal` also have
@@ -60,5 +75,6 @@ friendly key or a raw icon class. Most-used in entity UIs: `Paging`, `LoadingCon
 
 Exact signatures, component props, and worked examples are in the AI guides:
 [ai/ui.instructions.md](ai/ui.instructions.md), [ai/ui.signatures.md](ai/ui.signatures.md),
-[ai/ui.examples.md](ai/ui.examples.md) — also served by the Regira MCP server as `regira_modules.vue.ui`
-(use `list_types` / `get_type` for any component prop not in the guides).
+[ai/ui.examples.md](ai/ui.examples.md), [ai/ui.customize.md](ai/ui.customize.md) — also served by the
+Regira MCP server as `regira_modules.vue.ui` (use `list_types` / `get_type` for any component prop not
+in the guides).

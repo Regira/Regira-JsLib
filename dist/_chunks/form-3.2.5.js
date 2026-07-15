@@ -1,21 +1,20 @@
 import { F as e, _ as t } from "./array-utility-3.2.5.js";
 import { useVModelField as n } from "../vue/vue-helper.js";
 import { t as r } from "./IconButton-3.2.5.js";
-import { t as i } from "./_plugin-vue_export-helper-3.2.5.js";
-import { isNewEntity as a } from "../vue/entities/abstractions/IEntity.js";
+import { isNewEntity as i } from "../vue/entities/abstractions/IEntity.js";
 import "./abstractions-3.2.5.js";
-import { i as o } from "./feedback-3.2.5.js";
-import { Fragment as s, computed as c, createElementBlock as l, createElementVNode as u, createVNode as d, defineComponent as f, getCurrentInstance as p, guardReactiveProps as m, mergeModels as h, mergeProps as g, normalizeClass as _, normalizeProps as v, onMounted as y, openBlock as b, ref as x, renderList as S, renderSlot as C, unref as w, useModel as T, watch as E } from "vue";
-import { useRouter as D } from "vue-router";
+import { a } from "./feedback-3.2.5.js";
+import { Fragment as o, computed as s, createElementBlock as c, createElementVNode as l, createVNode as u, defineComponent as d, getCurrentInstance as f, guardReactiveProps as p, mergeModels as m, mergeProps as h, normalizeClass as g, normalizeProps as _, onMounted as v, openBlock as y, ref as b, renderList as x, renderSlot as S, unref as C, useModel as w, watch as T } from "vue";
+import { useRouter as E } from "vue-router";
 //#region src/vue/entities/form/form.ts
-var O = /* @__PURE__ */ function(e) {
+var D = /* @__PURE__ */ function(e) {
 	return e.pending = "Pending", e.saved = "Saved", e.removed = "Removed", e.error = "Error", e;
-}({}), k = {
+}({}), O = {
 	readonly: !1,
 	isPopup: !1
 };
-function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
-	let { readonly: a, isPopup: s } = n, c = x(n.modelValue), l = x();
+function k({ entityService: t, props: n, emit: r, feedback: i = a() }) {
+	let { readonly: o, isPopup: s } = n, c = b(n.modelValue), l = b();
 	function u() {
 		r("cancel", {
 			canceled: c.value,
@@ -23,11 +22,11 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 		}), c.value = t.toEntity(e(l.value));
 	}
 	function d() {
-		if (a) throw i.fail("Readonly"), Error("Readonly");
+		if (o) throw i.fail("Readonly"), Error("Readonly");
 	}
-	let f = D();
+	let f = E();
 	async function p() {
-		d(), r("changeState", O.pending);
+		d(), r("changeState", "Pending");
 		try {
 			i.pending("Saving...");
 			let { saved: n, isNew: a } = await t.save(c.value);
@@ -51,13 +50,13 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 		} catch (e) {
 			console.error("Saving failed", { ex: e });
 			let t = e, n = t.response?.status;
-			throw n == 400 ? i.fail("Saving failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Server error", t.response?.data?.message || t.message), r("changeState", O.error), e;
+			throw n == 400 ? i.fail("Saving failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Server error", t.response?.data?.message || t.message), r("changeState", "Error"), e;
 		} finally {
-			r("changeState", O.saved);
+			r("changeState", "Saved");
 		}
 	}
 	async function m() {
-		d(), r("changeState", O.pending);
+		d(), r("changeState", "Pending");
 		try {
 			i.pending("Deleting..."), await t.remove(c.value), i.success("Deleted"), r("remove", c.value);
 		} catch (e) {
@@ -66,14 +65,14 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 				ex: e
 			});
 			let t = e, n = t.response?.status;
-			n == 400 ? i.fail("Deleting failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Deleting failed", t.response?.data?.message || t.message), r("changeState", O.error);
+			n == 400 ? i.fail("Deleting failed", t.response?.data?.errors) : n == 404 ? i.fail("Item not found", t.response?.data?.message || t.message) : i.fail("Deleting failed", t.response?.data?.message || t.message), r("changeState", "Error");
 		} finally {
-			r("changeState", O.removed);
+			r("changeState", "Removed");
 		}
 	}
 	async function h() {
 		let n = t.toEntity(e(c.value));
-		n.isArchived = !1, r("changeState", O.pending);
+		n.isArchived = !1, r("changeState", "Pending");
 		try {
 			i.pending("Restoring...");
 			let { saved: a, isNew: o } = await t.save(n);
@@ -87,14 +86,14 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 				ex: e
 			});
 			let t = e;
-			throw i.fail("Restoring failed", t.response?.data?.errors), r("changeState", O.error), e;
+			throw i.fail("Restoring failed", t.response?.data?.errors), r("changeState", "Error"), e;
 		} finally {
-			r("changeState", O.saved);
+			r("changeState", "Saved");
 		}
 	}
-	return E(() => n.modelValue, () => {
+	return T(() => n.modelValue, () => {
 		c.value = n.modelValue, l.value = t.toEntity(e(c.value));
-	}), y(() => {
+	}), v(() => {
 		l.value = t.toEntity(e(c.value));
 	}), {
 		item: c,
@@ -108,12 +107,12 @@ function A({ entityService: t, props: n, emit: r, feedback: i = o() }) {
 }
 //#endregion
 //#region src/vue/entities/form/modal.ts
-var j = {
+var A = {
 	closeOnSave: !1,
 	closeOnDelete: !0
 };
-function M({ entityService: t, model: n, itemDefaults: r, closeOnSave: i, closeOnCancel: o, closeOnDelete: s, emit: c, feedback: l }) {
-	let u = x(!1), d = x(), f = p();
+function j({ entityService: t, model: n, itemDefaults: r, closeOnSave: a, closeOnCancel: o, closeOnDelete: s, emit: c, feedback: l }) {
+	let u = b(!1), d = b(), p = f();
 	function m(e) {
 		d.value = e;
 	}
@@ -121,16 +120,16 @@ function M({ entityService: t, model: n, itemDefaults: r, closeOnSave: i, closeO
 		c("close", d.value), u.value = !1;
 	}
 	async function g() {
-		let i = n.value;
+		let a = n.value;
 		try {
-			let n = typeof r == "function" ? {} : e(w(r) || {});
-			i ??= await t.newEntity(n), i?.$id || (i = t.toEntity(i || n)), t != null && !a(i.$id) && (i = await t.details(i.$id) || i), typeof r == "function" && (i = await r(i)), d.value = i, u.value = !0, c("open", d.value, m);
+			let n = typeof r == "function" ? {} : e(C(r) || {});
+			a ??= await t.newEntity(n), a?.$id || (a = t.toEntity(a || n)), t != null && !i(a.$id) && (a = await t.details(a.$id) || a), typeof r == "function" && (a = await r(a)), d.value = a, u.value = !0, c("open", d.value, m);
 		} catch (e) {
 			console.error("Fetching details failed", {
-				id: i?.$id,
+				id: a?.$id,
 				ex: e,
-				app: f
-			}), l ||= f?.appContext.config.globalProperties.$feedback, l.fail(`Fetching ${i?.$title || "item #" + i?.$id} failed`, e.response.status == 403 ? "Not allowed" : e.response?.data);
+				app: p
+			}), l ||= p?.appContext.config.globalProperties.$feedback, l.fail(`Fetching ${a?.$title || "item #" + a?.$id} failed`, e.response.status == 403 ? "Not allowed" : e.response?.data);
 		}
 	}
 	function _(e) {
@@ -140,7 +139,7 @@ function M({ entityService: t, model: n, itemDefaults: r, closeOnSave: i, closeO
 		c("save", {
 			saved: e,
 			isNew: t
-		}), c("update:modelValue", e), i && h();
+		}), c("update:modelValue", e), a && h();
 	}
 	function y() {
 		c("remove", d.value), s && h();
@@ -156,11 +155,11 @@ function M({ entityService: t, model: n, itemDefaults: r, closeOnSave: i, closeO
 		handleCancel: _
 	};
 }
-var N = M;
+var M = j;
 //#endregion
 //#region src/vue/entities/form/listInput.ts
-function P({ props: e, emit: r }) {
-	let i = n(e, r), a = x({ id: 0 }), o = (e) => {
+function N({ props: e, emit: r }) {
+	let i = n(e, r), a = b({ id: 0 }), o = (e) => {
 		r("sort", e);
 	};
 	function s({ saved: e, isNew: n }) {
@@ -173,7 +172,7 @@ function P({ props: e, emit: r }) {
 		handleSave: s
 	};
 }
-function F({ props: e, emit: t }) {
+function P({ props: e, emit: t }) {
 	let r = n(e, t);
 	function i() {
 		t("save", {
@@ -192,8 +191,8 @@ function F({ props: e, emit: t }) {
 }
 //#endregion
 //#region src/vue/entities/form/ownedCollections.ts
-function I({ props: e, emit: r }) {
-	let i = n(e, r), a = () => ({ id: 0 }), o = x();
+function F({ props: e, emit: r }) {
+	let i = n(e, r), a = () => ({ id: 0 }), o = b();
 	async function s() {
 		o.value = a();
 	}
@@ -203,7 +202,7 @@ function I({ props: e, emit: r }) {
 	function l({ saved: e, isNew: n }) {
 		n && (e.id = Math.min(t(i.value, (e) => e.id) ?? 0, 0) - 1, i.value = i.value.concat([e]), s());
 	}
-	return E(() => e.modelValue, () => i.value = e.modelValue || []), y(async () => {
+	return T(() => e.modelValue, () => i.value = e.modelValue || []), v(async () => {
 		i.value = e.modelValue || [], await s();
 	}), {
 		items: i,
@@ -215,10 +214,10 @@ function I({ props: e, emit: r }) {
 }
 //#endregion
 //#region src/vue/entities/form/ownedModal.ts
-function L(t, { props: n, emit: r }) {
-	let i = x(n.modelValue || { id: 0 }), a = x(!1);
+function I(t, { props: n, emit: r }) {
+	let i = b(n.modelValue || { id: 0 }), a = b(!1);
 	function o() {
-		let r = n.modelValue || {}, o = e(w(n.itemDefaults || {}));
+		let r = n.modelValue || {}, o = e(C(n.itemDefaults || {}));
 		i.value = Object.assign(new t(), {
 			...r,
 			...o
@@ -243,37 +242,37 @@ function L(t, { props: n, emit: r }) {
 }
 //#endregion
 //#region src/vue/entities/form/InputSelectorInline.vue?vue&type=script&setup=true&lang.ts
-var R = { class: "input-selector-inline row align-items-center" }, z = { class: "col-auto mb-2" }, B = /* @__PURE__ */ i(/* @__PURE__ */ f({
+var L = { class: "input-selector-inline row align-items-center" }, R = { class: "col-auto mb-2" }, z = /* @__PURE__ */ d({
 	__name: "InputSelectorInline",
-	props: /* @__PURE__ */ h({
+	props: /*@__PURE__*/ m({
 		rowKey: { type: Function },
 		excludeKey: { type: Function }
 	}, {
 		modelValue: {},
 		modelModifiers: {}
 	}),
-	emits: /* @__PURE__ */ h(["remove", "add"], ["update:modelValue"]),
+	emits: /*@__PURE__*/ m(["remove", "add"], ["update:modelValue"]),
 	setup(e, { emit: t }) {
-		let n = T(e, "modelValue"), i = e, a = t, o = c(() => (n.value ?? []).map((e) => i.excludeKey?.(e)).filter((e) => e != null));
+		let n = w(e, "modelValue"), i = e, a = t, d = s(() => (n.value ?? []).map((e) => i.excludeKey?.(e)).filter((e) => e != null));
 		function f(e) {
 			e._deleted = !e._deleted, a("remove", e);
 		}
-		function p(e) {
+		function m(e) {
 			n.value = [...n.value ?? [], e], a("add", e);
 		}
-		return (t, i) => (b(), l("div", R, [(b(!0), l(s, null, S(n.value ?? [], (n, i) => (b(), l("div", {
+		return (t, i) => (y(), c("div", L, [(y(!0), c(o, null, x(n.value ?? [], (n, i) => (y(), c("div", {
 			key: e.rowKey?.(n) ?? i,
 			class: "col-auto mb-2 pe-0"
-		}, [u("div", { class: _(["form-control p-0 d-inline-flex align-items-center", { "is-deleted": n._deleted }]) }, [C(t.$slots, "chip", g({ ref_for: !0 }, { row: n }), void 0, !0), d(r, {
+		}, [l("div", { class: g(["form-control p-0 d-inline-flex align-items-center", { "is-deleted": n._deleted }]) }, [S(t.$slots, "chip", h({ ref_for: !0 }, { row: n })), u(r, {
 			icon: "delete",
 			class: "btn-outline-danger border-0",
 			title: n._deleted ? "restore" : "remove",
 			onClick: (e) => f(n)
-		}, null, 8, ["title", "onClick"])], 2)]))), 128)), u("div", z, [C(t.$slots, "selector", v(m({
-			add: p,
-			exclude: o.value
-		})), void 0, !0)])]));
+		}, null, 8, ["title", "onClick"])], 2)]))), 128)), l("div", R, [S(t.$slots, "selector", _(p({
+			add: m,
+			exclude: d.value
+		})))])]));
 	}
-}), [["__scopeId", "data-v-e770f37f"]]);
+});
 //#endregion
-export { F as a, O as c, P as i, k as l, L as n, j as o, I as r, N as s, B as t, A as u };
+export { P as a, D as c, N as i, O as l, I as n, A as o, F as r, M as s, z as t, k as u };

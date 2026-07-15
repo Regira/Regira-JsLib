@@ -1,4 +1,13 @@
-export { ButtonType, pagingDefaults } from "./paging"
+export {
+    default as usePaging,
+    ButtonType,
+    pagingDefaults,
+    type PagingProps,
+    type PagingEmits,
+    type PagingSlots,
+    type ResultSummaryProps,
+    type ResultSummarySlots,
+} from "./paging"
 export { default as Paging } from "./Paging.vue"
 export { default as ResultSummary } from "./ResultSummary.vue"
 

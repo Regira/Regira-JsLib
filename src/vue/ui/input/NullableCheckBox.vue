@@ -1,5 +1,5 @@
 <template>
-    <input type="checkbox" ref="input" @click="handleChange" :true-value="true" :checked="cbValue" :style="style" />
+    <input type="checkbox" class="rg-nullable-checkbox" ref="input" @click="handleChange" :true-value="true" :checked="cbValue" :style="style" />
 </template>
 
 <script lang="ts">
@@ -10,16 +10,12 @@ export default {
 
 <script setup lang="ts">
 import { ref, computed, watchEffect } from "vue"
+import type { NullableCheckBoxProps, NullableCheckBoxEmits } from "./inputs"
 
 type ValueType = boolean | undefined
 
-const emit = defineEmits<{
-    (e: "update:modelValue", modelValue?: ValueType): void
-    (e: "change", arg: { target: HTMLInputElement }): void
-}>()
-const props = defineProps<{
-    modelValue?: ValueType | string | number
-}>()
+const emit = defineEmits<NullableCheckBoxEmits>()
+const props = defineProps<NullableCheckBoxProps>()
 
 const input = ref<HTMLInputElement>(null!)
 const getValue = (v: ValueType | string | number): ValueType => {

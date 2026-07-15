@@ -1,15 +1,15 @@
 <template>
-    <div @drop.prevent="handleDrop" @dragover.prevent="isDropping = true" @dragleave.prevent="isDropping = false">
+    <div class="rg-file-drop-zone" @drop.prevent="handleDrop" @dragover.prevent="isDropping = true" @dragleave.prevent="isDropping = false">
         <slot :isDropping="isDropping"></slot>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
+import type { FileDropZoneEmits, FileDropZoneSlots } from "./fileDropZone"
 
-const emit = defineEmits<{
-    (e: "drop-files", files: Array<Blob>): void
-}>()
+const emit = defineEmits<FileDropZoneEmits>()
+defineSlots<FileDropZoneSlots>()
 
 const isDropping = ref<boolean>()
 

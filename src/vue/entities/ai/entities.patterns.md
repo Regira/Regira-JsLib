@@ -348,15 +348,15 @@ not `service.search`) and bind the picked list — same model, richer control.
 
 **This is the blessed end-to-end pattern for every collection edited inside a parent's form** (order
 lines, join rows, shares/members). One decision on the back-end drives the whole chain — decide it
-*before* scaffolding (`Regira.Entities` → `entities.instructions` → Step 0):
+_before_ scaffolding (`Regira.Entities` → `entities.instructions` → Step 0):
 
-| Layer      | Piece                                                                                                     |
-| ---------- | ---------------------------------------------------------------------------------------------------------- |
-| back-end   | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot  |
-| contract   | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together |
-| form       | **`InputSelectorInline`** chips (below); heavier per-row editing → `useOwnedCollection` / `useOwnedModal` |
-| removal    | mark `_deleted` (visible, undoable) — never splice, never per-row `DELETE` calls                          |
-| service    | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission          |
+| Layer    | Piece                                                                                                     |
+| -------- | --------------------------------------------------------------------------------------------------------- |
+| back-end | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot  |
+| contract | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together |
+| form     | **`InputSelectorInline`** chips (below); heavier per-row editing → `useOwnedCollection` / `useOwnedModal` |
+| removal  | mark `_deleted` (visible, undoable) — never splice, never per-row `DELETE` calls                          |
+| service  | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission          |
 
 For rows only ever edited inside the parent's form, modelling them first-class instead (own
 service/routes, separate `DELETE` flushes) is the classic expensive rework — the parent's `Related()`
@@ -397,6 +397,7 @@ Four numbered steps, one per layer:
     ```
 
     The chip embeds the related entity's `FormModalButton`, so every linked row is also an edit affordance.
+
 3. **Purge on save** — the `prepareItem` override from [Transient client-only fields](#transient-client-only-fields)
    filters `_deleted` rows per collection; `Related()` then deletes by omission. Purge **every nesting
    level** that carries the flag:
@@ -441,7 +442,8 @@ const { items, newItem, handleSave } = useOwnedCollection<OrderLine>({ props, em
         <div class="col-3"><input type="number" v-model.number="row.quantity" class="form-control" /></div>
         <button type="button" class="btn btn-outline-danger" @click="row._deleted = !row._deleted">×</button>
     </div>
-    <div v-if="newItem" class="row"><!-- add-row -->
+    <div v-if="newItem" class="row">
+        <!-- add-row -->
         <div class="col"><input v-model="newItem.description" class="form-control" @keyup.enter="handleSave({ saved: newItem, isNew: true })" /></div>
         <button type="button" class="btn btn-success" @click="handleSave({ saved: newItem, isNew: true })">+</button>
     </div>
@@ -545,8 +547,14 @@ const fieldError = (name: string) => errors.value[name] ?? (typeof feedback.erro
 
 ## Tabbed forms
 
-Split a heavy form into tabs with `TabContainer` (global from `vue/ui`); the scaffolded `Form.vue` already
-exposes `initialTab` / `isPopup` for it. Pass `Tab.create(key, { icon, title, isDefault?, isDisabled? })` entries
+<!-- how_to: key=split-form-into-tabs aliases=tab,tabs,tabbed,form,hash,route,related,children,split,big,heavy -->
+
+**Default to tabs as soon as an entity form grows beyond a handful of fields or gains related data**
+(owned children, links, trees, attachments): a main `#form` tab keeps the entity's own fields simple,
+and each related collection gets its own tab — useful context without one endless page.
+
+Split the form with `TabContainer` (from `vue/ui`); the scaffolded `Form.vue` already exposes
+`initialTab` / `isPopup` for it. Pass `Tab.create(key, { icon, title, isDefault?, isDisabled? })` entries
 and one `<template #key>` per tab. Always pass `:use-route-nav="!isPopup"` — the prop defaults to `false`, so
 without it a refresh silently drops back to the first tab; with it the active tab mirrors to the URL hash
 (deep-linkable, back-button aware). Returning `null` from the list drops a tab responsively:
@@ -580,18 +588,37 @@ Worked example: the `Vehicle` slice in [entities.advanced.example.md](entities.a
 ## Restyling & overriding the built-ins
 
 The library's default styling is **deliberately plain — improving it is encouraged and expected.** Restyle
-and restructure markup freely; what you preserve is the *wiring* (composables, events, `_deleted` marking,
-modal teleport), never the look. Three sanctioned override levels:
+and restructure markup freely; what you preserve is the _contract_ (props/emits/slots, composable wiring,
+`_deleted` marking, modal teleport, `rg-*`/`is-*` hooks, responsive behavior), never the look. The
+canonical guide is the ui module's [ui.customize.md](../../ui/ai/ui.customize.md) — five layers,
+cheapest first:
 
-- **CSS only** — global SCSS loaded after the library css. Useful hooks: `.is-deleted` (pending-delete tint,
-  incl. inside `InputSelectorInline`), `.is-selected`, a sticky `.form-buttons` toolbar
-  (`position: sticky; top: 0`), `.form-section` framing. No component changes needed.
-- **Wrap a component** — e.g. a local `FormButtonsRow.vue` that renders the library one with translated
-  labels (`$t`) and a `busy` guard off `feedback.status`, then import the wrapper everywhere. Same
-  props/events, richer skin.
-- **Replace the app-wide modal** — `useModal`/`FormModalButton` render the `MyModal` component the modal
-  plugin registered; inject your own: `app.use(modalPlugin, { DefaultModal: MyBrandedModal })` (same
-  props/slots contract as `DefaultModal`). One line restyles every modal in the app.
+<!-- how_to: key=re-theme-the-app aliases=theme,theming,restyle,css,colors,accent,brand,branding,tokens,scss,bootstrap -->
+
+- **L0 — theme tokens** — the app's `src/assets/theme.scss` (imported in `main.ts` **after** bootstrap
+  and `regira_modules/style.css`) overrides the `--rg-*` tokens (`--rg-accent-bg`, `--rg-deleted-bg`,
+  backdrop, z-indexes) and Bootstrap's **component-level** vars. Precompiled Bootstrap 5.3 bakes its
+  colors into per-component vars, so re-theme like `.btn-primary { --bs-btn-bg: var(--rg-accent); }` —
+  overriding `:root { --bs-primary }` alone recolors almost nothing.
+- **L1 — CSS only** — stable class hooks, no component changes: `rg-modal__header`, `rg-paging__page`,
+  `.is-deleted` (pending-delete tint, incl. inside `InputSelectorInline`), `.is-selected`, a sticky
+  `.form-buttons` toolbar (`position: sticky; top: 0`), `.form-section` framing.
+- **L2 — slots / wrap** — fill the typed slots, or wrap: e.g. a local `FormButtonsRow.vue` that renders
+  the library one with translated labels (`$t`), then import the wrapper everywhere. Same props/events,
+  richer skin.
+
+<!-- how_to: key=reskin-a-built-in-component aliases=reskin,replace,skin,markup,eject,scaffold,component,custom,modal,branded -->
+
+- **L3 — replace the skin** — a new SFC declaring the exported contract
+  (`defineProps<XxxProps>`/`defineEmits<XxxEmits>`/`defineSlots<XxxSlots>`) with behavior from the
+  exported `useXxx` composable; `vue-tsc` checks the fit. The modal swaps **app-wide** —
+  `app.use(modalPlugin, { Modal: MyBrandedModal })` reaches every modal, including the ones inside
+  library components (`ConfirmButton`, `ErrorSummary`, `LoginModal`, `useModal`/`FormModalButton` flows).
+- **L4 — eject the reference** — `node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>`
+  (`--ui list` shows what's available) copies the shipped skin into `src/components/ui/` with imports
+  rewritten to public `regira_modules/...` API; restyle the copy freely and keep the checklist in
+  [ui.customize.md](../../ui/ai/ui.customize.md) (contract, `rg-*` hooks, **responsive unless the user
+  asks otherwise**).
 
 ## Hierarchical (tree) entities
 

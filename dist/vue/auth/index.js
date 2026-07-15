@@ -1,11 +1,11 @@
 import { startsWith as e } from "../../utilities/string-utility.js";
 import { t } from "../../_chunks/query-3.2.5.js";
-import { t as n } from "../../_chunks/DefaultModal-3.2.5.js";
-import { computed as r, createBlock as i, createCommentVNode as a, createElementBlock as o, createElementVNode as s, createTextVNode as c, createVNode as l, defineComponent as u, guardReactiveProps as d, isRef as f, normalizeProps as p, openBlock as m, ref as h, renderSlot as g, toDisplayString as _, unref as v, vModelText as y, watch as b, withCtx as x, withDirectives as S, withModifiers as C } from "vue";
-import { defineStore as w } from "pinia";
-import { useRouter as T } from "vue-router";
+import { n } from "../../_chunks/modal-3.2.5.js";
+import { computed as r, createBlock as i, createCommentVNode as a, createElementBlock as o, createElementVNode as s, createTextVNode as c, createVNode as l, defineComponent as u, guardReactiveProps as d, isRef as f, normalizeClass as p, normalizeProps as m, openBlock as h, ref as g, renderSlot as _, resolveDynamicComponent as v, toDisplayString as y, unref as b, vModelText as x, watch as S, withCtx as C, withDirectives as w, withModifiers as T } from "vue";
+import { defineStore as E } from "pinia";
+import { useRouter as D } from "vue-router";
 //#region src/vue/auth/AuthData.ts
-var E = class {
+var O = class {
 	_decodedToken;
 	isAuthenticated;
 	expires;
@@ -28,13 +28,15 @@ var E = class {
 	hasPermission(e) {
 		return this.hasClaim("permissions", e);
 	}
-}, D = () => new E(), O = class {
+}, k = () => new O(), A = class {
+	axios;
+	tokenManager;
 	options;
 	constructor(e, t, n) {
 		this.axios = e, this.tokenManager = t, this.options = n || {};
 	}
 	authenticate({ token: e, isAuthenticated: t }) {
-		return t ? (this.tokenManager.token = e, new E(e, { isAuthenticated: t })) : (this.tokenManager.token = void 0, D());
+		return t ? (this.tokenManager.token = e, new O(e, { isAuthenticated: t })) : (this.tokenManager.token = void 0, k());
 	}
 	async login(e, t) {
 		let n = this.options?.loginUrl || "auth", r = await this.axios.post(n, {
@@ -64,7 +66,7 @@ var E = class {
 				token: this.tokenManager.token
 			}), e.response && e.response.status === 401 && (this.tokenManager.token = void 0);
 		}
-		return D();
+		return k();
 	}
 	logout() {
 		this.tokenManager.token = void 0;
@@ -78,7 +80,7 @@ var E = class {
 	async resetPassword(e) {
 		await this.axios.post("auth/password/reset", e);
 	}
-}, k = ({ router: e, store: t }) => {
+}, j = ({ router: e, store: t }) => {
 	e.beforeEach((e, n) => {
 		if (e.meta && e.meta.allowAnonymous) return !0;
 		if (t.isAuthenticated) {
@@ -95,7 +97,8 @@ var E = class {
 		}
 		return t.$patch({ authRequired: !0 }), !0;
 	});
-}, A = "auth:token", j = class {
+}, M = "auth:token", ee = class {
+	prefix;
 	constructor(e = "") {
 		this.prefix = e;
 	}
@@ -106,9 +109,10 @@ var E = class {
 		e == null ? document.cookie = `${this.fullKey}=;expires=${/* @__PURE__ */ new Date() - 1}; path=/;` : document.cookie = `${this.fullKey}=${e}; path=/;`;
 	}
 	get fullKey() {
-		return this.prefix + A;
+		return this.prefix + M;
 	}
-}, ee = class {
+}, te = class {
+	_token;
 	constructor(e) {
 		this._token = e;
 	}
@@ -118,7 +122,8 @@ var E = class {
 	set token(e) {
 		this._token = e;
 	}
-}, M = class {
+}, ne = class {
+	prefix;
 	constructor(e = "") {
 		this.prefix = e;
 	}
@@ -129,42 +134,42 @@ var E = class {
 		e ? localStorage.setItem(this.fullKey, e) : localStorage.removeItem(this.fullKey);
 	}
 	get fullKey() {
-		return this.prefix + A;
+		return this.prefix + M;
 	}
 }, N;
-function te(e) {
+function P(e) {
 	let { enabled: t, tokenManager: n, axios: r, clientApp: i, loginUrl: a } = e;
 	return N = {
 		enabled: t,
 		clientApp: i,
 		tokenManager: n,
-		service: new O(r, n, {
+		service: new A(r, n, {
 			clientApp: i,
 			loginUrl: a
 		})
 	}, N;
 }
-var P = () => N, F = "Auth";
-function I() {
-	let e = h(!0), t = h(), n = h(D()), i = h(!1), a = T(), o = r(() => e.value && !a.currentRoute.value?.meta?.allowAnonymous), s = r(() => !!n.value.isAuthenticated), c = r(() => n.value?.displayName), l = r(() => (e) => n.value.get(e)), u = r(() => (e, t) => n.value?.hasClaim(e, t) ?? !1), d = r(() => (e) => n.value?.hasPermission(e) ?? !1);
+var F = () => N, I = "Auth";
+function L() {
+	let e = g(!0), t = g(), n = g(k()), i = g(!1), a = D(), o = r(() => e.value && !a.currentRoute.value?.meta?.allowAnonymous), s = r(() => !!n.value.isAuthenticated), c = r(() => n.value?.displayName), l = r(() => (e) => n.value.get(e)), u = r(() => (e, t) => n.value?.hasClaim(e, t) ?? !1), d = r(() => (e) => n.value?.hasPermission(e) ?? !1);
 	function f(e) {
 		t.value = e;
 	}
 	async function p({ username: e, password: r }) {
-		let { service: i } = P();
+		let { service: i } = F();
 		return n.value = await i.login(e, r, t.value), n.value.isAuthenticated;
 	}
 	async function m(e) {
-		let { service: t } = P();
+		let { service: t } = F();
 		return n.value = await t.refresh(e), n.value.isAuthenticated;
 	}
-	async function g() {
-		let { service: e } = P();
+	async function h() {
+		let { service: e } = F();
 		return n.value = await e.validateToken(), n.value.isAuthenticated;
 	}
 	function _() {
-		n.value = D();
-		let { service: e } = P();
+		n.value = k();
+		let { service: e } = F();
 		e.logout();
 	}
 	return {
@@ -181,18 +186,18 @@ function I() {
 		setClientApp: f,
 		login: p,
 		refresh: m,
-		validateToken: g,
+		validateToken: h,
 		logout: _
 	};
 }
-I.storeName = F;
-var L = w(F, I);
+L.storeName = I;
+var R = E(I, L);
 //#endregion
 //#region src/vue/auth/auth-axios.ts
-function R(e, t) {
+function z(e, t) {
 	return e.interceptors.request.use((e) => (t.token && (e.headers.Authorization = `Bearer ${t.token}`), e)), e;
 }
-function z(t, n) {
+function B(t, n) {
 	t.interceptors.response.use((e) => e, async (r) => {
 		let { config: i } = r;
 		return console.error("axios error", {
@@ -205,14 +210,14 @@ function z(t, n) {
 }
 //#endregion
 //#region src/vue/auth/plugin.ts
-var B = { async install(e, t) {
-	let { clientApp: n, loginUrl: r, tokenManager: i, authStore: a, axios: o, enableRouteGuard: s = !0, enabled: c = !0, onAuthenticationChange: l = () => {} } = t, { $router: u } = e.config.globalProperties, d = te({
+var V = { async install(e, t) {
+	let { clientApp: n, loginUrl: r, tokenManager: i, authStore: a, axios: o, enableRouteGuard: s = !0, enabled: c = !0, onAuthenticationChange: l = () => {} } = t, { $router: u } = e.config.globalProperties, d = P({
 		enabled: c,
 		tokenManager: i,
 		axios: o,
 		clientApp: n,
 		loginUrl: r
-	}), f = a ?? L();
+	}), f = a ?? R();
 	if (f.$patch({ enabled: c }), c ? (e.config.globalProperties.$auth = {
 		...d,
 		get authData() {
@@ -225,20 +230,20 @@ var B = { async install(e, t) {
 			return f.authRequired;
 		}
 	}, n && f.$patch({ clientApp: n })) : e.config.globalProperties.$auth = { enabled: !1 }, c) {
-		R(o, i);
+		z(o, i);
 		let e = 0;
-		b(() => f.isAuthenticated, () => {
+		S(() => f.isAuthenticated, () => {
 			f.isAuthenticated && (clearInterval(e), e = setInterval(() => f.validateToken(), f.authData.expires * 1e3)), l(f.authData);
-		}), await f.validateToken(), s && k({
+		}), await f.validateToken(), s && j({
 			router: u,
 			store: f
-		}), z(o, f);
+		}), B(o, f);
 	} else l({ isAuthenticated: !1 });
 } };
 //#endregion
 //#region src/vue/auth/useLoginForm.ts
-function V(e, t) {
-	let n = h(e.username || ""), r = h(""), i = h(!1), a = h(!1), o = h(!1), s = L();
+function H(e, t) {
+	let n = g(e.username || ""), r = g(""), i = g(!1), a = g(!1), o = g(!1), s = R();
 	async function c() {
 		a.value = !0, i.value = !1, t("signingIn", n.value);
 		try {
@@ -267,8 +272,8 @@ function V(e, t) {
 }
 //#endregion
 //#region src/vue/auth/useForgotPasswordForm.ts
-function H(e, t, n) {
-	let { service: i } = P(), a = h(!1), o = h(e.username || ""), s = r(() => o.value != ""), c = h();
+function U(e, t, n) {
+	let { service: i } = F(), a = g(!1), o = g(e.username || ""), s = r(() => o.value != ""), c = g();
 	async function l() {
 		c.value = void 0, a.value = !0;
 		try {
@@ -283,7 +288,7 @@ function H(e, t, n) {
 			a.value = !1;
 		}
 	}
-	return b(() => e.username, () => o.value = e.username || ""), {
+	return S(() => e.username, () => o.value = e.username || ""), {
 		username: o,
 		isLoading: a,
 		isFormValid: s,
@@ -292,19 +297,75 @@ function H(e, t, n) {
 	};
 }
 //#endregion
+//#region src/vue/auth/useChangePasswordForm.ts
+function W(e) {
+	let { service: t } = F(), n = g(""), i = g(""), a = g(""), o = g(!1), s = g(), c = r(() => i.value === a.value), l = r(() => n.value != "" && i.value != "" && c.value);
+	async function u() {
+		if (l.value) {
+			s.value = void 0, o.value = !0;
+			try {
+				await t.changePassword({
+					currentPassword: n.value,
+					newPassword: i.value
+				}), s.value = !0, n.value = "", i.value = "", a.value = "", e("success");
+			} catch (t) {
+				s.value = !1, console.error("changing password failed", { ex: t }), e("fail", t);
+			} finally {
+				o.value = !1;
+			}
+		}
+	}
+	return {
+		currentPassword: n,
+		newPassword: i,
+		confirmPassword: a,
+		isLoading: o,
+		isSuccess: s,
+		passwordsMatch: c,
+		isFormValid: l,
+		handleSubmit: u
+	};
+}
+//#endregion
+//#region src/vue/auth/useResetPasswordForm.ts
+function G(e, t) {
+	let { service: n } = F(), i = g(""), a = g(""), o = g(!1), s = g(), c = r(() => i.value === a.value), l = r(() => i.value != "" && c.value);
+	async function u() {
+		if (l.value) {
+			s.value = void 0, o.value = !0;
+			try {
+				await n.resetPassword({
+					token: e.token,
+					password: i.value
+				}), s.value = !0, t("success");
+			} catch (e) {
+				s.value = !1, console.error("resetting password failed", { ex: e }), t("fail", e);
+			} finally {
+				o.value = !1;
+			}
+		}
+	}
+	return {
+		password: i,
+		confirmPassword: a,
+		isLoading: o,
+		isSuccess: s,
+		passwordsMatch: c,
+		isFormValid: l,
+		handleSubmit: u
+	};
+}
+//#endregion
 //#region src/vue/auth/LoginForm.vue?vue&type=script&setup=true&lang.ts
-var U = {
+var K = {
 	key: 0,
 	class: "mb-3 position-relative"
-}, W = { class: "bg-danger border rounded text-light p-2" }, G = { key: 0 }, K = { class: "row mb-3" }, q = { class: "col-sm-9" }, J = { class: "input-group" }, Y = ["disabled"], X = { class: "row mb-3" }, Z = { class: "col-sm-9" }, ne = ["disabled"], re = { class: "row" }, ie = { class: "col-sm-3" }, ae = ["disabled"], oe = { class: "col-sm" }, Q = {
+}, q = { class: "bg-danger border rounded text-light p-2" }, J = { key: 0 }, Y = { class: "row mb-3" }, X = { class: "col-sm-9" }, Z = { class: "input-group" }, re = ["disabled"], ie = { class: "row mb-3" }, ae = { class: "col-sm-9" }, oe = ["disabled"], se = { class: "row" }, ce = { class: "col-sm-3" }, le = ["disabled"], ue = { class: "col-sm" }, de = {
 	key: 0,
 	class: "text-info"
-}, $ = /* @__PURE__ */ u({
+}, Q = /* @__PURE__ */ u({
 	__name: "LoginForm",
-	props: {
-		username: {},
-		signingIn: { type: Boolean }
-	},
+	props: { username: {} },
 	emits: [
 		"forgotPassword",
 		"signingIn",
@@ -312,47 +373,48 @@ var U = {
 		"fail"
 	],
 	setup(e, { emit: t }) {
-		let { username: n, password: r, signingIn: i, failed: l, isLockedOut: u, handleSubmit: d, handleForgotPassword: p } = V(e, t);
-		return (e, t) => (m(), o("form", {
-			onSubmit: t[3] ||= C((...e) => v(d) && v(d)(...e), ["prevent"]),
+		let { username: n, password: r, signingIn: i, failed: l, isLockedOut: u, handleSubmit: d, handleForgotPassword: p } = H(e, t);
+		return (e, t) => (h(), o("form", {
+			class: "rg-login-form",
+			onSubmit: t[3] ||= T((...e) => b(d) && b(d)(...e), ["prevent"]),
 			ref: "loginForm"
 		}, [
-			v(l) ? (m(), o("div", U, [s("div", W, [t[4] ||= c(" Unfortunately, signing in failed. ", -1), v(u) ? (m(), o("span", G, "Try again in 5 min.")) : a("", !0)])])) : a("", !0),
-			s("div", K, [t[5] ||= s("label", {
+			b(l) ? (h(), o("div", K, [s("div", q, [t[4] ||= c(" Unfortunately, signing in failed. ", -1), b(u) ? (h(), o("span", J, "Try again in 5 min.")) : a("", !0)])])) : a("", !0),
+			s("div", Y, [t[5] ||= s("label", {
 				for: "username",
 				class: "col-sm-3 col-form-label"
-			}, "Username", -1), s("div", q, [s("div", J, [S(s("input", {
+			}, "Username", -1), s("div", X, [s("div", Z, [w(s("input", {
 				class: "form-control",
 				autocomplete: "username email",
 				"onUpdate:modelValue": t[0] ||= (e) => f(n) ? n.value = e : null,
-				disabled: v(i)
-			}, null, 8, Y), [[y, v(n)]])])])]),
-			s("div", X, [t[6] ||= s("label", {
+				disabled: b(i)
+			}, null, 8, re), [[x, b(n)]])])])]),
+			s("div", ie, [t[6] ||= s("label", {
 				for: "password",
 				class: "col-sm-3 col-form-label"
-			}, "Password", -1), s("div", Z, [S(s("input", {
+			}, "Password", -1), s("div", ae, [w(s("input", {
 				type: "password",
 				class: "form-control",
 				autocomplete: "password current-password",
 				"onUpdate:modelValue": t[1] ||= (e) => f(r) ? r.value = e : null,
-				disabled: v(i)
-			}, null, 8, ne), [[y, v(r)]])])]),
-			s("div", re, [s("div", ie, [s("button", {
+				disabled: b(i)
+			}, null, 8, oe), [[x, b(r)]])])]),
+			s("div", se, [s("div", ce, [s("button", {
 				type: "submit",
 				class: "btn btn-primary",
-				disabled: v(i)
-			}, "Sign in", 8, ae)]), s("div", oe, [v(i) ? (m(), o("span", Q, " Signing in ... ")) : (m(), o("button", {
+				disabled: b(i)
+			}, "Sign in", 8, le)]), s("div", ue, [b(i) ? (h(), o("span", de, " Signing in ... ")) : (h(), o("button", {
 				key: 1,
 				type: "button",
 				class: "btn btn-link",
-				onClick: t[2] ||= (...e) => v(p) && v(p)(...e)
+				onClick: t[2] ||= (...e) => b(p) && b(p)(...e)
 			}, "Forgot password?"))])])
 		], 544));
 	}
-}), se = /* @__PURE__ */ u({
+}), fe = { class: "rg-logout-form" }, pe = /* @__PURE__ */ u({
 	__name: "LogoutForm",
 	setup(e) {
-		let t = L(), n = T(), i = () => {
+		let t = R(), n = D(), i = () => {
 			t.logout();
 			let e = n.currentRoute.value.fullPath;
 			n.push({
@@ -360,13 +422,13 @@ var U = {
 				query: { returnUrl: e }
 			});
 		}, a = r(() => t.displayName);
-		return (e, t) => (m(), o("form", null, [s("button", {
+		return (e, t) => (h(), o("form", fe, [s("button", {
 			type: "button",
 			class: "btn btn-sm btn-secondary",
 			onClick: i
-		}, _(a.value) + " afmelden", 1)]));
+		}, y(a.value) + " afmelden", 1)]));
 	}
-}), ce = /* @__PURE__ */ u({
+}), me = /* @__PURE__ */ u({
 	__name: "LoginModal",
 	props: {
 		username: {},
@@ -382,22 +444,23 @@ var U = {
 		"success",
 		"fail"
 	],
-	setup(e, { emit: t }) {
-		return (t, r) => (m(), i(n, {
+	setup(e) {
+		let t = n();
+		return (n, r) => (h(), i(v(b(t)), {
 			"is-visible": e.isVisible,
 			title: e.title,
 			showFooter: !1
 		}, {
-			default: x(() => [g(t.$slots, "default", p(d({ username: e.username })), () => [l($, {
-				onSuccess: r[0] ||= (e) => t.$emit("success", e),
-				onForgotPassword: r[1] ||= (e) => t.$emit("forgotPassword", e),
-				onSigningIn: r[2] ||= (e) => t.$emit("signingIn", e),
-				onFail: r[3] ||= (e) => t.$emit("fail", e)
+			default: C(() => [_(n.$slots, "default", m(d({ username: e.username })), () => [l(Q, {
+				onSuccess: r[0] ||= (e) => n.$emit("success", e),
+				onForgotPassword: r[1] ||= (e) => n.$emit("forgotPassword", e),
+				onSigningIn: r[2] ||= (e) => n.$emit("signingIn", e),
+				onFail: r[3] ||= (e) => n.$emit("fail", e)
 			})])]),
 			_: 3
 		}, 8, ["is-visible", "title"]));
 	}
-}), le = /* @__PURE__ */ u({
+}), he = /* @__PURE__ */ u({
 	__name: "ForgotPasswordModal",
 	props: {
 		username: {},
@@ -407,15 +470,108 @@ var U = {
 		}
 	},
 	setup(e) {
-		return (t, r) => (m(), i(n, {
+		let t = n();
+		return (n, r) => (h(), i(v(b(t)), {
 			"is-visible": e.isVisible,
 			title: "Forgot password",
 			showFooter: !1
 		}, {
-			default: x(() => [g(t.$slots, "default", p(d({ username: e.username })))]),
+			default: C(() => [_(n.$slots, "default", m(d({ username: e.username })))]),
 			_: 3
 		}, 8, ["is-visible"]));
 	}
+}), ge = {
+	key: 0,
+	class: "mb-3"
+}, _e = {
+	key: 1,
+	class: "mb-3"
+}, ve = { class: "row mb-3" }, ye = { class: "col-sm-9" }, be = ["disabled"], xe = { class: "row mb-3" }, Se = { class: "col-sm-9" }, Ce = ["disabled"], we = { class: "row mb-3" }, Te = { class: "col-sm-9" }, Ee = ["disabled"], De = { class: "row" }, Oe = { class: "col-sm-9 offset-sm-3" }, ke = ["disabled"], Ae = /* @__PURE__ */ u({
+	__name: "ChangePasswordForm",
+	emits: ["success", "fail"],
+	setup(e, { emit: t }) {
+		let { currentPassword: n, newPassword: r, confirmPassword: i, isLoading: c, isSuccess: l, passwordsMatch: u, isFormValid: d, handleSubmit: m } = W(t);
+		return (e, t) => (h(), o("form", {
+			class: "rg-change-password-form",
+			onSubmit: t[3] ||= T((...e) => b(m) && b(m)(...e), ["prevent"])
+		}, [
+			b(l) === !1 ? (h(), o("div", ge, [...t[4] ||= [s("div", { class: "bg-danger border rounded text-light p-2" }, "Unfortunately, changing the password failed.", -1)]])) : a("", !0),
+			b(l) ? (h(), o("div", _e, [...t[5] ||= [s("div", { class: "bg-success border rounded text-light p-2" }, "Password changed.", -1)]])) : a("", !0),
+			s("div", ve, [t[6] ||= s("label", { class: "col-sm-3 col-form-label" }, "Current password", -1), s("div", ye, [w(s("input", {
+				type: "password",
+				class: "form-control",
+				autocomplete: "current-password",
+				"onUpdate:modelValue": t[0] ||= (e) => f(n) ? n.value = e : null,
+				disabled: b(c)
+			}, null, 8, be), [[x, b(n)]])])]),
+			s("div", xe, [t[7] ||= s("label", { class: "col-sm-3 col-form-label" }, "New password", -1), s("div", Se, [w(s("input", {
+				type: "password",
+				class: "form-control",
+				autocomplete: "new-password",
+				"onUpdate:modelValue": t[1] ||= (e) => f(r) ? r.value = e : null,
+				disabled: b(c)
+			}, null, 8, Ce), [[x, b(r)]])])]),
+			s("div", we, [t[9] ||= s("label", { class: "col-sm-3 col-form-label" }, "Confirm password", -1), s("div", Te, [w(s("input", {
+				type: "password",
+				class: p(["form-control", { "is-invalid": b(i) && !b(u) }]),
+				autocomplete: "new-password",
+				"onUpdate:modelValue": t[2] ||= (e) => f(i) ? i.value = e : null,
+				disabled: b(c)
+			}, null, 10, Ee), [[x, b(i)]]), t[8] ||= s("div", { class: "invalid-feedback" }, "Passwords don't match.", -1)])]),
+			s("div", De, [s("div", Oe, [s("button", {
+				type: "submit",
+				class: "btn btn-primary",
+				disabled: b(c) || !b(d)
+			}, "Change password", 8, ke)])])
+		], 32));
+	}
+}), je = {
+	key: 0,
+	class: "mb-3"
+}, Me = {
+	key: 1,
+	class: "mb-3"
+}, Ne = { class: "bg-success border rounded text-light p-2" }, Pe = { class: "row mb-3" }, $ = { class: "col-sm-9" }, Fe = ["disabled"], Ie = { class: "row mb-3" }, Le = { class: "col-sm-9" }, Re = ["disabled"], ze = { class: "row" }, Be = { class: "col-sm-9 offset-sm-3" }, Ve = ["disabled"], He = /* @__PURE__ */ u({
+	__name: "ResetPasswordForm",
+	props: { token: {} },
+	emits: [
+		"success",
+		"fail",
+		"login"
+	],
+	setup(e, { emit: t }) {
+		let n = t, { password: r, confirmPassword: i, isLoading: l, isSuccess: u, passwordsMatch: d, isFormValid: m, handleSubmit: g } = G(e, n);
+		return (e, t) => (h(), o("form", {
+			class: "rg-reset-password-form",
+			onSubmit: t[3] ||= T((...e) => b(g) && b(g)(...e), ["prevent"])
+		}, [
+			b(u) === !1 ? (h(), o("div", je, [...t[4] ||= [s("div", { class: "bg-danger border rounded text-light p-2" }, "Unfortunately, resetting the password failed.", -1)]])) : a("", !0),
+			b(u) ? (h(), o("div", Me, [s("div", Ne, [t[5] ||= c(" Password reset. ", -1), s("button", {
+				type: "button",
+				class: "btn btn-link p-0 align-baseline",
+				onClick: t[0] ||= (e) => n("login")
+			}, "Sign in")])])) : a("", !0),
+			s("div", Pe, [t[6] ||= s("label", { class: "col-sm-3 col-form-label" }, "New password", -1), s("div", $, [w(s("input", {
+				type: "password",
+				class: "form-control",
+				autocomplete: "new-password",
+				"onUpdate:modelValue": t[1] ||= (e) => f(r) ? r.value = e : null,
+				disabled: b(l)
+			}, null, 8, Fe), [[x, b(r)]])])]),
+			s("div", Ie, [t[8] ||= s("label", { class: "col-sm-3 col-form-label" }, "Confirm password", -1), s("div", Le, [w(s("input", {
+				type: "password",
+				class: p(["form-control", { "is-invalid": b(i) && !b(d) }]),
+				autocomplete: "new-password",
+				"onUpdate:modelValue": t[2] ||= (e) => f(i) ? i.value = e : null,
+				disabled: b(l)
+			}, null, 10, Re), [[x, b(i)]]), t[7] ||= s("div", { class: "invalid-feedback" }, "Passwords don't match.", -1)])]),
+			s("div", ze, [s("div", Be, [s("button", {
+				type: "submit",
+				class: "btn btn-primary",
+				disabled: b(l) || !b(m)
+			}, "Reset password", 8, Ve)])])
+		], 32));
+	}
 });
 //#endregion
-export { O as AuthService, j as CookieTokenManager, le as ForgotPasswordModal, M as LocalStorageTokenManager, $ as LoginForm, ce as LoginModal, se as LogoutForm, ee as MemoryTokenManager, I as createStore, B as plugin, k as routeGuard, P as useAuth, L as useAuthStore, H as useForgotPasswordForm, V as useLoginForm };
+export { A as AuthService, Ae as ChangePasswordForm, ee as CookieTokenManager, he as ForgotPasswordModal, ne as LocalStorageTokenManager, Q as LoginForm, me as LoginModal, pe as LogoutForm, te as MemoryTokenManager, He as ResetPasswordForm, L as createStore, V as plugin, j as routeGuard, F as useAuth, R as useAuthStore, W as useChangePasswordForm, U as useForgotPasswordForm, H as useLoginForm, G as useResetPasswordForm };

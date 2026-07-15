@@ -1,16 +1,11 @@
-import { type ITab } from "./Tab";
-type __VLS_Props = {
-    tabs: Array<ITab | string | null>;
-    useRouteNav?: boolean;
-    active?: string;
-};
+import { type TabContainerProps } from "./tabs";
 declare var __VLS_9: string, __VLS_10: {};
 type __VLS_Slots = {} & {
     [K in NonNullable<typeof __VLS_9>]?: (props: typeof __VLS_10) => any;
 };
-declare const __VLS_base: import("vue").DefineComponent<__VLS_Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
+declare const __VLS_base: import("vue").DefineComponent<TabContainerProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
     select: (tab: string) => any;
-}, string, import("vue").PublicProps, Readonly<__VLS_Props> & Readonly<{
+}, string, import("vue").PublicProps, Readonly<TabContainerProps> & Readonly<{
     onSelect?: ((tab: string) => any) | undefined;
 }>, {
     useRouteNav: boolean;

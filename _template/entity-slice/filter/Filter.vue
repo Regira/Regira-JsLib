@@ -5,7 +5,8 @@
         </slot>
 
         <Teleport to="#modals">
-            <DefaultModal
+            <component
+                :is="Modal"
                 :is-visible="showAdv"
                 :title="props.modalTitle || 'Advanced search'"
                 :show-footer="true"
@@ -17,18 +18,20 @@
                 <slot name="adv" :handleUpdate="handleUpdate" :handleSubmit="handleSubmit" :handleClose="handleClose"> </slot>
 
                 <Debug :modelValue="searchObject" />
-            </DefaultModal>
+            </component>
         </Teleport>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue"
-import { DefaultModal } from "regira_modules/vue/ui"
+import { injectModal } from "regira_modules/vue/ui"
 import { Debug } from "regira_modules/vue/debug"
 import { useFilter, type FilterEmits } from "regira_modules/vue/entities"
 import type SearchObject from "./SearchObject"
 import FilterInline from "./FilterInline.vue"
+
+const Modal = injectModal() // resolves the app-wide modal (modalPlugin swap-aware)
 
 interface Emits extends /* @vue-ignore */ FilterEmits<SearchObject> {}
 const emit = defineEmits<

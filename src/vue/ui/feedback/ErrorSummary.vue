@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-danger bg-opacity-75 text-light">
+    <div class="rg-error-summary bg-danger bg-opacity-75 text-light">
         <slot name="message">
             <div class="row gy-0 gx-1">
                 <div class="col-auto">
@@ -34,7 +34,8 @@
             </template>
         </slot>
         <Teleport to="#modals">
-            <DefaultModal
+            <component
+                :is="Modal"
                 v-if="showSummary"
                 is-visible
                 :title="msg"
@@ -56,7 +57,7 @@
                         </ul>
                     </li>
                 </ul>
-            </DefaultModal>
+            </component>
         </Teleport>
     </div>
 </template>
@@ -65,8 +66,7 @@
 import { ref } from "vue"
 import type { FeedbackError } from "./feedback"
 import Icon from "../icons/Icon.vue"
-import DefaultModal from "../modal/DefaultModal.vue"
-import { ModalType } from "../modal"
+import { ModalType, injectModal } from "../modal"
 
 const props = withDefaults(
     defineProps<{
@@ -80,5 +80,6 @@ const props = withDefaults(
     }
 )
 
+const Modal = injectModal()
 const showSummary = ref(false)
 </script>

@@ -1,11 +1,11 @@
 <template>
     <transition name="modal">
-        <div v-if="isVisible" class="modal-mask" @keydown.esc="handleClose">
+        <div v-if="isVisible" class="rg-modal modal-mask" @keydown.esc="handleClose">
             <div class="modal-wrapper">
                 <div class="modal show d-block" tabindex="-1">
                     <div class="modal-dialog modal-dialog-scrollable" :class="[sizeClass, { 'full-width': fullWidth }]">
                         <div class="modal-content" :style="{ 'min-height': fullWidth ? '60vh' : 'inherit' }">
-                            <div v-if="showHeader" class="modal-header py-2" :class="titleClass">
+                            <div v-if="showHeader" class="rg-modal__header modal-header py-2" :class="titleClass">
                                 <div class="d-flex justify-content-between w-100">
                                     <slot name="title">
                                         <h3 class="modal-title">
@@ -29,11 +29,11 @@
                                     </slot>
                                 </div>
                             </div>
-                            <div class="modal-body" :class="contentClass">
+                            <div class="rg-modal__body modal-body" :class="contentClass">
                                 <slot></slot>
                             </div>
 
-                            <div v-if="showFooter" class="modal-footer py-1" :class="footerClass">
+                            <div v-if="showFooter" class="rg-modal__footer modal-footer py-1" :class="footerClass">
                                 <slot name="buttons">
                                     <div class="d-flex justify-content-between w-100">
                                         <slot name="footer-close-button" :handleCancel="handleCancel">
@@ -64,29 +64,11 @@ import "./style.scss"
 import { computed } from "vue"
 import Icon from "../icons/Icon.vue"
 import IconButton from "../icons/IconButton.vue"
-import { ModalType } from "./modal"
+import { ModalType, modalDefaults, type ModalProps, type ModalEmits, type ModalSlots } from "./modal"
 
-const emit = defineEmits<{
-    (e: "submit"): void
-    (e: "cancel"): void
-    (e: "close"): void
-}>()
-const props = withDefaults(
-    defineProps<{
-        title?: string
-        isVisible: boolean
-        showHeader?: boolean
-        showFooter?: boolean
-        fullWidth?: boolean
-        size?: "sm" | "md" | "lg" | "xl"
-        type?: ModalType
-    }>(),
-    {
-        showHeader: true,
-        showFooter: true,
-        type: ModalType.normal,
-    }
-)
+const emit = defineEmits<ModalEmits>()
+const props = withDefaults(defineProps<ModalProps>(), { ...modalDefaults })
+defineSlots<ModalSlots>()
 
 const isNormal = computed(() => props.type === ModalType.normal)
 const isSuccess = computed(() => props.type === ModalType.success)
@@ -95,7 +77,7 @@ const isDanger = computed(() => props.type === ModalType.danger)
 const sizeClass = computed(() => (props.size && props.size !== "md" ? `modal-${props.size}` : ""))
 
 const titleClass = computed(() => ({
-    "bg-normal": isNormal.value,
+    "rg-accent-bg": isNormal.value,
     "bg-success": isSuccess.value,
     "bg-danger": isDanger.value,
     "text-white": isDanger.value,

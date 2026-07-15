@@ -28,4 +28,7 @@ for (const [src, dest] of scssFiles) {
     console.log(`Copied ${src} → ${dest}`)
 }
 
+// Step 4: Regenerate the ejectable UI skins (_template/ui) from the component source
+execSync("node scripts/build-ui-template.mjs", { stdio: "inherit", cwd: root })
+
 

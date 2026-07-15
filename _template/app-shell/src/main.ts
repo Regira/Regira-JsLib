@@ -11,6 +11,7 @@ import { focus, grow, clickOutside } from "regira_modules/vue/directives"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css"
 import "regira_modules/style.css"
+import "@/assets/theme.scss" // the app theme — MUST come after bootstrap + regira styles so its overrides win
 import { plugin as authPlugin, LocalStorageTokenManager } from "regira_modules/vue/auth" // @auth:only
 import { plugin as userPlugin } from "@/infrastructure/user-plugin" // @auth:only
 import { preloaderPlugin, defaultPoolCache, PoolCache } from "regira_modules/vue/entities"

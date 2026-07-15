@@ -1,5 +1,5 @@
 <template>
-    <button type="button" class="btn" :disabled="disabled || isLoading">
+    <button type="button" class="rg-loading-button btn" :disabled="disabled || isLoading">
         <template v-if="isLoading">
             <slot name="loading">
                 <LoadingImg style="width: 1rem" />

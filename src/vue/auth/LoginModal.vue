@@ -1,5 +1,5 @@
 <template>
-    <DefaultModal :is-visible="isVisible" :title="title" :showFooter="false">
+    <component :is="Modal" :is-visible="isVisible" :title="title" :showFooter="false">
         <slot v-bind="{ username }">
             <LoginForm
                 @success="$emit('success', $event)"
@@ -8,28 +8,20 @@
                 @fail="$emit('fail', $event)"
             />
         </slot>
-    </DefaultModal>
+    </component>
 </template>
 
 <script setup lang="ts">
-import { type IEmits } from "./useLoginForm"
-import DefaultModal from "../ui/modal/DefaultModal.vue"
+import { type LoginFormEmits, type LoginModalProps, type LoginModalSlots } from "./useLoginForm"
+import { injectModal } from "../ui/modal"
 import LoginForm from "./LoginForm.vue"
 
-interface ILoginEmits extends IEmits {}
-const emit = defineEmits<ILoginEmits>()
+defineEmits<LoginFormEmits>()
+withDefaults(defineProps<LoginModalProps>(), {
+    title: "Sign in",
+    isVisible: true,
+})
+defineSlots<LoginModalSlots>()
 
-const props = withDefaults(
-    defineProps<{
-        username?: string
-        title?: string
-        // visibility is a real prop (defaults on); prefer gating the whole component with v-if —
-        // it unmounts mask + dialog in one go and cannot strand a leave-transition
-        isVisible?: boolean
-    }>(),
-    {
-        title: "Sign in",
-        isVisible: true,
-    }
-)
+const Modal = injectModal()
 </script>

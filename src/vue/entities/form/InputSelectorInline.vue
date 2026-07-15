@@ -22,18 +22,15 @@
 <script setup lang="ts" generic="T extends { _deleted?: boolean }">
 import { computed } from "vue"
 import IconButton from "../../ui/icons/IconButton.vue"
+import type { InputSelectorInlineProps, InputSelectorInlineEmits, InputSelectorInlineSlots } from "./inputSelectorInline"
 
 // Inline chip editor for an owned/join collection edited inside the parent's form.
 // Removal MARKS the row (`_deleted`, undoable until save) — it never splices; pair with an
 // `EntityService.prepareItem` override that filters marked rows so the server deletes by omission.
 const model = defineModel<Array<T>>()
-const props = defineProps<{
-    /** stable key per row; falls back to the index */
-    rowKey?: (row: T) => string | number | undefined
-    /** related-entity id per row — feeds the `exclude` list handed to the #selector slot */
-    excludeKey?: (row: T) => number | undefined
-}>()
-const emit = defineEmits<{ (e: "remove", row: T): void; (e: "add", row: T): void }>()
+const props = defineProps<InputSelectorInlineProps<T>>()
+const emit = defineEmits<InputSelectorInlineEmits<T>>()
+defineSlots<InputSelectorInlineSlots<T>>()
 
 // every current row, marked ones included — a marked row is restored by toggling, not re-picking
 const exclude = computed(() => (model.value ?? []).map((x) => props.excludeKey?.(x)).filter((x): x is number => x != null))
@@ -47,11 +44,3 @@ function add(row: T) {
     emit("add", row)
 }
 </script>
-
-<style scoped>
-/* pending-delete tint — restyle app-wide by targeting .input-selector-inline .is-deleted */
-.is-deleted {
-    background-color: rgba(220, 53, 69, 0.25);
-    text-decoration: line-through;
-}
-</style>

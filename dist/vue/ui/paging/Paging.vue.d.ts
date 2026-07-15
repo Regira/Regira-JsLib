@@ -1,31 +1,9 @@
-import type { IPagingInfo } from "../../entities/abstractions/PagingInfo";
-import { ButtonType } from "./paging";
-type __VLS_Props = {
-    modelValue: IPagingInfo;
-    count: number;
-    maxPages?: number;
-    buttonType?: ButtonType;
-};
-declare var __VLS_1: {
-    page: number;
-}, __VLS_11: {
-    page: number;
-    route: string;
-    handleChange: (newPage: number) => void;
-}, __VLS_21: {
-    page: number;
-};
-type __VLS_Slots = {} & {
-    firstPage?: (props: typeof __VLS_1) => any;
-} & {
-    default?: (props: typeof __VLS_11) => any;
-} & {
-    lastPage?: (props: typeof __VLS_21) => any;
-};
-declare const __VLS_base: import("vue").DefineComponent<__VLS_Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
+import { ButtonType, type PagingProps, type PagingSlots } from "./paging";
+type __VLS_Slots = PagingSlots;
+declare const __VLS_base: import("vue").DefineComponent<PagingProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
     change: (args: any) => any;
     "update:modelValue": (args: any) => any;
-}, string, import("vue").PublicProps, Readonly<__VLS_Props> & Readonly<{
+}, string, import("vue").PublicProps, Readonly<PagingProps> & Readonly<{
     onChange?: ((args: any) => any) | undefined;
     "onUpdate:modelValue"?: ((args: any) => any) | undefined;
 }>, {
