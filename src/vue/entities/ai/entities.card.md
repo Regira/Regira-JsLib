@@ -23,6 +23,10 @@
 - **A slice is:** model (`EntityBase`, override `$id`/`$title`) + `IConfig` + service
   (`EntityServiceBase<T>`, implement only `toEntity`) + pooled Pinia store (`createStore`) + thin views
   driven by `useSearchView` / `useDetails` / `useForm` / `useFilter`.
+- **Cross-slice model imports must alias `Entity`.** A slice barrel re-exports its model as the default
+  `Entity`, not under the class name — importing `{ MyNamedEntity }` is the `TS2305 "has no exported member"`
+  trap (the most common first error in a multi-entity app). Always
+  `import { type Entity as MyNamedEntity } from "@/entities/my-named-entities"`.
 - **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
   inside the parent form with **`InputSelectorInline`**: chips mark removals `_deleted` (visible, tinted,
   undoable until save), a `prepareItem` override drops them so `Related()` deletes by omission — never

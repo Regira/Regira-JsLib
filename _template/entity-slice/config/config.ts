@@ -12,9 +12,9 @@ const config: IConfig = {
     baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
     initialQuery: {},
 
-    overviewTitle: "__entities__", // i18n keys — add matching entries to public/data/translations.json, or the nav renders the raw key
-    detailsTitle: "__entity__",
-    description: "__entity__.description",
+    overviewTitle: "__entitiesKey__", // camelCase i18n keys (multi-word → e.g. shoppingLists / shoppingList) — add matching entries to public/data/translations.json, or the nav renders the raw key
+    detailsTitle: "__entityKey__",
+    description: "__entityKey__.description",
     icon: "bi bi-question-circle", // TODO: a Bootstrap-Icons class
 
     defaultPageSize: 10, // initial overview page size (raise it to show more per page, up to the server's MaxPageSize)

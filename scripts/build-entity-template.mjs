@@ -51,6 +51,16 @@ const tokenize = (s) =>
         .replace(/\bfoos\b/g, "__entities__")
         .replace(/\bfoo\b/g, "__entity__")
 
+// config.ts i18n keys are camelCase (`__entitiesKey__` / `__entityKey__`, which scaffold.mjs fills from the
+// PascalCase name), distinct from the lowercase route/api placeholders. The doc's single-word `Foo` example
+// can't show that, so rewrite the three i18n property values after the generic tokenize — keyed on the stable
+// property names so it stays robust. See _template/scaffold.mjs.
+const tokenizeConfigKeys = (s) =>
+    s
+        .replace(/(\boverviewTitle:\s*")__entities__(")/, "$1__entitiesKey__$2")
+        .replace(/(\bdetailsTitle:\s*")__entity__(")/, "$1__entityKey__$2")
+        .replace(/(\bdescription:\s*")__entity__(\.description")/, "$1__entityKey__$2")
+
 // target path → [source map, tokenize?]
 const FROM_TPL = false // readability flags below
 const plan = [
@@ -93,6 +103,7 @@ for (const [target, src, doToken] of plan) {
     }
     let content = unalias(raw)
     if (doToken) content = tokenize(content)
+    if (target === "config/config.ts") content = tokenizeConfigKeys(content)
     const dest = resolve(outDir, target)
     mkdirSync(dirname(dest), { recursive: true })
     writeFileSync(dest, content)

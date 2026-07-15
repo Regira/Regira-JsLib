@@ -251,11 +251,6 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 >   Restyle the markup; keep the behaviour, or reuse the component. Per-file checklists:
 >   [entities.template.md](entities.template.md) (slice), [entities.shell.template.md](entities.shell.template.md) (shell).
 >
-> A lighter tier fits when the **user requests it** — "keep it minimal", "no scaffold", "just the data
-> layer", "a quick throwaway demo" are the usual signals, and they are requests for **less build**, not app
-> descriptors: an app merely _being_ a storefront, demo, or embed is not one of them. Choose it on purpose and
-> state the tier; when in doubt, scaffold — it scales, and it's the cheaper path to change later.
->
 > **A lighter tier drops the scaffold, not the UI kit.** Lean and headless builds still import
 > `vue/ui` (paging, loading, feedback, modal, tabs, autocomplete, confirm buttons), `vue/formatters`
 > (dates/currency), and `treelist` (hierarchies) à la carte — no plugins or slice required. Hand-rolling
@@ -366,7 +361,8 @@ A **lookup** entity keeps the folders but drops the list UI (omit the views and 
    the overview pages for simple **and** complex entities; swap to `useListView` only for a lookup that needs
    no count) + `List.vue` (c) + `ListItem.vue` (c).
 8. **Details & form** — `details/`: `Details.vue` (`useDetails`, loads `:id`, hosts `Fiche`/`Form`),
-   `Form.vue` (c) (`useForm`), `FormModalButton.vue` (`useModal`).
+   `Form.vue` (c) (`useForm`), `FormModalButton.vue` (`useModal`). **If the entity owns a collection, its
+   editor ships here too** (chips or table — see the form checklist below), not as a later add-on.
 9. **Selecting** — `selecting/`: the relation-picker set built on the store; only `SelectorList.vue` (c) is
    per-entity, the rest is verbatim boilerplate. See
    [entities.patterns.md](entities.patterns.md#entity-selector-relation-picker--selecting).
@@ -387,13 +383,21 @@ hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](enti
 | The form has…                        | Reach for                                                                                                                         |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
 | 2+ related collections / many fields | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                   |
-| an editable child/join collection    | **`InputSelectorInline`** chips (`_deleted` marking + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls |
+| an editable child/join **relation** (rows link to another entity) | **`InputSelectorInline`** chips (`_deleted` mark + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls |
+| editable owned rows with **scalar fields** (nothing to pick) | an inline **table** via `useOwnedCollection` (add-row + `_deleted`) + the same `prepareItem` filter — [recipe](entities.patterns.md#owned-rows-with-scalar-fields--the-inline-table) |
 | a related entity displayed anywhere  | that entity's **`FormModalButton`** (chip/badge that opens its form in a modal) — a bare label is the exception, not the default  |
 | "add related entity" controls        | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows)                                      |
 | any save/remove path                 | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                             |
 | relation labels                      | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                   |
 | tricky state while developing        | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                       |
 | breakpoint-dependent layout          | CSS/flex first; `useScreen` when the structure itself changes (e.g. dropping a tab)                                               |
+
+> **An owned collection is done only when it's editable.** If the parent's back-end `e.Related(...)` owns a
+> collection, its add/edit/remove editor (the chips or table row above) is **part of this slice** — shipping the
+> collection read-only (badges, a static list) is an *incomplete* slice, not a valid simplification. Build it in
+> Step 8 alongside the form; the `_deleted` mark + `prepareItem` filter is what makes one parent `save()` persist
+> adds, edits, and removals together. For the scalar-row table, `scaffold.mjs <Entity> --owns <Child>` generates
+> the editor sub-slice and prints the three wiring lines (field, `<…Overview>`, `prepareItem` filter).
 
 > **Verify after wiring a slice:** the service resolves (`get<IEntityService>(Entity.name)` non-null after
 > startup); the overview lists and pages (archived rows hidden unless `searchObject.isArchived` is set);

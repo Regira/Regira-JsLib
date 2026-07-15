@@ -70,6 +70,13 @@ complex one) and **still registers both Overview and Details routes** in `setup.
 toggles only the new-item UX and form richness — it does **not** change the search endpoint, swap out the
 composable, or drop the Details route.
 
+> **Front-end `isComplex` is not enforced against the back-end's simple/complex split, but aligning them is
+> encouraged.** Nothing binds the two flags: a back-end **complex** entity (typed `TIncludes`/`TSortBy`) behind
+> a front-end `isComplex: false` slice is perfectly correct — you only trade the Details-page UX for modal
+> editing, never correctness. So when they diverge, let the *form's* richness (child collections / many fields)
+> decide `isComplex`. In practice the two usually track each other, and keeping them aligned is the recommended
+> default; treat a mismatch as a deliberate choice, not an accident.
+
 ## 1. Model — `data/Entity.ts` (c)
 
 ```ts

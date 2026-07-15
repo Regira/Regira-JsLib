@@ -12,6 +12,8 @@ node node_modules/regira_modules/_template/scaffold.mjs Product
 # → creates src/entities/products/ with the names filled in
 # no-auth app? also strip the auth-store reload hooks:
 node node_modules/regira_modules/_template/scaffold.mjs Product --no-auth
+# owns a collection (back-end e.Related)? scaffold its editable table too (repeat --owns per child):
+node node_modules/regira_modules/_template/scaffold.mjs Order --owns OrderLine
 ```
 
 Or copy by hand and replace the tokens:
@@ -20,13 +22,24 @@ Or copy by hand and replace the tokens:
 cp -r node_modules/regira_modules/_template/entity-slice src/entities/products
 ```
 
-| Token          | Replace with                     | Example    |
-| -------------- | -------------------------------- | ---------- |
-| `__Entity__`   | PascalCase class name            | `Product`  |
-| `__entities__` | route prefix / API path (plural) | `products` |
-| `__entity__`   | singular i18n key                | `product`  |
+| Token             | Replace with                            | Example         |
+| ----------------- | --------------------------------------- | --------------- |
+| `__Entity__`      | PascalCase class name                   | `ShoppingList`  |
+| `__entities__`    | route prefix / API path (lowercase)     | `shoppinglists` |
+| `__entity__`      | singular route/id (lowercase)           | `shoppinglist`  |
+| `__entitiesKey__` | plural **camelCase** i18n key           | `shoppingLists` |
+| `__entityKey__`   | singular **camelCase** i18n key         | `shoppingList`  |
+
+(`scaffold.mjs` fills these automatically; the camelCase i18n keys keep multi-word titles from rendering raw.)
 
 Then register the slice's `plugin` in `src/entities/index.ts` (see the entities setup guide → Add entities).
+
+## Owned collections (`--owns <Child>`)
+
+`--owns <Child>` also scaffolds `owned-slice/` under the entity — an editable, `_deleted`-marked scalar-row
+table (`useOwnedCollection`) for a back-end `e.Related(...)` child. It prints the three lines that wire it into
+the parent (`Array<Child>` field, `<ChildOverview>` in the form, and the `prepareItem` `_deleted` filter). Use
+`InputSelectorInline` chips instead when the rows link to another entity (see the entities patterns guide).
 
 ## What to edit
 

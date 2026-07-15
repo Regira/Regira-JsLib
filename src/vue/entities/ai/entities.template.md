@@ -124,7 +124,9 @@ export class Foo extends EntityBase {
     // TODO: your fields — initialize non-optional ones (strictPropertyInitialization); optional ones get `?`, e.g.
     // code?: string
     // barId?: number
-    // bar?: Bar                          // a related entity (navigation property)
+    // bar?: Bar                          // a related entity — import another slice's model ALIASED:
+    //                                    //   import { type Entity as Bar } from "@/entities/bars"
+    //                                    //   (barrels export the model as `Entity`; `{ Bar }` is the TS2305 trap)
     // status?: Status                    // mirror a C# enum as a const object + union type, never a TS `enum`
     //                                    // (erasableSyntaxOnly rejects enums — see entities.setup.md → Tooling)
 
@@ -139,7 +141,7 @@ export class Foo extends EntityBase {
     }
 }
 
-export const Entity = Foo
+export const Entity = Foo // the barrel name other slices import — `import { type Entity as Foo } from "@/entities/foos"`, never `{ Foo }`
 export default Foo
 ```
 
@@ -160,7 +162,7 @@ const config: IConfig = {
     baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
     initialQuery: {},
 
-    overviewTitle: "foos", // i18n keys — add matching entries to public/data/translations.json, or the nav renders the raw key
+    overviewTitle: "foos", // camelCase i18n keys (multi-word → e.g. shoppingLists / shoppingList) — add matching entries to public/data/translations.json, or the nav renders the raw key
     detailsTitle: "foo",
     description: "foo.description",
     icon: "bi bi-question-circle", // TODO: a Bootstrap-Icons class

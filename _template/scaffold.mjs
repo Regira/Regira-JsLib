@@ -8,12 +8,16 @@
 //   --plural <name>     route prefix / API path (default: derived — Category → categories, Box → boxes)
 //   --singular <name>   singular i18n key (default: lowercased Entity)
 //   --dir <path>        target base folder for a slice (default: src/entities)
+//   --owns <Child>      also scaffold an editable owned-collection sub-slice (a `_deleted`-marked scalar-row
+//                       table via useOwnedCollection) under the entity, for a back-end `e.Related(...)` child.
+//                       Repeatable. PascalCase, e.g. --owns OrderLine --owns OrderNote
 //   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
 //   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
 //   --force             (--shell) overwrite files that already exist
 //
 // Examples:
 //   node .../scaffold.mjs Category --plural categories
+//   node .../scaffold.mjs Order --owns OrderLine
 //   node .../scaffold.mjs --shell --no-auth
 
 import { readdirSync, mkdirSync, readFileSync, writeFileSync, existsSync } from "fs"
@@ -38,13 +42,18 @@ if (argv.includes("--shell")) {
 // --------------------------------------------------------------- entity slice
 const name = argv.find((a) => !a.startsWith("--"))
 if (!name) {
-    console.error("Usage: scaffold.mjs <Entity> [--plural x] [--singular y] [--dir src/entities]  |  scaffold.mjs --shell [--no-auth]")
+    console.error("Usage: scaffold.mjs <Entity> [--plural x] [--singular y] [--owns Child] [--dir src/entities]  |  scaffold.mjs --shell [--no-auth]")
     process.exit(1)
 }
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1)
 const pluralize = (s) => (/(?:s|x|z|ch|sh)$/i.test(s) ? s + "es" : /[^aeiou]y$/i.test(s) ? s.slice(0, -1) + "ies" : s + "s")
 const plural = lowerFirst(opt("--plural", pluralize(name.toLowerCase())))
 const singular = lowerFirst(opt("--singular", name.toLowerCase()))
+// i18n keys are camelCase (derived from the PascalCase name), unlike the all-lowercase route/folder/api
+// identifiers above: ShoppingList → route "shoppinglists" but i18n keys "shoppingLists" / "shoppingList".
+// A lowercase i18n key silently renders raw (only a console warning), so keep the word boundaries.
+const camelPlural = lowerFirst(pluralize(name))
+const camelSingular = lowerFirst(name)
 const baseDir = opt("--dir", "src/entities")
 
 const srcRoot = resolve(here, "entity-slice")
@@ -54,7 +63,14 @@ if (existsSync(destRoot)) {
     process.exit(1)
 }
 
-const subst = (s) => s.replace(/__Entity__/g, name).replace(/__entities__/g, plural).replace(/__entity__/g, singular)
+// Replace the camelCase i18n-key placeholders before the lowercase route placeholders (longest-match first).
+const subst = (s) =>
+    s
+        .replace(/__Entity__/g, name)
+        .replace(/__entitiesKey__/g, camelPlural)
+        .replace(/__entityKey__/g, camelSingular)
+        .replace(/__entities__/g, plural)
+        .replace(/__entity__/g, singular)
 // the auth-coupled lines in Overview.vue / Details.vue: the useAuthStore import + store, the
 // $onAction reload hook, and the "no-auth app: delete these two lines" marker comment
 const authLine = /useAuthStore|authStore\.\$onAction|no-auth app:/
@@ -83,6 +99,52 @@ const customize = ["data/Entity.ts", "config/config.ts", "filter/SearchObject.ts
 console.log(`  Customize these ${customize.length} (c) files (a lookup drops the overview trio List/ListItem/FilterAdv):`)
 for (const f of customize) console.log(`    · ${join(baseDir, plural, f)}`)
 console.log(`  Then register its plugin in ${join(baseDir, "index.ts")} (see the entities setup guide → Add entities).`)
+
+// ------------------------------------------------------------- owned sub-slices
+// Each `--owns <Child>` scaffolds an editable owned-collection table under the parent slice.
+const owns = argv.filter((a, i) => argv[i - 1] === "--owns" && a && !a.startsWith("--"))
+const ownedSrcRoot = resolve(here, "owned-slice")
+for (const child of owns) scaffoldOwned(child)
+
+function scaffoldOwned(childName) {
+    if (!/^[A-Z]/.test(childName)) {
+        console.error(`✗ --owns ${childName}: expected a PascalCase child name, e.g. --owns OrderLine`)
+        return
+    }
+    if (!existsSync(ownedSrcRoot)) {
+        console.error(`✗ ${ownedSrcRoot} not found — regira_modules is missing the owned-slice template.`)
+        return
+    }
+    const childFolder = lowerFirst(pluralize(childName.toLowerCase())) // OrderLine → orderlines (folder / route / import path — lowercase)
+    const childField = lowerFirst(pluralize(childName)) // OrderLine → orderLines (DTO field — must match the back-end's camelCase JSON)
+    const ChildrenPascal = pluralize(childName) // OrderLine → OrderLines (e.Related nav name)
+    const childDest = resolve(destRoot, childFolder)
+    if (existsSync(childDest)) {
+        console.error(`✗ ${childDest} already exists — skipping owned ${childName}.`)
+        return
+    }
+    // __children__ → the camelCase field (the JSON key), NOT the folder; __parent__ → camelCase parent singular
+    // (so a `ShoppingList` child FK is `shoppingListId`, matching the server). Folder/import paths use childFolder.
+    const childSubst = (s) =>
+        s
+            .replace(/__Children__/g, ChildrenPascal)
+            .replace(/__Child__/g, childName)
+            .replace(/__children__/g, childField)
+            .replace(/__Parent__/g, name)
+            .replace(/__parent__/g, camelSingular)
+    mkdirSync(childDest, { recursive: true })
+    for (const entry of readdirSync(ownedSrcRoot, { withFileTypes: true })) {
+        if (entry.isDirectory()) continue // owned-slice is flat
+        writeFileSync(resolve(childDest, entry.name), childSubst(readFileSync(join(ownedSrcRoot, entry.name), "utf8")))
+    }
+    const p = (f) => join(baseDir, plural, f)
+    console.log(`✓ Owned collection ${childName} → ${join(baseDir, plural, childFolder)} (editable table)`)
+    console.log(`  Wire it into the ${name} slice (the editor is generated; these three lines connect it):`)
+    console.log(`    1. ${p("data/Entity.ts")}         field   ${childField}?: Array<${childName}>   // import { type Entity as ${childName} } from "../${childFolder}"`)
+    console.log(`    2. ${p("details/Form.vue")}       render  <${childName}Overview v-model="item.${childField}" />   // import { ${childName}Overview } from "../${childFolder}"`)
+    console.log(`    3. ${p("data/EntityService.ts")}  prepareItem   item.${childField} = item.${childField}?.filter((x) => !x._deleted) || []`)
+    console.log(`    back-end: e.Related(x => x.${ChildrenPascal}) on ${name} (owned child — no For<>()/controller/budget slot).`)
+}
 
 // -------------------------------------------------------------- app-shell impl
 function scaffoldShell() {

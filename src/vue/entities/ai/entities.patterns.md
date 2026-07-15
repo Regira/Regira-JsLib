@@ -414,18 +414,46 @@ Four numbered steps, one per layer:
 4. **Verify** — save the **same record twice** and reopen the form: the second save is where a mis-modelled
    join re-syncs and 500s, and reopening proves the Details eager-load returns the rows.
 
-For master-detail forms, drive a child collection with `useOwnedCollection` (inline rows) or
-`useOwnedModal` (edit each child in a modal). Children must be `IEntity & { id: number }`:
+### Owned rows with scalar fields — the inline table
 
-```ts
-const { items, newItem, handleSort, handleSave } = useOwnedCollection<OrderLine>({ props, emit })
-// items is a writable computed bound to the parent's collection; mark removed rows with _deleted
+When the rows carry **their own scalar fields** and pick no other entity (order/invoice lines, request
+items, contact rows), there is nothing for `InputSelectorInline` to select — render an **editable table**
+instead. It is still owned via `e.Related(...)`, still removed by a `_deleted` **mark** (never a splice),
+and still purged in `prepareItem`. `useOwnedCollection` supplies the array + add-row over the parent's
+collection — bind the child editor to the **array**, not the parent. Scaffold the whole editor with
+`scaffold.mjs <Entity> --owns <Child>` (it emits this component + the child model and prints the wiring),
+then replace the placeholder scalar fields:
+
+```vue
+<script setup lang="ts">
+import { useOwnedCollection } from "regira_modules/vue/entities"
+import OrderLine from "./Entity" // the child row model — a plain EntityBase with scalar fields + `_deleted?: boolean`
+
+const props = defineProps<{ modelValue?: Array<OrderLine> }>()
+const emit = defineEmits<{ "update:modelValue": [Array<OrderLine>] }>()
+// items: writable computed over the collection · newItem: a blank row · handleSave: appends newItem with a negative temp id
+const { items, newItem, handleSave } = useOwnedCollection<OrderLine>({ props, emit })
+</script>
+
+<template>
+    <div v-for="row in items" :key="row.id" class="row mb-1" :class="{ 'is-deleted': row._deleted }">
+        <div class="col"><input v-model="row.description" class="form-control" /></div>
+        <div class="col-3"><input type="number" v-model.number="row.quantity" class="form-control" /></div>
+        <button type="button" class="btn btn-outline-danger" @click="row._deleted = !row._deleted">×</button>
+    </div>
+    <div v-if="newItem" class="row"><!-- add-row -->
+        <div class="col"><input v-model="newItem.description" class="form-control" @keyup.enter="handleSave({ saved: newItem, isNew: true })" /></div>
+        <button type="button" class="btn btn-success" @click="handleSave({ saved: newItem, isNew: true })">+</button>
+    </div>
+</template>
 ```
 
-`useListInput` / `useListItemInput` are the lower-level building blocks for editable lists. For these owned
-rows, removal is a `_deleted` **mark**, not a splice — `useListItemInput` toggles it on `handleRemove`, while `useListInput`
-exposes only the array and leaves the mark to you. Finalize it with a per-collection `prepareItem` filter so
-`Related()` deletes the row ([Transient client-only fields](#transient-client-only-fields)).
+Parent form binds it to the array: `<OrderLineOverview v-model="item.orderLines" />` — the field is
+**camelCase** (`orderLines`), matching the back-end nav's JSON key, not the lowercase folder. New rows mint
+**negative temp ids** and insert with the parent's single `save()`; `_deleted` rows drop in the `prepareItem`
+filter above. Use `useOwnedModal` when each row is edited in a modal instead of inline; `useListInput` /
+`useListItemInput` are the lower-level primitives (`useListItemInput`'s `handleRemove` toggles `_deleted`
+for you). **Table when there's nothing to pick; `InputSelectorInline` chips when rows link to another entity.**
 
 **Owned vs first-class child — and the "add before the parent is saved" consequence.** An **owned** collection
 (`useOwnedCollection`, embedded in the parent DTO, persisted via `e.Related(...)` on save) can be edited on a
