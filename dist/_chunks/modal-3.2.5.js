@@ -94,8 +94,9 @@ var x = /* @__PURE__ */ function(e) {
 function A() {
 	return f(k, O);
 }
-var j = { install(e, { Modal: t } = {}) {
-	let r = t ?? O;
+var j = { install(e, t = {}) {
+	"DefaultModal" in t && console.warn("[regira] modalPlugin option `DefaultModal` was renamed to `Modal` — pass app.use(modalPlugin, { Modal }).");
+	let r = t.Modal ?? O;
 	e.provide(k, r), n.registerComponentsGlobally && e.component("MyModal", r);
 } };
 //#endregion

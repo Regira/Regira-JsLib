@@ -192,21 +192,23 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = { key: 0 }
 				text: t,
 				match: !1
 			}];
-			let r = t.toLowerCase().indexOf(n.toLowerCase());
-			return r < 0 ? [{
+			let r = n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), i = t.match(new RegExp(r, "i"));
+			if (!i || i.index == null) return [{
 				text: t,
 				match: !1
-			}] : [
+			}];
+			let o = i.index, s = o + i[0].length;
+			return [
 				{
-					text: t.slice(0, r),
+					text: t.slice(0, o),
 					match: !1
 				},
 				{
-					text: t.slice(r, r + n.length),
+					text: t.slice(o, s),
 					match: !0
 				},
 				{
-					text: t.slice(r + n.length),
+					text: t.slice(s),
 					match: !1
 				}
 			].filter((e) => e.text);

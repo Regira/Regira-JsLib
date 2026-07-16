@@ -83,14 +83,19 @@ function highlightParts(item: T): Array<{ text: string; match: boolean }> {
     if (!term) {
         return [{ text, match: false }]
     }
-    const index = text.toLowerCase().indexOf(term.toLowerCase())
-    if (index < 0) {
+    // match against the original text: a regex reports its offset/length in original-string space, so the
+    // split stays aligned even when a preceding char case-folds to a different length (e.g. "İ" → "i̇")
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const match = text.match(new RegExp(escaped, "i"))
+    if (!match || match.index == null) {
         return [{ text, match: false }]
     }
+    const start = match.index
+    const end = start + match[0].length
     return [
-        { text: text.slice(0, index), match: false },
-        { text: text.slice(index, index + term.length), match: true },
-        { text: text.slice(index + term.length), match: false },
+        { text: text.slice(0, start), match: false },
+        { text: text.slice(start, end), match: true },
+        { text: text.slice(end), match: false },
     ].filter((part) => part.text)
 }
 

@@ -11,8 +11,11 @@ export function injectModal(): ModalComponent {
 }
 
 export default {
-    install(app: App<Element>, { Modal }: { Modal?: ModalComponent } = {}) {
-        const modal = Modal ?? (FallbackModal as unknown as ModalComponent)
+    install(app: App<Element>, options: { Modal?: ModalComponent } = {}) {
+        if ("DefaultModal" in options) {
+            console.warn("[regira] modalPlugin option `DefaultModal` was renamed to `Modal` — pass app.use(modalPlugin, { Modal }).")
+        }
+        const modal = options.Modal ?? (FallbackModal as unknown as ModalComponent)
         // every modal in the app resolves to this component — including the ones inside library components
         app.provide(MODAL_COMPONENT_KEY, modal)
         if (globalOptions.registerComponentsGlobally) {
