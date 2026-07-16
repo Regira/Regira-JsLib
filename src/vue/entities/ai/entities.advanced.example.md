@@ -21,7 +21,7 @@ cover the per-entity set (config, model, plain service, search object, form, lis
 | Delta                             | Where, in this file                                                                             | Mechanism                                                                                                                                    |
 | --------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Attachments** (upload/download) | §4 service (`getAttachments`/`addAttachment`, `insert`/`update` overrides), §5 form `files` tab | `EntityService` round-trips files via the app-local `entity-attachments` helpers; service constructed with an `AxiosWithFilesInstance` (§13) |
-| **Many-to-many link model**       | §3 `VehicleInterventionType`, §5 form (`itemInterventionTypes` computed)                        | a join entity with `_deleted` + `create()`; the form flattens links to a selector and rebuilds them on write-back                            |
+| **Many-to-many link model**       | §3 `VehicleInterventionType`, §5 form (`InputSelectorInline` chips)                             | a join entity with `_deleted` + `create()`; the form edits links inline as marked-deletable chips (no flatten/rebuild bridge)                |
 | **Owned child collection**        | §6 `vehicle-interventions/Overview.vue` (embedded `interventions` tab)                          | a child list resolved from the IoC container and (re)loaded on save                                                                          |
 | **Hierarchical tree**             | _not in the Vehicle slice_ — see redirect below                                                 | `useTree` / `useDragDrop` — recipe in [entities.patterns.md — Hierarchical (tree) entities](entities.patterns.md)                            |
 
@@ -124,9 +124,9 @@ export default Vehicle
 
 The join model for the many-to-many `Vehicle`↔`InterventionType` relation. `_deleted` lets the form mark a
 link for removal without dropping it from the array before save; `create()` builds an instance from a plain
-payload. The form (§5) maps this collection to/from a flat list of `InterventionType`. This link is
-payload-free (just the two foreign-key ids); for a join that carries its own fields — e.g. a `quantity`
-edited inline rather than flattened to a selector — see `Product`↔`ProductComponent` in
+payload. The form (§5) edits this collection inline with `InputSelectorInline` chips. This link is
+payload-free (just the two foreign-key ids); for a join that carries its own scalar fields — e.g. a
+`quantity` edited in a row — see `Product`↔`ProductComponent` in
 [entities.examples.md](entities.examples.md).
 
 ```ts
@@ -233,9 +233,10 @@ export default EntityService
 
 Three tabs: the main `form` (code, type, brand, model, labels, allowed intervention types), a `files` tab
 backed by the shared `EntityAttachments` overview, and an `interventions` child collection (§6, disabled
-until the vehicle is saved). The `itemInterventionTypes` computed flattens the `VehicleInterventionType`
-link rows (§3) into a list of plain `InterventionType` for the selector, and rebuilds the links — preserving
-existing ids and toggling `_deleted` — on write-back.
+until the vehicle is saved). The `interventionTypes` join rows (§3) are edited inline with
+**`InputSelectorInline`**: each chip embeds the related `InterventionType`'s `FormModalButton`, its delete
+toggle marks `_deleted` (visible, undoable), and `#selector`'s `add()` appends a new join row — no
+flatten/rebuild bridge, so a removed chip marks pending instead of hard-removing.
 
 ```vue
 <template>
@@ -329,12 +330,24 @@ existing ids and toggling `_deleted` — on write-back.
                         <FormSection :title="$t('interventionType')">
                             <div class="row">
                                 <div class="col mb-2">
-                                    <InterventionTypeSelector
-                                        v-model="itemInterventionTypes"
-                                        :filter-defaults="{ exclude: itemInterventionTypes?.map((x) => x.id) }"
-                                        :readonly="readonly"
-                                        :placeholder="$t('selectType')"
-                                    />
+                                    <InputSelectorInline
+                                        v-model="item.interventionTypes"
+                                        :row-key="(r) => r.interventionTypeId"
+                                        :exclude-key="(r) => r.interventionTypeId"
+                                    >
+                                        <template #chip="{ row }">
+                                            <InterventionTypeButton :modelValue="row.interventionType" />
+                                            {{ row.interventionType?.title }}
+                                        </template>
+                                        <template #selector="{ add, exclude }">
+                                            <InterventionTypeSelector
+                                                :filter-defaults="{ exclude }"
+                                                :readonly="readonly"
+                                                :placeholder="$t('selectType')"
+                                                @select="(it: InterventionType) => add(VehicleInterventionType.create({ interventionTypeId: it.id!, interventionType: it, vehicleId: item.id }))"
+                                            />
+                                        </template>
+                                    </InputSelectorInline>
                                     <FormLabel :label="$t('allowedInterventionTypes')" />
                                 </div>
                             </div>
@@ -366,7 +379,7 @@ existing ids and toggling `_deleted` — on write-back.
 import { computed } from "vue"
 import type { RouteRecordRaw } from "vue-router"
 import { Feedback, TabContainer, Tab } from "@/regira_modules/vue/ui"
-import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
+import { useForm, type FormEmits, formDefaults, InputSelectorInline } from "@/regira_modules/vue/entities"
 import { useLang } from "@/regira_modules/vue/lang"
 import { FormButtonsRow } from "@/regira_modules/vue/ui"
 import config from "../config/config"
@@ -375,7 +388,7 @@ import { Overview as EntityAttachments } from "../../entity-attachments"
 import { InputSelector as BrandSelector } from "../../brands"
 import { InputSelector as VehicleTypeSelector } from "../../vehicle-types"
 import { Entity as Intervention } from "../../interventions"
-import { Selector as InterventionTypeSelector } from "../../intervention-types"
+import { InputSelector as InterventionTypeSelector, FormModalButton as InterventionTypeButton } from "../../intervention-types"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 import Interventions from "../vehicle-interventions/Overview.vue"
@@ -399,25 +412,6 @@ const { service: entityService } = useEntityStore()
 
 const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore } = useForm<Entity>({ entityService, props, emit })
 
-const itemInterventionTypes = computed({
-    get: () => item.value?.interventionTypes?.map((x) => InterventionType.create({ ...x.interventionType, _deleted: x._deleted })) || [],
-    set: (values: any[]) => {
-        item.value = entityService.toEntity({
-            ...item.value,
-            interventionTypes: values.map((x) =>
-                VehicleInterventionType.create({
-                    ...(item.value?.interventionTypes?.find((it) => it.interventionTypeId === x.id) || {
-                        interventionType: x,
-                        interventionTypeId: x.id,
-                        vehicleId: item.value?.id,
-                    }),
-                    _deleted: x._deleted,
-                })
-            ),
-        })
-    },
-})
-
 // Tabs
 const { translate } = useLang()
 const tabs = computed(() =>
@@ -432,11 +426,11 @@ const tabs = computed(() =>
 
 ### The many-to-many link, end to end
 
-The four moving parts of an editable, **undoable** link — join model, form bridge, pooled display, and the
-save-time filter — collected in one place (full files in §3–§5):
+The four moving parts of an editable, **undoable** link — join model, inline chip editor, pooled display, and
+the save-time filter — collected in one place (full files in §3–§5):
 
 ```ts
-// 1. Join model (§3): key on the plain `.id`; `_deleted` marks a row (never splice); `create()` from a payload.
+// 1. Join model (§3): key on the plain FK; `_deleted` marks a row (never splice); `create()` from a payload.
 class VehicleInterventionType extends EntityBase {
     id = 0; interventionTypeId = 0; vehicleId = 0
     interventionType?: InterventionType
@@ -444,41 +438,42 @@ class VehicleInterventionType extends EntityBase {
     override get $id() { return this.id || "new" }
     static create(v?: object) { return Object.assign(new VehicleInterventionType(), v || {}) }
 }
+```
 
-// 2. Form bridge (§5): flatten links → InterventionType[] for the multi-select; rebuild on change,
-//    reusing existing rows by `.id` so their ids and `_deleted` survive.
-const { service: entityService } = useEntityStore()
-const itemInterventionTypes = computed({
-    get: () => item.value?.interventionTypes?.map((x) => InterventionType.create({ ...x.interventionType, _deleted: x._deleted })) || [],
-    set: (values: InterventionType[]) => (item.value = entityService.toEntity({
-        ...item.value,
-        interventionTypes: values.map((x) =>
-            VehicleInterventionType.create({
-                ...(item.value?.interventionTypes?.find((l) => l.interventionTypeId === x.id)
-                    || { interventionType: x, interventionTypeId: x.id, vehicleId: item.value?.id }),
-                _deleted: x._deleted,
-            })),
-    })),
-})
-// bind `itemInterventionTypes` to the InterventionType multi-select; the join collection follows.
+```vue
+<!-- 2. Inline chip editor (§5): InputSelectorInline binds the join rows directly. Its delete toggle marks
+     `_deleted` (tinted, undoable) — there is no flatten/rebuild bridge and no hard-remove. `#selector`'s
+     add() appends a new join row; :exclude-key drops already-linked rows from the picker. -->
+<InputSelectorInline v-model="item.interventionTypes" :row-key="(r) => r.interventionTypeId" :exclude-key="(r) => r.interventionTypeId">
+    <template #chip="{ row }">
+        <InterventionTypeButton :modelValue="row.interventionType" /> {{ row.interventionType?.title }}
+    </template>
+    <template #selector="{ add, exclude }">
+        <InterventionTypeSelector :filter-defaults="{ exclude }"
+            @select="(it: InterventionType) => add(VehicleInterventionType.create({ interventionTypeId: it.id!, interventionType: it, vehicleId: item.id }))" />
+    </template>
+</InputSelectorInline>
+```
 
+```ts
 // 3. Show a current link elsewhere (chip/summary): the nested relation is plain JSON, so hydrate it
 //    through its pooled store for a reactive `$title` — or bind the projected field directly.
 const { fromPool } = useInterventionTypeStore() // the intervention-types slice store
 const linkTitle = (l: VehicleInterventionType) => fromPool(l.interventionType)?.$title ?? l.interventionType?.title
 
 // 4. Save-time filter (§4, EntityService): drop `_deleted` links so they are ABSENT from the payload —
-//    `e.Related(...)` then deletes them. Marking alone won't: prepareItem strips only top-level `_` keys,
-//    so a marked link is still sent and Related() keeps it.
+//    `e.Related(...)` then deletes them by omission. Marking alone won't: prepareItem strips only top-level
+//    `_` keys, so a marked link is still sent and Related() keeps it.
 protected override prepareItem(item: Entity): Entity {
     item.interventionTypes = item.interventionTypes?.filter((x) => !x._deleted)
     return super.prepareItem(item)
 }
 ```
 
-**Key on `.id`, never `$id`** — an included relation's `$id` getter is `undefined`, so `interventionTypeId:
-undefined` slips through and the **second** save 400s. **Mark → filter → absent → deleted** is the whole
-delete path.
+**Key the new row on the FK, never `$id`** — an included relation's `$id` getter is `undefined`, so
+`interventionTypeId: undefined` slips through and the **second** save 400s. **Mark → filter → absent →
+deleted** is the whole delete path, and `InputSelectorInline` owns the mark: a removed chip is visibly
+pending until save, never gone on click.
 
 ## 6. Interventions overview (owned child collection) — `vehicle-interventions/Overview.vue`
 

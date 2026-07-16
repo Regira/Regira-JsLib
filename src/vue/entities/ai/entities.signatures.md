@@ -398,6 +398,14 @@ declare function useModalForm<T extends IEntity>({
 ```
 
 ```ts
+// FormModalButton — the workhorse edit affordance: a button that opens the entity's Form in a modal. Each
+// slice re-exports its own from details/FormModalButton.vue (import { FormModalButton } from "@/entities/<slice>").
+// Props: { modelValue?: T; readonly?; itemDefaults?; initialTab?; label?; closeOnSave?; fullWidth? }
+// Emits: FormModalEmits<T> + update:modelValue | save(SaveResult<T>) | remove(T) | restore(T) | cancel | open | close
+// In an overview row, forward @save AND @remove — a delete from inside the modal leaves the row stale otherwise.
+```
+
+```ts
 import { useFilter } from "regira_modules/vue/entities"
 export interface FilterIn<SO> {
     searchObject: Ref<SO>

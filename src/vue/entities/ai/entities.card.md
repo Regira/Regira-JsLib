@@ -3,7 +3,9 @@
 > The must-know bullets before building a Vue 3 SPA on the Regira entities client. Drill into
 > `entities.instructions` (the spine), `entities.setup` (project + app shell), `entities.namespaces` /
 > `entities.signatures` (never guess an import or signature), and the examples/patterns sections for
-> detail. Back-end counterpart: `get_package_card("Regira.Entities")`.
+> detail. **Read economically:** this card + a heading-scoped `get_package(section, heading)` (see
+> `get_section_toc`) usually suffices — pull a whole section only when a heading isn't enough.
+> Back-end counterpart: `get_package_card("Regira.Entities")`.
 
 - **Default = the full reference scaffold, whatever the app type.** `scaffold.mjs --shell` once
   (`--no-auth` variant exists), `scaffold.mjs <Entity>` per entity; you edit only the eight `(c)` files.
@@ -14,9 +16,12 @@
   owned/join chips (`InputSelectorInline` + `_deleted`), debug (`<Debug>`), breakpoints (`useScreen`).
 - **A displayed related entity defaults to its `FormModalButton`** — every chip, badge, or list cell that
   shows a related row should open that row's form in a modal; a bare text label is the exception.
-- **Restyle freely — it's encouraged.** The default styling is deliberately plain; improve it (CSS after
-  the library css, wrap components, swap the app-wide modal via `modalPlugin`) while preserving the
-  wiring: composables, events, `_deleted` marking, modal teleport.
+- **Restyle freely — and space what you add.** The default styling is deliberately plain and tight;
+  improving it is expected. Group fields in `FormSection` and give every component deliberate spacing
+  (`mb-2`/`mb-3`, margins) — a dropped-in component with none reads as unfinished. Preserve the wiring
+  (composables, events, `_deleted` marking, modal teleport); overriding Bootstrap's `!important` utilities
+  (a scaffold's tight `py-1`, etc.) needs `!important` back. Improve the look via CSS after the library css,
+  by wrapping components, or by swapping the app-wide modal via `modalPlugin`.
 - **Model/view lockstep.** The scaffolded `(c)` views bind a placeholder `title` — when you change
   `data/Entity.ts` or `filter/SearchObject.ts`, update `Form.vue` / `FilterAdv.vue` / `List(Item).vue`
   in the same pass, or `vue-tsc` breaks on the stale bindings.

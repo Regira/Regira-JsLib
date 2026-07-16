@@ -221,6 +221,14 @@ Render it with `<Feedback :feedback="feedback" />` (styling + the 400 field-map 
 
 **Which one:** single FK on a form → `InputSelector`; free-text filter field → `Autocomplete`; join/owned rows edited in a form → **`InputSelectorInline`** (marked-delete — the default for m2m, [below](#owned-child-collections)); multi-value over a **fixed option set (enum, no service)** → a checkbox group rather than a native `<select multiple>` ([below](#multi-value-over-a-fixed-option-set-enum)); a plain entity array where instant removal is genuinely wanted → `Selector`.
 
+> **A single-FK `InputSelector` needs BOTH bindings to show a value:** `v-model` (the related **object**, which
+> the control displays via its `$title`) **and** `v-model:idValue` (the **FK** that is saved). Bind only
+> `idValue` and a populated form renders the control blank — the most common "why is the picker empty" bug.
+>
+> ```vue
+> <BrandSelector v-model="item.brand" v-model:idValue="item.brandId" />
+> ```
+
 > **⚠️ Delete semantics differ.** The multi-`Selector` **hard-removes** on its delete icon — the row leaves
 > the array immediately, so it cannot deliver the marked-deleted UX (visible, undoable until save). For any
 > join/owned collection edited in a form, marked-delete is the **default**: use `InputSelectorInline`
@@ -290,34 +298,22 @@ so forms do `import { Selector as CategorySelector } from "@/entities/categories
 Type optional relations `Category | undefined`, not `| null` — selector/autocomplete `v-model`s are
 `T | undefined` (JSON `null` still deserializes fine).
 
-### Editing a many-to-many join with the related entity's selector
+### Editing a many-to-many join — use `InputSelectorInline`
 
-The entity carries **join rows** (`{ categoryId, category? }`), but a multi-select binds related
-entities (`Category[]`). Bridge them locally in the form: seed a picked-entities array from the join
-rows, and rebuild the rows when the selection changes:
+The entity carries **join rows** (`{ categoryId, category? }`). Edit them inline with **`InputSelectorInline`**
+([the owned-m2m recipe](#the-owned-m2m-recipe--inputselectorinline)): it binds the join array directly, its
+delete toggle marks `_deleted` (visible, undoable), and `#selector`'s `add()` appends a new row. This is the
+default for **every** join/owned collection edited in a form — including a plain id-set link like this one.
 
-```ts
-// Form.vue — item.articleCategories: Array<{ categoryId: number; category?: Category }>
-const selectedCategories = ref<Category[]>([])
-watch(
-    item,
-    (v) => {
-        selectedCategories.value = v?.articleCategories?.map((j) => j.category ?? Object.assign(new Category(), { id: j.categoryId })) ?? []
-    },
-    { immediate: true }
-)
-watch(selectedCategories, (cats) => {
-    item.value.articleCategories = cats.map((c) => item.value.articleCategories?.find((j) => j.categoryId === c.id) ?? { categoryId: c.id as number })
-})
-```
+> **Do not bridge it to a multi-`Selector`.** The obvious-looking alternative — flatten the join rows to a
+> `Category[]`, bind a multi-`Selector`, rebuild on change — **hard-removes** (its delete icon splices the
+> array), so it can never show a pending/undoable delete and its `_deleted` handling is dead on removal. Reach
+> for it only when instant, no-undo removal is genuinely wanted.
 
-Bind `selectedCategories` to the related entity's multi-select; the join collection follows. Existing
-join rows are reused (so their ids survive), removed picks drop their row, and the server-side
-`e.Related(...)` applies the add/remove on save.
-
-> **Key on the plain `id`, never `$id`.** A nested `category` from an included relation is un-hydrated JSON —
-> its `$id`/`$title` getters are `undefined`. Reading `$id` here writes `categoryId: undefined`, which the
-> server rejects on the **second** save (`Related()` re-syncs the join rows). The `.id` field is always present.
+> **Key the new row on the plain `id`/FK, never `$id`.** A nested `category` from an included relation is
+> un-hydrated JSON — its `$id`/`$title` getters are `undefined`. Reading `$id` writes `categoryId: undefined`,
+> which the server rejects on the **second** save (`Related()` re-syncs the join rows). The `.id` field is
+> always present.
 
 ### Multi-value over a fixed option set (enum)
 

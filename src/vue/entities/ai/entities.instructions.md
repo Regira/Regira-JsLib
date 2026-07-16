@@ -391,6 +391,7 @@ hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](enti
 | relation labels                                                   | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                                                                      |
 | tricky state while developing                                     | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                                                                          |
 | breakpoint-dependent layout                                       | CSS/flex first; `useScreen` when the structure itself changes (e.g. dropping a tab)                                                                                                  |
+| any component you drop in                                         | **deliberate spacing** — wrap fields in `FormSection`, give each `mb-2`/`mb-3` + margins; scaffolded markup ships tight on purpose (overriding a Bootstrap `!important` utility needs `!important` back)  |
 
 > **An owned collection is done only when it's editable.** If the parent's back-end `e.Related(...)` owns a
 > collection, its add/edit/remove editor (the chips or table row above) is **part of this slice** — shipping the
@@ -407,6 +408,12 @@ hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](enti
 > load it: **open a navbar dropdown**, **save the same record twice** (a `Related()`/m2m re-sync is the classic
 > 2nd-save 500), **toggle a status flag**, **apply a filter and reopen it** (multi-value restore), and **delete
 > a referenced row** (FK-block feedback). Wiring/contract bugs surface only here — `vue-tsc` never exercises them.
+
+> **Never guess a composable's shape — the signatures are indexed (mind the module split).** Feedback, tabs,
+> breakpoints, loading and `DefaultModal` live in **`ui.signatures.md`** (`useFeedback` → `pending`/`success`/
+> `fail`/`reset` — there is no `loading()`; `Tab.create(key, { title, icon })`; `useScreen` → `screen.isLarge`);
+> `useForm`/`useSearchView`/`useModal`/`FormModalButton`/`usePreloader` live in **`entities.signatures.md`**.
+> Pull the signature (or `get_type`) before wiring — don't reverse-engineer it from the `.d.ts` by trial.
 
 ---
 

@@ -9,7 +9,7 @@
 //
 //   node scripts/build-ui-template.mjs        (also runs as part of `npm run build`)
 
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from "fs"
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "fs"
 import { resolve, dirname, join, posix } from "path"
 import { fileURLToPath } from "url"
 
@@ -131,6 +131,56 @@ const MODULE_MAP = {
     "vue/auth/useResetPasswordForm": { spec: "regira_modules/vue/auth" },
 }
 
+// -------------------------------------------------- public-export resolution
+// The transitive named-export set of each public barrel a mapping targets, so a MODULE_MAP that
+// points a symbol at a spec whose barrel doesn't actually export it FAILS the build — not just a
+// missing MODULE_MAP key. This is what makes the "may only depend on public API" promise real.
+function resolveModuleFile(absNoExt) {
+    for (const cand of [`${absNoExt}.ts`, `${absNoExt}.tsx`, join(absNoExt, "index.ts")]) {
+        if (existsSync(cand)) return cand
+    }
+    return null
+}
+function collectExports(absFile, seen = new Set()) {
+    if (!absFile || seen.has(absFile)) return new Set()
+    seen.add(absFile)
+    const names = new Set()
+    let content
+    try {
+        content = readFileSync(absFile, "utf8")
+    } catch {
+        return names
+    }
+    const dir = dirname(absFile)
+    // export [type] * from "./x"  → union the target barrel's exports
+    for (const m of content.matchAll(/export\s+(?:type\s+)?\*\s+from\s*["']([^"']+)["']/g)) {
+        for (const n of collectExports(resolveModuleFile(resolve(dir, m[1])), seen)) names.add(n)
+    }
+    // export [type] { a, b as c, default as D } [from "..."]  → the exported (right-of-`as`) names
+    for (const m of content.matchAll(/export\s+(?:type\s+)?\{([^}]*)\}/g)) {
+        for (let part of m[1].split(",")) {
+            part = part.trim().replace(/^type\s+/, "")
+            if (!part) continue
+            const seg = part.split(/\s+as\s+/)
+            const name = (seg[1] ?? seg[0]).trim()
+            if (name) names.add(name)
+        }
+    }
+    // export [declare] [abstract] const|let|var|function|class|enum|interface|type X
+    for (const m of content.matchAll(/export\s+(?:declare\s+)?(?:abstract\s+)?(?:const|let|var|function|class|enum|interface|type)\s+([\w$]+)/g)) {
+        names.add(m[1])
+    }
+    if (/export\s+default\b/.test(content)) names.add("default")
+    return names
+}
+// spec (e.g. regira_modules/vue/ui) → its barrel's transitive export set
+const PUBLIC_EXPORTS = {}
+for (const { spec } of Object.values(MODULE_MAP)) {
+    if (spec in PUBLIC_EXPORTS) continue
+    const barrel = resolveModuleFile(resolve(srcRoot, spec.replace(/^regira_modules\//, "")))
+    PUBLIC_EXPORTS[spec] = collectExports(barrel)
+}
+
 // side-effect imports:  import "./style.scss"
 const SIDE_EFFECT_RE = /import\s*(["'])([^"']+)\1/g
 // clause imports:  import [type] <default>[, { ... }] | { ... } from "..."   (braces may span lines)
@@ -183,6 +233,16 @@ function rewriteImports(content, set, srcFile) {
             }
             const imported = publicName === defaultName ? publicName : `${publicName} as ${defaultName}`
             inner = inner ? `${imported}, ${inner}` : imported
+        }
+        // enforce that every rewritten name is actually exported by the target barrel
+        const publicSet = PUBLIC_EXPORTS[map.spec]
+        if (publicSet?.size) {
+            for (const part of inner.split(",")) {
+                const name = part.trim().replace(/^type\s+/, "").split(/\s+as\s+/)[0].trim()
+                if (name && !publicSet.has(name)) {
+                    errors.push(`${srcFile}: "${name}" is not a public export of ${map.spec} (mapped from "${spec}") — add it to that barrel or fix the mapping`)
+                }
+            }
         }
         return `import ${typeKw || ""}{ ${inner} } from ${q}${map.spec}${q}`
     })

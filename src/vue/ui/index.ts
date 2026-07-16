@@ -15,6 +15,9 @@ export * from "./gis"
 export {
     useFeedback,
     Feedback,
+    Pending,
+    Success,
+    ErrorSummary,
     FeedbackStatus,
     feedbackDefaults,
     plugin as feedbackPlugin,
