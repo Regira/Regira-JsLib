@@ -1,35 +1,15 @@
-import type { IEntity, IEntityService } from "../abstractions";
+import type { IEntity } from "../abstractions";
+import { type LeanOverviewProps, type LeanOverviewSlots } from "./overview";
 declare const __VLS_export: <T extends IEntity>(__VLS_props: NonNullable<Awaited<typeof __VLS_setup>>["props"], __VLS_ctx?: __VLS_PrettifyLocal<Pick<NonNullable<Awaited<typeof __VLS_setup>>, "attrs" | "emit" | "slots">>, __VLS_exposed?: NonNullable<Awaited<typeof __VLS_setup>>["expose"], __VLS_setup?: Promise<{
-    props: import("vue").PublicProps & __VLS_PrettifyLocal<{
-        service: IEntityService<T>;
-        query?: Record<string, any>;
-        pageSize?: number;
-    }> & (typeof globalThis extends {
+    props: import("vue").PublicProps & __VLS_PrettifyLocal<LeanOverviewProps<T>> & (typeof globalThis extends {
         __VLS_PROPS_FALLBACK: infer P;
     } ? P : {});
     expose: (exposed: import("vue").ShallowUnwrapRef<{
         reload: () => Promise<void>;
-        setPage: (p: number) => Promise<void>;
+        setPage: (page: number) => Promise<void>;
     }>) => void;
     attrs: any;
-    slots: {
-        toolbar(props: {
-            reload: () => Promise<void>;
-            setPage: (p: number) => Promise<void>;
-        }): any;
-        head(): any;
-        row(props: {
-            item: T;
-            remove: (item: T) => Promise<void>;
-            reload: () => Promise<void>;
-        }): any;
-        paging(props: {
-            page: number;
-            pageCount: number;
-            count: number;
-            setPage: (p: number) => Promise<void>;
-        }): any;
-    };
+    slots: LeanOverviewSlots<T>;
     emit: {};
 }>) => import("vue").VNode & {
     __ctx?: Awaited<typeof __VLS_setup>;

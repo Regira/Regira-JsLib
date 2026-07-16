@@ -1,5 +1,5 @@
 <template>
-    <ul class="nav" :class="{ 'nav-pills': !$screen?.isLarge, 'nav-tabs': $screen?.isLarge }">
+    <ul class="rg-tab-nav nav" :class="{ 'nav-pills': !$screen?.isLarge, 'nav-tabs': $screen?.isLarge }">
         <template v-for="tab in tabs" :key="tab.key">
             <li v-if="isVisible(tab)" class="nav-item" :class="{ disabled: tab.isDisabled }">
                 <a
@@ -19,15 +19,10 @@
 import { computed } from "vue"
 import Icon from "../icons/Icon.vue"
 import type { ITab } from "./Tab"
-import type { IEmits } from "./tabs"
+import type { TabsEmits, TabNavigationProps } from "./tabs"
 
-interface Emits extends IEmits {}
-
-defineEmits<Emits>()
-defineProps<{
-    tabs: Array<ITab>
-    activeTab: string
-}>()
+defineEmits<TabsEmits>()
+defineProps<TabNavigationProps>()
 
 const isVisible = computed(() => (tab: ITab) => (typeof tab.isVisible == "function" ? tab.isVisible() : tab.isVisible))
 </script>

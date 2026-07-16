@@ -1,14 +1,14 @@
 <template>
-    <a :href="url"><slot></slot></a>
+    <a class="rg-anchor" :href="url"><slot></slot></a>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue"
 import { isEmail, isIP, isPhone } from "../../../utilities/string-utility"
+import type { AnchorProps, AnchorSlots } from "./inputs"
 
-const props = defineProps<{
-    href: string
-}>()
+const props = defineProps<AnchorProps>()
+defineSlots<AnchorSlots>()
 
 const url = computed(() => {
     let input = props.href

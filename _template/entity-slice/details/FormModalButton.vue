@@ -4,7 +4,8 @@
             <Icon :name="config.key" />
         </slot>
         <Teleport to="#modals">
-            <DefaultModal
+            <component
+                :is="Modal"
                 :is-visible="isOpen"
                 :title="modalTitle || $t(config.detailsTitle || '')"
                 :showFooter="false"
@@ -23,19 +24,21 @@
                     @save="handleSave"
                     @remove="handleRemove"
                 />
-            </DefaultModal>
+            </component>
         </Teleport>
     </button>
 </template>
 
 <script setup lang="ts">
 import { computed, type Ref } from "vue"
-import { Icon, DefaultModal } from "regira_modules/vue/ui"
+import { Icon, injectModal } from "regira_modules/vue/ui"
 import { FormStates, useModal, type FormModalEmits, type SaveResult } from "regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 import Form from "./Form.vue"
+
+const Modal = injectModal() // resolves the app-wide modal (modalPlugin swap-aware)
 
 interface Emits extends /* @vue-ignore */ FormModalEmits<Entity> {}
 const emit = defineEmits<

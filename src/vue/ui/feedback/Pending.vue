@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-light text-info">
+    <div class="rg-pending bg-light text-info">
         <slot name="message">{{ msg }}</slot>
     </div>
 </template>

@@ -16,6 +16,8 @@ import {
     translate,
     translateMessage,
     formatText,
+    LangSelector,
+    type LangSelectorProps,
     type ITranslationMessages,
     type ITranslationMessage,
     type IFormatInput,
@@ -50,6 +52,20 @@ so calling it in a component reads/writes the app-wide language:
 - `translateMessage(message, formatArgs?)` — same fallback behavior for an inline message object.
 - `setLangCode(newValue)` — switch language (ignores empty values).
 - `replaceMessages(values)` — replace the whole dictionary; `loadMessages(values)` — merge into it.
+
+## The language selector — show it when the app is multilanguage
+
+**A multilanguage app must give the user a visible way to switch** — never wire `useLang` without one.
+Use the provided `LangSelector` (props: `{ langs: string[] }`, emits `select`; root hook
+`rg-lang-selector`) in the header — and optionally in modal headers:
+
+```vue
+<LangSelector :langs="['en', 'fr', 'nl']" />
+```
+
+It renders an inline list of language codes (active one bold) and calls `setLangCode` on click; restyle
+it via the `rg-lang-selector` hook or replace it — it's a 15-line reference skin over
+`useLang().langCode/setLangCode`.
 
 ## Translating and interpolating
 

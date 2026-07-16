@@ -1,0 +1,91 @@
+[
+    {
+        "name": "DefaultModal",
+        "files": [
+            "DefaultModal.vue",
+            "DefaultModal.scss"
+        ],
+        "note": "register your copy app-wide: app.use(modalPlugin, { Modal }) — it swaps every modal, including the ones inside library components"
+    },
+    {
+        "name": "Paging",
+        "files": [
+            "Paging.vue",
+            "PagingButton.vue",
+            "PagingAnchor.vue"
+        ],
+        "note": "import your copy instead of regira_modules/vue/ui Paging (behavior stays in the exported usePaging)"
+    },
+    {
+        "name": "Autocomplete",
+        "files": [
+            "Autocomplete.vue",
+            "Autocomplete.scss"
+        ],
+        "note": "import your copy instead of the library Autocomplete; requires the v-click-outside directive (directives plugin, part of the shell)"
+    },
+    {
+        "name": "Feedback",
+        "files": [
+            "Feedback.vue"
+        ],
+        "note": "import your copy instead of the library Feedback (status/message state stays in useFeedback)"
+    },
+    {
+        "name": "ConfirmButton",
+        "files": [
+            "ConfirmButton.vue"
+        ],
+        "note": "import your copy instead of the library ConfirmButton"
+    },
+    {
+        "name": "FormButtonsRow",
+        "files": [
+            "FormButtonsRow.vue"
+        ],
+        "note": "import your copy instead of the library FormButtonsRow"
+    },
+    {
+        "name": "FileDropZone",
+        "files": [
+            "FileDropZone.vue"
+        ],
+        "note": "import your copy instead of the library FileDropZone"
+    },
+    {
+        "name": "Tabs",
+        "files": [
+            "TabContainer.vue",
+            "TabNavigation.vue"
+        ],
+        "note": "import your TabContainer copy instead of the library one (hash-route nav ships in its props: use-route-nav)"
+    },
+    {
+        "name": "LoginForm",
+        "files": [
+            "LoginForm.vue"
+        ],
+        "note": "slot your copy into LoginModal's default slot (behavior stays in useLoginForm)"
+    },
+    {
+        "name": "ChangePasswordForm",
+        "files": [
+            "ChangePasswordForm.vue"
+        ],
+        "note": "import your copy instead of the library ChangePasswordForm (behavior stays in useChangePasswordForm)"
+    },
+    {
+        "name": "ResetPasswordForm",
+        "files": [
+            "ResetPasswordForm.vue"
+        ],
+        "note": "import your copy instead of the library ResetPasswordForm (behavior stays in useResetPasswordForm)"
+    },
+    {
+        "name": "InputSelectorInline",
+        "files": [
+            "InputSelectorInline.vue"
+        ],
+        "note": "import your copy instead of regira_modules/vue/entities InputSelectorInline"
+    }
+]

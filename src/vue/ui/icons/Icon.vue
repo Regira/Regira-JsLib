@@ -1,5 +1,5 @@
 <template>
-    <component :is="iconComponent" :name="name" :size="size" />
+    <component :is="iconComponent" class="rg-icon" :name="name" :size="size" />
 </template>
 
 <script setup lang="ts">

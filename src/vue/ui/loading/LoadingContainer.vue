@@ -1,5 +1,5 @@
 <template>
-    <div class="position-relative" :style="{ height: isLoading ? `${getHeight()}px` : undefined }" ref="containerEl">
+    <div class="rg-loading-container position-relative" :style="{ height: isLoading ? `${getHeight()}px` : undefined }" ref="containerEl">
         <slot name="loading">
             <Loading
                 v-if="isLoading"

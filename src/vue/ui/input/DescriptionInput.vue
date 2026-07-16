@@ -7,7 +7,8 @@
 
 <script setup lang="ts">
 import FormLabel from "./FormLabel.vue"
+import type { DescriptionInputProps } from "./inputs"
 
-defineProps<{ label?: string; readonly?: boolean }>()
+defineProps<DescriptionInputProps>()
 const model = defineModel<string>()
 </script>

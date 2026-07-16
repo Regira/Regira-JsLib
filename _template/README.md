@@ -64,5 +64,21 @@ It writes `src/**` + `public/config.json` + `public/data/translations.json`, ski
 exist (`--force` overwrites). Set up the build toolchain (`vite.config`/`tsconfig`/`index.html`) from the
 entities setup guide → Install first.
 
-> `entity-slice/` and `app-shell/` are generated from the AI docs by `scripts/build-entity-template.mjs` —
-> do not edit them by hand.
+## Ejected UI skins (`--ui <Component>`)
+
+`ui/` holds ejectable copies of the UI-kit reference skins (modal, paging, autocomplete, feedback,
+buttons, tabs, account forms, …) — for when CSS/slots aren't enough and you want the markup itself:
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs --ui list          # what's available
+node node_modules/regira_modules/_template/scaffold.mjs --ui DefaultModal  # → src/components/ui/ (--dir overrides)
+```
+
+The copy's imports are rewritten to public `regira_modules/...` specifiers, so behavior (composables,
+contract types) keeps flowing from the library — only the markup is yours. Restyle freely; keep the
+contract (props/emits/slots, `rg-*`/`is-*` hooks, responsive) per the ui customize guide. The ejected
+modal is registered app-wide via `app.use(modalPlugin, { Modal })`.
+
+> `entity-slice/` and `app-shell/` are generated from the AI docs by `scripts/build-entity-template.mjs`;
+> `ui/` is generated from the real component source by `scripts/build-ui-template.mjs` —
+> do not edit any of them by hand.

@@ -1,10 +1,7 @@
-type __VLS_Props = {
-    modelValue?: string | Date;
-    culture?: string;
-};
-declare const __VLS_export: import("vue").DefineComponent<__VLS_Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
+import type { DateInputProps } from "./inputs";
+declare const __VLS_export: import("vue").DefineComponent<DateInputProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
     "update:modelValue": (modelValue?: string | Date | undefined) => any;
-}, string, import("vue").PublicProps, Readonly<__VLS_Props> & Readonly<{
+}, string, import("vue").PublicProps, Readonly<DateInputProps> & Readonly<{
     "onUpdate:modelValue"?: ((modelValue?: string | Date | undefined) => any) | undefined;
 }>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
 declare const _default: typeof __VLS_export;

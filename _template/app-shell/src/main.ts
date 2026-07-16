@@ -5,12 +5,13 @@ import { initAxios } from "regira_modules/vue/http"
 import { plugin as servicesPlugin, type IServiceProvider } from "regira_modules/vue/ioc"
 import { plugin as appPlugin, AppStatus, whenAppReady } from "regira_modules/vue/app"
 import { plugin as langPlugin } from "regira_modules/vue/lang"
-import { useLang } from "regira_modules/vue/lang" // @auth:only
+import { useLang } from "regira_modules/vue/lang" // used for document.title + (auth) setLangCode
 import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "regira_modules/vue/ui"
 import { focus, grow, clickOutside } from "regira_modules/vue/directives"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css"
 import "regira_modules/style.css"
+import "@/assets/theme.scss" // the app theme — MUST come after bootstrap + regira styles so its overrides win
 import { plugin as authPlugin, LocalStorageTokenManager } from "regira_modules/vue/auth" // @auth:only
 import { plugin as userPlugin } from "@/infrastructure/user-plugin" // @auth:only
 import { preloaderPlugin, defaultPoolCache, PoolCache } from "regira_modules/vue/entities"
@@ -44,6 +45,8 @@ fetch(`${appConfig.baseUrl}/config.json`)
         app.use(loadingPlugin, { img: loadingImg })
         app.use(feedbackPlugin, { autoHideDelay: 2500 })
         app.use(langPlugin, { defaultLang: "en", messages: translations })
+
+        document.title = useLang().translateMessage(config.title) || document.title // browser-tab title from config.title (culture-keyed); re-set on culture change if you localize it
 
         app.use(focus)
         app.use(grow)

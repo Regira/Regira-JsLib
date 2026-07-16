@@ -1,7 +1,5 @@
-type __VLS_Props = {
-    label?: string;
-    readonly?: boolean;
-};
+import type { DescriptionInputProps } from "./inputs";
+type __VLS_Props = DescriptionInputProps;
 type __VLS_ModelProps = {
     modelValue?: string;
 };

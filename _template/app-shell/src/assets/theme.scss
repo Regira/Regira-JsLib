@@ -1,0 +1,31 @@
+// App theme — loaded after bootstrap.min.css + regira_modules/style.css, so everything here wins.
+:root {
+    // library tokens (see ui.customize.md for the full list)
+    // --rg-accent: #0d6efd;
+    // --rg-accent-bg: rgba(13, 110, 253, 0.1);   // modal-header tint
+    // --rg-deleted-bg: rgba(220, 53, 69, 0.25);  // pending-delete rows/chips
+    // global bootstrap knobs
+    // --bs-border-radius: 0.5rem;
+    // --bs-link-color-rgb: 13, 110, 253;
+}
+
+// Accent swap — precompiled Bootstrap reads component-level vars:
+// .btn-primary {
+//     --bs-btn-bg: var(--rg-accent);
+//     --bs-btn-border-color: var(--rg-accent);
+// }
+// .pagination {
+//     --bs-pagination-active-bg: var(--rg-accent);
+//     --bs-pagination-active-border-color: var(--rg-accent);
+// }
+
+// App-level conventions the entity slices use:
+.striped > *:nth-child(even) {
+    background-color: var(--bs-secondary-bg, #e9ecef);
+}
+.form-buttons {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--bs-body-bg, #fff);
+}

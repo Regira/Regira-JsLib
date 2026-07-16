@@ -1,20 +1,11 @@
-type __VLS_Props = {
-    username?: string;
-    title?: string;
-    isVisible?: boolean;
-};
-declare var __VLS_8: {
-    username: string | undefined;
-};
-type __VLS_Slots = {} & {
-    default?: (props: typeof __VLS_8) => any;
-};
-declare const __VLS_base: import("vue").DefineComponent<__VLS_Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
+import { type LoginModalProps, type LoginModalSlots } from "./useLoginForm";
+type __VLS_Slots = LoginModalSlots;
+declare const __VLS_base: import("vue").DefineComponent<LoginModalProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
     success: (username?: string | undefined) => any;
     forgotPassword: (username?: string | undefined) => any;
     signingIn: (username?: string | undefined) => any;
     fail: (username?: string | undefined) => any;
-}, string, import("vue").PublicProps, Readonly<__VLS_Props> & Readonly<{
+}, string, import("vue").PublicProps, Readonly<LoginModalProps> & Readonly<{
     onSuccess?: ((username?: string | undefined) => any) | undefined;
     onForgotPassword?: ((username?: string | undefined) => any) | undefined;
     onSigningIn?: ((username?: string | undefined) => any) | undefined;

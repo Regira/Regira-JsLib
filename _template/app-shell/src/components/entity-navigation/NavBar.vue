@@ -9,7 +9,17 @@ const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
 </script>
 <template>
     <ul v-if="navbarTree" class="navbar-nav me-auto">
-        <li v-for="node in navbarTree.roots" :key="node.value.id" class="nav-item" :class="{ dropdown: !isNavItem(node.value) }" v-click-outside="() => { if (openId === node.value.id) openId = undefined }">
+        <li
+            v-for="node in navbarTree.roots"
+            :key="node.value.id"
+            class="nav-item"
+            :class="{ dropdown: !isNavItem(node.value) }"
+            v-click-outside="
+                () => {
+                    if (openId === node.value.id) openId = undefined
+                }
+            "
+        >
             <router-link v-if="isNavItem(node.value)" class="nav-link" :to="to(node.value as INavItem)">
                 <Icon :name="node.value.icon ?? ''" /><span class="d-sm-none d-lg-inline ms-1">{{ $t(node.value.title) }}</span>
             </router-link>

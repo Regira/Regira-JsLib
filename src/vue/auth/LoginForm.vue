@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="handleSubmit" ref="loginForm">
+    <form class="rg-login-form" @submit.prevent="handleSubmit" ref="loginForm">
         <div class="mb-3 position-relative" v-if="failed">
             <div class="bg-danger border rounded text-light p-2">
                 Unfortunately, signing in failed.
@@ -33,15 +33,10 @@
 </template>
 
 <script setup lang="ts">
-import { useLoginForm, type IEmits, type IProps } from "./useLoginForm"
+import { useLoginForm, type LoginFormEmits, type LoginFormProps } from "./useLoginForm"
 
-interface ILoginEmits extends IEmits {}
-const emit = defineEmits<ILoginEmits>()
-
-const props: IProps = defineProps<{
-    username?: string
-    signingIn?: boolean
-}>()
+const emit = defineEmits<LoginFormEmits>()
+const props = defineProps<LoginFormProps>()
 
 const { username, password, signingIn, failed, isLockedOut, handleSubmit, handleForgotPassword } = useLoginForm(props, emit)
 </script>

@@ -1,17 +1,15 @@
 <template>
-    <DefaultModal :is-visible="isVisible" title="Forgot password" :showFooter="false">
+    <component :is="Modal" :is-visible="isVisible" title="Forgot password" :showFooter="false">
         <slot v-bind="{ username }"></slot>
-    </DefaultModal>
+    </component>
 </template>
 
 <script setup lang="ts">
-import DefaultModal from "../ui/modal/DefaultModal.vue"
+import { injectModal } from "../ui/modal"
+import type { ForgotPasswordModalProps, ForgotPasswordModalSlots } from "./useForgotPasswordForm"
 
-withDefaults(
-    defineProps<{
-        username?: string
-        isVisible?: boolean
-    }>(),
-    { isVisible: true }
-)
+withDefaults(defineProps<ForgotPasswordModalProps>(), { isVisible: true })
+defineSlots<ForgotPasswordModalSlots>()
+
+const Modal = injectModal()
 </script>

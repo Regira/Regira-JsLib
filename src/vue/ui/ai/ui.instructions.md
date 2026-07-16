@@ -39,13 +39,14 @@ installing the plugins — see the **Global registration** column.
 | `iconPlugin`     | glyph source for `Icon` (`bs`/`fa`) + friendly keys; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` | `Icon`, `IconButton`                           |
 | `loadingPlugin`  | the image `Loading`/`LoadingContainer` render                                   | `{ img }`                                        | `Loading`, `LoadingButton`, `LoadingContainer` |
 | `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize? }`                           | `Paging`                                       |
-| `modalPlugin`    | — (registration only)                                                           | `{ DefaultModal? }`                              | `MyModal`                                      |
+| `modalPlugin`    | the app-wide modal — provides it for `injectModal()`                            | `{ Modal?: ModalComponent }`                     | `MyModal`                                      |
 | `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                | —                                              |
 
 `$feedback`, `$icons`, `$screen` are typed on Vue's `ComponentCustomProperties`. `Icon` works without
-`iconPlugin` (defaults to Bootstrap glyphs); modals need no plugin unless you want the global `MyModal`
-tag — import `DefaultModal` and import `regira_modules/style.css` once in `main.ts` for its
-backdrop/overlay styling.
+`iconPlugin` (defaults to Bootstrap glyphs). Modals need no plugin either — but installing
+`app.use(modalPlugin, { Modal: MyBrandedModal })` swaps **every** modal in the app, including the ones
+rendered inside library components (`ConfirmButton`, `ErrorSummary`, `LoginModal`, …), which resolve it
+via `injectModal()`. Import `regira_modules/style.css` once in `main.ts` for the backdrop/overlay styling.
 
 ## Areas
 
@@ -54,11 +55,11 @@ backdrop/overlay styling.
 | paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`                   |
 | loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                                  |
 | feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
-| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`                                       |
-| tabs         | `TabContainer`                                                                                                                                                        | `Tab` / `ITab`                                                   |
+| modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`, `injectModal`                        |
+| tabs         | `TabContainer`, `TabNavigation`                                                                                                                                       | `Tab` / `ITab`                                                   |
 | icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`, `IIconProvider`                       |
 | screen       | —                                                                                                                                                                     | `useScreen`, `SCREEN_SIZES`, `screenPlugin`                      |
-| autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`, `autocompleteProps`, `autocompleteEmits`      |
+| autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`, `autocompleteDefaults`                        |
 | buttons      | `ConfirmButton`                                                                                                                                                       | —                                                                |
 | input        | `Anchor`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                                |
 | gis          | `GMap`, `GMapLink`, `GMapButton` (Google Maps)                                                                                                                        | —                                                                |
@@ -81,8 +82,16 @@ backdrop/overlay styling.
 - `useScreen()` → `{ size, screen }` where `screen` exposes `isSmall`…`isExtraExtraLarge`, `layout`, `isSize`.
 - `useAutocomplete(props, { emit })` → search/select state for building a custom autocomplete (the
   `Autocomplete` component already wraps it).
+- `usePaging({ pagingInfo, count, maxPages, emit })` → page window/routes/change handling for a custom
+  pager skin (the `Paging` component already wraps it).
 
-> `usePaging` is internal to `Paging.vue` and not exported — use the `Paging` component.
+## Customizing the look
+
+The kit's default styling is deliberately plain Bootstrap 5 — restyling is encouraged and expected.
+[ui.customize.md](ui.customize.md) is the canonical guide: a 5-layer ladder from theme tokens
+(`--rg-*` CSS variables) and stable `rg-*`/`is-*` class hooks, over slots, to contract-typed
+replacement skins and `scaffold.mjs --ui <Component>` ejects. Reach for a built-in and restyle or eject
+it before writing a new component.
 
 ## Gotchas
 
@@ -101,5 +110,5 @@ backdrop/overlay styling.
 
 ## See also
 
-- [ui.signatures.md](ui.signatures.md) · [ui.examples.md](ui.examples.md)
+- [ui.signatures.md](ui.signatures.md) · [ui.examples.md](ui.examples.md) · [ui.customize.md](ui.customize.md)
 - [Entities](../../entities/ai/entities.instructions.md) — the main consumer of these components

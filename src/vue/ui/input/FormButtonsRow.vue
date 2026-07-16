@@ -32,22 +32,12 @@ import Icon from "../icons/Icon.vue"
 import IconButton from "../icons/IconButton.vue"
 import ConfirmButton from "../buttons/ConfirmButton.vue"
 import { ModalType } from "../modal"
-import { FeedbackStatus, type FeedbackOut } from "../feedback"
+import { FeedbackStatus } from "../feedback"
+import type { FormButtonsRowProps, FormButtonsRowEmits, FormButtonsRowSlots } from "./formButtonsRow"
 
-// `item` only needs `isArchived` (gate Restore) and `$title` (delete prompt). Typed `unknown` so any
-// entity binds — class instances (EntityBase) have no index signature, and an all-optional object type
-// would be a TypeScript "weak type" — both reject `:item="item"` under strict mode.
-const props = defineProps<{
-    item?: unknown
-    readonly?: boolean
-    feedback?: FeedbackOut
-    showDelete?: boolean
-    /** button-label overrides (i18n); defaults are English */
-    labels?: { save?: string; cancel?: string; delete?: string; restore?: string }
-    /** delete-confirm modal title; pair with the `delete` slot for a translated body */
-    modalTitle?: string
-}>()
-const emit = defineEmits<{ cancel: []; remove: []; restore: [] }>()
+const props = defineProps<FormButtonsRowProps>()
+const emit = defineEmits<FormButtonsRowEmits>()
+defineSlots<FormButtonsRowSlots>()
 
 // truthy, not === true: soft-delete flags may arrive as 0/1 instead of booleans
 const isArchived = computed(() => !!(props.item as { isArchived?: number | boolean } | undefined)?.isArchived)

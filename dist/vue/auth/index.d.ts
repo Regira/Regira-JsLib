@@ -5,12 +5,16 @@ export { type ITokenManager, CookieTokenManager, MemoryTokenManager, LocalStorag
 export { useAuth, type IGlobalAuth } from "./auth";
 export { useAuthStore, createStore, type IDefineAuthStore, type IAuthStore } from "./store";
 export { default as plugin } from "./plugin";
-export { useLoginForm, type IEmits as ILoginEmits, type IProps as ILoginProps, type LoginInput } from "./useLoginForm";
-export { useForgotPasswordForm, type IEmits as IForgotPasswordEmits, type IProps as IForgotPasswordProps } from "./useForgotPasswordForm";
+export { useLoginForm, type LoginFormEmits, type LoginFormProps, type LoginModalProps, type LoginModalSlots, type LoginInput } from "./useLoginForm";
+export { useForgotPasswordForm, type ForgotPasswordFormEmits, type ForgotPasswordFormProps, type ForgotPasswordModalProps, type ForgotPasswordModalSlots, } from "./useForgotPasswordForm";
+export { useChangePasswordForm, type ChangePasswordFormEmits } from "./useChangePasswordForm";
+export { useResetPasswordForm, type ResetPasswordFormProps, type ResetPasswordFormEmits } from "./useResetPasswordForm";
 export { default as LoginForm } from "./LoginForm.vue";
 export { default as LogoutForm } from "./LogoutForm.vue";
 export { default as LoginModal } from "./LoginModal.vue";
 export { default as ForgotPasswordModal } from "./ForgotPasswordModal.vue";
+export { default as ChangePasswordForm } from "./ChangePasswordForm.vue";
+export { default as ResetPasswordForm } from "./ResetPasswordForm.vue";
 declare module "@vue/runtime-core" {
     interface ComponentCustomProperties {
         $auth: import("./auth").IGlobalAuth | {

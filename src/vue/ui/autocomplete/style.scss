@@ -1,9 +1,9 @@
 .autocomplete-items {
     position: absolute;
     inset: 0 auto auto 0;
-    z-index: 99999;
+    z-index: var(--rg-dropdown-z, 99999);
     visibility: hidden;
-    max-height: 13rem;
+    max-height: var(--rg-dropdown-max-height, 13rem);
     overflow-y: auto;
 
     .autocomplete-item {

@@ -3,6 +3,12 @@
 Verbatim TypeScript signatures for `regira_modules/vue/ui`. Do not guess — look up here first. For any
 component prop not listed, use the MCP source map (`get_type` on `regira_modules.vue.ui`).
 
+**Contract convention.** Every skinnable component exports its contract from the barrel:
+`XxxProps` / `XxxEmits` / `XxxSlots` (+ `xxxDefaults` where props have defaults), with behavior in an
+exported `useXxx` composable where one exists. A replacement skin declares
+`defineProps<XxxProps>` / `defineEmits<XxxEmits>` / `defineSlots<XxxSlots>` and is compile-checked by
+`vue-tsc`. See [ui.customize.md](ui.customize.md) for the full customization ladder.
+
 ## Plugins
 
 ```ts
@@ -12,7 +18,7 @@ feedbackPlugin.install(app, { autoHideDelay?: number })
 iconPlugin.install(app, { icons?: Record<string, string>; clearFirst?: boolean; source?: "bs" | "fa" })
 loadingPlugin.install(app, { img: string })
 pagingPlugin.install(app, { defaultPageSize?: number })
-modalPlugin.install(app, { DefaultModal?: Component })
+modalPlugin.install(app, { Modal?: ModalComponent }) // provides the app-wide modal — swaps EVERY modal, incl. the ones inside library components
 screenPlugin.install(app)
 ```
 
@@ -24,7 +30,7 @@ components app-wide: `iconPlugin` → `Icon`/`IconButton`, `loadingPlugin` →
 ## Feedback
 
 ```ts
-import { useFeedback, FeedbackStatus, Feedback, type FeedbackOut } from "regira_modules/vue/ui"
+import { useFeedback, FeedbackStatus, Feedback, type FeedbackOut, type FeedbackProps, type FeedbackSlots } from "regira_modules/vue/ui"
 import { type FeedbackError, type FeedbackIn } from "regira_modules/vue/ui/feedback"
 
 export enum FeedbackStatus {
@@ -45,26 +51,51 @@ export interface FeedbackOut {
     reset(): void
 }
 export function useFeedback({ autoHideDelay }?: FeedbackIn): FeedbackOut
-// Feedback component props: { feedback: FeedbackOut; hideCloseButton?: boolean; enableErrorPopup?: boolean }
+
+// Feedback component contract:
+export type FeedbackProps = { feedback: FeedbackOut; hideCloseButton?: boolean; enableErrorPopup?: boolean }
+export const feedbackDefaults: { hideCloseButton: false; enableErrorPopup: false }
+export interface FeedbackEmits {
+    (e: "close", arg: { status: FeedbackStatus; error?: FeedbackError | null }): void
+}
+export type FeedbackSlots = { "close-button"?(): any; pending?(): any; success?(): any; error?(): any }
 ```
 
 ## Paging
 
 ```ts
-import { Paging, ButtonType, pagingDefaults } from "regira_modules/vue/ui"
+import { Paging, ButtonType, usePaging, pagingDefaults, type PagingProps, type PagingEmits, type PagingSlots } from "regira_modules/vue/ui"
 export enum ButtonType {
     anchor = "Anchor",
     button = "Button",
 }
 export const pagingDefaults: { maxPages: number; buttonType: ButtonType }
-// Paging component:
-//   props: { modelValue: IPagingInfo; count: number; maxPages?: number; buttonType?: ButtonType }
-//   emits: "update:modelValue" | "change"
+
+// Paging component contract:
+export type PagingProps = { modelValue: IPagingInfo; count: number; maxPages?: number; buttonType?: ButtonType }
+export type PagingEmits = { (e: "update:modelValue", args: any): void; (e: "change", args: any): void }
+export type PagingSlots = {
+    firstPage?(props: { page: number }): any
+    default?(props: { page: number; route: string; handleChange: (page: number) => void }): any
+    lastPage?(props: { page: number }): any
+}
+// behavior for replacement skins (page window, routes, change handling):
+export function usePaging(input: { pagingInfo: Ref<IPagingInfo>; count: Ref<number>; maxPages: number; emit: PagingEmits }): {
+    pagedRoute(p: number): string
+    page: ComputedRef<number>
+    totalPages: ComputedRef<number>
+    totalVisiblePages: ComputedRef<number>
+    firstPage: ComputedRef<number>
+    lastPage: ComputedRef<number>
+    pages: ComputedRef<Array<number>>
+    handleChangePage(newPage: number): void
+}
 ```
 
 ```ts
-import { ResultSummary } from "regira_modules/vue/ui"
-// ResultSummary props: { visibleCount?: number; totalCount?: number }   // renders "visible / total"
+import { ResultSummary, type ResultSummaryProps, type ResultSummarySlots } from "regira_modules/vue/ui"
+export type ResultSummaryProps = { visibleCount?: number; totalCount?: number } // renders "visible / total"
+export type ResultSummarySlots = { default?(props: { visibleCount?: number; totalCount?: number }): any }
 ```
 
 ## Loading
@@ -77,23 +108,46 @@ import { Loading, LoadingContainer } from "regira_modules/vue/ui"
 ## Modal
 
 ```ts
-import { DefaultModal, ModalType } from "regira_modules/vue/ui/modal" // + "regira_modules/vue/ui/modal/style.scss"
+import { DefaultModal, ModalType, injectModal, modalDefaults } from "regira_modules/vue/ui"
+import { type ModalProps, type ModalEmits, type ModalSlots, type ModalComponent } from "regira_modules/vue/ui"
 export enum ModalType {
     normal = "Normal",
     success = "Success",
     warning = "Warning",
     danger = "Danger",
 }
-// DefaultModal:
-//   props: { isVisible: boolean; title?: string; showHeader?: boolean; showFooter?: boolean; fullWidth?: boolean; size?: "sm" | "md" | "lg" | "xl"; type?: ModalType }
-//   emits: "cancel" | "close" | "submit"
-//   slots: title, header-close-button, default, buttons, footer-close-button, footer-submit-button
+
+// modal contract — DefaultModal implements it; a branded replacement declares the same types:
+export type ModalProps = {
+    title?: string
+    isVisible: boolean
+    showHeader?: boolean
+    showFooter?: boolean
+    fullWidth?: boolean
+    size?: "sm" | "md" | "lg" | "xl"
+    type?: ModalType
+}
+export type ModalEmits = { (e: "submit"): void; (e: "cancel"): void; (e: "close"): void }
+export type ModalSlots = {
+    title?(): any
+    "header-close-button"?(props: { handleClose: () => void }): any
+    default?(): any
+    buttons?(): any
+    "footer-close-button"?(props: { handleCancel: () => void }): any
+    "footer-submit-button"?(props: { handleClose: () => void }): any
+}
+export const modalDefaults: { showHeader: true; showFooter: true; type: ModalType.normal }
+export type ModalComponent // any component implementing ModalProps — modalPlugin's option type (compile-checked)
+
+// resolves the app-wide modal (the modalPlugin swap-in, DefaultModal otherwise); call in setup:
+export function injectModal(): ModalComponent
+// usage in a component:  const Modal = injectModal()  →  <component :is="Modal" :is-visible="..." @close="...">
 ```
 
 ## Tabs
 
 ```ts
-import { TabContainer, Tab, type ITab } from "regira_modules/vue/ui"
+import { TabContainer, TabNavigation, Tab, type ITab, type TabContainerProps, type TabsEmits, type TabNavigationProps } from "regira_modules/vue/ui"
 export interface ITab {
     key: string
     icon?: string
@@ -106,7 +160,15 @@ export class Tab implements ITab {
     constructor(title: string, key?: string, isDefault?: boolean, isDisabled?: boolean, isVisible?: boolean)
     static create(title: string, values?: object): Tab & object
 }
-// TabContainer props: { tabs: Array<ITab | string | null>; useRouteNav?: boolean; active?: string } ; emits: "select"
+// USAGE: create(key, { title, icon, isDefault?, isDisabled? }). The first positional arg is the tab KEY —
+// it seeds both `key` and `title`, then `values.title` overrides the label. Pass a slug-safe key that
+// matches the `<template #key>` slot and the route hash: Tab.create("form", { title: translate("form"),
+// icon: "form", isDefault: true }). Never Tab.create("My Products", …) — a spaced/cased key breaks both.
+export type TabContainerProps = { tabs: Array<ITab | string | null>; useRouteNav?: boolean; active?: string }
+export type TabsEmits = { (e: "select", tab: string): void }
+export type TabNavigationProps = { tabs: Array<ITab>; activeTab: string }
+// TabContainer renders one named slot per tab key; `useRouteNav` syncs the active tab with the route
+// hash (deep-linkable, back-button friendly) — disable it inside popups (`:use-route-nav="!isPopup"`).
 ```
 
 ## Icons
@@ -144,12 +206,17 @@ export function useScreen(): { size: Ref<number[]>; screen: IScreen }
 ## Autocomplete
 
 ```ts
-import { useAutocomplete, autocompleteProps, autocompleteEmits, Autocomplete } from "regira_modules/vue/ui"
-// Props<T>: { idValue?, modelValue?, data?, maxResults?, debounceTime?, enableDblClick?, autoSelect?, allowFreeInput?,
-//             resultClass?, itemsClass?, itemClass?,
-//             search?(term?): Promise<Array<T>>, idSelector?(item?): TKey|undefined,
-//             displayItemFormatter?(item?): string, resultItemFormatter?(item?, q?): string }
-// Emits<T>: "update:modelValue" | "update:idValue" | "select" | "qInput"
+import { useAutocomplete, autocompleteDefaults, Autocomplete } from "regira_modules/vue/ui"
+import { type AutocompleteProps, type AutocompleteEmits, type AutocompleteSlots, type AutocompleteOut } from "regira_modules/vue/ui"
+// AutocompleteProps<T>: { idValue?, modelValue?, data?, maxResults?, debounceTime?, enableDblClick?, autoSelect?, allowFreeInput?,
+//                         resultClass?, itemsClass?, itemClass?,
+//                         search?(term?): Promise<Array<T>>, idSelector?(item?): TKey|undefined,
+//                         displayItemFormatter?(item?): string }
+// AutocompleteEmits<T>: "update:modelValue" | "update:idValue" | "select" | "qInput"
+// AutocompleteSlots<T>: { default?({ item: T; q: string }): any }
+//   the scoped default slot is THE result-item rendering seam; the fallback renders
+//   displayItemFormatter(item) with the matched term in bold (safe text — no innerHTML)
+export const autocompleteDefaults: { data: () => []; maxResults: 10; debounceTime: 250; autoSelect: false }
 export function useAutocomplete<T = any, TKey = number | string | T>(props, { emit }): AutocompleteOut<T, TKey>
 ```
 
@@ -169,15 +236,20 @@ import {
     NullableLabel,
     CopyToClipboardButton,
 } from "regira_modules/vue/ui"
-// ConfirmButton props: { icon?: string; buttonLabel?: string; modalTitle?: string; modalType?: ModalType }
-// DateInput props: { modelValue?: string | Date; culture?: string }   (v-model)
-// DescriptionInput props: { label?: string; readonly?: boolean }   (v-model: string)
-// FormButtonsRow props: { item?: unknown; readonly?: boolean; feedback?: FeedbackOut; showDelete?: boolean; labels?: { save?: string; cancel?: string; delete?: string; restore?: string }; modalTitle?: string } (reads item.isArchived — truthy, 0/1 ok — to gate Restore, item.$title for the delete prompt; feedback busy-gates Save/Delete/Restore against double-submits; labels/modalTitle override the English defaults for i18n) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")
+// ConfirmButton contract (ConfirmButtonProps/Emits/Slots + confirmButtonDefaults):
+//   props: { icon?: string; buttonLabel?: string; modalTitle?: string; modalType?: ModalType }
+//   emits: confirm | cancel | open | close ; slots: button-content, modal, default (confirm-modal body)
+// DateInput contract (DateInputProps/Emits): { modelValue?: string | Date; culture?: string }   (v-model)
+// DescriptionInput contract (DescriptionInputProps): { label?: string; readonly?: boolean }   (v-model: string)
+// FileDropZone contract (FileDropZoneEmits/Slots): emits "drop-files" (files: Array<Blob>) ; default slot scoped { isDropping }
+// FormButtonsRow contract (FormButtonsRowProps/Emits/Slots): { item?: unknown; readonly?: boolean; feedback?: FeedbackOut; showDelete?: boolean; labels?: { save?: string; cancel?: string; delete?: string; restore?: string }; modalTitle?: string } (reads item.isArchived — truthy, 0/1 ok — to gate Restore, item.$title for the delete prompt; feedback busy-gates Save/Delete/Restore against double-submits; labels/modalTitle override the English defaults for i18n) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")
 ```
 
-Other input/gis components (`Anchor`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`,
-`FileDropZone`, `CopyToClipboardButton`, `GMap`, `GMapLink`, `GMapButton`) — inspect exact props with
-`get_type` on `regira_modules.vue.ui`.
+The remaining input widgets export contract types too (`FormLabelProps` + `formLabelDefaults`,
+`FormSectionProps`/`FormSectionEmits`/`FormSectionSlots`, `NullableCheckBoxProps`/`NullableCheckBoxEmits`,
+`NullableLabelProps`/`NullableLabelSlots`, `AnchorProps`/`AnchorSlots`, `CopyToClipboardButtonProps` +
+`copyToClipboardButtonDefaults`) — inspect exact shapes with `get_type` on `regira_modules.vue.ui`; gis
+components (`GMap`, `GMapLink`, `GMapButton`) likewise.
 
 ## See also
 

@@ -3,17 +3,29 @@ import { useAuthStore } from "./store"
 
 export type LoginInput = { username: string; password: string }
 
-export interface IEmits {
+export interface LoginFormEmits {
     (e: "forgotPassword", username?: string): void
     (e: "signingIn", username?: string): void
     (e: "success", username?: string): void
     (e: "fail", username?: string): void
 }
-export interface IProps {
+export interface LoginFormProps {
     username?: string
 }
 
-export function useLoginForm(props: IProps, emit: IEmits) {
+export type LoginModalProps = {
+    username?: string
+    title?: string
+    /** visibility is a real prop (defaults on); prefer gating the whole component with v-if —
+     * it unmounts mask + dialog in one go and cannot strand a leave-transition */
+    isVisible?: boolean
+}
+export type LoginModalSlots = {
+    /** replace the whole login form; scoped with the initial username */
+    default?(props: { username?: string }): any
+}
+
+export function useLoginForm(props: LoginFormProps, emit: LoginFormEmits) {
     const username = ref(props.username || "")
     const password = ref("")
 

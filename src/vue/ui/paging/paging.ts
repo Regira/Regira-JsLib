@@ -17,9 +17,22 @@ export type PagingProps = {
     maxPages?: number
     buttonType?: ButtonType
 }
+export type PagingSlots = {
+    firstPage?(props: { page: number }): any
+    default?(props: { page: number; route: string; handleChange: (page: number) => void }): any
+    lastPage?(props: { page: number }): any
+}
 export const pagingDefaults = {
     maxPages: 9,
     buttonType: ButtonType.anchor,
+}
+
+export type ResultSummaryProps = {
+    visibleCount?: number
+    totalCount?: number
+}
+export type ResultSummarySlots = {
+    default?(props: { visibleCount?: number; totalCount?: number }): any
 }
 
 export type PagingIn = {

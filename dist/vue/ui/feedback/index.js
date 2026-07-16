@@ -1,2 +1,2 @@
-import { a as e, i as t, n, o as r, r as i, s as a, t as o } from "../../../_chunks/feedback-3.2.5.js";
-export { e as ErrorSummary, n as Feedback, i as FeedbackStatus, a as Pending, r as Success, t as default, t as useFeedback, o as plugin };
+import { a as e, c as t, i as n, n as r, o as i, r as a, s as o, t as s } from "../../../_chunks/feedback-3.2.5.js";
+export { i as ErrorSummary, r as Feedback, a as FeedbackStatus, t as Pending, o as Success, e as default, e as useFeedback, n as feedbackDefaults, s as plugin };

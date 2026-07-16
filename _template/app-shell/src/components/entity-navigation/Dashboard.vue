@@ -26,7 +26,9 @@ const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
 <style scoped>
 .dashboard-card {
     color: inherit;
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    transition:
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
 }
 .dashboard-card:hover {
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);

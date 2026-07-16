@@ -9,28 +9,12 @@
 </template>
 
 <script setup lang="ts" generic="T extends IEntity">
-import { ref, onMounted, type Ref } from "vue"
-import type { IEntity, IEntityService } from "../abstractions"
+import type { IEntity } from "../abstractions"
+import { useLeanForm, type LeanFormProps, type LeanFormEmits, type LeanFormSlots } from "./form"
 
-const props = defineProps<{ service: IEntityService<T>; id: string | number }>()
-const emit = defineEmits<{ saved: [item: T]; cancel: [] }>()
-defineSlots<{ default(props: { item: T }): any }>()
+const props = defineProps<LeanFormProps<T>>()
+const emit = defineEmits<LeanFormEmits<T>>()
+defineSlots<LeanFormSlots<T>>()
 
-const item = ref() as Ref<T | undefined>
-const saving = ref(false)
-
-onMounted(async () => {
-    item.value = props.id === "new" ? await props.service.newEntity() : ((await props.service.details(props.id)) ?? undefined)
-})
-
-async function submit(): Promise<void> {
-    if (!item.value) return
-    saving.value = true
-    try {
-        const { saved } = await props.service.save(item.value)
-        emit("saved", saved)
-    } finally {
-        saving.value = false
-    }
-}
+const { item, saving, submit } = useLeanForm<T>(props, { emit })
 </script>

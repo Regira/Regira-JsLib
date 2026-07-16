@@ -55,16 +55,16 @@ and is a deviation to declare, not a default; only `users/` + `user-plugin` are 
 The Regira MCP server (`https://mcp.regira.com/mcp`) has full knowledge of every front-end module,
 including ones not yet installed locally. Use it to discover and read guides on demand:
 
-| Tool                                                       | Purpose                                                        |
-| ---------------------------------------------------------- | -------------------------------------------------------------- |
-| `list_packages` (filter `vue` / `frontend`)                | Browse the front-end module catalog.                           |
-| `recommend_packages` / `search_packages`                   | First-pass / keyword package discovery.                        |
+| Tool                                                       | Purpose                                                                                              |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `list_packages` (filter `vue` / `frontend`)                | Browse the front-end module catalog.                                                                 |
+| `recommend_packages` / `search_packages`                   | First-pass / keyword package discovery.                                                              |
 | `get_package_card`                                         | **Orient first** — the must-know card (e.g. `regira_modules.vue.entities`); often enough on its own. |
-| `get_package_toc`                                          | List a package's documentation sections.                       |
-| `get_section_toc`                                          | List a section's headings before loading content.              |
-| `get_package` (`section=`, `heading=`, `maxChars`, `page`) | Read the actual guidance, scoped.                              |
-| `get_example` (`section=`)                                 | Pull only matching examples.                                   |
-| `list_types` / `get_type`                                  | Inspect the public API surface from the committed `.d.ts` map. |
+| `get_package_toc`                                          | List a package's documentation sections.                                                             |
+| `get_section_toc`                                          | List a section's headings before loading content.                                                    |
+| `get_package` (`section=`, `heading=`, `maxChars`, `page`) | Read the actual guidance, scoped.                                                                    |
+| `get_example` (`section=`)                                 | Pull only matching examples.                                                                         |
+| `list_types` / `get_type`                                  | Inspect the public API surface from the committed `.d.ts` map.                                       |
 
 Context economy: orient with `get_package_card` first; read only your tier's primary guides in full; for
 everything else prefer `get_section_toc` + heading-scoped `get_package` and `get_example(pattern=…)` over
@@ -86,6 +86,9 @@ cheapest authoritative signature source — read those before pulling a signatur
       from it and feed them into the hand-written entity models (you still hand-write the model classes).
 - [ ] The primary guides **for the chosen tier** (full tier: `entities.instructions` + `entities.setup`)
       are read in full before generating slices, services, composables, or the app shell.
+- [ ] **Restyling never requires forking the library.** Theme tokens, stable `rg-*`/`is-*` css hooks,
+      typed slots, contract-typed replacement skins, and `scaffold.mjs --ui <Component>` ejects cover
+      every customization level — see `regira_modules.vue.ui` → `ui.customize`.
 - [ ] Verify the SPA with `npm run build` (`vue-tsc -b`) — not only a `--noEmit` typecheck.
 
 ## Reading order (start here)
@@ -141,9 +144,29 @@ generic views (`EntityOverview` / `EntityForm`) rather than re-implementing them
 the **per-entity slice / project structure** (`entities.setup` → _Project structure_), and **Bootstrap 5**
 styling (`entities.setup` → _Bootstrap — main.ts_). The scaffolded templates are **indicative of
 functionality, not appearance** — their default styling is deliberately plain, and **improving it is
-encouraged and expected** (`entities.patterns` → _Restyling & overriding the built-ins_): restructure
-markup and layout and restyle freely; what you preserve is the wiring (composables, services, DI, plugin
-order, routing, `_deleted` marking), not the look.
+encouraged and expected**: the customization ladder in `regira_modules.vue.ui` → `ui.customize` (theme
+tokens → `rg-*` css hooks → slots → contract-typed replacement → `scaffold.mjs --ui` eject) covers every
+level; what you preserve is the contract (composables, props/emits/slots, DI, plugin order, routing,
+`_deleted` marking, `rg-*`/`is-*` hooks), not the look.
+
+## App-quality defaults (apply unless the user opts out)
+
+- **Prefer the provided components.** Reach for a built-in and restyle/wrap/eject it before writing a
+  new component; hand-rolling a pager, spinner, toast, modal, tab strip, confirm button, autocomplete,
+  or account form is a deviation to declare.
+- **Responsive layout, always** — unless the user explicitly requests otherwise. Bootstrap grid with
+  breakpoint variants, `d-none d-md-inline` button labels, `d-none d-md-block` to drop list columns on
+  small screens, `$screen` for JS-side switches (`entities.patterns` → _Overview list layout_).
+- **Tabs for big forms.** When an entity form grows beyond a handful of fields or has related data
+  (children, links, trees), split it with hash-routed tabs — a main `#form` tab plus related-data tabs
+  (`entities.patterns` → _Tabbed forms_; always `:use-route-nav="!isPopup"`).
+- **Auth means the full account surface, shown on time.** Wire login **and** forgot/reset/change
+  password with the provided components (`vue/auth`), and pop the login modal immediately for anonymous
+  users instead of rendering a dashboard they can't use (`auth.instructions` → _Account UI_).
+- **Multilanguage means a visible selector.** Wire `LangSelector` (from `vue/lang`) into the header
+  whenever the app is multilanguage.
+- **Group form fields** with `FormSection` (+ `FormLabel`, `input-group` icon prefixes) instead of flat
+  field lists.
 
 ## Code-generation workflow
 

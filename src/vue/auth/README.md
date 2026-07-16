@@ -6,15 +6,15 @@ permission-aware route guard, and login UI.
 
 ## What it provides
 
-| Export                                                                                                     | Purpose                                                                                          |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `plugin` (auth)                                                                                            | Wires everything at startup: bearer interceptor, token validation, route guard, 401 auto-logout. |
-| `LocalStorageTokenManager` / `CookieTokenManager` / `MemoryTokenManager`                                   | Pluggable token storage (`ITokenManager`).                                                       |
-| `useAuthStore`                                                                                             | Reactive auth state: `isAuthenticated`, `displayName`, `hasPermission`, `login`, `logout`, …     |
-| `AuthService`                                                                                              | The HTTP calls: login, refresh, validate, change/forgot/reset password.                          |
-| `routeGuard`                                                                                               | `beforeEach` guard reading `meta.allowAnonymous` / `permissions` / `policy`.                     |
-| `useAuth` / `$auth`                                                                                        | The global auth object (service, token manager, current `authData`).                             |
-| `LoginForm` / `LoginModal` / `LogoutForm` / `ForgotPasswordModal`, `useLoginForm`, `useForgotPasswordForm` | Login UI.                                                                                        |
+| Export                                                                                                                                                                                                   | Purpose                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `plugin` (auth)                                                                                                                                                                                          | Wires everything at startup: bearer interceptor, token validation, route guard, 401 auto-logout. |
+| `LocalStorageTokenManager` / `CookieTokenManager` / `MemoryTokenManager`                                                                                                                                 | Pluggable token storage (`ITokenManager`).                                                       |
+| `useAuthStore`                                                                                                                                                                                           | Reactive auth state: `isAuthenticated`, `displayName`, `hasPermission`, `login`, `logout`, …     |
+| `AuthService`                                                                                                                                                                                            | The HTTP calls: login, refresh, validate, change/forgot/reset password.                          |
+| `routeGuard`                                                                                                                                                                                             | `beforeEach` guard reading `meta.allowAnonymous` / `permissions` / `policy`.                     |
+| `useAuth` / `$auth`                                                                                                                                                                                      | The global auth object (service, token manager, current `authData`).                             |
+| `LoginForm` / `LoginModal` / `LogoutForm` / `ForgotPasswordModal` / `ChangePasswordForm` / `ResetPasswordForm`, `useLoginForm`, `useForgotPasswordForm`, `useChangePasswordForm`, `useResetPasswordForm` | The full account UI: sign in/out, forgot/reset/change password.                                  |
 
 ## How it fits
 

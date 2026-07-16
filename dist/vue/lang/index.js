@@ -1,64 +1,80 @@
-import { ref as e, watchEffect as t } from "vue";
+import { Fragment as e, createElementBlock as t, defineComponent as n, normalizeClass as r, openBlock as i, ref as a, renderList as o, toDisplayString as s, unref as c, watchEffect as l } from "vue";
 //#region src/vue/lang/formatText.ts
-function n(e, t) {
+function u(e, t) {
 	if (typeof t == "function") return t(e);
 	let n = e;
-	return r(e)?.forEach((e) => {
+	return d(e)?.forEach((e) => {
 		if (e in t) {
-			let r = i(t[e]), a = RegExp(`{${e}}`, "g");
-			n = n.replace(a, r);
+			let r = f(t[e]), i = RegExp(`{${e}}`, "g");
+			n = n.replace(i, r);
 		}
 	}), n;
 }
-function r(e) {
+function d(e) {
 	let t = /\{([^{}]+)\}/g, n = [], r;
 	for (; (r = t.exec(e)) !== null;) n.push(r[1]);
 	return n;
 }
-function i(e) {
+function f(e) {
 	return e?.toString() ?? "";
 }
 //#endregion
 //#region src/vue/lang/translate.ts
-function a(e, t, n, r) {
+function p(e, t, n, r) {
 	if (t == null) return e;
 	let i = t[e];
 	return i == null ? (console.warn(`translate: ${e} not found`, {
 		values: t,
 		langCode: n
-	}), e) : o(i, n, r);
+	}), e) : m(i, n, r);
 }
-function o(e, t, r) {
-	let i = typeof e == "string" ? e : e[t] ?? e[t.substring(0, 2)];
-	return r != null && (i = n(i, r)), i;
+function m(e, t, n) {
+	let r = typeof e == "string" ? e : e[t] ?? e[t.substring(0, 2)];
+	return n != null && (r = u(r, n)), r;
 }
 //#endregion
 //#region src/vue/lang/useLang.ts
-var s = e(""), c = e(""), l = e({});
-function u() {
+var h = a(""), g = a(""), _ = a({});
+function v() {
 	return {
-		langCode: s,
-		fallbackLangCode: c,
-		messages: l,
-		translate: (e, t) => a(e, l.value, s.value, t) || a(e, l.value, c.value, t),
-		translateMessage: (e, t) => o(e, s.value, t) || o(e, c.value, t),
+		langCode: h,
+		fallbackLangCode: g,
+		messages: _,
+		translate: (e, t) => p(e, _.value, h.value, t) || p(e, _.value, g.value, t),
+		translateMessage: (e, t) => m(e, h.value, t) || m(e, g.value, t),
 		setLangCode(e) {
-			e && (s.value = e);
+			e && (h.value = e);
 		},
-		replaceMessages: (e) => l.value = e,
-		loadMessages: (e) => l.value = {
-			...l.value,
+		replaceMessages: (e) => _.value = e,
+		loadMessages: (e) => _.value = {
+			..._.value,
 			...e
 		}
 	};
 }
 //#endregion
 //#region src/vue/lang/plugin.ts
-var d = { install(n, r) {
-	let i = e(!1), { fallbackLangCode: a, translate: o, translateMessage: s, setLangCode: c, replaceMessages: l } = u();
-	c(r.defaultLang ?? "en"), a.value = r.defaultLang ?? "en", typeof r.messages == "function" ? t(async () => {
-		l(await r.messages()), i.value = !0;
-	}) : (l(r.messages), i.value = !0), n.config.globalProperties.$t = (e, t) => i.value ? o(e, t) : "", n.config.globalProperties.$tm = (e, t) => s(e, t);
-} };
+var y = { install(e, t) {
+	let n = a(!1), { fallbackLangCode: r, translate: i, translateMessage: o, setLangCode: s, replaceMessages: c } = v();
+	s(t.defaultLang ?? "en"), r.value = t.defaultLang ?? "en", typeof t.messages == "function" ? l(async () => {
+		c(await t.messages()), n.value = !0;
+	}) : (c(t.messages), n.value = !0), e.config.globalProperties.$t = (e, t) => n.value ? i(e, t) : "", e.config.globalProperties.$tm = (e, t) => o(e, t);
+} }, b = { class: "rg-lang-selector list-inline d-inline mb-0" }, x = ["onClick"], S = /* @__PURE__ */ n({
+	__name: "LangSelector",
+	props: { langs: {} },
+	emits: ["select"],
+	setup(n, { emit: a }) {
+		let l = a, { langCode: u, setLangCode: d } = v();
+		function f(e) {
+			d(e), l("select", e);
+		}
+		return (a, l) => (i(), t("ul", b, [(i(!0), t(e, null, o(n.langs, (e) => (i(), t("li", {
+			key: e,
+			class: r(["list-inline-item", { "fw-bold": c(u) == e }]),
+			role: "button",
+			onClick: (t) => f(e)
+		}, s(e.toUpperCase()), 11, x))), 128))]));
+	}
+});
 //#endregion
-export { n as formatText, d as plugin, a as translate, o as translateMessage, u as useLang };
+export { S as LangSelector, u as formatText, y as plugin, p as translate, m as translateMessage, v as useLang };

@@ -1,12 +1,13 @@
 <template>
-    <button type="button" class="btn" :name="icon" @click="handleOpen">
+    <button type="button" class="rg-confirm-button btn" :name="icon" @click="handleOpen">
         <slot name="button-content">
             <Icon v-if="icon != null" :name="icon" />
             <span v-if="buttonLabel" class="ms-1">{{ buttonLabel }}</span>
         </slot>
         <Teleport to="#modals">
             <slot name="modal">
-                <DefaultModal
+                <component
+                    :is="Modal"
                     :is-visible="showModal"
                     :type="modalType"
                     :title="modalTitle"
@@ -15,7 +16,7 @@
                     @close="handleClose"
                 >
                     <slot></slot>
-                </DefaultModal>
+                </component>
             </slot>
         </Teleport>
     </button>
@@ -24,28 +25,14 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import Icon from "../icons/Icon.vue"
-import DefaultModal from "../modal/DefaultModal.vue"
-import { ModalType } from "../modal"
+import { injectModal } from "../modal"
+import { confirmButtonDefaults, type ConfirmButtonProps, type ConfirmButtonEmits, type ConfirmButtonSlots } from "./confirm"
 
-const emit = defineEmits<{
-    (e: "confirm"): void
-    (e: "cancel"): void
-    (e: "open"): void
-    (e: "close"): void
-}>()
-withDefaults(
-    defineProps<{
-        icon?: string
-        buttonLabel?: string
-        modalTitle?: string
-        modalType?: ModalType
-    }>(),
-    {
-        icon: "warning",
-        modalTitle: "Sure?",
-        modalType: ModalType.warning,
-    }
-)
+const emit = defineEmits<ConfirmButtonEmits>()
+withDefaults(defineProps<ConfirmButtonProps>(), { ...confirmButtonDefaults })
+defineSlots<ConfirmButtonSlots>()
+
+const Modal = injectModal()
 
 const showModal = ref(false)
 function handleConfirm() {

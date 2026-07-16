@@ -1,12 +1,22 @@
-export interface IEmits {
+export interface ForgotPasswordFormEmits {
     (e: "success", username?: string): void;
     (e: "fail", ex?: any): void;
     (e: "login", username?: string): void;
 }
-export interface IProps {
+export interface ForgotPasswordFormProps {
     username?: string;
 }
-export declare function useForgotPasswordForm(props: IProps, emit: IEmits, options: {
+export type ForgotPasswordModalProps = {
+    username?: string;
+    isVisible?: boolean;
+};
+export type ForgotPasswordModalSlots = {
+    /** the forgot-password form; scoped with the initial username */
+    default?(props: {
+        username?: string;
+    }): any;
+};
+export declare function useForgotPasswordForm(props: ForgotPasswordFormProps, emit: ForgotPasswordFormEmits, options: {
     siteUrl: string;
     siteName?: string;
 }): {

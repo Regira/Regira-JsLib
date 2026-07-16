@@ -1,9 +1,5 @@
-declare var __VLS_1: {
-    isDropping: boolean | undefined;
-};
-type __VLS_Slots = {} & {
-    default?: (props: typeof __VLS_1) => any;
-};
+import type { FileDropZoneSlots } from "./fileDropZone";
+type __VLS_Slots = FileDropZoneSlots;
 declare const __VLS_base: import("vue").DefineComponent<{}, {
     isDropping: import("vue").Ref<boolean | undefined, boolean | undefined>;
 }, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {

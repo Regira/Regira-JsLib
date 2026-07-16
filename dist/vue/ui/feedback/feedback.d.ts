@@ -25,5 +25,20 @@ type FeedbackStatusOrError = {
 export interface FeedbackEmits {
     (e: "close", arg: FeedbackStatusOrError): void;
 }
+export type FeedbackProps = {
+    feedback: FeedbackOut;
+    hideCloseButton?: boolean;
+    enableErrorPopup?: boolean;
+};
+export declare const feedbackDefaults: {
+    hideCloseButton: boolean;
+    enableErrorPopup: boolean;
+};
+export type FeedbackSlots = {
+    "close-button"?(): any;
+    pending?(): any;
+    success?(): any;
+    error?(): any;
+};
 export declare function useFeedback({ autoHideDelay }?: FeedbackIn): FeedbackOut;
 export default useFeedback;

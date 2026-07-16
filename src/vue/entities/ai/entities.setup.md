@@ -325,7 +325,7 @@ src/
   app-config.ts                  # loads + types public/config.json (createConfig / useConfig) — see Runtime config
   main.ts                        # bootstrap — see Bootstrap
   App.vue                        # root shell — see Root component
-  assets/{base.scss,main.scss,images/}
+  assets/{theme.scss,images/}      # theme.scss = the app theme (tokens + overrides) — see Bootstrap (styling)
   router/
     index.ts                     # re-export routerFactory
     router.ts                    # routerFactory(entityRoutes)
@@ -644,7 +644,8 @@ import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "@/regir
 import { focus, grow, clickOutside } from "@/regira_modules/vue/directives"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css"
-import "@/regira_modules/style.css" // library component styles (modal backdrop, autocomplete dropdown)
+import "@/regira_modules/style.css" // library component styles (modal backdrop, autocomplete dropdown) + --rg-* theme tokens
+import "@/assets/theme.scss" // the app theme — after bootstrap + regira styles so its overrides win
 import { plugin as authPlugin, LocalStorageTokenManager } from "@/regira_modules/vue/auth"
 import { preloaderPlugin, defaultPoolCache, PoolCache } from "@/regira_modules/vue/entities"
 import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
@@ -1131,12 +1132,16 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css"
 ```
 
-You don't need Bootstrap's JavaScript (the UI components bring their own behaviour). Put overrides in
-`src/assets/*.scss` and import them after Bootstrap.
+You don't need Bootstrap's JavaScript (the UI components bring their own behaviour). **Theming belongs
+in the app's `src/assets/theme.scss`** (scaffolded by the shell), imported after Bootstrap and
+`regira_modules/style.css` — never in forked library css.
 
-**Restyling is encouraged** — the library defaults are deliberately plain. Common app-level hooks: a
-tinted `.is-deleted` (pending-delete rows, incl. `InputSelectorInline` chips), `.is-selected`, a sticky
-`.form-buttons` toolbar (`position: sticky; top: 0`), `.form-section` framing, zebra `.striped` rows.
+**Restyling is encouraged** — the library defaults are deliberately plain; the ui module's
+customize guide (`ui.customize`) is the canonical 5-layer ladder (tokens → css hooks → slots →
+contract-typed replacement → eject). Common app-level hooks: the `--rg-*` tokens (`--rg-accent-bg`,
+`--rg-deleted-bg`, …), `.is-deleted` (pending-delete rows, incl. `InputSelectorInline` chips),
+`.is-selected`, a sticky `.form-buttons` toolbar (`position: sticky; top: 0`), `.form-section` framing,
+zebra `.striped` rows.
 Preserve behaviour, not looks — see [entities.patterns.md → Restyling & overriding the
 built-ins](entities.patterns.md#restyling--overriding-the-built-ins).
 

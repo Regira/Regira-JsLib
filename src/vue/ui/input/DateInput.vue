@@ -1,7 +1,7 @@
 <template>
     <input
         type="date"
-        class="form-control"
+        class="rg-date-input form-control"
         :value="dateValue"
         @change="handleChange"
         :lang="culture"
@@ -13,14 +13,10 @@
 import { computed } from "vue"
 import { dateInputString } from "../../formatters"
 import { isValid } from "date-fns"
+import type { DateInputProps, DateInputEmits } from "./inputs"
 
-const emit = defineEmits<{
-    (e: "update:modelValue", modelValue?: string | Date): void
-}>()
-const props = defineProps<{
-    modelValue?: string | Date
-    culture?: string
-}>()
+const emit = defineEmits<DateInputEmits>()
+const props = defineProps<DateInputProps>()
 
 const isValidDate = computed(() => isValid(new Date(props.modelValue || "")))
 const dateValue = computed(() => (isValidDate.value ? dateInputString(new Date(props.modelValue!)) : props.modelValue))

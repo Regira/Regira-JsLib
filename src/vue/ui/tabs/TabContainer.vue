@@ -13,22 +13,11 @@
 import { computed, onMounted, ref } from "vue"
 import { useRouter } from "vue-router"
 import { Tab, type ITab } from "./Tab"
-import type { IEmits } from "./tabs"
+import { tabContainerDefaults, type TabContainerProps, type TabsEmits } from "./tabs"
 import TabNavigation from "./TabNavigation.vue"
 
-interface Emits extends IEmits {}
-
-const emit = defineEmits<Emits>()
-const props = withDefaults(
-    defineProps<{
-        tabs: Array<ITab | string | null>
-        useRouteNav?: boolean
-        active?: string
-    }>(),
-    {
-        useRouteNav: false,
-    }
-)
+const emit = defineEmits<TabsEmits>()
+const props = withDefaults(defineProps<TabContainerProps>(), { ...tabContainerDefaults })
 
 const router = useRouter()
 const items = computed<Array<ITab>>(() => props.tabs.filter((x) => x != null).map((x) => (x instanceof Tab ? x : new Tab(x as string))))

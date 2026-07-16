@@ -1,5 +1,5 @@
 <template>
-    <form>
+    <form class="rg-logout-form">
         <button type="button" class="btn btn-sm btn-secondary" @click="logout">{{ displayName }} afmelden</button>
     </form>
 </template>

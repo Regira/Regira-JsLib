@@ -1,43 +1,4 @@
 import { type Ref, type StyleValue } from "vue";
-export declare const autocompleteEmits: string[];
-export declare const autocompleteProps: {
-    idValue: (StringConstructor | NumberConstructor)[];
-    modelValue: {
-        required: boolean;
-    };
-    data: {
-        type: ArrayConstructor;
-        default: () => never[];
-    };
-    search: FunctionConstructor;
-    idSelector: FunctionConstructor;
-    displayItemFormatter: FunctionConstructor;
-    resultItemFormatter: FunctionConstructor;
-    enableDblClick: {
-        type: BooleanConstructor;
-        default: boolean;
-    };
-    resultClass: {
-        type: StringConstructor;
-        default: string;
-    };
-    itemsClass: {
-        type: StringConstructor;
-        default: string;
-    };
-    itemClass: {
-        type: StringConstructor;
-        default: string;
-    };
-    maxResults: {
-        type: NumberConstructor;
-        default: number;
-    };
-    debounceTime: {
-        type: NumberConstructor;
-        defaults: number;
-    };
-};
 type IDefaultKey = number | string;
 type IOffset = {
     top: number;
@@ -50,13 +11,13 @@ type IResultStyle = StyleValue & {
     transform?: string;
     width: string;
 };
-interface Emits<T = any, TKey = IDefaultKey | T> {
+export interface AutocompleteEmits<T = any, TKey = IDefaultKey | T> {
     (e: "update:modelValue", args: T | undefined): void;
     (e: "update:idValue", args: TKey | undefined): void;
     (e: "select", args: T | undefined): void;
     (e: "qInput", args: string): void;
 }
-interface Props<T = any, TKey = IDefaultKey | T> {
+export interface AutocompleteProps<T = any, TKey = IDefaultKey | T> {
     idValue?: TKey;
     modelValue?: T;
     data?: Array<T>;
@@ -70,16 +31,23 @@ interface Props<T = any, TKey = IDefaultKey | T> {
     itemClass?: string;
     search?(term?: string): Promise<Array<T>>;
     idSelector?(item?: T): TKey | undefined;
+    /** converts an item to its display string (input value + default result rendering) */
     displayItemFormatter?(item?: T): string;
-    resultItemFormatter?(item?: T, q?: string): string;
 }
-export declare const propsDefaults: {
+export type AutocompleteSlots<T = any> = {
+    /** result-item rendering seam; the fallback renders the display string with the matched term in bold */
+    default?(props: {
+        item: T;
+        q: string;
+    }): any;
+};
+export declare const autocompleteDefaults: {
     data: () => never[];
     maxResults: number;
     debounceTime: number;
     autoSelect: boolean;
 };
-type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
+export type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
     q: Ref<string>;
     selectedItem: Ref<T | undefined>;
     selectedIndex: Ref<number>;
@@ -93,8 +61,7 @@ type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
     }) | undefined>;
     resultOffset: Ref<IOffset>;
     resultStyle: Ref<IResultStyle>;
-    displayItemFormatter(item: T): string;
-    resultItemFormatter(item: T, q?: string): string;
+    displayItemFormatter(item?: T): string;
     handleInput(): void;
     handleChange(): void;
     handleSelect(item: T, index: number): void;
@@ -107,7 +74,7 @@ type AutocompleteOut<T = any, TKey = IDefaultKey | T> = {
     clearSelection(): void;
     reset(): void;
 };
-export declare function useAutocomplete<T = any, TKey = IDefaultKey | T>(props: Props<T, TKey>, { emit }: {
-    emit: Emits<T, TKey>;
+export declare function useAutocomplete<T = any, TKey = IDefaultKey | T>(props: AutocompleteProps<T, TKey>, { emit }: {
+    emit: AutocompleteEmits<T, TKey>;
 }): AutocompleteOut<T, TKey>;
 export {};
