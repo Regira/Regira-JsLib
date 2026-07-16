@@ -78,6 +78,9 @@ For AI agents, the same material is served by the Regira MCP server (package
 7. [`entities.advanced.example.md`](ai/entities.advanced.example.md) — one complete complex slice
    (`Vehicle`): attachments + many-to-many link model + owned child collection.
 8. [`entities.patterns.md`](ai/entities.patterns.md) — per-feature recipes (load on demand).
+9. [`entities.blueprints.md`](ai/entities.blueprints.md) — domain blueprints (load on demand): SPA
+   counterparts of the back-end blueprints — labels editor, tenant switcher, family tree view,
+   polymorphic (TPH) entity.
 
 ## The module stack
 

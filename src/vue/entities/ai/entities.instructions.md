@@ -485,6 +485,15 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 - **Custom query params (the `$` rule)** — `$`-prefixed keys are stripped before the request.
 - **Type the client from the API's OpenAPI** — generate DTO types and feed them into the models.
 
+## Domain blueprints → entities.blueprints.md
+
+SPA counterparts of the back-end domain blueprints (`get_package("Regira.Entities", section: "blueprints")`). Load [entities.blueprints.md](entities.blueprints.md) when building one of these:
+
+- **Labels editor** — draggable inline label/tag rows in the owner's form; client-side type detection; `_deleted` + `prepareItem` strip.
+- **Tenant switcher** — active tenant derived from the JWT `tenant` claim; switching = `authStore.refresh({ tenantId })`.
+- **Family tree view** — flat rows from the tree endpoints → `TreeList` → mutually recursive `TreeView ⇄ TreeViewItem` components with drag-move.
+- **Polymorphic entity** — one flattened client class + discriminator field over a TPH back-end (Person/Organization parties).
+
 ---
 
 ## Quick reference

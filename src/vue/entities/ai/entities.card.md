@@ -72,3 +72,6 @@
   referenced row. `vue-tsc` proves none of this.
 - **`<Debug :modelValue="…" />` while developing** — self-gates on `$isDebug` (`?debug=1`), inert in
   production; curate the payload (resolved relations, paging state).
+- **Building a common domain feature? Check the blueprints** — `get_package("regira_modules.vue.entities", section: "blueprints")`
+  has the SPA counterparts of the back-end blueprints: labels editor, tenant switcher, family tree view,
+  polymorphic (TPH) entity.

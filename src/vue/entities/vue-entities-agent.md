@@ -28,8 +28,9 @@ endpoints, typing the client from OpenAPI), `entities.template.md` (a **blank sl
 
 - a placeholder skeleton per `(c)` file to fill in), `entities.examples.md` (worked slices, simplest first
   — a **simple** `UnitType` then a **standard** `Product`),
-  and `entities.advanced.example.md` (a complex slice — `Vehicle`: attachments, many-to-many, owned child
-  collection).
+  `entities.advanced.example.md` (a complex slice — `Vehicle`: attachments, many-to-many, owned child
+  collection), and `entities.blueprints.md` (domain blueprints — labels editor, tenant switcher, family
+  tree view, polymorphic TPH entity).
 
 ## Your responsibilities
 
