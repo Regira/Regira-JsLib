@@ -69,7 +69,9 @@ including ones not yet installed locally. Use it to discover and read guides on 
 Context economy: orient with `get_package_card` first; read only your tier's primary guides in full; for
 everything else prefer `get_section_toc` + heading-scoped `get_package` and `get_example(pattern=…)` over
 whole-section reads. Once `regira_modules` is installed, the committed `dist/**/*.d.ts` files are the
-cheapest authoritative signature source — read those before pulling a signatures section.
+cheapest authoritative signature source — read those before pulling a signatures section. When you
+**delegate reference-mining to a sub-agent**, ask it for distilled patterns + the 3–4 files worth cloning —
+never a verbatim dump of every file (that alone can cost 100k+ tokens for little gain).
 
 ## Pre-flight checklist
 
@@ -180,5 +182,6 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
    `app-config.ts` (full source: `entities.shell.template`); then set up the toolchain per `entities.setup` → Install.
 6. Scaffold each entity slice with `node node_modules/regira_modules/_template/scaffold.mjs <Entity>`
    (add `--no-auth` for a no-auth app), then customize the `(c)` files; consult `entities.namespaces` / `entities.signatures` for exact
-   imports/signatures and `entities.patterns` for recipes.
+   imports/signatures and `entities.patterns` for recipes. For entities that own files/pictures, scaffold the
+   shared offline file slice once with `scaffold.mjs --attachments` and wire it into each (a tab + 3 lines).
 7. Verify with `npm run build` (`vue-tsc -b`).

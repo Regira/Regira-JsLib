@@ -11,12 +11,20 @@
 - **Default = the full reference scaffold, whatever the app type.** `scaffold.mjs --shell` once
   (`--no-auth` variant exists), `scaffold.mjs <Entity>` per entity; you edit only the eight `(c)` files.
   Pick a lighter tier only on an explicit user ask.
-- **Use the built-ins — hand-rolling one is a deviation to declare:** feedback (`useFeedback` +
-  `<Feedback>`), tabs (`TabContainer` + `Tab.create`), modals (`DefaultModal` / `FormModalButton`),
-  paging (`Paging`), loading (`LoadingContainer`), relation pickers (`Autocomplete` / `InputSelector`),
-  owned/join chips (`InputSelectorInline` + `_deleted`), debug (`<Debug>`), breakpoints (`useScreen`).
-- **A displayed related entity defaults to its `FormModalButton`** — every chip, badge, or list cell that
-  shows a related row should open that row's form in a modal; a bare text label is the exception.
+- **The provided components, composables and patterns _are_ the product — they are how you ship a scalable,
+  production-ready app with little code.** Reach for a built-in and restyle/wrap it; hand-rolling one is a
+  deviation to declare: feedback (`useFeedback` + `<Feedback>`), tabs (`TabContainer` + `Tab.create`),
+  modals (`DefaultModal` / `FormModalButton`), paging (`Paging`), loading (`LoadingContainer`), relation
+  pickers (`Autocomplete` / `InputSelector`), owned/join chips (`InputSelectorInline` + `_deleted`),
+  file attachments (`entity-attachments` + `FileDropZone`), debug (`<Debug>`), breakpoints (`useScreen`).
+- **The entity's own create/edit form is a PAGE, not a modal.** Scaffold `isComplex: true` (the default):
+  the overview's row-edit and "new" actions navigate to the **Details page**. Reserve the modal form
+  (`isComplex: false`, `FormModalButton`) for a **very basic** entity — a handful of scalar fields, no
+  relations, no tabs. A modal per real entity does not scale (no deep-link, no tabs, cramped on mobile).
+- **A displayed *related* entity defaults to its `FormModalButton`** — every chip, badge, or list cell that
+  shows a related row opens that row's form in a modal (quick-edit), whatever that entity's own `isComplex`;
+  a bare text label is the exception. This is distinct from the rule above: it edits a *neighbour*, not the
+  page's own record.
 - **Restyle freely — and space what you add.** The default styling is deliberately plain and tight;
   improving it is expected. Group fields in `FormSection` and give every component deliberate spacing
   (`mb-2`/`mb-3`, margins) — a dropped-in component with none reads as unfinished. Preserve the wiring

@@ -156,7 +156,8 @@ const api = "/foos" // TODO: API resource path (relative to the axios baseURL)
 const config: IConfig = {
     id: Entity.name,
     key: "Foo", // TODO: route-name prefix + icon key (conventionally = Entity.name)
-    isComplex: false, // TODO: true → tabbed form + Details-page "new" for create/edit (both tiers page via /search)
+    isComplex: true, // create/edit on a Details PAGE (default). Set false ONLY for a very basic entity — a few scalar
+    //                  fields, no relations/tabs — that is fine to edit in a modal (FormModalButton). See entities.card → page vs modal.
 
     routePrefix: "foos", // TODO: URL path segment
     baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
@@ -280,10 +281,13 @@ const items = computed<Array<Entity>>({
 <template>
     <div class="row border-bottom py-2">
         <div class="col-auto">
-            <!-- simple entity: edit in a modal. (complex: a <router-link> to the Details page).
-                 Forward @remove so a delete from inside the modal refreshes the pooled overview — without it
-                 the deleted row lingers until a manual reload. -->
-            <FormModalButton v-model="item" @save="$emit('save', $event)" @remove="$emit('remove', $event)" />
+            <!-- Row-edit affordance follows config.isComplex: a real entity (page) links to its Details route;
+                 a very basic entity (modal) opens FormModalButton. Forward @remove either way so a delete from
+                 inside the modal refreshes the pooled overview — without it the deleted row lingers until reload. -->
+            <RouterLink v-if="config.isComplex" :to="{ name: config.key + 'Details', params: { id: item.$id } }" class="btn btn-link p-1">
+                <Icon name="edit" />
+            </RouterLink>
+            <FormModalButton v-else v-model="item" @save="$emit('save', $event)" @remove="$emit('remove', $event)" />
         </div>
 
         <!-- TODO: your columns — mirror List.vue's headers 1:1, keep the row inside the viewport (flexible
@@ -305,8 +309,10 @@ const items = computed<Array<Entity>>({
 </template>
 
 <script setup lang="ts">
-import { ModalType, ConfirmButton } from "@/regira_modules/vue/ui"
+import { RouterLink } from "vue-router"
+import { ModalType, ConfirmButton, Icon } from "@/regira_modules/vue/ui"
 import type { SaveResult } from "@/regira_modules/vue/entities"
+import config from "../config/config"
 import Entity from "../data/Entity"
 import FormModalButton from "../details/FormModalButton.vue"
 
@@ -329,18 +335,31 @@ const item = defineModel<Entity>({ required: true })
 <template>
     <!-- Built-ins are the slice defaults — hand-rolling feedback/buttons/tabs/debug/owned-row editors is a deviation (see entities.card). -->
     <form @submit.prevent="handleSubmit">
-        <!-- useForm drives `feedback` (Saving… → Saved / 400 field-map); render it here or the save shows nothing. -->
-        <Feedback :feedback="feedback" />
-
-        <FormButtonsRow
-            :item="item"
-            :readonly="readonly"
-            :feedback="feedback"
-            :show-delete="item?.id > 0"
-            @cancel="handleCancel"
-            @remove="handleRemove"
-            @restore="handleRestore"
-        />
+        <!-- Action bar: save/delete buttons, the back-to-overview link (a page form must offer the way back), feedback. -->
+        <div class="row form-buttons align-items-center mb-3">
+            <div class="col-auto">
+                <FormButtonsRow
+                    :item="item"
+                    :readonly="readonly"
+                    :feedback="feedback"
+                    :show-delete="item?.id > 0"
+                    @cancel="handleCancel"
+                    @remove="handleRemove"
+                    @restore="handleRestore"
+                />
+            </div>
+            <div class="col-auto">
+                <!-- In a modal (isPopup) there is no overview to return to — offer a pop-out to the full page instead. -->
+                <RouterLink v-if="isPopup" :to="{ name: `${config.key}Details`, params: { id: item.$id } }" target="_blank" class="btn btn-outline-secondary" :title="$t('popOut')">
+                    <Icon name="popOut" />
+                </RouterLink>
+                <RouterLink v-else-if="overviewUrl" :to="overviewUrl" class="btn btn-outline-info">
+                    <Icon name="list" /> <span class="d-none d-md-inline ms-1">{{ $t("overview") }}</span>
+                </RouterLink>
+            </div>
+            <!-- useForm drives `feedback` (Saving… → Saved / 400 field-map); render it here or the save shows nothing. -->
+            <div class="col"><Feedback :feedback="feedback" /></div>
+        </div>
 
         <!-- Heavier form? Wrap sections in <TabContainer :tabs="tabs" :active="initialTab" :use-route-nav="!isPopup">
              with one <template #key> per Tab.create(...) — see entities.advanced.example.md §5. -->
@@ -364,8 +383,8 @@ const item = defineModel<Entity>({ required: true })
 </template>
 
 <script setup lang="ts">
-import type { RouteRecordRaw } from "vue-router"
-import { Feedback, FormButtonsRow, FormSection, FormLabel } from "@/regira_modules/vue/ui"
+import { RouterLink, type RouteRecordRaw } from "vue-router"
+import { Feedback, FormButtonsRow, FormSection, FormLabel, Icon } from "@/regira_modules/vue/ui"
 import { Debug } from "@/regira_modules/vue/debug"
 import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
 import config from "../config/config"

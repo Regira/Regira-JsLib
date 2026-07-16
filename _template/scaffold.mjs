@@ -5,6 +5,7 @@
 //   node node_modules/regira_modules/_template/scaffold.mjs --shell [options]    # the app shell (once per app)
 //   node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>     # eject a UI-kit reference skin
 //   node node_modules/regira_modules/_template/scaffold.mjs --ui list            # list the ejectable components
+//   node node_modules/regira_modules/_template/scaffold.mjs --attachments        # the shared offline file/attachments slice (once per app)
 //
 //   <Entity>            PascalCase class name, e.g. Product
 //   --plural <name>     route prefix / API path (default: derived — Category → categories, Box → boxes)
@@ -16,8 +17,10 @@
 //   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
 //   --ui <Component>    copy a UI-kit component's reference skin into the app for free restyling; the copy
 //                       imports only public regira_modules/... API, so behavior keeps flowing from the library
+//   --attachments       scaffold the shared entity-attachments slice (offline add/rename/remove + drop zone,
+//                       committed on the parent's save); then wire it into each file-owning entity (3 lines + a tab)
 //   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
-//   --force             (--shell / --ui) overwrite files that already exist
+//   --force             (--shell / --ui / --attachments) overwrite files that already exist
 //
 // Examples:
 //   node .../scaffold.mjs Category --plural categories
@@ -47,6 +50,12 @@ if (argv.includes("--shell")) {
 // ------------------------------------------------------------ ejected UI skin
 if (argv.includes("--ui")) {
     scaffoldUi(opt("--ui"))
+    process.exit(0)
+}
+
+// -------------------------------------------------- shared attachments slice
+if (argv.includes("--attachments")) {
+    scaffoldAttachments()
     process.exit(0)
 }
 
@@ -233,6 +242,38 @@ function scaffoldShell() {
     }
     console.log("  Next: ensure package.json has the known-good dependency set (entities.setup.md → Install),")
     console.log("  then scaffold entities and register them in src/entities/index.ts.")
+}
+
+// ---------------------------------------------------- attachments slice impl
+function scaffoldAttachments() {
+    const attRoot = resolve(here, "entity-attachments")
+    if (!existsSync(attRoot)) {
+        console.error(`✗ ${attRoot} not found — regira_modules is missing the entity-attachments template.`)
+        process.exit(1)
+    }
+    const baseDir = opt("--dir", "src/entities")
+    const dest = resolve(process.cwd(), baseDir, "entity-attachments")
+    if (existsSync(dest) && !force) {
+        console.error(`✗ ${dest} already exists — pass --force to overwrite, or wire the existing slice.`)
+        process.exit(1)
+    }
+    // shared slice: no per-entity tokens, no auth variants — a plain verbatim copy
+    const copyPlain = (from, to) => {
+        mkdirSync(to, { recursive: true })
+        for (const entry of readdirSync(from, { withFileTypes: true })) {
+            const s = join(from, entry.name)
+            const d = join(to, entry.name)
+            if (entry.isDirectory()) copyPlain(s, d)
+            else writeFileSync(d, readFileSync(s, "utf8"))
+        }
+    }
+    copyPlain(attRoot, dest)
+    console.log(`✓ Scaffolded the attachments slice → ${join(baseDir, "entity-attachments")}`)
+    console.log("  Wire it into each entity that owns files (3 lines + a tab):")
+    console.log(`    1. data/Entity.ts         field    attachments?: Array<EntityAttachment>   // import { type Entity as EntityAttachment } from "../../entity-attachments"`)
+    console.log(`    2. data/EntityService.ts  override insert/update via insertWithAttachments/updateWithAttachments; prepareItem drops _deleted attachments`)
+    console.log(`    3. details/Form.vue       tab      <template #files><EntityAttachments v-model="item.attachments" /></template>   // import { Overview as EntityAttachments } from "../../entity-attachments"`)
+    console.log(`    back-end: register the owner's files (WithAttachments + HasAttachments<>); the service ctor takes an AxiosWithFilesInstance.`)
 }
 
 // Resolve the auth/no-auth variant: keep one tag's marked lines/blocks, drop the other's.

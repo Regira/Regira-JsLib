@@ -6,7 +6,8 @@ const api = "/__entities__" // TODO: API resource path (relative to the axios ba
 const config: IConfig = {
     id: Entity.name,
     key: "__Entity__", // TODO: route-name prefix + icon key (conventionally = Entity.name)
-    isComplex: false, // TODO: true → tabbed form + Details-page "new" for create/edit (both tiers page via /search)
+    isComplex: true, // create/edit on a Details PAGE (default). Set false ONLY for a very basic entity — a few scalar
+    //                  fields, no relations/tabs — that is fine to edit in a modal (FormModalButton). See entities.card → page vs modal.
 
     routePrefix: "__entities__", // TODO: URL path segment
     baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum

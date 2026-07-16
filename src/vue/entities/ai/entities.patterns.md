@@ -462,6 +462,74 @@ after the parent exists. Pick owned for "edit the whole graph in one form" (no s
 first-class for "operate on one row independently" (accept the save-first step, or persist the parent silently
 on open).
 
+## Attachments (files) — offline add / rename / remove, confirm on save
+
+File/picture management on an entity, staged **offline**: the user adds (browse or drop), renames, and
+removes files inside the form, and **nothing hits the server until the parent is saved** — the `_deleted`
+marked-delete discipline of an owned collection, extended to the upload/rename round-trip. It ships as a
+shared **`entity-attachments` slice** — scaffold it once, then bind it in a tab on every file-owning entity:
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs --attachments   # → src/entities/entity-attachments/
+```
+
+The generated slice (full source: [entities.attachments.template.md](entities.attachments.template.md))
+builds on four **shipped** primitives — never hand-roll them (verify in
+[namespaces](entities.namespaces.md) / [signatures](entities.signatures.md)):
+
+| Primitive | From | Role |
+| --------- | ---- | ---- |
+| `FileDropZone` | `regira_modules/vue/ui` | drag-drop zone — emits `drop-files: Array<Blob>`, scoped slot `{ isDropping }` |
+| `useAxios().upload(url, [blob], data?)` | `regira_modules/vue/http` | multipart upload on the **shared, baseURL-aware** axios; field name defaults to **`"file"`** |
+| `useAxios().getFile(url)` | `regira_modules/vue/http` | authenticated download → `Blob` |
+| `formatFileSize`, `fileToBlob` | `regira_modules/utilities/file-utility` | size label; re-wrap a blob under a new name |
+
+> **Use `useAxios().upload`, not `FileHelper.send`.** `FileHelper.send` uses a **bare axios** — no
+> `baseURL`, no auth interceptor — and its field name defaults to **`"files"`**. The attachment endpoint
+> binds a parameter named **`file`**; upload against a relative URL with credentials. This mismatch (bare
+> axios / absolute URL / `"files"`) is the classic attachment-upload trap.
+
+**How it stages:** a picked/dropped file becomes a row with a **negative temp id** (like any new owned
+row), its raw `Blob` held in memory, and an object `uri` for instant preview. Rename edits `newFileName`
+(existing file) or `fileName` (new); remove toggles `_deleted` (undoable). On the parent's save, the flush
+helpers re-wrap each blob under its edited name and `POST` it to `{api}/{id}/files`; existing rows marked
+`_deleted` drop from the payload and are deleted by omission.
+
+**Wire it into each file-owning entity** — the join field, the flush overrides + `_deleted` filter, and a
+tab. The owner's service takes an `AxiosWithFilesInstance` (see [advanced example §13](entities.advanced.example.md)):
+
+```ts
+// data/Entity.ts
+import { type Entity as EntityAttachment } from "../../entity-attachments"
+attachments?: Array<EntityAttachment>
+```
+
+```ts
+// data/EntityService.ts — flush on save; drop marked rows (deleted by omission)
+import { insertWithAttachments, updateWithAttachments } from "../../entity-attachments/data/functions"
+override async insert(item: Owner): Promise<Owner | null> {
+    return await insertWithAttachments(this.config.api, item, () => super.insert(item))
+}
+override async update(item: Owner): Promise<Owner | null> {
+    return await updateWithAttachments(this.config.api, item, () => super.update(item))
+}
+protected override prepareItem(item: Owner): Owner {
+    item.attachments = item.attachments?.filter((x) => !x._deleted)
+    return super.prepareItem(item)
+}
+```
+
+```vue
+<!-- details/Form.vue — attachments get their own tab -->
+<template #files><EntityAttachments v-model="item.attachments" :readonly="readonly" /></template>
+<!-- import { Overview as EntityAttachments } from "../../entity-attachments" -->
+```
+
+> **`<img src>` on a guarded download 401s** — the tag sends no `Authorization` header. Either preview from
+> the in-memory `uri` (object URL) before upload, or expose the download **anonymously** on the back-end
+> (`Regira.Entities` → _Public (anonymous) attachment downloads_). The list DTO nests file metadata under
+> `attachment.*` (`item.attachment?.fileName`), not on the row root — read it there.
+
 ## Form validation & error handling
 
 `useForm` returns the `feedback: FeedbackOut` it drives (`status`/`message`/`error` refs +

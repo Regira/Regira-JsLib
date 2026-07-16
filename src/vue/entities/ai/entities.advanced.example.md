@@ -165,9 +165,10 @@ The "with attachments" variant of the boilerplate service: it overrides `insert`
 > **API check (CONTRACT §6).** `AxiosWithFilesInstance` and `createQueryString` are verified
 > `regira_modules/vue/http` exports — see [entities.signatures.md §10](entities.signatures.md#10-wiring-ioc--http)
 > (`AxiosWithFilesInstance` adds `getFile`/`upload`; `createQueryString(o): URLSearchParams`). The
-> `insertWithAttachments` / `updateWithAttachments` / `createEntity` / `save` helpers are **app-local**
-> (imported from `../../entity-attachments`, your own attachments slice), not library APIs — do not look
-> for them in the `regira_modules` reference.
+> `insertWithAttachments` / `updateWithAttachments` / `createEntity` helpers live in **your own
+> `entity-attachments` slice** — build it once from the copy-paste recipe in
+> [entities.patterns.md → Attachments (files)](entities.patterns.md#attachments-files--offline-add--rename--remove-confirm-on-save)
+> (offline add/rename/remove + drop zone), not the `regira_modules` reference.
 
 ```ts
 import { type AxiosWithFilesInstance, createQueryString } from "@/regira_modules/vue/http"
@@ -256,7 +257,7 @@ flatten/rebuild bridge, so a removed chip marks pending instead of hard-removing
             <div class="col-auto order-2 order-md-3">
                 <RouterLink
                     v-if="isPopup"
-                    :to="{ name: `${Entity.name}Details`, params: { id: item.$id } }"
+                    :to="{ name: `${config.key}Details`, params: { id: item.$id } }"
                     class="btn btn-default py-1"
                     target="_blank"
                     :title="$t('popOut')"
@@ -741,8 +742,8 @@ const items = computed<Array<Entity>>({
     <div class="row border-bottom border-bottom-1 py-2">
         <div class="col-auto">
             <!-- <FormModalButton v-model="item" class="p-1" /> -->
-            <router-link :to="{ name: Entity.name + 'Details', params: { id: item.$id } }" class="btn btn-link p-1">
-                <Icon :name="Entity.name" />
+            <router-link :to="{ name: config.key + 'Details', params: { id: item.$id } }" class="btn btn-link p-1">
+                <Icon :name="config.key" />
             </router-link>
         </div>
         <div class="col-2 col-lg-1 text-nowrap">
@@ -771,6 +772,7 @@ const items = computed<Array<Entity>>({
 <script setup lang="ts">
 import { createFromComputedPool } from "@/regira_modules/vue/vue-helper"
 import type { SaveResult } from "@/regira_modules/vue/entities"
+import config from "../config/config"
 import Entity from "../data/Entity"
 import { FormModalButton as BrandButton, useEntityStore as useBrandStore } from "../../brands"
 import { FormModalButton as VehicleTypeButton, useEntityStore as useVehicleTypeStore } from "../../vehicle-types"

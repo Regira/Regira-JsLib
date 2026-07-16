@@ -1,18 +1,31 @@
 <template>
     <!-- Built-ins are the slice defaults — hand-rolling feedback/buttons/tabs/debug/owned-row editors is a deviation (see entities.card). -->
     <form @submit.prevent="handleSubmit">
-        <!-- useForm drives `feedback` (Saving… → Saved / 400 field-map); render it here or the save shows nothing. -->
-        <Feedback :feedback="feedback" />
-
-        <FormButtonsRow
-            :item="item"
-            :readonly="readonly"
-            :feedback="feedback"
-            :show-delete="item?.id > 0"
-            @cancel="handleCancel"
-            @remove="handleRemove"
-            @restore="handleRestore"
-        />
+        <!-- Action bar: save/delete buttons, the back-to-overview link (a page form must offer the way back), feedback. -->
+        <div class="row form-buttons align-items-center mb-3">
+            <div class="col-auto">
+                <FormButtonsRow
+                    :item="item"
+                    :readonly="readonly"
+                    :feedback="feedback"
+                    :show-delete="item?.id > 0"
+                    @cancel="handleCancel"
+                    @remove="handleRemove"
+                    @restore="handleRestore"
+                />
+            </div>
+            <div class="col-auto">
+                <!-- In a modal (isPopup) there is no overview to return to — offer a pop-out to the full page instead. -->
+                <RouterLink v-if="isPopup" :to="{ name: `${config.key}Details`, params: { id: item.$id } }" target="_blank" class="btn btn-outline-secondary" :title="$t('popOut')">
+                    <Icon name="popOut" />
+                </RouterLink>
+                <RouterLink v-else-if="overviewUrl" :to="overviewUrl" class="btn btn-outline-info">
+                    <Icon name="list" /> <span class="d-none d-md-inline ms-1">{{ $t("overview") }}</span>
+                </RouterLink>
+            </div>
+            <!-- useForm drives `feedback` (Saving… → Saved / 400 field-map); render it here or the save shows nothing. -->
+            <div class="col"><Feedback :feedback="feedback" /></div>
+        </div>
 
         <!-- Heavier form? Wrap sections in <TabContainer :tabs="tabs" :active="initialTab" :use-route-nav="!isPopup">
              with one <template #key> per Tab.create(...) — see entities.advanced.example.md §5. -->
@@ -36,8 +49,8 @@
 </template>
 
 <script setup lang="ts">
-import type { RouteRecordRaw } from "vue-router"
-import { Feedback, FormButtonsRow, FormSection, FormLabel } from "regira_modules/vue/ui"
+import { RouterLink, type RouteRecordRaw } from "vue-router"
+import { Feedback, FormButtonsRow, FormSection, FormLabel, Icon } from "regira_modules/vue/ui"
 import { Debug } from "regira_modules/vue/debug"
 import { useForm, type FormEmits, formDefaults } from "regira_modules/vue/entities"
 import config from "../config/config"

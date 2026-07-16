@@ -132,3 +132,21 @@ if (!shellWritten) {
     process.exit(1)
 }
 console.log(`✓ Wrote ${shellWritten} files to _template/app-shell/`)
+
+// ---- Attachments slice (entities.attachments.template.md → _template/entity-attachments/**) ----
+// A shared slice: no per-entity tokens (copied verbatim by scaffold.mjs --attachments).
+const attOutDir = resolve(root, "_template/entity-attachments")
+const attBlocks = extractBlocks(readFileSync(resolve(aiDir, "entities.attachments.template.md"), "utf8"))
+rmSync(attOutDir, { recursive: true, force: true })
+let attWritten = 0
+for (const [path, body] of Object.entries(attBlocks)) {
+    const dest = resolve(attOutDir, path)
+    mkdirSync(dirname(dest), { recursive: true })
+    writeFileSync(dest, unalias(body))
+    attWritten++
+}
+if (!attWritten) {
+    console.error("✗ No attachments blocks found in entities.attachments.template.md")
+    process.exit(1)
+}
+console.log(`✓ Wrote ${attWritten} files to _template/entity-attachments/`)

@@ -73,6 +73,7 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 | **Scaffold the app shell** (`scaffold.mjs --shell` → bootstrap, config, router, dashboard + navbar, layout, views; `--no-auth` variant) | → [entities.shell.template.md](entities.shell.template.md) · [setup §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
 | **Add an entity**                                                                                                                       | → [§Entity Implementation Workflow](#entity-implementation-workflow)                                                                             |
 | **Scaffold a new entity** (`scaffold.mjs <Entity>` copies the full slice; then fill the `(c)` files)                                    | → [entities.template.md](entities.template.md)                                                                                                   |
+| **Scaffold file attachments** (`scaffold.mjs --attachments` copies the shared offline file/upload slice, once per app)                   | → [entities.attachments.template.md](entities.attachments.template.md)                                                                            |
 | **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                         | → [entities.examples.md](entities.examples.md)                                                                                                   |
 | **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                             | → [entities.advanced.example.md](entities.advanced.example.md)                                                                                   |
 | **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing)          | → [entities.patterns.md](entities.patterns.md)                                                                                                   |
@@ -264,8 +265,22 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 | Normal server-backed entity | `EntityServiceBase<T>` | one request per operation against the API                                                                                                                                   |
 | Small static / lookup list  | `JSONService<T>`       | fetches the list once, then filters/pages/saves in memory (shared cache keyed by `key`) — see [entities.patterns.md](entities.patterns.md#static--lookup-data--jsonservice) |
 
-Set `config.isComplex = true` for entities with child collections / heavier forms (used by navigation
-and routing conventions); simple lookups leave it unset.
+### Page vs modal — `isComplex`
+
+`isComplex` decides where the entity's **own** create/edit form lives, and it is the lever behind the
+"forms shouldn't be popups" rule:
+
+| `isComplex` | The entity's own form | Set it for |
+| ----------- | --------------------- | ---------- |
+| **`true`** _(default)_ | a **Details page** (row-edit + "new" navigate there; tabs, deep-links, `showToggleAdv`) | every real business entity — anything with relations, an owned collection, or more than a handful of fields |
+| **`false`** | a **modal** (`FormModalButton`) | only a **very basic** entity — a few scalar fields, no relations, no tabs (a lookup/reference row) |
+
+Default to the page. A modal per real entity does not scale — no deep-link, no tab strip, cramped on
+mobile — so reserve `isComplex: false` for the trivial case. This is **separate** from quick-editing a
+_related_ entity: a chip/badge that opens a neighbour's `FormModalButton` is always fine, whatever that
+neighbour's own `isComplex`. Both tiers still page the overview via `/search`; `isComplex` changes only the
+form surface and form richness. (Back-end simple/complex is a licensing concept — aligning the two is
+recommended but not enforced.)
 
 > **Data-layer only?** On a user-requested headless build (no CRUD scaffolding), you can skip the heavy
 > plugin stack: `initAxios({ api })` once + `EntityServiceBase<T>` subclasses + your own
@@ -385,6 +400,7 @@ hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](enti
 | 2+ related collections / many fields                              | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                                                                      |
 | an editable child/join **relation** (rows link to another entity) | **`InputSelectorInline`** chips (`_deleted` mark + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls                            |
 | editable owned rows with **scalar fields** (nothing to pick)      | an inline **table** via `useOwnedCollection` (add-row + `_deleted`) + the same `prepareItem` filter — [recipe](entities.patterns.md#owned-rows-with-scalar-fields--the-inline-table) |
+| **files / pictures** on the entity                                | the `entity-attachments` slice in a tab: `FileDropZone` drop, offline add/rename/remove (`_deleted`), flush on save via `useAxios().upload` — never `FileHelper.send` — [recipe](entities.patterns.md#attachments-files--offline-add--rename--remove-confirm-on-save) |
 | a related entity displayed anywhere                               | that entity's **`FormModalButton`** (chip/badge that opens its form in a modal) — a bare label is the exception, not the default                                                     |
 | "add related entity" controls                                     | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows)                                                                                         |
 | any save/remove path                                              | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                                                                                |
@@ -460,6 +476,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 - **Tabbed forms** — split a heavy form into `TabContainer` tabs, driven by the form's `initialTab` + URL-hash nav ([entities.patterns.md](entities.patterns.md#tabbed-forms)).
 - **Debug panel** — the global `<Debug>` component + `$isDebug`/`$setDebug` for a dev-only payload dump ([entities.patterns.md](entities.patterns.md#debug-panel-dev-only)).
 - **Owned (child) collections** — the numbered `InputSelectorInline` recipe (chips, `_deleted`, `exclude`, `prepareItem`); `useOwnedCollection` / `useOwnedModal` / `useListInput` for heavier master-detail.
+- **Attachments (files)** — the `entity-attachments` slice (`scaffold.mjs --attachments`): offline add (drop zone) / rename / remove, all confirmed on the parent's save (`FileDropZone` + `useAxios().upload` → `POST {api}/{id}/files`, field `file`).
 - **Restyling & overriding the built-ins** — CSS hooks, component wrappers, app-wide modal replacement; the default styling is deliberately plain and **improving it is encouraged**.
 - **Hierarchical (tree) entities** — `useTree` + `useDragDrop`.
 - **Static / lookup data** — `JSONService`.
@@ -487,6 +504,7 @@ Load [entities.patterns.md](entities.patterns.md) when implementing one of these
 | Reactive shared cache              | `createStore` (Pinia store)                                |
 | Owned/join chips (marked delete)   | `InputSelectorInline` (+ `prepareItem` filter)             |
 | Child collections                  | `useOwnedCollection` / `useOwnedModal` / `useListInput`    |
+| File attachments (offline staging) | `entity-attachments` slice: `FileDropZone` + `useAxios().upload` |
 | Hierarchy                          | `useTree`                                                  |
 | Navigation from configs            | `importDashboard` / `importNavbar` / `buildNavigationTree` |
 | Lean overview/form (no scaffold)   | `EntityOverview` / `EntityForm`                            |
