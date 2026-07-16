@@ -3,8 +3,9 @@
 > The must-know bullets before building a Vue 3 SPA on the Regira entities client. Drill into
 > `entities.instructions` (the spine), `entities.setup` (project + app shell), `entities.namespaces` /
 > `entities.signatures` (never guess an import or signature), and the examples/patterns sections for
-> detail. **Read economically:** this card + a heading-scoped `get_package(section, heading)` (see
-> `get_section_toc`) usually suffices — pull a whole section only when a heading isn't enough.
+> detail. **Read economically:** this card + a heading-scoped `get_package` (its `section` + `heading`
+> params; find headings with `get_section_toc`) usually suffices — pull a whole section only when a
+> heading isn't enough.
 > Back-end counterpart: `get_package_card("Regira.Entities")`.
 
 - **Default = the full reference scaffold, whatever the app type.** `scaffold.mjs --shell` once
