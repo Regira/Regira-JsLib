@@ -5,6 +5,7 @@ export {
     type PagingProps,
     type PagingEmits,
     type PagingSlots,
+    type PagingComponent,
     type ResultSummaryProps,
     type ResultSummarySlots,
 } from "./paging"

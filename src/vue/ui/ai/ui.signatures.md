@@ -15,9 +15,10 @@ exported `useXxx` composable where one exists. A replacement skin declares
 import { feedbackPlugin, iconPlugin, loadingPlugin, pagingPlugin, modalPlugin, screenPlugin } from "regira_modules/vue/ui"
 
 feedbackPlugin.install(app, { autoHideDelay?: number })
-iconPlugin.install(app, { icons?: Record<string, string>; clearFirst?: boolean; source?: "bs" | "fa" })
-loadingPlugin.install(app, { img: string })
-pagingPlugin.install(app, { defaultPageSize?: number })
+iconPlugin.install(app, { icons?: Record<string, string>; clearFirst?: boolean; source?: "bs" | "fa"; Icon?: IconComponent; IconButton?: IconButtonComponent })
+loadingPlugin.install(app, { img: string; Loading?: LoadingComponent; LoadingButton?: LoadingButtonComponent; LoadingContainer?: LoadingContainerComponent })
+// loadingPlugin's Loading swaps the indicator app-wide — incl. inside LoadingContainer/LoadingButton, which resolve it via injectLoading()
+pagingPlugin.install(app, { defaultPageSize?: number; Paging?: PagingComponent })
 modalPlugin.install(app, { Modal?: ModalComponent }) // provides the app-wide modal — swaps EVERY modal, incl. the ones inside library components
 screenPlugin.install(app)
 ```
@@ -26,6 +27,11 @@ Components are imported locally by default. When `registerComponentsGlobally` is
 `configureGlobals` from `regira_modules/vue/ioc` before install), these plugins also register their
 components app-wide: `iconPlugin` → `Icon`/`IconButton`, `loadingPlugin` →
 `Loading`/`LoadingButton`/`LoadingContainer`, `pagingPlugin` → `Paging`, `modalPlugin` → `MyModal`.
+The `Xxx?` component options swap what gets registered (each is compile-checked against the matching
+props contract), so replacement skins also reach the global-registration path. Note the asymmetry:
+`modalPlugin { Modal }` and `loadingPlugin { Loading }` additionally swap library-internal call sites
+(via `injectModal()` / `injectLoading()`); `iconPlugin { Icon }` does not — library components keep the
+library `Icon`, whose glyphs you re-map via `icons`/`source` and restyle via the `rg-icon` hook.
 
 ## Feedback
 
@@ -64,7 +70,7 @@ export type FeedbackSlots = { "close-button"?(): any; pending?(): any; success?(
 ## Paging
 
 ```ts
-import { Paging, ButtonType, usePaging, pagingDefaults, type PagingProps, type PagingEmits, type PagingSlots } from "regira_modules/vue/ui"
+import { Paging, ButtonType, usePaging, pagingDefaults, type PagingProps, type PagingEmits, type PagingSlots, type PagingComponent } from "regira_modules/vue/ui"
 export enum ButtonType {
     anchor = "Anchor",
     button = "Button",
@@ -79,6 +85,7 @@ export type PagingSlots = {
     default?(props: { page: number; route: string; handleChange: (page: number) => void }): any
     lastPage?(props: { page: number }): any
 }
+export type PagingComponent // any component implementing PagingProps — pagingPlugin's Paging option type (compile-checked)
 // behavior for replacement skins (page window, routes, change handling):
 export function usePaging(input: { pagingInfo: Ref<IPagingInfo>; count: Ref<number>; maxPages: number; emit: PagingEmits }): {
     pagedRoute(p: number): string
@@ -101,8 +108,18 @@ export type ResultSummarySlots = { default?(props: { visibleCount?: number; tota
 ## Loading
 
 ```ts
-import { Loading, LoadingContainer } from "regira_modules/vue/ui"
-// LoadingContainer props: { isLoading: boolean } (+ default slot)
+import { Loading, LoadingButton, LoadingContainer, injectLoading } from "regira_modules/vue/ui"
+import { type LoadingComponent, type LoadingContainerProps, type LoadingContainerSlots, type LoadingButtonProps, type LoadingButtonSlots } from "regira_modules/vue/ui"
+// Loading: no props — renders the img provided by loadingPlugin ({ img })
+export type LoadingContainerProps = { isLoading: boolean }
+export type LoadingContainerSlots = { loading?(): any; default?(): any }
+export type LoadingButtonProps = { isLoading: boolean; disabled?: boolean }
+export type LoadingButtonSlots = { loading?(): any; default?(): any }
+export type LoadingComponent // any component usable as the loading indicator — loadingPlugin's Loading option type (compile-checked)
+
+// resolves the app-wide loading indicator (the loadingPlugin swap-in, Loading otherwise); call in setup:
+export function injectLoading(): LoadingComponent
+// LoadingContainer/LoadingButton render their indicator through it, so a swapped Loading propagates
 ```
 
 ## Modal
@@ -174,13 +191,18 @@ export type TabNavigationProps = { tabs: Array<ITab>; activeTab: string }
 ## Icons
 
 ```ts
-import { BsIcon, FaIcon, IconButton, loadIcons, iconPlugin } from "regira_modules/vue/ui"
-import { type IIconProvider, type IconProps, type IconSize } from "regira_modules/vue/ui/icons"
+import { Icon, BsIcon, FaIcon, IconButton, loadIcons, iconPlugin, iconDefaults, iconButtonDefaults } from "regira_modules/vue/ui"
+import { type IIconProvider, type IconProps, type IconSize, type IconButtonProps, type IconButtonSlots } from "regira_modules/vue/ui"
 export type IconSize = "sm" | "md" | "lg" | "xl"
 export type IconProps = { name: string; size?: IconSize }
+export const iconDefaults: { size: IconSize } // "md"
+export type IconButtonProps = { icon: string; size?: IconSize; type?: "button" | "submit" | "reset" }
+export const iconButtonDefaults: { type: "button" }
+export type IconButtonSlots = { default?(): any }
+export type IconComponent // any component implementing IconProps — iconPlugin's Icon option type (compile-checked); IconButtonComponent likewise
 export type IIconProvider = { add: (key: string, icon: string) => void; source: "bs" | "fa"; map: Map<string, string> }
 export function load(icons: Record<string, string> | Array<Array<string>>): void // exported as loadIcons
-// BsIcon / FaIcon props: IconProps ; IconButton props: { icon: string; size?: IconSize; type?: "button" | "submit" | "reset" }
+// BsIcon / FaIcon props: IconProps
 ```
 
 ## Screen
@@ -248,8 +270,10 @@ import {
 The remaining input widgets export contract types too (`FormLabelProps` + `formLabelDefaults`,
 `FormSectionProps`/`FormSectionEmits`/`FormSectionSlots`, `NullableCheckBoxProps`/`NullableCheckBoxEmits`,
 `NullableLabelProps`/`NullableLabelSlots`, `AnchorProps`/`AnchorSlots`, `CopyToClipboardButtonProps` +
-`copyToClipboardButtonDefaults`) — inspect exact shapes with `get_type` on `regira_modules.vue.ui`; gis
-components (`GMap`, `GMapLink`, `GMapButton`) likewise.
+`copyToClipboardButtonDefaults`) — inspect exact shapes with `get_type` on `regira_modules.vue.ui`. The
+gis components are contract-typed too: `GMapProps` `{ modelValue: GMapAddressInput; zoom?: number }`,
+`GMapLinkProps`/`GMapLinkSlots`, `GMapButtonProps`/`GMapButtonSlots` (`GMapAddressInput` = address parts
+array or a single string; `GMapButton`'s map modal resolves via `injectModal()`).
 
 ## See also
 

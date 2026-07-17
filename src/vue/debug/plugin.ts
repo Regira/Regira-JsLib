@@ -1,9 +1,12 @@
 import { ref, type App } from "vue"
 import { globalOptions } from "../ioc"
+import type { DebugComponent } from "./debug"
 import Display from "./Display.vue"
 
 type IOptions = {
     isDebug: boolean
+    /** the component registered app-wide as `Debug` when registerComponentsGlobally is on (compile-checked) */
+    Debug?: DebugComponent
 }
 
 export default {
@@ -12,7 +15,7 @@ export default {
         const enableDebug = ref(true)
 
         if (globalOptions.registerComponentsGlobally) {
-            app.component("Debug", Display)
+            app.component("Debug", options?.Debug ?? (Display as unknown as DebugComponent))
         }
 
         Object.defineProperty(app.config.globalProperties, "$isDebug", {

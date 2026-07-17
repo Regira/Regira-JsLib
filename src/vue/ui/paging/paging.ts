@@ -1,5 +1,5 @@
 import type { IPagingInfo } from "../../entities/abstractions/PagingInfo"
-import { computed, type ComputedRef, type Ref } from "vue"
+import { computed, type AllowedComponentProps, type ComputedRef, type Ref, type VNodeProps } from "vue"
 import { useRouter, type RouteLocationRaw } from "vue-router"
 import { PAGING_DEFAULTS } from "./defaults"
 
@@ -25,6 +25,11 @@ export type PagingSlots = {
 export const pagingDefaults = {
     maxPages: 9,
     buttonType: ButtonType.anchor,
+}
+
+/** any component implementing the paging contract (props checked at the registration site) */
+export type PagingComponent = new (...args: any[]) => {
+    $props: PagingProps & AllowedComponentProps & VNodeProps
 }
 
 export type ResultSummaryProps = {

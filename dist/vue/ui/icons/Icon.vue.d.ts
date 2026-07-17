@@ -1,10 +1,6 @@
-import type { IconSize } from "./icons";
-type __VLS_Props = {
-    name: string;
-    size?: IconSize;
-};
-declare const __VLS_export: import("vue").DefineComponent<__VLS_Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<__VLS_Props> & Readonly<{}>, {
-    size: IconSize;
+import { type IconProps } from "./icons";
+declare const __VLS_export: import("vue").DefineComponent<IconProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<IconProps> & Readonly<{}>, {
+    size: import("./icons").IconSize;
 }, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
 declare const _default: typeof __VLS_export;
 export default _default;

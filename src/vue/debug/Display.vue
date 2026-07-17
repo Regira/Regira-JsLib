@@ -13,11 +13,9 @@
 <script setup lang="ts">
 import { ref, computed, getCurrentInstance } from "vue"
 import Icon from "../ui/icons/Icon.vue"
+import type { DebugProps } from "./debug"
 
-const props = defineProps<{
-    title?: string
-    modelValue?: unknown
-}>()
+const props = defineProps<DebugProps>()
 
 const isMinimized = ref(false)
 const instance = getCurrentInstance()

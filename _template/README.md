@@ -66,8 +66,9 @@ entities setup guide → Install first.
 
 ## Ejected UI skins (`--ui <Component>`)
 
-`ui/` holds ejectable copies of the UI-kit reference skins (modal, paging, autocomplete, feedback,
-buttons, tabs, account forms, …) — for when CSS/slots aren't enough and you want the markup itself:
+`ui/` holds ejectable copies of the UI-kit reference skins — every imported built-in, from the modal,
+paging, autocomplete, feedback, tabs and account forms down to the small input widgets, icons, loading,
+debug, lang and gis components — for when CSS/slots aren't enough and you want the markup itself:
 
 ```bash
 node node_modules/regira_modules/_template/scaffold.mjs --ui list          # what's available
@@ -77,7 +78,8 @@ node node_modules/regira_modules/_template/scaffold.mjs --ui DefaultModal  # →
 The copy's imports are rewritten to public `regira_modules/...` specifiers, so behavior (composables,
 contract types) keeps flowing from the library — only the markup is yours. Restyle freely; keep the
 contract (props/emits/slots, `rg-*`/`is-*` hooks, responsive) per the ui customize guide. The ejected
-modal is registered app-wide via `app.use(modalPlugin, { Modal })`.
+modal is registered app-wide via `app.use(modalPlugin, { Modal })`; the ejected loading indicator via
+`app.use(loadingPlugin, { img, Loading })` — each `--ui` eject prints its own wiring note.
 
 > `entity-slice/` and `app-shell/` are generated from the AI docs by `scripts/build-entity-template.mjs`;
 > `ui/` is generated from the real component source by `scripts/build-ui-template.mjs` —

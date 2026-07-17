@@ -27,9 +27,9 @@ var h = { class: "value" }, g = /*#__PURE__*/ n(/* @__PURE__ */ c({
 			o("div", h, p(v.value), 1)
 		], 2)) : i("", !0);
 	}
-}), [["__scopeId", "data-v-3de56375"]]), _ = { install(e, n) {
+}), [["__scopeId", "data-v-f993b440"]]), _ = { install(e, n) {
 	let r = f(!!n?.isDebug), i = f(!0);
-	t.registerComponentsGlobally && e.component("Debug", g), Object.defineProperty(e.config.globalProperties, "$isDebug", {
+	t.registerComponentsGlobally && e.component("Debug", n?.Debug ?? g), Object.defineProperty(e.config.globalProperties, "$isDebug", {
 		get() {
 			let t = e.config.globalProperties.$router.currentRoute.value.query?.debug;
 			return i.value && (t === void 0 ? r.value : t === "1");

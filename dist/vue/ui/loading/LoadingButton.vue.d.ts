@@ -1,14 +1,6 @@
-type __VLS_Props = {
-    isLoading: boolean;
-    disabled?: boolean;
-};
-declare var __VLS_1: {}, __VLS_8: {};
-type __VLS_Slots = {} & {
-    loading?: (props: typeof __VLS_1) => any;
-} & {
-    default?: (props: typeof __VLS_8) => any;
-};
-declare const __VLS_base: import("vue").DefineComponent<__VLS_Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<__VLS_Props> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
+import { type LoadingButtonProps, type LoadingButtonSlots } from "./loading";
+type __VLS_Slots = LoadingButtonSlots;
+declare const __VLS_base: import("vue").DefineComponent<LoadingButtonProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").PublicProps, Readonly<LoadingButtonProps> & Readonly<{}>, {}, {}, {}, {}, string, import("vue").ComponentProvideOptions, false, {}, any>;
 declare const __VLS_export: __VLS_WithSlots<typeof __VLS_base, __VLS_Slots>;
 declare const _default: typeof __VLS_export;
 export default _default;

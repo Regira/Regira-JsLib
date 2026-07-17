@@ -1,5 +1,5 @@
 import type { IPagingInfo } from "../../entities/abstractions/PagingInfo";
-import { type ComputedRef, type Ref } from "vue";
+import { type AllowedComponentProps, type ComputedRef, type Ref, type VNodeProps } from "vue";
 export declare enum ButtonType {
     anchor = "Anchor",
     button = "Button"
@@ -30,6 +30,10 @@ export type PagingSlots = {
 export declare const pagingDefaults: {
     maxPages: number;
     buttonType: ButtonType;
+};
+/** any component implementing the paging contract (props checked at the registration site) */
+export type PagingComponent = new (...args: any[]) => {
+    $props: PagingProps & AllowedComponentProps & VNodeProps;
 };
 export type ResultSummaryProps = {
     visibleCount?: number;

@@ -28,6 +28,9 @@ export {
     clipboardUtility,
 }
 
+// named re-exports the ejectable UI skins depend on (Anchor)
+export { isEmail, isIP, isPhone } from "./string-utility"
+
 export default {
     arrayUtility,
     colorUtility,

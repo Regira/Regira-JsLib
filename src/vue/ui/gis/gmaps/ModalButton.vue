@@ -14,11 +14,10 @@ import { ref, computed } from "vue"
 import Icon from "../../icons/Icon.vue"
 import { injectModal } from "../../modal"
 import GMap from "./GMap.vue"
+import type { GMapButtonProps, GMapButtonSlots } from "./gmaps"
 
-const props = defineProps<{
-    modelValue: Array<string | undefined> | string
-    zoom?: number
-}>()
+const props = defineProps<GMapButtonProps>()
+defineSlots<GMapButtonSlots>()
 
 const address = computed<string>(() => (Array.isArray(props.modelValue) ? props.modelValue : [props.modelValue]).filter((x) => x).join(" "))
 

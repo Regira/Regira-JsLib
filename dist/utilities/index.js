@@ -1,9 +1,9 @@
-import e from "./string-utility.js";
-import { L as t, P as n, t as r } from "../_chunks/array-utility-3.2.5.js";
-import { t as i } from "../_chunks/datetime-utility-3.2.5.js";
-import a from "./promise-utility.js";
-import o from "./file-utility.js";
-import { n as s, t as c } from "../_chunks/image-utility-3.2.5.js";
-import { r as l, t as u } from "../_chunks/clipboard-utility-3.2.5.js";
-import { n as d, t as f } from "../_chunks/utilities-3.2.5.js";
-export { r as arrayUtility, u as clipboardUtility, s as colorUtility, i as datetimeUtility, f as default, o as fileUtility, l as htmlUtility, d as httpUtility, c as imageUtility, n as numberUtility, t as objectUtility, a as promiseUtility, e as stringUtility };
+import e, { isEmail as t, isIP as n, isPhone as r } from "./string-utility.js";
+import { L as i, P as a, t as o } from "../_chunks/array-utility-3.2.5.js";
+import { t as s } from "../_chunks/datetime-utility-3.2.5.js";
+import c from "./promise-utility.js";
+import l from "./file-utility.js";
+import { n as u, t as d } from "../_chunks/image-utility-3.2.5.js";
+import { r as f, t as p } from "../_chunks/clipboard-utility-3.2.5.js";
+import { n as m, t as h } from "../_chunks/utilities-3.2.5.js";
+export { o as arrayUtility, p as clipboardUtility, u as colorUtility, s as datetimeUtility, h as default, l as fileUtility, f as htmlUtility, m as httpUtility, d as imageUtility, t as isEmail, n as isIP, r as isPhone, a as numberUtility, i as objectUtility, c as promiseUtility, e as stringUtility };

@@ -1,6 +1,6 @@
-import { computed as e, createBlock as t, createElementBlock as n, defineComponent as r, inject as i, normalizeClass as a, normalizeStyle as o, openBlock as s, resolveDynamicComponent as c } from "vue";
+import { computed as e, createBlock as t, createElementBlock as n, defineComponent as r, inject as i, mergeDefaults as a, normalizeClass as o, normalizeStyle as s, openBlock as c, resolveDynamicComponent as l } from "vue";
 //#region src/vue/ui/icons/bootstrap-icons.ts
-var l = {
+var u = {
 	address: "bi bi-journal-richtext",
 	admin: "bi bi-person-gear",
 	alert: "bi bi-exclamation-circle",
@@ -125,19 +125,19 @@ var l = {
 	xlsx: "bi bi-file-earmark-excel",
 	xml: "bi bi-filetype-xml",
 	zip: "bi bi-file-earmark-zip"
-}, u = /* @__PURE__ */ new Map();
-function d(e) {
+}, d = { size: "md" }, f = { type: "button" }, p = /* @__PURE__ */ new Map();
+function m(e) {
 	(Array.isArray(e) ? e : Object.entries(e)).forEach(([e, t]) => {
-		u.set(e, t);
+		p.set(e, t);
 	});
 }
-function f() {
-	u.clear();
+function h() {
+	p.clear();
 }
-d(l);
+m(u);
 //#endregion
 //#region src/vue/ui/icons/BsIcon.vue
-var p = /* @__PURE__ */ r({
+var g = /* @__PURE__ */ r({
 	__name: "BsIcon",
 	props: {
 		name: {},
@@ -145,19 +145,19 @@ var p = /* @__PURE__ */ r({
 	},
 	setup(t) {
 		let r = t;
-		!u.has(r.name) && !((e) => /\s/.test(e) || e.startsWith("bi-") || e.startsWith("fa-"))(r.name) && console.warn(`Icon "${r.name}" is not a registered key; pass a known key or a raw icon class.`);
-		let i = e(() => u.get(r.name) ?? r.name), c = {
+		!p.has(r.name) && !((e) => /\s/.test(e) || e.startsWith("bi-") || e.startsWith("fa-"))(r.name) && console.warn(`Icon "${r.name}" is not a registered key; pass a known key or a raw icon class.`);
+		let i = e(() => p.get(r.name) ?? r.name), a = {
 			sm: .75,
 			md: 1,
 			lg: 2,
 			xl: 3
-		}, l = e(() => ({ "font-size": `${c[r.size]}rem` }));
-		return (e, t) => (s(), n("i", {
-			class: a(i.value),
-			style: o(l.value)
+		}, l = e(() => ({ "font-size": `${a[r.size]}rem` }));
+		return (e, t) => (c(), n("i", {
+			class: o(i.value),
+			style: s(l.value)
 		}, null, 6));
 	}
-}), m = /* @__PURE__ */ r({
+}), _ = /* @__PURE__ */ r({
 	__name: "FaIcon",
 	props: {
 		name: {},
@@ -165,24 +165,24 @@ var p = /* @__PURE__ */ r({
 	},
 	setup(t) {
 		let r = t;
-		!u.has(r.name) && !((e) => /\s/.test(e) || e.startsWith("bi-") || e.startsWith("fa-"))(r.name) && console.warn(`Icon "${r.name}" is not a registered key; pass a known key or a raw icon class.`);
+		!p.has(r.name) && !((e) => /\s/.test(e) || e.startsWith("bi-") || e.startsWith("fa-"))(r.name) && console.warn(`Icon "${r.name}" is not a registered key; pass a known key or a raw icon class.`);
 		let i = {
 			sm: "fa-sm",
 			md: "fa-md",
 			lg: "fa-lg",
 			xl: "fa-3x"
-		}, o = e(() => [u.get(r.name) ?? r.name, i[r.size]]);
-		return (e, t) => (s(), n("i", { class: a(o.value) }, null, 2));
+		}, a = e(() => [p.get(r.name) ?? r.name, i[r.size]]);
+		return (e, t) => (c(), n("i", { class: o(a.value) }, null, 2));
 	}
-}), h = /* @__PURE__ */ r({
+}), v = /* @__PURE__ */ r({
 	__name: "Icon",
-	props: {
+	props: /*@__PURE__*/ a({
 		name: {},
-		size: { default: "md" }
-	},
+		size: {}
+	}, { ...d }),
 	setup(n) {
-		let r = i("icons.config", null), a = e(() => r?.source === "fa" ? m : p);
-		return (e, r) => (s(), t(c(a.value), {
+		let r = i("icons.config", null), a = e(() => r?.source === "fa" ? _ : g);
+		return (e, r) => (c(), t(l(a.value), {
 			class: "rg-icon",
 			name: n.name,
 			size: n.size
@@ -190,4 +190,4 @@ var p = /* @__PURE__ */ r({
 	}
 });
 //#endregion
-export { u as a, f as i, m as n, d as o, p as r, l as s, h as t };
+export { f as a, m as c, h as i, u as l, _ as n, d as o, g as r, p as s, v as t };

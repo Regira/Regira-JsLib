@@ -201,10 +201,10 @@ declare const _default: {
             replaceAll: (s: string, find: string, replace: string) => string;
             randomize: typeof import("./utilities/string-utility").randomize;
             newGuid: typeof import("./utilities/string-utility").newGuid;
-            isEmail: typeof import("./utilities/string-utility").isEmail;
-            isIP: typeof import("./utilities/string-utility").isIP;
+            isEmail: typeof import("./utilities").isEmail;
+            isIP: typeof import("./utilities").isIP;
             isUrl: typeof import("./utilities/string-utility").isUrl;
-            isPhone: typeof import("./utilities/string-utility").isPhone;
+            isPhone: typeof import("./utilities").isPhone;
             isDate: typeof import("./utilities/string-utility").isDate;
             isPhysicalFolder: typeof import("./utilities/string-utility").isPhysicalFolder;
             isPhysicalPath: typeof import("./utilities/string-utility").isPhysicalPath;

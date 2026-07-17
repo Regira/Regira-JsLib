@@ -11,6 +11,7 @@ import promiseUtility from "./promise-utility";
 import stringUtility from "./string-utility";
 import clipboardUtility from "./clipboard-utility";
 export { arrayUtility, colorUtility, datetimeUtility, fileUtility, htmlUtility, httpUtility, imageUtility, numberUtility, objectUtility, promiseUtility, stringUtility, clipboardUtility, };
+export { isEmail, isIP, isPhone } from "./string-utility";
 declare const _default: {
     arrayUtility: {
         isArray: (items: unknown) => items is unknown[];

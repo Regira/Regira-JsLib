@@ -1,22 +1,22 @@
-import { t as e } from "./Icon-3.2.5.js";
-import { createElementBlock as t, createVNode as n, defineComponent as r, openBlock as i, renderSlot as a } from "vue";
+import { a as e, t } from "./Icon-3.2.5.js";
+import { createElementBlock as n, createVNode as r, defineComponent as i, mergeDefaults as a, openBlock as o, renderSlot as s } from "vue";
 //#region src/vue/ui/icons/IconButton.vue?vue&type=script&setup=true&lang.ts
-var o = ["type"], s = /* @__PURE__ */ r({
+var c = ["type"], l = /* @__PURE__ */ i({
 	__name: "IconButton",
-	props: {
+	props: /*@__PURE__*/ a({
 		icon: {},
 		size: {},
-		type: { default: "button" }
-	},
-	setup(r) {
-		return (s, c) => (i(), t("button", {
-			type: r.type,
+		type: {}
+	}, { ...e }),
+	setup(e) {
+		return (i, a) => (o(), n("button", {
+			type: e.type,
 			class: "rg-icon-button btn"
-		}, [n(e, {
-			name: r.icon,
-			size: r.size
-		}, null, 8, ["name", "size"]), a(s.$slots, "default")], 8, o));
+		}, [r(t, {
+			name: e.icon,
+			size: e.size
+		}, null, 8, ["name", "size"]), s(i.$slots, "default")], 8, c));
 	}
 });
 //#endregion
-export { s as t };
+export { l as t };

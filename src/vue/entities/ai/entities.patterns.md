@@ -677,9 +677,12 @@ cheapest first:
   (`defineProps<XxxProps>`/`defineEmits<XxxEmits>`/`defineSlots<XxxSlots>`) with behavior from the
   exported `useXxx` composable; `vue-tsc` checks the fit. The modal swaps **app-wide** —
   `app.use(modalPlugin, { Modal: MyBrandedModal })` reaches every modal, including the ones inside
-  library components (`ConfirmButton`, `ErrorSummary`, `LoginModal`, `useModal`/`FormModalButton` flows).
+  library components (`ConfirmButton`, `ErrorSummary`, `LoginModal`, `useModal`/`FormModalButton` flows);
+  `loadingPlugin { Loading }` does the same for the loading indicator. Under `registerComponentsGlobally`,
+  pass the skin to the owning plugin (`pagingPlugin { Paging? }`, `iconPlugin { Icon?, IconButton? }`,
+  `debugPlugin { Debug? }`, …) so the global name resolves to it.
 - **L4 — eject the reference** — `node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>`
-  (`--ui list` shows what's available) copies the shipped skin into `src/components/ui/` with imports
+  (`--ui list` shows what's available — every imported built-in) copies the shipped skin into `src/components/ui/` with imports
   rewritten to public `regira_modules/...` API; restyle the copy freely and keep the checklist in
   [ui.customize.md](../../ui/ai/ui.customize.md) (contract, `rg-*` hooks, **responsive unless the user
   asks otherwise**).

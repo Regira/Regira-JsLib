@@ -66,7 +66,9 @@ Components are imported locally by default. With `registerComponentsGlobally: tr
 plugins re-register their components app-wide: `iconPlugin` → `Icon`/`IconButton`, `loadingPlugin` →
 `Loading`/`LoadingButton`/`LoadingContainer`, `pagingPlugin` → `Paging`, `modalPlugin` → `MyModal`,
 `debugPlugin` → `Debug`. Because `globalOptions` is a plain module object, the flag is honored
-regardless of `app.use` order.
+regardless of `app.use` order. Each plugin accepts matching component options (`modalPlugin { Modal? }`,
+`loadingPlugin { Loading?, … }`, `pagingPlugin { Paging? }`, `iconPlugin { Icon?, IconButton? }`,
+`debugPlugin { Debug? }`) so a replacement skin — not the library default — is what gets registered.
 
 ## See also
 

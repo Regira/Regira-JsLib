@@ -16,7 +16,7 @@ the functionality.
 | 0   | **Theme tokens**        | colors, radius, spacing — app-wide | override Bootstrap component vars + `--rg-*` tokens in `src/assets/theme.scss`                      |
 | 1   | **CSS restyle**         | one component's look, CSS only     | stable `rg-*` / `is-*` class hooks                                                                  |
 | 2   | **Recompose**           | a part of a component              | named/scoped slots (typed via `XxxSlots`)                                                           |
-| 3   | **Replace the skin**    | the entire markup                  | new SFC against `XxxProps`/`XxxEmits`/`XxxSlots` + `useXxx`; modal swaps app-wide via `modalPlugin` |
+| 3   | **Replace the skin**    | the entire markup                  | new SFC against `XxxProps`/`XxxEmits`/`XxxSlots` + `useXxx`; modal/loading swap app-wide via `modalPlugin`/`loadingPlugin` |
 | 4   | **Eject the reference** | start from the shipped markup      | `node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>`                          |
 
 ## L0 — Theme tokens
@@ -133,17 +133,24 @@ const { page, pages, totalPages, pagedRoute, handleChangePage } = usePaging({ pa
 <!-- markup is yours — keep the rg-paging root hook and stay responsive -->
 ```
 
-**The modal swaps app-wide.** `DefaultModal` is the only component with library-internal call sites
-(`ConfirmButton`, `ErrorSummary`, `LoginModal`, `ForgotPasswordModal`, gis `ModalButton`); they resolve
-it via `injectModal()`. One line in `main.ts` reskins every modal in the app:
+**The modal and the loading indicator swap app-wide.** They are the components with library-internal
+call sites: modals inside `ConfirmButton`, `ErrorSummary`, `LoginModal`, `ForgotPasswordModal`, gis
+`GMapButton` resolve via `injectModal()`; the spinner inside `LoadingContainer`/`LoadingButton` resolves
+via `injectLoading()`. One line in `main.ts` reskins them everywhere:
 
 ```ts
 import MyBrandedModal from "@/components/ui/MyBrandedModal.vue"
 app.use(modalPlugin, { Modal: MyBrandedModal }) // Modal is compile-checked against ModalProps
+app.use(loadingPlugin, { img, Loading: MyLoading }) // ditto for the loading indicator
 ```
 
 Everything else is swapped where it's used: consumer-owned scaffolded slices just change an import;
-per-entity view components (Overview/Details/Form/Fiche) swap via the `EntityDescriptor` registry.
+per-entity view components (Overview/Details/Form/Fiche) swap via the `EntityDescriptor` registry. Apps
+that opted into `registerComponentsGlobally` pass the variant to the owning plugin instead —
+`iconPlugin { Icon?, IconButton? }`, `loadingPlugin { Loading?, LoadingButton?, LoadingContainer? }`,
+`pagingPlugin { Paging? }`, `debugPlugin { Debug? }` (each compile-checked against its props contract) —
+so the global name resolves to your skin. Only `iconPlugin { Icon }` stays registration-only: library
+components keep the library `Icon` (re-map glyphs via `icons`/`source`, restyle via `rg-icon`).
 
 ## L4 — Eject the reference skin
 
@@ -152,9 +159,13 @@ node node_modules/regira_modules/_template/scaffold.mjs --ui list
 node node_modules/regira_modules/_template/scaffold.mjs --ui DefaultModal   [--dir src/components/ui]
 ```
 
-Ejectable: `DefaultModal`, `Paging` (incl. button/anchor), `Autocomplete`, `Feedback`, `ConfirmButton`,
-`FormButtonsRow`, `FileDropZone`, `Tabs` (container + nav), `LoginForm`, `ChangePasswordForm`,
-`ResetPasswordForm`, `InputSelectorInline`.
+Every imported built-in is ejectable — `--ui list` is the authority. The full set: `DefaultModal`,
+`Paging` (incl. button/anchor), `Autocomplete`, `Feedback`, `ConfirmButton`, `FormButtonsRow`,
+`FileDropZone`, `Tabs` (container + nav), `LoginForm`, `ChangePasswordForm`, `ResetPasswordForm`,
+`InputSelectorInline`, `Anchor`, `DateInput`, `DescriptionInput`, `FormLabel`, `FormSection`,
+`NullableCheckBox`, `NullableLabel`, `ResultSummary`, `Icon`, `IconButton`, `Loading` (incl.
+container/button), `Debug`, `LangSelector`, `DetailsSummary`, `GMapButton`, `LoginModal`,
+`ForgotPasswordModal`.
 
 The copy lands in your app with its imports rewritten to public `regira_modules/...` specifiers, so
 behavior (composables, contract types) keeps flowing from the library across upgrades — only the markup

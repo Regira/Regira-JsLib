@@ -144,7 +144,7 @@ components and composables exist for all of it — use them instead of hand-roll
 - `useChangePasswordForm(emit)` / `useResetPasswordForm({ token }, emit)` → password fields + match/validity
   state + `handleSubmit` (see [auth.signatures.md](auth.signatures.md)).
 - All form components are plain-Bootstrap reference skins — restyle, wrap, or eject them
-  (`scaffold.mjs --ui LoginForm|ChangePasswordForm|ResetPasswordForm`); the modals render the app-wide
+  (`scaffold.mjs --ui LoginForm|LoginModal|ForgotPasswordModal|ChangePasswordForm|ResetPasswordForm`); the modals render the app-wide
   modal via `injectModal()`, so a `modalPlugin { Modal }` swap reskins them too.
 
 ## `$auth` global

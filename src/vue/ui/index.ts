@@ -26,8 +26,40 @@ export {
     type FeedbackProps,
     type FeedbackSlots,
 } from "./feedback"
-export { Icon, BsIcon, FaIcon, IconButton, plugin as iconPlugin, load as loadIcons } from "./icons"
-export { Loading, LoadingContainer, plugin as loadingPlugin, type LoadingInput } from "./loading"
+export {
+    Icon,
+    BsIcon,
+    FaIcon,
+    IconButton,
+    plugin as iconPlugin,
+    load as loadIcons,
+    iconDefaults,
+    iconButtonDefaults,
+    type IIconProvider,
+    type IconsConfig,
+    type IconSize,
+    type IconProps,
+    type IconComponent,
+    type IconButtonProps,
+    type IconButtonSlots,
+    type IconButtonComponent,
+} from "./icons"
+export {
+    Loading,
+    LoadingButton,
+    LoadingContainer,
+    injectLoading,
+    LOADING_COMPONENT_KEY,
+    plugin as loadingPlugin,
+    type LoadingInput,
+    type LoadingComponent,
+    type LoadingContainerProps,
+    type LoadingContainerSlots,
+    type LoadingContainerComponent,
+    type LoadingButtonProps,
+    type LoadingButtonSlots,
+    type LoadingButtonComponent,
+} from "./loading"
 export {
     DefaultModal,
     ModalType,
@@ -50,6 +82,7 @@ export {
     type PagingProps,
     type PagingEmits,
     type PagingSlots,
+    type PagingComponent,
     type ResultSummaryProps,
     type ResultSummarySlots,
 } from "./paging"

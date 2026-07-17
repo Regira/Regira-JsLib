@@ -6,17 +6,9 @@
 import { computed, inject } from "vue"
 import BsIcon from "./BsIcon.vue"
 import FaIcon from "./FaIcon.vue"
-import type { IconsConfig, IconSize } from "./icons"
+import { iconDefaults, type IconsConfig, type IconProps } from "./icons"
 
-withDefaults(
-    defineProps<{
-        name: string
-        size?: IconSize
-    }>(),
-    {
-        size: "md",
-    }
-)
+withDefaults(defineProps<IconProps>(), { ...iconDefaults })
 
 // renders the glyph set selected by iconPlugin ({ source }); defaults to Bootstrap icons
 const config = inject<IconsConfig | null>("icons.config", null)

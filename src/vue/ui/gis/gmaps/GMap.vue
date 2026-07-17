@@ -4,11 +4,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue"
+import type { GMapProps } from "./gmaps"
 
-const props = defineProps<{
-    modelValue: Array<string | undefined> | string
-    zoom?: number
-}>()
+const props = defineProps<GMapProps>()
 
 const address = computed<string>(() => (Array.isArray(props.modelValue) ? props.modelValue : [props.modelValue]).filter((x) => x).join(" "))
 const gmapsUrl = computed<string>(

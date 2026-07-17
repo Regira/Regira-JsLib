@@ -36,9 +36,9 @@ installing the plugins — see the **Global registration** column.
 | Plugin           | Configures                                                                      | Options                                          | Global registration                            |
 | ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
 | `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                                   | `{ autoHideDelay? }`                             | —                                              |
-| `iconPlugin`     | glyph source for `Icon` (`bs`/`fa`) + friendly keys; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa" }` | `Icon`, `IconButton`                           |
-| `loadingPlugin`  | the image `Loading`/`LoadingContainer` render                                   | `{ img }`                                        | `Loading`, `LoadingButton`, `LoadingContainer` |
-| `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize? }`                           | `Paging`                                       |
+| `iconPlugin`     | glyph source for `Icon` (`bs`/`fa`) + friendly keys; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa", Icon?, IconButton? }` | `Icon`, `IconButton`                           |
+| `loadingPlugin`  | the image `Loading` renders + the app-wide indicator for `injectLoading()`      | `{ img, Loading?, LoadingButton?, LoadingContainer? }` | `Loading`, `LoadingButton`, `LoadingContainer` |
+| `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize?, Paging? }`                  | `Paging`                                       |
 | `modalPlugin`    | the app-wide modal — provides it for `injectModal()`                            | `{ Modal?: ModalComponent }`                     | `MyModal`                                      |
 | `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                | —                                              |
 
@@ -47,6 +47,13 @@ installing the plugins — see the **Global registration** column.
 `app.use(modalPlugin, { Modal: MyBrandedModal })` swaps **every** modal in the app, including the ones
 rendered inside library components (`ConfirmButton`, `ErrorSummary`, `LoginModal`, …), which resolve it
 via `injectModal()`. Import `regira_modules/style.css` once in `main.ts` for the backdrop/overlay styling.
+
+The `Xxx?` component options take a replacement skin (compile-checked against the matching props
+contract) and swap what the plugin registers globally — so custom variants also reach apps that use
+`registerComponentsGlobally` instead of local imports. `loadingPlugin { Loading }` goes further, like
+the modal: `LoadingContainer`/`LoadingButton` resolve their indicator via `injectLoading()`, so the
+swap propagates inside library components too. `iconPlugin { Icon }` does not — library-internal call
+sites keep the library `Icon` (re-map glyphs via `icons`/`source`, restyle via `rg-icon`).
 
 ## Areas
 

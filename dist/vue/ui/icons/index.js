@@ -1,4 +1,4 @@
-import { a as e, i as t, n, o as r, r as i, t as a } from "../../../_chunks/Icon-3.2.5.js";
-import { t as o } from "../../../_chunks/IconButton-3.2.5.js";
-import { t as s } from "../../../_chunks/icons-3.2.5.js";
-export { i as BsIcon, n as FaIcon, a as Icon, o as IconButton, t as clear, s as default, s as plugin, e as iconMap, r as load };
+import { a as e, c as t, i as n, n as r, o as i, r as a, s as o, t as s } from "../../../_chunks/Icon-3.2.5.js";
+import { t as c } from "../../../_chunks/IconButton-3.2.5.js";
+import { t as l } from "../../../_chunks/icons-3.2.5.js";
+export { a as BsIcon, r as FaIcon, s as Icon, c as IconButton, n as clear, l as default, l as plugin, e as iconButtonDefaults, i as iconDefaults, o as iconMap, t as load };

@@ -41,7 +41,10 @@ To opt back into app-wide registration, set `configureGlobals({ registerComponen
 (from `regira_modules/vue/ioc`) **before** installing the plugins. With the flag on, `iconPlugin`
 registers `Icon`/`IconButton`, `loadingPlugin` registers `Loading`/`LoadingButton`/`LoadingContainer`,
 `pagingPlugin` registers `Paging`, and `modalPlugin` registers `MyModal` — so those tags resolve
-without local imports.
+without local imports. Each of these plugins takes matching component options (e.g.
+`loadingPlugin { Loading? }`, `pagingPlugin { Paging? }`, compile-checked against the props contract)
+that swap what gets registered — and `loadingPlugin { Loading }`, like `modalPlugin { Modal }`, also
+swaps the indicator inside library components via `injectLoading()`.
 
 `Icon` works without `iconPlugin` (defaults to Bootstrap glyphs) and `DefaultModal` needs no plugin; the
 glyph **font CSS** (`bootstrap-icons`/Font Awesome) must be imported separately. `Icon` takes a registered

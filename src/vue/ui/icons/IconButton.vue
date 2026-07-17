@@ -7,16 +7,8 @@
 
 <script setup lang="ts">
 import Icon from "./Icon.vue"
-import type { IconSize } from "./icons"
+import { iconButtonDefaults, type IconButtonProps, type IconButtonSlots } from "./icons"
 
-withDefaults(
-    defineProps<{
-        icon: string
-        size?: IconSize
-        type?: "button" | "submit" | "reset"
-    }>(),
-    {
-        type: "button",
-    }
-)
+withDefaults(defineProps<IconButtonProps>(), { ...iconButtonDefaults })
+defineSlots<IconButtonSlots>()
 </script>

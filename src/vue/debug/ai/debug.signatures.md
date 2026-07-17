@@ -10,6 +10,7 @@ import plugin, { Debug } from "regira_modules/vue/debug"
 
 ```ts
 export { default as Debug } from "./Display.vue"
+export { type DebugProps, type DebugComponent } from "./debug"
 export { default, default as plugin } from "./plugin"
 
 declare module "@vue/runtime-core" {
@@ -25,6 +26,8 @@ declare module "@vue/runtime-core" {
 ```ts
 type IOptions = {
     isDebug: boolean
+    /** the component registered app-wide as `Debug` when registerComponentsGlobally is on (compile-checked) */
+    Debug?: DebugComponent
 }
 declare const _default: {
     install(app: App<Element>, options?: IOptions): void
@@ -35,11 +38,13 @@ export default _default
 ## Debug component
 
 ```ts
-type __VLS_Props = {
+export type DebugProps = {
     title?: string
+    /** any value; rendered as pretty-printed JSON when debug mode is on */
     modelValue?: unknown
 }
-declare const _default: DefineComponent<__VLS_Props /* … */>
+export type DebugComponent // any component implementing DebugProps — the plugin's Debug option type
+declare const _default: DefineComponent<DebugProps /* … */>
 export default _default
 ```
 

@@ -21,7 +21,8 @@ const outRoot = resolve(root, "_template", "ui")
 // ------------------------------------------------------------------ manifest
 // name  → scaffold.mjs --ui <name>
 // dir   → source folder (relative to src/)
-// files → copied verbatim-with-rewrites; imports between files of the same set stay relative
+// files → copied verbatim-with-rewrites; imports between files of the same set stay relative.
+//         An entry may be { from, to } to eject under a clearer name (e.g. Display.vue → Debug.vue)
 // styles→ co-located scss copied along (side-effect import rewritten to the new file name)
 // note  → wiring hint printed by scaffold.mjs after ejecting
 const MANIFEST = [
@@ -99,6 +100,108 @@ const MANIFEST = [
         files: ["InputSelectorInline.vue"],
         note: "import your copy instead of regira_modules/vue/entities InputSelectorInline",
     },
+    {
+        name: "Anchor",
+        dir: "vue/ui/input",
+        files: ["Anchor.vue"],
+        note: "import your copy instead of the library Anchor",
+    },
+    {
+        name: "DateInput",
+        dir: "vue/ui/input",
+        files: ["DateInput.vue"],
+        note: "import your copy instead of the library DateInput",
+    },
+    {
+        name: "DescriptionInput",
+        dir: "vue/ui/input",
+        files: ["DescriptionInput.vue"],
+        note: "import your copy instead of the library DescriptionInput",
+    },
+    {
+        name: "FormLabel",
+        dir: "vue/ui/input",
+        files: ["FormLabel.vue"],
+        note: "import your copy instead of the library FormLabel",
+    },
+    {
+        name: "FormSection",
+        dir: "vue/ui/input",
+        files: ["FormSection.vue"],
+        note: "import your copy instead of the library FormSection",
+    },
+    {
+        name: "NullableCheckBox",
+        dir: "vue/ui/input",
+        files: ["NullableCheckBox.vue"],
+        note: "import your copy instead of the library NullableCheckBox",
+    },
+    {
+        name: "NullableLabel",
+        dir: "vue/ui/input",
+        files: ["NullableLabel.vue"],
+        note: "import your copy instead of the library NullableLabel",
+    },
+    {
+        name: "ResultSummary",
+        dir: "vue/ui/paging",
+        files: ["ResultSummary.vue"],
+        note: "import your copy instead of the library ResultSummary",
+    },
+    {
+        name: "Icon",
+        dir: "vue/ui/icons",
+        files: ["Icon.vue"],
+        note: "import your copy instead of the library Icon, and pass it to iconPlugin { Icon } for the global registration; glyph sets keep coming from the plugin's icons/source config. Library-internal call sites keep the library Icon",
+    },
+    {
+        name: "IconButton",
+        dir: "vue/ui/icons",
+        files: ["IconButton.vue"],
+        note: "import your copy instead of the library IconButton (or pass iconPlugin { IconButton } for the global registration)",
+    },
+    {
+        name: "Loading",
+        dir: "vue/ui/loading",
+        files: ["Loading.vue", "LoadingContainer.vue", "LoadingButton.vue"],
+        note: "register your Loading app-wide: app.use(loadingPlugin, { img, Loading }) — LoadingContainer/LoadingButton (library and ejected alike) resolve it via injectLoading()",
+    },
+    {
+        name: "Debug",
+        dir: "vue/debug",
+        files: [{ from: "Display.vue", to: "Debug.vue" }],
+        note: "import your copy instead of the library Debug (or pass debugPlugin { Debug } for the global registration); visibility stays on $isDebug from debugPlugin",
+    },
+    {
+        name: "LangSelector",
+        dir: "vue/lang",
+        files: ["LangSelector.vue"],
+        note: "import your copy instead of the library LangSelector (behavior stays in useLang)",
+    },
+    {
+        name: "DetailsSummary",
+        dir: "vue/entities/details",
+        files: ["DetailsSummary.vue"],
+        note: "import your copy instead of regira_modules/vue/entities DetailsSummary (e.g. in the EntityDescriptor fiche/details route)",
+    },
+    {
+        name: "GMapButton",
+        dir: "vue/ui/gis/gmaps",
+        files: [{ from: "ModalButton.vue", to: "GMapButton.vue" }],
+        note: "import your copy instead of the library GMapButton (the map modal resolves via injectModal, so it follows your modalPlugin swap)",
+    },
+    {
+        name: "LoginModal",
+        dir: "vue/auth",
+        files: ["LoginModal.vue"],
+        note: "import your copy instead of the library LoginModal (behavior stays in useLoginForm; the modal resolves via injectModal)",
+    },
+    {
+        name: "ForgotPasswordModal",
+        dir: "vue/auth",
+        files: ["ForgotPasswordModal.vue"],
+        note: "import your copy instead of the library ForgotPasswordModal (behavior stays in useForgotPasswordForm; the modal resolves via injectModal)",
+    },
 ]
 
 // -------------------------------------------------- public-specifier mappings
@@ -108,6 +211,8 @@ const MANIFEST = [
 const MODULE_MAP = {
     "vue/ui/icons/Icon.vue": { spec: "regira_modules/vue/ui", named: "Icon" },
     "vue/ui/icons/IconButton.vue": { spec: "regira_modules/vue/ui", named: "IconButton" },
+    "vue/ui/icons/BsIcon.vue": { spec: "regira_modules/vue/ui", named: "BsIcon" },
+    "vue/ui/icons/FaIcon.vue": { spec: "regira_modules/vue/ui", named: "FaIcon" },
     "vue/ui/buttons/ConfirmButton.vue": { spec: "regira_modules/vue/ui", named: "ConfirmButton" },
     "vue/ui/feedback/Pending.vue": { spec: "regira_modules/vue/ui", named: "Pending" },
     "vue/ui/feedback/Success.vue": { spec: "regira_modules/vue/ui", named: "Success" },
@@ -129,6 +234,20 @@ const MODULE_MAP = {
     "vue/auth/useLoginForm": { spec: "regira_modules/vue/auth" },
     "vue/auth/useChangePasswordForm": { spec: "regira_modules/vue/auth" },
     "vue/auth/useResetPasswordForm": { spec: "regira_modules/vue/auth" },
+    "vue/auth/useForgotPasswordForm": { spec: "regira_modules/vue/auth" },
+    "vue/auth/LoginForm.vue": { spec: "regira_modules/vue/auth", named: "LoginForm" },
+    "vue/ui/input/inputs": { spec: "regira_modules/vue/ui" },
+    "vue/ui/input/FormLabel.vue": { spec: "regira_modules/vue/ui", named: "FormLabel" },
+    "vue/ui/icons/icons": { spec: "regira_modules/vue/ui" },
+    "vue/ui/loading/loading": { spec: "regira_modules/vue/ui" },
+    "vue/ui/gis/gmaps/GMap.vue": { spec: "regira_modules/vue/ui", named: "GMap" },
+    "vue/ui/gis/gmaps/gmaps": { spec: "regira_modules/vue/ui" },
+    "vue/debug/debug": { spec: "regira_modules/vue/debug" },
+    "vue/lang/useLang": { spec: "regira_modules/vue/lang" },
+    "vue/lang/langSelector": { spec: "regira_modules/vue/lang" },
+    "vue/entities/details/detailsSummary": { spec: "regira_modules/vue/entities" },
+    "vue/formatters": { spec: "regira_modules/vue/formatters" },
+    "utilities/string-utility": { spec: "regira_modules/utilities" },
 }
 
 // -------------------------------------------------- public-export resolution
@@ -188,7 +307,7 @@ const CLAUSE_RE = /import\s+(type\s+)?([\w$]+\s*,\s*\{[\s\S]*?\}|\{[\s\S]*?\}|[\
 
 function rewriteImports(content, set, srcFile) {
     const fileDir = posix.dirname(srcFile) // e.g. "vue/ui/paging"
-    const setFiles = new Set(set.files)
+    const setFiles = new Set(set.files.map((f) => (typeof f === "string" ? f : f.from)))
     const styles = set.styles || {}
     const errors = []
 
@@ -261,10 +380,12 @@ for (const set of MANIFEST) {
     mkdirSync(outDir, { recursive: true })
     const written = []
     for (const file of set.files) {
-        const srcFile = posix.join(set.dir, file)
+        const from = typeof file === "string" ? file : file.from
+        const to = typeof file === "string" ? file : file.to
+        const srcFile = posix.join(set.dir, from)
         const content = readFileSync(resolve(srcRoot, srcFile), "utf8")
-        writeFileSync(join(outDir, file), rewriteImports(content, set, srcFile))
-        written.push(file)
+        writeFileSync(join(outDir, to), rewriteImports(content, set, srcFile))
+        written.push(to)
     }
     for (const [from, to] of Object.entries(set.styles || {})) {
         writeFileSync(join(outDir, to), readFileSync(resolve(srcRoot, set.dir, from), "utf8"))

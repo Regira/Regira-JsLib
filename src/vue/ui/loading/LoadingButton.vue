@@ -2,7 +2,7 @@
     <button type="button" class="rg-loading-button btn" :disabled="disabled || isLoading">
         <template v-if="isLoading">
             <slot name="loading">
-                <LoadingImg style="width: 1rem" />
+                <component :is="Loading" style="width: 1rem" />
             </slot>
         </template>
         <template v-else>
@@ -12,9 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import LoadingImg from "./Loading.vue"
-defineProps<{
-    isLoading: boolean
-    disabled?: boolean
-}>()
+import { injectLoading, type LoadingButtonProps, type LoadingButtonSlots } from "./loading"
+
+defineProps<LoadingButtonProps>()
+defineSlots<LoadingButtonSlots>()
+
+// the app-wide loading indicator (the loadingPlugin swap-in, the library Loading otherwise)
+const Loading = injectLoading()
 </script>
