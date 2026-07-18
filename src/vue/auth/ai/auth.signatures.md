@@ -6,6 +6,8 @@ Verbatim TypeScript signatures for `regira_modules/vue/auth`. Do not guess — l
 import {
     plugin,
     useAuth,
+    useGlobalAuth,
+    getAccountName,
     useAuthStore,
     createStore,
     routeGuard,
@@ -91,6 +93,15 @@ export interface IGlobalAuth {
 }
 export function createAuth(options: IAuthOptions & { enabled: boolean; tokenManager: ITokenManager; axios: AxiosInstance }): IAuth
 export const useAuth: () => IAuth
+
+export type GlobalAuth = IGlobalAuth | { enabled: false; authData?: IAuthData }
+// the `$auth` object, script-side — wraps the store the auth plugin was CONFIGURED with (which may be a
+// custom `authStore`, not the module's default pinia store). Available after the plugin installed; its
+// authData getters read the reactive store, so computeds track.
+export const useGlobalAuth: () => GlobalAuth
+// display label for the signed-in user (displayName ?? name ?? email) — not every JWT carries a
+// displayName claim; may be undefined, so give templates a `?? $t("account")`-style fallback
+export const getAccountName: (auth?: GlobalAuth) => string | undefined
 ```
 
 ## Token managers
@@ -221,7 +232,7 @@ export function useChangePasswordForm(emit: ChangePasswordFormEmits): {
 // ChangePasswordFormEmits: "success" | "fail"
 
 export function useResetPasswordForm(
-    props: ResetPasswordFormProps, // { token: string } — the reset token from the recovery link
+    props: ResetPasswordFormProps, // { token: string; username?: string } — reset token from the recovery link; optional account name for the hidden username field (password managers)
     emit: ResetPasswordFormEmits
 ): {
     password: Ref<string>
@@ -239,7 +250,12 @@ export function useResetPasswordForm(
 // LoginForm props: LoginFormProps { username?: string } ; emits: LoginFormEmits
 // LoginModal props: LoginModalProps { username?; title?; isVisible? } ; slots: default{ username } (replace the form)
 // ForgotPasswordModal props: ForgotPasswordModalProps { username?; isVisible? } ; slots: default{ username }
-// ChangePasswordForm emits: ChangePasswordFormEmits ; ResetPasswordForm props: ResetPasswordFormProps, emits: ResetPasswordFormEmits
+// ChangePasswordForm props: ChangePasswordFormProps { username?: string }, emits: ChangePasswordFormEmits
+// ResetPasswordForm props: ResetPasswordFormProps, emits: ResetPasswordFormEmits
+// Both password forms render a visually-hidden `autocomplete="username"` input (NOT display:none — that
+// removes it from most password managers' form parse) so managers link the new password to the account —
+// pass `username` from the host (`getAccountName()`); the components deliberately read no store (the app
+// may run a custom one via the plugin's `authStore` option)
 // LoginModal/ForgotPasswordModal render the app-wide modal via injectModal() — a modalPlugin { Modal } swap reskins them too
 ```
 

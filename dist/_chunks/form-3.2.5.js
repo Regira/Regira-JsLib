@@ -4,16 +4,16 @@ import { t as r } from "./IconButton-3.2.5.js";
 import { isNewEntity as i } from "../vue/entities/abstractions/IEntity.js";
 import "./abstractions-3.2.5.js";
 import { a } from "./feedback-3.2.5.js";
-import { Fragment as o, computed as s, createElementBlock as c, createElementVNode as l, createVNode as u, defineComponent as d, getCurrentInstance as f, guardReactiveProps as p, mergeModels as m, mergeProps as h, normalizeClass as g, normalizeProps as _, onMounted as v, openBlock as y, ref as b, renderList as x, renderSlot as S, unref as C, useModel as w, watch as T } from "vue";
-import { useRouter as E } from "vue-router";
+import { Fragment as o, computed as s, createElementBlock as c, createElementVNode as l, createVNode as u, defineComponent as d, getCurrentInstance as f, guardReactiveProps as p, mergeModels as m, mergeProps as h, normalizeClass as g, normalizeProps as _, onMounted as v, openBlock as y, ref as b, renderList as x, renderSlot as S, toRaw as C, unref as w, useModel as T, watch as E } from "vue";
+import { useRouter as D } from "vue-router";
 //#region src/vue/entities/form/form.ts
-var D = /* @__PURE__ */ function(e) {
+var O = /* @__PURE__ */ function(e) {
 	return e.pending = "Pending", e.saved = "Saved", e.removed = "Removed", e.error = "Error", e;
-}({}), O = {
+}({}), k = {
 	readonly: !1,
 	isPopup: !1
 };
-function k({ entityService: t, props: n, emit: r, feedback: i = a() }) {
+function A({ entityService: t, props: n, emit: r, feedback: i = a() }) {
 	let { readonly: o, isPopup: s } = n, c = b(n.modelValue), l = b();
 	function u() {
 		r("cancel", {
@@ -24,7 +24,7 @@ function k({ entityService: t, props: n, emit: r, feedback: i = a() }) {
 	function d() {
 		if (o) throw i.fail("Readonly"), Error("Readonly");
 	}
-	let f = E();
+	let f = D();
 	async function p() {
 		d(), r("changeState", "Pending");
 		try {
@@ -91,7 +91,7 @@ function k({ entityService: t, props: n, emit: r, feedback: i = a() }) {
 			r("changeState", "Saved");
 		}
 	}
-	return T(() => n.modelValue, () => {
+	return E(() => n.modelValue, () => {
 		c.value = n.modelValue, l.value = t.toEntity(e(c.value));
 	}), v(() => {
 		l.value = t.toEntity(e(c.value));
@@ -107,11 +107,11 @@ function k({ entityService: t, props: n, emit: r, feedback: i = a() }) {
 }
 //#endregion
 //#region src/vue/entities/form/modal.ts
-var A = {
+var j = {
 	closeOnSave: !1,
 	closeOnDelete: !0
 };
-function j({ entityService: t, model: n, itemDefaults: r, closeOnSave: a, closeOnCancel: o, closeOnDelete: s, emit: c, feedback: l }) {
+function M({ entityService: t, model: n, itemDefaults: r, closeOnSave: a, closeOnCancel: o, closeOnDelete: s, emit: c, feedback: l }) {
 	let u = b(!1), d = b(), p = f();
 	function m(e) {
 		d.value = e;
@@ -122,7 +122,7 @@ function j({ entityService: t, model: n, itemDefaults: r, closeOnSave: a, closeO
 	async function g() {
 		let a = n.value;
 		try {
-			let n = typeof r == "function" ? {} : e(C(r) || {});
+			let n = typeof r == "function" ? {} : e(w(r) || {});
 			a ??= await t.newEntity(n), a?.$id || (a = t.toEntity(a || n)), t != null && !i(a.$id) && (a = await t.details(a.$id) || a), typeof r == "function" && (a = await r(a)), d.value = a, u.value = !0, c("open", d.value, m);
 		} catch (e) {
 			console.error("Fetching details failed", {
@@ -155,10 +155,10 @@ function j({ entityService: t, model: n, itemDefaults: r, closeOnSave: a, closeO
 		handleCancel: _
 	};
 }
-var M = j;
+var N = M;
 //#endregion
 //#region src/vue/entities/form/listInput.ts
-function N({ props: e, emit: r }) {
+function P({ props: e, emit: r }) {
 	let i = n(e, r), a = b({ id: 0 }), o = (e) => {
 		r("sort", e);
 	};
@@ -172,7 +172,7 @@ function N({ props: e, emit: r }) {
 		handleSave: s
 	};
 }
-function P({ props: e, emit: t }) {
+function F({ props: e, emit: t }) {
 	let r = n(e, t);
 	function i() {
 		t("save", {
@@ -191,7 +191,7 @@ function P({ props: e, emit: t }) {
 }
 //#endregion
 //#region src/vue/entities/form/ownedCollections.ts
-function F({ props: e, emit: r }) {
+function I({ props: e, emit: r }) {
 	let i = n(e, r), a = () => ({ id: 0 }), o = b();
 	async function s() {
 		o.value = a();
@@ -202,7 +202,7 @@ function F({ props: e, emit: r }) {
 	function l({ saved: e, isNew: n }) {
 		n && (e.id = Math.min(t(i.value, (e) => e.id) ?? 0, 0) - 1, i.value = i.value.concat([e]), s());
 	}
-	return T(() => e.modelValue, () => i.value = e.modelValue || []), v(async () => {
+	return E(() => e.modelValue, () => i.value = e.modelValue || []), v(async () => {
 		i.value = e.modelValue || [], await s();
 	}), {
 		items: i,
@@ -214,10 +214,10 @@ function F({ props: e, emit: r }) {
 }
 //#endregion
 //#region src/vue/entities/form/ownedModal.ts
-function I(t, { props: n, emit: r }) {
+function L(t, { props: n, emit: r }) {
 	let i = b(n.modelValue || { id: 0 }), a = b(!1);
 	function o() {
-		let r = n.modelValue || {}, o = e(C(n.itemDefaults || {}));
+		let r = n.modelValue || {}, o = e(w(n.itemDefaults || {}));
 		i.value = Object.assign(new t(), {
 			...r,
 			...o
@@ -242,37 +242,51 @@ function I(t, { props: n, emit: r }) {
 }
 //#endregion
 //#region src/vue/entities/form/InputSelectorInline.vue?vue&type=script&setup=true&lang.ts
-var L = { class: "input-selector-inline row align-items-center" }, R = { class: "col-auto mb-2" }, z = /* @__PURE__ */ d({
+var R = { class: "input-selector-inline row align-items-center" }, z = { class: "col-auto mb-2" }, B = /* @__PURE__ */ d({
 	__name: "InputSelectorInline",
 	props: /*@__PURE__*/ m({
 		rowKey: { type: Function },
-		excludeKey: { type: Function }
+		excludeKey: { type: Function },
+		isNew: { type: Function }
 	}, {
 		modelValue: {},
 		modelModifiers: {}
 	}),
 	emits: /*@__PURE__*/ m(["remove", "add"], ["update:modelValue"]),
 	setup(e, { emit: t }) {
-		let n = w(e, "modelValue"), i = e, a = t, d = s(() => (n.value ?? []).map((e) => i.excludeKey?.(e)).filter((e) => e != null));
-		function f(e) {
-			e._deleted = !e._deleted, a("remove", e);
+		let n = T(e, "modelValue"), i = e, a = t, d = s(() => (n.value ?? []).map((e) => i.excludeKey?.(e)).filter((e) => e != null)), f = 0, m = /* @__PURE__ */ new WeakMap();
+		function v(e) {
+			let t = i.rowKey?.(e);
+			if (t != null) return t;
+			let n = C(e);
+			return m.has(n) || m.set(n, `rg-isi-${++f}`), m.get(n);
 		}
-		function m(e) {
-			n.value = [...n.value ?? [], e], a("add", e);
+		let b = /* @__PURE__ */ new WeakSet();
+		function w(e) {
+			return typeof e.id == "number" && e.id > 0;
 		}
-		return (t, i) => (y(), c("div", L, [(y(!0), c(o, null, x(n.value ?? [], (n, i) => (y(), c("div", {
-			key: e.rowKey?.(n) ?? i,
+		function E(e) {
+			return i.isNew ? i.isNew(e) : b.has(C(e)) && !w(e);
+		}
+		function D(e) {
+			E(e) ? n.value = (n.value ?? []).filter((t) => C(t) !== C(e)) : e._deleted = !e._deleted, a("remove", e);
+		}
+		function O(e) {
+			b.add(C(e)), n.value = [...n.value ?? [], e], a("add", e);
+		}
+		return (e, t) => (y(), c("div", R, [(y(!0), c(o, null, x(n.value ?? [], (t) => (y(), c("div", {
+			key: v(t),
 			class: "col-auto mb-2 pe-0"
-		}, [l("div", { class: g(["form-control p-0 d-inline-flex align-items-center", { "is-deleted": n._deleted }]) }, [S(t.$slots, "chip", h({ ref_for: !0 }, { row: n })), u(r, {
+		}, [l("div", { class: g(["form-control p-0 d-inline-flex align-items-center", { "is-deleted": t._deleted }]) }, [S(e.$slots, "chip", h({ ref_for: !0 }, { row: t })), u(r, {
 			icon: "delete",
 			class: "btn-outline-danger border-0",
-			title: n._deleted ? "restore" : "remove",
-			onClick: (e) => f(n)
-		}, null, 8, ["title", "onClick"])], 2)]))), 128)), l("div", R, [S(t.$slots, "selector", _(p({
-			add: m,
+			title: t._deleted ? "restore" : "remove",
+			onClick: (e) => D(t)
+		}, null, 8, ["title", "onClick"])], 2)]))), 128)), l("div", z, [S(e.$slots, "selector", _(p({
+			add: O,
 			exclude: d.value
 		})))])]));
 	}
 });
 //#endregion
-export { P as a, D as c, N as i, O as l, I as n, A as o, F as r, M as s, z as t, k as u };
+export { F as a, O as c, P as i, k as l, L as n, j as o, I as r, N as s, B as t, A as u };

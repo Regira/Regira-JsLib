@@ -9,6 +9,8 @@ import Main from "@/components/layout/Main.vue"
 
 // @auth:block-start
 const authStore = useAuthStore()
+// isRequired is route-driven (auth enabled + no allowAnonymous meta), so on any protected route — home
+// included — an unauthenticated visitor gets the sign-in modal immediately, before any 401.
 const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
 // @auth:block-end
 </script>

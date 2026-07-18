@@ -11,7 +11,7 @@ var c = ["type"], l = /* @__PURE__ */ i({
 	setup(e) {
 		return (i, a) => (o(), n("button", {
 			type: e.type,
-			class: "rg-icon-button btn"
+			class: "rg-icon-button btn d-inline-flex align-items-center gap-1"
 		}, [r(t, {
 			name: e.icon,
 			size: e.size

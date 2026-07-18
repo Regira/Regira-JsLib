@@ -13,22 +13,30 @@
 //   --dir <path>        target base folder for a slice (default: src/entities) or an ejected skin (default: src/components/ui)
 //   --owns <Child>      also scaffold an editable owned-collection sub-slice (a `_deleted`-marked scalar-row
 //                       table via useOwnedCollection) under the entity, for a back-end `e.Related(...)` child.
-//                       Repeatable. PascalCase, e.g. --owns OrderLine --owns OrderNote
+//                       Repeatable. PascalCase, e.g. --owns OrderLine --owns OrderNote. Works on an existing
+//                       slice too: only the sub-slice files are generated then.
+//   --as <fieldName>    the parent field / JSON key for the --owns right before it (default: camelCase plural
+//                       of the child class, OrderLine → orderLines). Must match the back-end navigation's
+//                       camelCase JSON key. Place it directly after its --owns: --owns Row --as orderRows
 //   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
 //   --ui <Component>    copy a UI-kit component's reference skin into the app for free restyling; the copy
 //                       imports only public regira_modules/... API, so behavior keeps flowing from the library
 //   --attachments       scaffold the shared entity-attachments slice (offline add/rename/remove + drop zone,
 //                       committed on the parent's save); then wire it into each file-owning entity (3 lines + a tab)
 //   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
-//   --force             (--shell / --ui / --attachments) overwrite files that already exist
+//   --force             overwrite files that already exist (--shell / --ui / --attachments only — never an
+//                       entity slice; slices hold hand-edited (c) files and need the explicit flag below)
+//   --overwrite-slice   overwrite an existing entity slice (or owned sub-slice), customized (c) files
+//                       included — destructive, deliberate opt-in
 //
 // Examples:
 //   node .../scaffold.mjs Category --plural categories
 //   node .../scaffold.mjs Order --owns OrderLine
+//   node .../scaffold.mjs Order --owns OrderLine --as lines   # back-end nav `Lines` → JSON key "lines"
 //   node .../scaffold.mjs --shell --no-auth
 //   node .../scaffold.mjs --ui DefaultModal
 
-import { readdirSync, mkdirSync, readFileSync, writeFileSync, existsSync } from "fs"
+import { readdirSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from "fs"
 import { resolve, dirname, join, relative } from "path"
 import { fileURLToPath } from "url"
 
@@ -39,6 +47,7 @@ const opt = (flag, fallback) => {
 }
 const noAuth = argv.includes("--no-auth")
 const force = argv.includes("--force")
+const overwriteSlice = argv.includes("--overwrite-slice")
 const here = dirname(fileURLToPath(import.meta.url))
 
 // ------------------------------------------------------------------ app shell
@@ -114,8 +123,34 @@ const baseDir = opt("--dir", "src/entities")
 
 const srcRoot = resolve(here, "entity-slice")
 const destRoot = resolve(process.cwd(), baseDir, plural)
-if (existsSync(destRoot)) {
-    console.error(`✗ ${destRoot} already exists — aborting.`)
+
+// --owns/--as pairs, in argv order (--as names the parent field of the --owns right before it).
+// Check the flag BEFORE the value: a missing value must be reported, not silently skipped — a dropped
+// --as means the default field name and a back-end that silently ignores the unknown JSON key on save.
+const owns = []
+for (let i = 0; i < argv.length; i++) {
+    if (argv[i] !== "--owns" && argv[i] !== "--as") continue
+    const value = argv[i + 1]
+    const hasValue = !!value && !value.startsWith("--")
+    if (argv[i] === "--owns") {
+        if (!hasValue) {
+            console.error("✗ --owns requires a PascalCase child class name (e.g. --owns OrderLine).")
+            process.exit(1)
+        }
+        owns.push({ child: value, field: undefined })
+    } else if (!owns.length) {
+        console.error(`! --as ${hasValue ? value : ""} ignored — place it directly after the --owns it applies to.`)
+    } else if (!hasValue) {
+        console.error("✗ --as requires a field name (the back-end navigation's camelCase JSON key, e.g. --as orderLines).")
+        process.exit(1)
+    } else {
+        owns[owns.length - 1].field = value
+    }
+}
+
+const sliceExists = existsSync(destRoot)
+if (sliceExists && !overwriteSlice && !owns.length) {
+    console.error(`✗ ${destRoot} already exists — pass --owns <Child> to add an owned sub-slice to it, or --overwrite-slice to regenerate it (customized (c) files included; --force deliberately does NOT apply to slices).`)
     process.exit(1)
 }
 
@@ -148,21 +183,29 @@ function copyDir(from, to) {
     }
 }
 
-copyDir(srcRoot, destRoot)
-console.log(`✓ Scaffolded ${name} → ${join(baseDir, plural)}${noAuth ? " (auth hooks stripped)" : ""}`)
-// The files you actually edit — everything else is vue-tsc-verified boilerplate you leave untouched.
-const customize = ["data/Entity.ts", "config/config.ts", "filter/SearchObject.ts", "filter/FilterAdv.vue", "overview/List.vue", "overview/ListItem.vue", "details/Form.vue", "selecting/SelectorList.vue"]
-console.log(`  Customize these ${customize.length} (c) files (a lookup drops the overview trio List/ListItem/FilterAdv):`)
-for (const f of customize) console.log(`    · ${join(baseDir, plural, f)}`)
-console.log(`  Then register its plugin in ${join(baseDir, "index.ts")} (see the entities setup guide → Add entities).`)
+if (!sliceExists || overwriteSlice) {
+    if (sliceExists) {
+        console.log(`! ${destRoot} exists — --overwrite-slice: replacing it, customized (c) files included.`)
+        // a clean replace, not an overlay — files from an older template generation must not linger
+        rmSync(destRoot, { recursive: true, force: true })
+    }
+    copyDir(srcRoot, destRoot)
+    console.log(`✓ Scaffolded ${name} → ${join(baseDir, plural)}${noAuth ? " (auth hooks stripped)" : ""}`)
+    // The files you actually edit — everything else is vue-tsc-verified boilerplate you leave untouched.
+    const customize = ["data/Entity.ts", "config/config.ts", "filter/SearchObject.ts", "filter/FilterAdv.vue", "overview/List.vue", "overview/ListItem.vue", "details/Form.vue", "selecting/SelectorList.vue"]
+    console.log(`  Customize these ${customize.length} (c) files (a lookup drops the overview trio List/ListItem/FilterAdv):`)
+    for (const f of customize) console.log(`    · ${join(baseDir, plural, f)}`)
+    console.log(`  Then register its plugin in ${join(baseDir, "index.ts")} (see the entities setup guide → Add entities).`)
+} else {
+    console.log(`· ${join(baseDir, plural)} exists — leaving the slice as-is, adding owned sub-slice(s) only.`)
+}
 
 // ------------------------------------------------------------- owned sub-slices
 // Each `--owns <Child>` scaffolds an editable owned-collection table under the parent slice.
-const owns = argv.filter((a, i) => argv[i - 1] === "--owns" && a && !a.startsWith("--"))
 const ownedSrcRoot = resolve(here, "owned-slice")
-for (const child of owns) scaffoldOwned(child)
+for (const { child, field } of owns) scaffoldOwned(child, field)
 
-function scaffoldOwned(childName) {
+function scaffoldOwned(childName, fieldName) {
     if (!/^[A-Z]/.test(childName)) {
         console.error(`✗ --owns ${childName}: expected a PascalCase child name, e.g. --owns OrderLine`)
         return
@@ -172,12 +215,17 @@ function scaffoldOwned(childName) {
         return
     }
     const childFolder = lowerFirst(pluralize(childName.toLowerCase())) // OrderLine → orderlines (folder / route / import path — lowercase)
-    const childField = lowerFirst(pluralize(childName)) // OrderLine → orderLines (DTO field — must match the back-end's camelCase JSON)
-    const ChildrenPascal = pluralize(childName) // OrderLine → OrderLines (e.Related nav name)
+    // The DTO field must match the back-end navigation's camelCase JSON key — that follows the C# property
+    // name, not the child class name. Default: camelCase plural of the class; pass --as when they differ.
+    const childField = fieldName ?? lowerFirst(pluralize(childName)) // OrderLine → orderLines
+    const ChildrenPascal = childField.charAt(0).toUpperCase() + childField.slice(1) // the e.Related nav property (JSON key ⇔ PascalCase property)
     const childDest = resolve(destRoot, childFolder)
     if (existsSync(childDest)) {
-        console.error(`✗ ${childDest} already exists — skipping owned ${childName}.`)
-        return
+        if (!overwriteSlice) {
+            console.error(`✗ ${childDest} already exists — skipping owned ${childName} (pass --overwrite-slice to overwrite).`)
+            return
+        }
+        rmSync(childDest, { recursive: true, force: true }) // clean replace, like the parent slice
     }
     // __children__ → the camelCase field (the JSON key), NOT the folder; __parent__ → camelCase parent singular
     // (so a `ShoppingList` child FK is `shoppingListId`, matching the server). Folder/import paths use childFolder.
@@ -197,6 +245,7 @@ function scaffoldOwned(childName) {
     console.log(`✓ Owned collection ${childName} → ${join(baseDir, plural, childFolder)} (editable table)`)
     console.log(`  Wire it into the ${name} slice (the editor is generated; these three lines connect it):`)
     console.log(`    1. ${p("data/Entity.ts")}         field   ${childField}?: Array<${childName}>   // import { type Entity as ${childName} } from "../${childFolder}"`)
+    console.log(`       ⚠ the field name must match the back-end navigation's JSON key (camelCase), not the child class name — pass --as <fieldName> if they differ`)
     console.log(`    2. ${p("details/Form.vue")}       render  <${childName}Overview v-model="item.${childField}" />   // import { ${childName}Overview } from "../${childFolder}"`)
     console.log(`    3. ${p("data/EntityService.ts")}  prepareItem   item.${childField} = item.${childField}?.filter((x) => !x._deleted) || []`)
     console.log(`    back-end: e.Related(x => x.${ChildrenPascal}) on ${name} (owned child — no For<>()/controller/budget slot).`)
@@ -210,7 +259,7 @@ function scaffoldShell() {
         process.exit(1)
     }
     // auth-only files: omitted entirely on --no-auth
-    const AUTH_ONLY = new Set(["src/infrastructure/user-plugin.ts", "src/shims.d.ts"])
+    const AUTH_ONLY = new Set(["src/infrastructure/user-plugin.ts", "src/shims.d.ts", "src/views/AccountView.vue"])
     const written = []
     const skipped = []
 
@@ -269,10 +318,12 @@ function scaffoldAttachments() {
     }
     copyPlain(attRoot, dest)
     console.log(`✓ Scaffolded the attachments slice → ${join(baseDir, "entity-attachments")}`)
-    console.log("  Wire it into each entity that owns files (3 lines + a tab):")
+    console.log("  Wire it into each entity that owns files (3 lines + a tab + the service registration):")
     console.log(`    1. data/Entity.ts         field    attachments?: Array<EntityAttachment>   // import { type Entity as EntityAttachment } from "../../entity-attachments"`)
     console.log(`    2. data/EntityService.ts  override insert/update via insertWithAttachments/updateWithAttachments; prepareItem drops _deleted attachments`)
     console.log(`    3. details/Form.vue       tab      <template #files><EntityAttachments v-model="item.attachments" /></template>   // import { Overview as EntityAttachments } from "../../entity-attachments"`)
+    console.log(`    4. setup.ts               register new EntityService(useAxios(), config)   // import { useAxios } from "regira_modules/vue/http" — the file-owning service requires an AxiosWithFilesInstance; the default sp.get<AxiosInstance>("axios") registration will not compile`)
+    console.log(`    5. public/data/translations.json  the shell template ships "files" and "addNewFile(s)" (literal key, parentheses included) in English — add the other languages from config.json → langs; apps scaffolded before these keys existed must add both`)
     console.log(`    back-end: register the owner's files (WithAttachments + HasAttachments<>); the service ctor takes an AxiosWithFilesInstance.`)
 }
 

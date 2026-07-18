@@ -5,6 +5,10 @@ export interface ChangePasswordFormEmits {
     (e: "success"): void
     (e: "fail", ex?: any): void
 }
+export interface ChangePasswordFormProps {
+    /** account name for the (hidden) username field, so password managers can link the new password */
+    username?: string
+}
 
 export function useChangePasswordForm(emit: ChangePasswordFormEmits) {
     const { service } = useAuth()

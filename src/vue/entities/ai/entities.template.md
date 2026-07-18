@@ -13,12 +13,13 @@ route prefix `foos`) — rename it to your entity throughout.
 > - **Form action buttons** — reuse the library `FormButtonsRow` (`regira_modules/vue/ui`): it ships the icons,
 >   the solid `btn-primary` / `btn-secondary` / `btn-danger` variants, and a **confirmed** delete
 >   (`ConfirmButton`). Re-emitting plain `<button>`s loses all three.
-> - **Removing an owned/related row marks `_deleted`** — the row stays (tinted) until save. The library
->   `InputSelectorInline` (`regira_modules/vue/entities`) is the default chip editor for these rows (it
->   toggles the mark and hands the picker an `exclude` list); `useListItemInput` toggles the mark in custom
->   row editors. A per-collection `prepareItem` override then filters the marked rows out on write (the base
->   `prepareItem` strips only top-level `_` keys, so a marked child row is otherwise still sent). Never
->   `splice` it, or the server never sees the delete.
+> - **Removing a persisted owned/related row marks `_deleted`** — the row stays (tinted) until save. The
+>   library `InputSelectorInline` (`regira_modules/vue/entities`) is the default chip editor for these rows
+>   (it toggles the mark for persisted rows, removes rows added this session outright, and hands the picker an
+>   `exclude` list); `useListItemInput` toggles the mark in custom row editors. A per-collection
+>   `prepareItem` override then filters the marked rows out on write (the base `prepareItem` strips only
+>   top-level `_` keys, so a marked child row is otherwise still sent). Never `splice` a persisted row, or
+>   the server never sees the delete.
 > - **A relation picker adds on `@select`** — the event only emits the chosen row; append it to the bound array
 >   yourself, and mark `_deleted` to remove (see [entities.patterns.md](entities.patterns.md)).
 > - **Edit/create popups use `FormModalButton`** (teleporting into `#modals`) — wire the "New" action the same

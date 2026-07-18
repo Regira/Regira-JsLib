@@ -181,6 +181,8 @@ export class Tab implements ITab {
 // it seeds both `key` and `title`, then `values.title` overrides the label. Pass a slug-safe key that
 // matches the `<template #key>` slot and the route hash: Tab.create("form", { title: translate("form"),
 // icon: "form", isDefault: true }). Never Tab.create("My Products", …) — a spaced/cased key breaks both.
+// TabNavigation renders `tab.title` VERBATIM — it does not run `$t()`. Omitting `values.title` shows the
+// raw key in the tab strip; translate eagerly (useLang().translate(...)) when building the tabs array.
 export type TabContainerProps = { tabs: Array<ITab | string | null>; useRouteNav?: boolean; active?: string }
 export type TabsEmits = { (e: "select", tab: string): void }
 export type TabNavigationProps = { tabs: Array<ITab>; activeTab: string }

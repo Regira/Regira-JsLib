@@ -497,14 +497,21 @@ UX the `useOwned*` composables and the multi-`Selector` can't deliver (recipe:
 import { InputSelectorInline } from "regira_modules/vue/entities"
 
 // InputSelectorInline — inline chip editor for an owned/join collection edited inside the parent form.
-//   Generic over the row type: <T extends { _deleted?: boolean }>. Removal MARKS each row
-//   (`_deleted`, tinted, undoable until save) — it never splices; pair with a `prepareItem` override
-//   that filters marked rows so `Related()` deletes by omission.
+//   Generic over the row type: <T extends { _deleted?: boolean; id?: number | string | null }>.
+//   Removing a PERSISTED row MARKS it (`_deleted`, tinted, undoable until save) — pair with a
+//   `prepareItem` override that filters marked rows so `Related()` deletes by omission. A row ADDED THIS
+//   SESSION (via the #selector slot's `add` — tracked by raw identity through toRaw, so reactive
+//   re-wrapping doesn't break it and the row shape needs no `id` field) is removed outright — nothing to
+//   undo. A positive numeric id overrides the session tracking (the row got persisted); string ids don't
+//   (they may be client-minted GUIDs). Pass `isNew` when rows are created elsewhere.
 //   props: { modelValue?: Array<T> (v-model);
-//            rowKey?: (row: T) => string | number | undefined;      // stable :key per row, falls back to index
-//            excludeKey?: (row: T) => number | undefined }          // related id per row → feeds the #selector `exclude`
+//            rowKey?: (row: T) => string | number | undefined;      // stable :key per row; falls back to an internal per-row identity (never the index)
+//            excludeKey?: (row: T) => number | undefined;           // related id per row → feeds the #selector `exclude`
+//            isNew?: (row: T) => boolean }                          // override the unsaved-row detection
 //   slots: chip({ row }), selector({ add, exclude })                // add: (row: T) => void; exclude: number[] (every current row, marked ones included)
 //   emits: "add" (row: T) | "remove" (row: T) | "update:modelValue" (value: T[] | undefined)
+//   "remove" fires for hard-removal, mark AND restore — discriminate AFTER the event: hard-removed row is
+//   no longer in modelValue; marked row has `_deleted === true`; restored row has `_deleted === false`.
 //   contract types (for a replacement skin): InputSelectorInlineProps<T> / InputSelectorInlineEmits<T> / InputSelectorInlineSlots<T>
 ```
 

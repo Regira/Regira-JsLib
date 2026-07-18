@@ -427,7 +427,9 @@ hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](enti
 
 > **Never guess a composable's shape — the signatures are indexed (mind the module split).** Feedback, tabs,
 > breakpoints, loading and `DefaultModal` live in **`ui.signatures.md`** (`useFeedback` → `pending`/`success`/
-> `fail`/`reset` — there is no `loading()`; `Tab.create(key, { title, icon })`; `useScreen` → `screen.isLarge`);
+> `fail`/`reset` — there is no `loading()`; `Tab.create("form", { title: translate("form"), icon })` — the first
+> arg seeds `key` *and* `title`, and **`TabNavigation` renders `tab.title` verbatim, no `$t()`**, so always
+> supply a translated `title` in `values`; `useScreen` → `screen.isLarge`);
 > `useForm`/`useSearchView`/`useModal`/`FormModalButton`/`usePreloader` live in **`entities.signatures.md`**.
 > Pull the signature (or `get_type`) before wiring — don't reverse-engineer it from the `.d.ts` by trial.
 

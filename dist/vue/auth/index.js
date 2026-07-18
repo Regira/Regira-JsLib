@@ -97,7 +97,7 @@ var O = class {
 		}
 		return t.$patch({ authRequired: !0 }), !0;
 	});
-}, M = "auth:token", ee = class {
+}, M = "auth:token", N = class {
 	prefix;
 	constructor(e = "") {
 		this.prefix = e;
@@ -111,7 +111,7 @@ var O = class {
 	get fullKey() {
 		return this.prefix + M;
 	}
-}, te = class {
+}, ee = class {
 	_token;
 	constructor(e) {
 		this._token = e;
@@ -122,7 +122,7 @@ var O = class {
 	set token(e) {
 		this._token = e;
 	}
-}, ne = class {
+}, te = class {
 	prefix;
 	constructor(e = "") {
 		this.prefix = e;
@@ -136,10 +136,10 @@ var O = class {
 	get fullKey() {
 		return this.prefix + M;
 	}
-}, N;
-function P(e) {
+}, P;
+function F(e) {
 	let { enabled: t, tokenManager: n, axios: r, clientApp: i, loginUrl: a } = e;
-	return N = {
+	return P = {
 		enabled: t,
 		clientApp: i,
 		tokenManager: n,
@@ -147,29 +147,33 @@ function P(e) {
 			clientApp: i,
 			loginUrl: a
 		})
-	}, N;
+	}, P;
 }
-var F = () => N, I = "Auth";
-function L() {
+var I = () => P, L;
+function R(e) {
+	L = e;
+}
+var z = () => L, ne = (e = z()) => e?.authData?.displayName ?? e?.authData?.name ?? e?.authData?.email, B = "Auth";
+function V() {
 	let e = g(!0), t = g(), n = g(k()), i = g(!1), a = D(), o = r(() => e.value && !a.currentRoute.value?.meta?.allowAnonymous), s = r(() => !!n.value.isAuthenticated), c = r(() => n.value?.displayName), l = r(() => (e) => n.value.get(e)), u = r(() => (e, t) => n.value?.hasClaim(e, t) ?? !1), d = r(() => (e) => n.value?.hasPermission(e) ?? !1);
 	function f(e) {
 		t.value = e;
 	}
 	async function p({ username: e, password: r }) {
-		let { service: i } = F();
+		let { service: i } = I();
 		return n.value = await i.login(e, r, t.value), n.value.isAuthenticated;
 	}
 	async function m(e) {
-		let { service: t } = F();
+		let { service: t } = I();
 		return n.value = await t.refresh(e), n.value.isAuthenticated;
 	}
 	async function h() {
-		let { service: e } = F();
+		let { service: e } = I();
 		return n.value = await e.validateToken(), n.value.isAuthenticated;
 	}
 	function _() {
 		n.value = k();
-		let { service: e } = F();
+		let { service: e } = I();
 		e.logout();
 	}
 	return {
@@ -190,14 +194,14 @@ function L() {
 		logout: _
 	};
 }
-L.storeName = I;
-var R = E(I, L);
+V.storeName = B;
+var H = E(B, V);
 //#endregion
 //#region src/vue/auth/auth-axios.ts
-function z(e, t) {
+function U(e, t) {
 	return e.interceptors.request.use((e) => (t.token && (e.headers.Authorization = `Bearer ${t.token}`), e)), e;
 }
-function B(t, n) {
+function W(t, n) {
 	t.interceptors.response.use((e) => e, async (r) => {
 		let { config: i } = r;
 		return console.error("axios error", {
@@ -210,14 +214,14 @@ function B(t, n) {
 }
 //#endregion
 //#region src/vue/auth/plugin.ts
-var V = { async install(e, t) {
-	let { clientApp: n, loginUrl: r, tokenManager: i, authStore: a, axios: o, enableRouteGuard: s = !0, enabled: c = !0, onAuthenticationChange: l = () => {} } = t, { $router: u } = e.config.globalProperties, d = P({
+var G = { async install(e, t) {
+	let { clientApp: n, loginUrl: r, tokenManager: i, authStore: a, axios: o, enableRouteGuard: s = !0, enabled: c = !0, onAuthenticationChange: l = () => {} } = t, { $router: u } = e.config.globalProperties, d = F({
 		enabled: c,
 		tokenManager: i,
 		axios: o,
 		clientApp: n,
 		loginUrl: r
-	}), f = a ?? R();
+	}), f = a ?? H();
 	if (f.$patch({ enabled: c }), c ? (e.config.globalProperties.$auth = {
 		...d,
 		get authData() {
@@ -229,21 +233,21 @@ var V = { async install(e, t) {
 		get isRequired() {
 			return f.authRequired;
 		}
-	}, n && f.$patch({ clientApp: n })) : e.config.globalProperties.$auth = { enabled: !1 }, c) {
-		z(o, i);
+	}, n && f.$patch({ clientApp: n })) : e.config.globalProperties.$auth = { enabled: !1 }, R(e.config.globalProperties.$auth), c) {
+		U(o, i);
 		let e = 0;
 		S(() => f.isAuthenticated, () => {
 			f.isAuthenticated && (clearInterval(e), e = setInterval(() => f.validateToken(), f.authData.expires * 1e3)), l(f.authData);
 		}), await f.validateToken(), s && j({
 			router: u,
 			store: f
-		}), B(o, f);
+		}), W(o, f);
 	} else l({ isAuthenticated: !1 });
 } };
 //#endregion
 //#region src/vue/auth/useLoginForm.ts
-function H(e, t) {
-	let n = g(e.username || ""), r = g(""), i = g(!1), a = g(!1), o = g(!1), s = R();
+function K(e, t) {
+	let n = g(e.username || ""), r = g(""), i = g(!1), a = g(!1), o = g(!1), s = H();
 	async function c() {
 		a.value = !0, i.value = !1, t("signingIn", n.value);
 		try {
@@ -272,8 +276,8 @@ function H(e, t) {
 }
 //#endregion
 //#region src/vue/auth/useForgotPasswordForm.ts
-function U(e, t, n) {
-	let { service: i } = F(), a = g(!1), o = g(e.username || ""), s = r(() => o.value != ""), c = g();
+function q(e, t, n) {
+	let { service: i } = I(), a = g(!1), o = g(e.username || ""), s = r(() => o.value != ""), c = g();
 	async function l() {
 		c.value = void 0, a.value = !0;
 		try {
@@ -298,8 +302,8 @@ function U(e, t, n) {
 }
 //#endregion
 //#region src/vue/auth/useChangePasswordForm.ts
-function W(e) {
-	let { service: t } = F(), n = g(""), i = g(""), a = g(""), o = g(!1), s = g(), c = r(() => i.value === a.value), l = r(() => n.value != "" && i.value != "" && c.value);
+function J(e) {
+	let { service: t } = I(), n = g(""), i = g(""), a = g(""), o = g(!1), s = g(), c = r(() => i.value === a.value), l = r(() => n.value != "" && i.value != "" && c.value);
 	async function u() {
 		if (l.value) {
 			s.value = void 0, o.value = !0;
@@ -328,8 +332,8 @@ function W(e) {
 }
 //#endregion
 //#region src/vue/auth/useResetPasswordForm.ts
-function G(e, t) {
-	let { service: n } = F(), i = g(""), a = g(""), o = g(!1), s = g(), c = r(() => i.value === a.value), l = r(() => i.value != "" && c.value);
+function Y(e, t) {
+	let { service: n } = I(), i = g(""), a = g(""), o = g(!1), s = g(), c = r(() => i.value === a.value), l = r(() => i.value != "" && c.value);
 	async function u() {
 		if (l.value) {
 			s.value = void 0, o.value = !0;
@@ -357,10 +361,10 @@ function G(e, t) {
 }
 //#endregion
 //#region src/vue/auth/LoginForm.vue?vue&type=script&setup=true&lang.ts
-var K = {
+var X = {
 	key: 0,
 	class: "mb-3 position-relative"
-}, q = { class: "bg-danger border rounded text-light p-2" }, J = { key: 0 }, Y = { class: "row mb-3" }, X = { class: "col-sm-9" }, Z = { class: "input-group" }, re = ["disabled"], ie = { class: "row mb-3" }, ae = { class: "col-sm-9" }, oe = ["disabled"], se = { class: "row" }, ce = { class: "col-sm-3" }, le = ["disabled"], ue = { class: "col-sm" }, de = {
+}, Z = { class: "bg-danger border rounded text-light p-2" }, re = { key: 0 }, ie = { class: "row mb-3" }, ae = { class: "col-sm-9" }, oe = { class: "input-group" }, se = ["disabled"], ce = { class: "row mb-3" }, le = { class: "col-sm-9" }, ue = ["disabled"], de = { class: "row" }, fe = { class: "col-sm-3" }, pe = ["disabled"], me = { class: "col-sm" }, he = {
 	key: 0,
 	class: "text-info"
 }, Q = /* @__PURE__ */ u({
@@ -373,37 +377,37 @@ var K = {
 		"fail"
 	],
 	setup(e, { emit: t }) {
-		let { username: n, password: r, signingIn: i, failed: l, isLockedOut: u, handleSubmit: d, handleForgotPassword: p } = H(e, t);
+		let { username: n, password: r, signingIn: i, failed: l, isLockedOut: u, handleSubmit: d, handleForgotPassword: p } = K(e, t);
 		return (e, t) => (h(), o("form", {
 			class: "rg-login-form",
 			onSubmit: t[3] ||= T((...e) => b(d) && b(d)(...e), ["prevent"]),
 			ref: "loginForm"
 		}, [
-			b(l) ? (h(), o("div", K, [s("div", q, [t[4] ||= c(" Unfortunately, signing in failed. ", -1), b(u) ? (h(), o("span", J, "Try again in 5 min.")) : a("", !0)])])) : a("", !0),
-			s("div", Y, [t[5] ||= s("label", {
+			b(l) ? (h(), o("div", X, [s("div", Z, [t[4] ||= c(" Unfortunately, signing in failed. ", -1), b(u) ? (h(), o("span", re, "Try again in 5 min.")) : a("", !0)])])) : a("", !0),
+			s("div", ie, [t[5] ||= s("label", {
 				for: "username",
 				class: "col-sm-3 col-form-label"
-			}, "Username", -1), s("div", X, [s("div", Z, [w(s("input", {
+			}, "Username", -1), s("div", ae, [s("div", oe, [w(s("input", {
 				class: "form-control",
 				autocomplete: "username email",
 				"onUpdate:modelValue": t[0] ||= (e) => f(n) ? n.value = e : null,
 				disabled: b(i)
-			}, null, 8, re), [[x, b(n)]])])])]),
-			s("div", ie, [t[6] ||= s("label", {
+			}, null, 8, se), [[x, b(n)]])])])]),
+			s("div", ce, [t[6] ||= s("label", {
 				for: "password",
 				class: "col-sm-3 col-form-label"
-			}, "Password", -1), s("div", ae, [w(s("input", {
+			}, "Password", -1), s("div", le, [w(s("input", {
 				type: "password",
 				class: "form-control",
 				autocomplete: "password current-password",
 				"onUpdate:modelValue": t[1] ||= (e) => f(r) ? r.value = e : null,
 				disabled: b(i)
-			}, null, 8, oe), [[x, b(r)]])])]),
-			s("div", se, [s("div", ce, [s("button", {
+			}, null, 8, ue), [[x, b(r)]])])]),
+			s("div", de, [s("div", fe, [s("button", {
 				type: "submit",
 				class: "btn btn-primary",
 				disabled: b(i)
-			}, "Sign in", 8, le)]), s("div", ue, [b(i) ? (h(), o("span", de, " Signing in ... ")) : (h(), o("button", {
+			}, "Sign in", 8, pe)]), s("div", me, [b(i) ? (h(), o("span", he, " Signing in ... ")) : (h(), o("button", {
 				key: 1,
 				type: "button",
 				class: "btn btn-link",
@@ -411,10 +415,10 @@ var K = {
 			}, "Forgot password?"))])])
 		], 544));
 	}
-}), fe = { class: "rg-logout-form" }, pe = /* @__PURE__ */ u({
+}), ge = { class: "rg-logout-form" }, _e = /* @__PURE__ */ u({
 	__name: "LogoutForm",
 	setup(e) {
-		let t = R(), n = D(), i = () => {
+		let t = H(), n = D(), i = () => {
 			t.logout();
 			let e = n.currentRoute.value.fullPath;
 			n.push({
@@ -422,13 +426,13 @@ var K = {
 				query: { returnUrl: e }
 			});
 		}, a = r(() => t.displayName);
-		return (e, t) => (h(), o("form", fe, [s("button", {
+		return (e, t) => (h(), o("form", ge, [s("button", {
 			type: "button",
 			class: "btn btn-sm btn-secondary",
 			onClick: i
 		}, y(a.value) + " afmelden", 1)]));
 	}
-}), me = /* @__PURE__ */ u({
+}), ve = /* @__PURE__ */ u({
 	__name: "LoginModal",
 	props: {
 		username: {},
@@ -460,7 +464,7 @@ var K = {
 			_: 3
 		}, 8, ["is-visible", "title"]));
 	}
-}), he = /* @__PURE__ */ u({
+}), ye = /* @__PURE__ */ u({
 	__name: "ForgotPasswordModal",
 	props: {
 		username: {},
@@ -480,98 +484,122 @@ var K = {
 			_: 3
 		}, 8, ["is-visible"]));
 	}
-}), ge = {
+}), be = {
 	key: 0,
 	class: "mb-3"
-}, _e = {
+}, xe = {
 	key: 1,
 	class: "mb-3"
-}, ve = { class: "row mb-3" }, ye = { class: "col-sm-9" }, be = ["disabled"], xe = { class: "row mb-3" }, Se = { class: "col-sm-9" }, Ce = ["disabled"], we = { class: "row mb-3" }, Te = { class: "col-sm-9" }, Ee = ["disabled"], De = { class: "row" }, Oe = { class: "col-sm-9 offset-sm-3" }, ke = ["disabled"], Ae = /* @__PURE__ */ u({
+}, Se = ["value"], Ce = { class: "row mb-3" }, we = { class: "col-sm-9" }, Te = ["disabled"], Ee = { class: "row mb-3" }, De = { class: "col-sm-9" }, Oe = ["disabled"], ke = { class: "row mb-3" }, Ae = { class: "col-sm-9" }, je = ["disabled"], Me = { class: "row" }, Ne = { class: "col-sm-9 offset-sm-3" }, Pe = ["disabled"], $ = /* @__PURE__ */ u({
 	__name: "ChangePasswordForm",
+	props: { username: {} },
 	emits: ["success", "fail"],
 	setup(e, { emit: t }) {
-		let { currentPassword: n, newPassword: r, confirmPassword: i, isLoading: c, isSuccess: l, passwordsMatch: u, isFormValid: d, handleSubmit: m } = W(t);
-		return (e, t) => (h(), o("form", {
+		let { currentPassword: n, newPassword: r, confirmPassword: i, isLoading: c, isSuccess: l, passwordsMatch: u, isFormValid: d, handleSubmit: m } = J(t);
+		return (t, g) => (h(), o("form", {
 			class: "rg-change-password-form",
-			onSubmit: t[3] ||= T((...e) => b(m) && b(m)(...e), ["prevent"])
+			onSubmit: g[3] ||= T((...e) => b(m) && b(m)(...e), ["prevent"])
 		}, [
-			b(l) === !1 ? (h(), o("div", ge, [...t[4] ||= [s("div", { class: "bg-danger border rounded text-light p-2" }, "Unfortunately, changing the password failed.", -1)]])) : a("", !0),
-			b(l) ? (h(), o("div", _e, [...t[5] ||= [s("div", { class: "bg-success border rounded text-light p-2" }, "Password changed.", -1)]])) : a("", !0),
-			s("div", ve, [t[6] ||= s("label", { class: "col-sm-3 col-form-label" }, "Current password", -1), s("div", ye, [w(s("input", {
+			b(l) === !1 ? (h(), o("div", be, [...g[4] ||= [s("div", { class: "bg-danger border rounded text-light p-2" }, "Unfortunately, changing the password failed.", -1)]])) : a("", !0),
+			b(l) ? (h(), o("div", xe, [...g[5] ||= [s("div", { class: "bg-success border rounded text-light p-2" }, "Password changed.", -1)]])) : a("", !0),
+			s("input", {
+				type: "text",
+				class: "visually-hidden",
+				name: "username",
+				autocomplete: "username",
+				value: e.username,
+				readonly: "",
+				tabindex: "-1",
+				"aria-hidden": "true"
+			}, null, 8, Se),
+			s("div", Ce, [g[6] ||= s("label", { class: "col-sm-3 col-form-label" }, "Current password", -1), s("div", we, [w(s("input", {
 				type: "password",
 				class: "form-control",
 				autocomplete: "current-password",
-				"onUpdate:modelValue": t[0] ||= (e) => f(n) ? n.value = e : null,
+				"onUpdate:modelValue": g[0] ||= (e) => f(n) ? n.value = e : null,
 				disabled: b(c)
-			}, null, 8, be), [[x, b(n)]])])]),
-			s("div", xe, [t[7] ||= s("label", { class: "col-sm-3 col-form-label" }, "New password", -1), s("div", Se, [w(s("input", {
+			}, null, 8, Te), [[x, b(n)]])])]),
+			s("div", Ee, [g[7] ||= s("label", { class: "col-sm-3 col-form-label" }, "New password", -1), s("div", De, [w(s("input", {
 				type: "password",
 				class: "form-control",
 				autocomplete: "new-password",
-				"onUpdate:modelValue": t[1] ||= (e) => f(r) ? r.value = e : null,
+				"onUpdate:modelValue": g[1] ||= (e) => f(r) ? r.value = e : null,
 				disabled: b(c)
-			}, null, 8, Ce), [[x, b(r)]])])]),
-			s("div", we, [t[9] ||= s("label", { class: "col-sm-3 col-form-label" }, "Confirm password", -1), s("div", Te, [w(s("input", {
+			}, null, 8, Oe), [[x, b(r)]])])]),
+			s("div", ke, [g[9] ||= s("label", { class: "col-sm-3 col-form-label" }, "Confirm password", -1), s("div", Ae, [w(s("input", {
 				type: "password",
 				class: p(["form-control", { "is-invalid": b(i) && !b(u) }]),
 				autocomplete: "new-password",
-				"onUpdate:modelValue": t[2] ||= (e) => f(i) ? i.value = e : null,
+				"onUpdate:modelValue": g[2] ||= (e) => f(i) ? i.value = e : null,
 				disabled: b(c)
-			}, null, 10, Ee), [[x, b(i)]]), t[8] ||= s("div", { class: "invalid-feedback" }, "Passwords don't match.", -1)])]),
-			s("div", De, [s("div", Oe, [s("button", {
+			}, null, 10, je), [[x, b(i)]]), g[8] ||= s("div", { class: "invalid-feedback" }, "Passwords don't match.", -1)])]),
+			s("div", Me, [s("div", Ne, [s("button", {
 				type: "submit",
 				class: "btn btn-primary",
 				disabled: b(c) || !b(d)
-			}, "Change password", 8, ke)])])
+			}, "Change password", 8, Pe)])])
 		], 32));
 	}
-}), je = {
+}), Fe = {
 	key: 0,
 	class: "mb-3"
-}, Me = {
+}, Ie = {
 	key: 1,
 	class: "mb-3"
-}, Ne = { class: "bg-success border rounded text-light p-2" }, Pe = { class: "row mb-3" }, $ = { class: "col-sm-9" }, Fe = ["disabled"], Ie = { class: "row mb-3" }, Le = { class: "col-sm-9" }, Re = ["disabled"], ze = { class: "row" }, Be = { class: "col-sm-9 offset-sm-3" }, Ve = ["disabled"], He = /* @__PURE__ */ u({
+}, Le = { class: "bg-success border rounded text-light p-2" }, Re = ["value"], ze = { class: "row mb-3" }, Be = { class: "col-sm-9" }, Ve = ["disabled"], He = { class: "row mb-3" }, Ue = { class: "col-sm-9" }, We = ["disabled"], Ge = { class: "row" }, Ke = { class: "col-sm-9 offset-sm-3" }, qe = ["disabled"], Je = /* @__PURE__ */ u({
 	__name: "ResetPasswordForm",
-	props: { token: {} },
+	props: {
+		token: {},
+		username: {}
+	},
 	emits: [
 		"success",
 		"fail",
 		"login"
 	],
 	setup(e, { emit: t }) {
-		let n = t, { password: r, confirmPassword: i, isLoading: l, isSuccess: u, passwordsMatch: d, isFormValid: m, handleSubmit: g } = G(e, n);
-		return (e, t) => (h(), o("form", {
+		let n = t, { password: r, confirmPassword: i, isLoading: l, isSuccess: u, passwordsMatch: d, isFormValid: m, handleSubmit: g } = Y(e, n);
+		return (t, _) => (h(), o("form", {
 			class: "rg-reset-password-form",
-			onSubmit: t[3] ||= T((...e) => b(g) && b(g)(...e), ["prevent"])
+			onSubmit: _[3] ||= T((...e) => b(g) && b(g)(...e), ["prevent"])
 		}, [
-			b(u) === !1 ? (h(), o("div", je, [...t[4] ||= [s("div", { class: "bg-danger border rounded text-light p-2" }, "Unfortunately, resetting the password failed.", -1)]])) : a("", !0),
-			b(u) ? (h(), o("div", Me, [s("div", Ne, [t[5] ||= c(" Password reset. ", -1), s("button", {
+			b(u) === !1 ? (h(), o("div", Fe, [..._[4] ||= [s("div", { class: "bg-danger border rounded text-light p-2" }, "Unfortunately, resetting the password failed.", -1)]])) : a("", !0),
+			b(u) ? (h(), o("div", Ie, [s("div", Le, [_[5] ||= c(" Password reset. ", -1), s("button", {
 				type: "button",
 				class: "btn btn-link p-0 align-baseline",
-				onClick: t[0] ||= (e) => n("login")
+				onClick: _[0] ||= (e) => n("login")
 			}, "Sign in")])])) : a("", !0),
-			s("div", Pe, [t[6] ||= s("label", { class: "col-sm-3 col-form-label" }, "New password", -1), s("div", $, [w(s("input", {
+			s("input", {
+				type: "text",
+				class: "visually-hidden",
+				name: "username",
+				autocomplete: "username",
+				value: e.username,
+				readonly: "",
+				tabindex: "-1",
+				"aria-hidden": "true"
+			}, null, 8, Re),
+			s("div", ze, [_[6] ||= s("label", { class: "col-sm-3 col-form-label" }, "New password", -1), s("div", Be, [w(s("input", {
 				type: "password",
 				class: "form-control",
 				autocomplete: "new-password",
-				"onUpdate:modelValue": t[1] ||= (e) => f(r) ? r.value = e : null,
+				"onUpdate:modelValue": _[1] ||= (e) => f(r) ? r.value = e : null,
 				disabled: b(l)
-			}, null, 8, Fe), [[x, b(r)]])])]),
-			s("div", Ie, [t[8] ||= s("label", { class: "col-sm-3 col-form-label" }, "Confirm password", -1), s("div", Le, [w(s("input", {
+			}, null, 8, Ve), [[x, b(r)]])])]),
+			s("div", He, [_[8] ||= s("label", { class: "col-sm-3 col-form-label" }, "Confirm password", -1), s("div", Ue, [w(s("input", {
 				type: "password",
 				class: p(["form-control", { "is-invalid": b(i) && !b(d) }]),
 				autocomplete: "new-password",
-				"onUpdate:modelValue": t[2] ||= (e) => f(i) ? i.value = e : null,
+				"onUpdate:modelValue": _[2] ||= (e) => f(i) ? i.value = e : null,
 				disabled: b(l)
-			}, null, 10, Re), [[x, b(i)]]), t[7] ||= s("div", { class: "invalid-feedback" }, "Passwords don't match.", -1)])]),
-			s("div", ze, [s("div", Be, [s("button", {
+			}, null, 10, We), [[x, b(i)]]), _[7] ||= s("div", { class: "invalid-feedback" }, "Passwords don't match.", -1)])]),
+			s("div", Ge, [s("div", Ke, [s("button", {
 				type: "submit",
 				class: "btn btn-primary",
 				disabled: b(l) || !b(m)
-			}, "Reset password", 8, Ve)])])
+			}, "Reset password", 8, qe)])])
 		], 32));
 	}
 });
 //#endregion
-export { A as AuthService, Ae as ChangePasswordForm, ee as CookieTokenManager, he as ForgotPasswordModal, ne as LocalStorageTokenManager, Q as LoginForm, me as LoginModal, pe as LogoutForm, te as MemoryTokenManager, He as ResetPasswordForm, L as createStore, V as plugin, j as routeGuard, F as useAuth, R as useAuthStore, W as useChangePasswordForm, U as useForgotPasswordForm, H as useLoginForm, G as useResetPasswordForm };
+export { A as AuthService, $ as ChangePasswordForm, N as CookieTokenManager, ye as ForgotPasswordModal, te as LocalStorageTokenManager, Q as LoginForm, ve as LoginModal, _e as LogoutForm, ee as MemoryTokenManager, Je as ResetPasswordForm, V as createStore, ne as getAccountName, G as plugin, j as routeGuard, I as useAuth, H as useAuthStore, J as useChangePasswordForm, q as useForgotPasswordForm, z as useGlobalAuth, K as useLoginForm, Y as useResetPasswordForm };

@@ -42,13 +42,27 @@
   trap (the most common first error in a multi-entity app). Always
   `import { type Entity as MyNamedEntity } from "@/entities/my-named-entities"`.
 - **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
-  inside the parent form with **`InputSelectorInline`**: chips mark removals `_deleted` (visible, tinted,
-  undoable until save), a `prepareItem` override drops them so `Related()` deletes by omission — never
-  flush per-row `DELETE`s. The multi-`Selector` **hard-removes** and cannot deliver this UX. New rows mint
-  negative temp ids, so children can be added before the parent's first save.
+  inside the parent form with **`InputSelectorInline`**: chips mark *persisted* removals `_deleted`
+  (visible, tinted, undoable until save), a `prepareItem` override drops them so `Related()` deletes by
+  omission — never flush per-row `DELETE`s. A row *added this session* is removed outright — nothing to
+  undo. The multi-`Selector` **hard-removes** and cannot deliver this UX. New rows
+  mint negative temp ids, so children can be added before the parent's first save. The chip slot shows the
+  related row's `FormModalButton` + pooled label (see the card's related-entity rule), not bare text.
 - **Relation picks go through the entity `InputSelector`** (server-side search + pooled cache — scales
-  past one page). When adding to a collection, pass `:filter-defaults="{ exclude: currentIds }"` so
-  already-added rows leave the picker. A checkbox group is only for serviceless enum sets.
+  past one page). It already composes **create + autocomplete + browse**: a `FormModalButton` (create on
+  the spot), an `Autocomplete` (type a known name) and a `SelectorModalButton` (browse modal with the full
+  `FilterAdv` and paging) — never build a search box, picker grid or browse modal next to it. When adding
+  to a collection, pass `:filter-defaults="{ exclude: currentIds }"` so already-added rows leave the
+  picker. A checkbox group is only for serviceless enum sets.
+- **Day-one signatures — verify, never extrapolate** (`.d.ts` / `entities.signatures`): `new
+  PagingInfo(pageSize?, page?)` — positional args, not an options object; `service.search(so?)` — paging
+  travels *inside* the search object; `Tab.create("form", { title: translate("form"), icon })` — tab
+  titles render untranslated; a nested DTO from `?includes=` is **not** hydrated — no `$id`/`$title`, so
+  wrap it (`Object.assign(new Category(), dto)`) before handing it to `FormModalButton` or a selector.
+- **Login can switch the language.** The scaffolded `main.ts` applies the JWT culture claim
+  (`setLangCode(auth.culture.split("-")[0])`), so an app translated in one language silently degrades to
+  raw keys after login when the user's culture differs. Provide translations for every `langs` entry and
+  wire `LangSelector` in the header.
 - **Counted paging comes from `/search`:** `useSearchView` + `useRouteOverview` → `{ items, count }` —
   on simple and complex entities alike; `list()` has no count. `pageSize: 0` returns all rows capped by
   the server's `MaxPageSize`. In `IConfig`, set **only** `searchUrl` (`api + "/search"`) — every other

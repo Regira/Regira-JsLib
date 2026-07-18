@@ -351,7 +351,7 @@ _before_ scaffolding (`Regira.Entities` → `entities.instructions` → Step 0):
 | back-end | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot  |
 | contract | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together |
 | form     | **`InputSelectorInline`** chips (below); heavier per-row editing → `useOwnedCollection` / `useOwnedModal` |
-| removal  | mark `_deleted` (visible, undoable) — never splice, never per-row `DELETE` calls                          |
+| removal  | persisted row → mark `_deleted` (visible, undoable); row added this session → remove outright; never per-row `DELETE` calls |
 | service  | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission          |
 
 For rows only ever edited inside the parent's form, modelling them first-class instead (own
@@ -366,8 +366,9 @@ Four numbered steps, one per layer:
    row type carries `categoryId`, the nested `category?`, and `_deleted?: boolean`. New rows need no id —
    `Related()` inserts rows that arrive without one.
 2. **Render** — `InputSelectorInline` (`regira_modules/vue/entities`) renders each row as a chip with a
-   toggle-delete button (`_deleted` mark, tinted, click again to restore) and hands the `#selector` slot
-   an `add` function plus the `exclude` id list:
+   delete button (persisted rows toggle the `_deleted` mark — tinted, click again to restore; rows added
+   this session via `add` are removed outright — tracked by identity, so the join-row shape needs no `id`)
+   and hands the `#selector` slot an `add` function plus the `exclude` id list:
 
     ```vue
     <script setup lang="ts">
@@ -392,7 +393,11 @@ Four numbered steps, one per layer:
     </template>
     ```
 
-    The chip embeds the related entity's `FormModalButton`, so every linked row is also an edit affordance.
+    The chip embeds the related entity's `FormModalButton`, so every linked row is also an edit affordance —
+    don't simplify it away to a bare label. When the button expects the entity class, note that a nested
+    relation from an `?includes=` payload is a plain DTO (no prototype, no `$id`/`$title`) — hydrate it
+    first: `Object.assign(new Category(), row.category)`, or resolve it through the sibling store's
+    `fromPool`.
 
 3. **Purge on save** — the `prepareItem` override from [Transient client-only fields](#transient-client-only-fields)
    filters `_deleted` rows per collection; `Related()` then deletes by omission. Purge **every nesting
@@ -446,8 +451,15 @@ const { items, newItem, handleSave } = useOwnedCollection<OrderLine>({ props, em
 </template>
 ```
 
-Parent form binds it to the array: `<OrderLineOverview v-model="item.orderLines" />` — the field is
-**camelCase** (`orderLines`), matching the back-end nav's JSON key, not the lowercase folder. New rows mint
+Parent form binds it to the array: `<OrderLineOverview v-model="item.orderLines" />`.
+
+> ⚠️ **The field name must equal the back-end navigation's JSON key** — camelCase (`orderLines` for
+> `Order.OrderLines`), never derived from the child class name or the lowercase folder. A mismatch fails
+> **silently**: no type error, no runtime error — the collection just never round-trips and nothing
+> persists. Verify the key against an actual API response before binding (`scaffold.mjs --owns … --as
+> <fieldName>` sets it explicitly).
+
+New rows mint
 **negative temp ids** and insert with the parent's single `save()`; `_deleted` rows drop in the `prepareItem`
 filter above. Use `useOwnedModal` when each row is edited in a modal instead of inline; `useListInput` /
 `useListItemInput` are the lower-level primitives (`useListItemInput`'s `handleRemove` toggles `_deleted`
@@ -508,7 +520,8 @@ attachments?: Array<EntityAttachment>
 // data/EntityService.ts — flush on save; drop marked rows (deleted by omission)
 import { insertWithAttachments, updateWithAttachments } from "../../entity-attachments/data/functions"
 override async insert(item: Owner): Promise<Owner | null> {
-    return await insertWithAttachments(this.config.api, item, () => super.insert(item))
+    // the follow-up update sends the attachments in display order — the server assigns SortOrder from array position
+    return await insertWithAttachments(this.config.api, item, () => super.insert(item), (saved) => super.update(saved))
 }
 override async update(item: Owner): Promise<Owner | null> {
     return await updateWithAttachments(this.config.api, item, () => super.update(item))

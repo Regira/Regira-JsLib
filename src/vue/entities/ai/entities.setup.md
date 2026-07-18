@@ -330,7 +330,7 @@ src/
     index.ts                     # re-export routerFactory
     router.ts                    # routerFactory(entityRoutes)
     routes.ts                    # static routes (home, account/auth, error pages)
-  views/                         # HomeView / NotFound / Forbidden / Unauthorized · AccountView (+)
+  views/                         # HomeView / NotFound / Forbidden / Unauthorized / AccountView (auth builds)
   components/                    # shared UI shell — see App shell
     entity-navigation/           #   Dashboard / NavBar / NavSearch (built from $configs) + useNavigation()
       index.ts  functions.ts
@@ -587,28 +587,17 @@ export default function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
 ```
 
 ```ts
-// src/router/routes.ts — home, account/auth, and the error pages
+// src/router/routes.ts — home, account, and the error pages (login is the App.vue modal, not a route)
 import type { RouteRecordRaw } from "vue-router"
 import HomeView from "@/views/HomeView.vue"
 import AccountView from "@/views/AccountView.vue"
-import AccountHome from "@/components/users/Home.vue"
-import Login from "@/views/Login.vue"
 import NotFound from "@/views/NotFound.vue"
 import Forbidden from "@/views/Forbidden.vue"
 import Unauthorized from "@/views/Unauthorized.vue"
 
 const routes: Array<RouteRecordRaw> = [
     { path: "/", name: "home", component: HomeView },
-    {
-        path: "/account",
-        name: "account",
-        component: AccountView,
-        redirect: { name: "accountHome" },
-        children: [
-            { path: "", name: "accountHome", component: AccountHome },
-            { path: "login", name: "login", component: Login, props: (to) => ({ username: to.query?.username }), meta: { allowAnonymous: true } },
-        ],
-    },
+    { path: "/account", name: "account", component: AccountView },
     { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
     { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
     { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
@@ -1118,7 +1107,9 @@ defineProps<{ url?: string }>()
 ```
 
 `Forbidden.vue` / `Unauthorized.vue` follow the same shape (a heading + the offending `url`). `AccountView`
-is a `<RouterView />` wrapper for the `account/*` children in [Router](#router).
+(auth builds only) is the signed-in user's account page — it hosts `ChangePasswordForm` from
+`regira_modules/vue/auth`; the full source is in
+[entities.shell.template.md](entities.shell.template.md).
 
 ### Styling — Bootstrap 5
 

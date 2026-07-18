@@ -34,7 +34,7 @@ function mount(rowsRef, extraProps = {}) {
 }
 
 describe("InputSelectorInline", () => {
-    test("removal marks _deleted (undoable) — it never splices the row", async () => {
+    test("removing a PERSISTED row marks _deleted (undoable) — it never splices the row", async () => {
         const rows = ref(reactive([{ facetId: 1, title: "Red" }, { facetId: 2, title: "Blue" }]))
         const { host } = mount(rows)
 
@@ -63,5 +63,50 @@ describe("InputSelectorInline", () => {
         expect(rows.value.length).toBe(2)
         expect(rows.value[1].facetId).toBe(3)
         expect(getSlotScope().exclude).toEqual([1, 3])
+    })
+
+    // The parent binds a deep-reactive collection, so the row read back out of modelValue is a PROXY of
+    // the object handed to add() — session tracking must compare raw identity or this silently falls back
+    // to _deleted-marking (the pre-toRaw bug).
+    test("removing a row added THIS SESSION splices it — no _deleted mark", async () => {
+        const rows = ref(reactive([{ facetId: 1, title: "Red" }]))
+        const { host, getSlotScope } = mount(rows)
+
+        getSlotScope().add({ facetId: 3, title: "Green" })
+        await nextTick()
+        expect(rows.value.length).toBe(2)
+
+        host.querySelectorAll("button")[1].click() // remove the just-added chip
+        await nextTick()
+
+        expect(rows.value.length).toBe(1) // spliced, not marked
+        expect(rows.value[0].facetId).toBe(1) // the persisted row is untouched
+        expect(rows.value.some((x) => x.facetId === 3)).toBe(false)
+        expect(host.querySelector(".is-deleted")).toBeFalsy()
+        expect(getSlotScope().exclude).toEqual([1]) // and it is re-pickable again
+    })
+
+    test("a positive numeric id overrides session tracking — an added-then-persisted row marks instead", async () => {
+        const rows = ref(reactive([]))
+        const { host, getSlotScope } = mount(rows)
+
+        getSlotScope().add({ id: 42, facetId: 3, title: "Green" }) // already has a server id
+        await nextTick()
+
+        host.querySelectorAll("button")[0].click()
+        await nextTick()
+
+        expect(rows.value.length).toBe(1) // kept, marked — the server must be told to delete it
+        expect(rows.value[0]._deleted).toBe(true)
+    })
+
+    test("isNew overrides the default detection", async () => {
+        const rows = ref(reactive([{ facetId: 1, title: "Red" }]))
+        const { host } = mount(rows, { isNew: () => true }) // caller declares every row unsaved
+
+        host.querySelectorAll("button")[0].click()
+        await nextTick()
+
+        expect(rows.value.length).toBe(0) // spliced despite never going through add()
     })
 })

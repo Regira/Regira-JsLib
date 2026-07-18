@@ -1,5 +1,9 @@
 {
+    "account": { "en": "Account" },
+    "addNewFile(s)": { "en": "Add new file(s)" },
+    "changePassword": { "en": "Change password" },
     "deleteItem": { "en": "Delete" },
+    "files": { "en": "Files" },
     "filtersAreApplied": { "en": "Filters are applied" },
     "keywords": { "en": "Keywords" },
     "main": { "en": "Main" },

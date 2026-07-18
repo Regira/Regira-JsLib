@@ -6,6 +6,8 @@ export interface ResetPasswordFormEmits {
 export interface ResetPasswordFormProps {
     /** reset token from the recovery link (e-mail) */
     token: string;
+    /** account name for the (hidden) username field, so password managers can link the new password */
+    username?: string;
 }
 export declare function useResetPasswordForm(props: ResetPasswordFormProps, emit: ResetPasswordFormEmits): {
     password: import("vue").Ref<string, string>;

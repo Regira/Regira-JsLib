@@ -4,7 +4,7 @@ export { AuthService, type IAuthenticateInput, type IChangePasswordInput, type I
 export { default as routeGuard } from "./route-guard"
 export { type ITokenManager, CookieTokenManager, MemoryTokenManager, LocalStorageTokenManager } from "./token-manager"
 
-export { useAuth, type IGlobalAuth } from "./auth"
+export { useAuth, useGlobalAuth, getAccountName, type IGlobalAuth, type GlobalAuth } from "./auth"
 export { useAuthStore, createStore, type IDefineAuthStore, type IAuthStore } from "./store"
 export { default as plugin } from "./plugin"
 export { useLoginForm, type LoginFormEmits, type LoginFormProps, type LoginModalProps, type LoginModalSlots, type LoginInput } from "./useLoginForm"
@@ -15,7 +15,7 @@ export {
     type ForgotPasswordModalProps,
     type ForgotPasswordModalSlots,
 } from "./useForgotPasswordForm"
-export { useChangePasswordForm, type ChangePasswordFormEmits } from "./useChangePasswordForm"
+export { useChangePasswordForm, type ChangePasswordFormEmits, type ChangePasswordFormProps } from "./useChangePasswordForm"
 export { useResetPasswordForm, type ResetPasswordFormProps, type ResetPasswordFormEmits } from "./useResetPasswordForm"
 
 export { default as LoginForm } from "./LoginForm.vue"

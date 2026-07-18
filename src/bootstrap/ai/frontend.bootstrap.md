@@ -169,6 +169,9 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
   whenever the app is multilanguage.
 - **Group form fields** with `FormSection` (+ `FormLabel`, `input-group` icon prefixes) instead of flat
   field lists.
+- **Every component you add or modify gets deliberate styling and placement.** Spacing (`mb-2`/`mb-3`,
+  `gap-*`), alignment (`align-items-center`), and a gap between an icon and its label are part of the
+  work, not polish for later — a dropped-in component with none reads as unfinished.
 
 ## Code-generation workflow
 
@@ -176,7 +179,10 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
 2. Choose the entity slices the app needs (one slice per entity).
 3. Add `regira_modules` + the known-good dependency set (`entities.setup` → Install). For a new app,
    start from the Vite `vue-ts` template (`npm create vue@latest`).
-4. Read `entities.instructions` and `entities.setup` in full (via MCP `get_package`).
+4. Orient with `get_package_card("regira_modules.vue.entities")`, then read the core sections of
+   `entities.instructions` and `entities.setup` (via MCP `get_package`). Troubleshooting/lookup tables are
+   symptom-driven — fetch a heading when you hit the symptom, not up front. For exact signatures prefer the
+   installed `dist/**/*.d.ts` or `entities.signatures` by heading over whole-section reads.
 5. Scaffold the app shell — `node node_modules/regira_modules/_template/scaffold.mjs --shell` (`--no-auth`
    for a no-auth app) writes `main.ts`, `App.vue`, router, dashboard/navbar, layout, views, `config.json` +
    `app-config.ts` (full source: `entities.shell.template`); then set up the toolchain per `entities.setup` → Install.
@@ -184,4 +190,6 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
    (add `--no-auth` for a no-auth app), then customize the `(c)` files; consult `entities.namespaces` / `entities.signatures` for exact
    imports/signatures and `entities.patterns` for recipes. For entities that own files/pictures, scaffold the
    shared offline file slice once with `scaffold.mjs --attachments` and wire it into each (a tab + 3 lines).
-7. Verify with `npm run build` (`vue-tsc -b`).
+7. Verify with `npm run build` (`vue-tsc -b`), then **drive the app in a browser** — a green build proves
+   compilation only. Walk the runtime checklist in `entities.instructions` (save twice, filter + reopen,
+   empty/new-row paths) and check the main views at a mobile viewport before calling anything responsive.

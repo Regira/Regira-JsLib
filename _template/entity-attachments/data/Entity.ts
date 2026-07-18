@@ -7,6 +7,7 @@ export class EntityAttachment extends EntityBase {
     objectId?: number
     attachmentId?: number
     uri?: string
+    sortOrder = 0 // list position — mirrored from the array index client-side (keeps re-maps stable); the server derives SortOrder from the array order on save (its input DTO has no sort field, so the serialized value is informational)
     newFileName?: string // edited name for an existing file — applied on flush
     attachment?: Attachment
     _deleted = false // marked-delete (undoable) — filtered out in the host service's prepareItem

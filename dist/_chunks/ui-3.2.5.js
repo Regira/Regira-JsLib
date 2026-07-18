@@ -502,7 +502,7 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = { key: 0 }
 	setup(e) {
 		return (t, n) => (M(), x("span", { class: A(["rg-nullable-label", { "italic-muted": !e.label }]) }, [e.label ? (M(), x(g, { key: 0 }, [C(z(e.label), 1)], 64)) : F(t.$slots, "default", { key: 1 })], 2));
 	}
-}), Re = { class: "form-section" }, ze = { class: "form-section-title" }, Be = { class: "row" }, Ve = { class: "p-2 mb-2" }, He = { class: "col-auto" }, Ue = /* @__PURE__ */ T({
+}), Re = { class: "form-section mb-3" }, ze = { class: "form-section-title bg-body-secondary rounded-2 px-2 mb-2" }, Be = { class: "row align-items-center" }, Ve = { class: "fs-6 fw-semibold py-2 mb-0" }, He = { class: "col-auto" }, Ue = /* @__PURE__ */ T({
 	__name: "FormSection",
 	props: {
 		title: {},
@@ -531,11 +531,11 @@ var de = { class: "loading list-group-item" }, fe = ["onClick"], pe = { key: 0 }
 		}, [F(t.$slots, "title", { showSummary: s.value }, () => [S("h3", Ve, z(e.title), 1)])]), S("div", He, [!e.readonly && t.$slots.summary ? (M(), x("button", {
 			key: 0,
 			type: "button",
-			class: "btn btn-default my-2 px-2 py-1 opacity-50",
+			class: "btn btn-default my-1 px-2 py-1 opacity-50",
 			onClick: n[1] ||= K((e) => s.value = !s.value, ["stop"])
 		}, [w(u, { name: s.value ? "look" : "edit" }, null, 8, ["name"])])) : b("", !0), S("button", {
 			type: "button",
-			class: "btn btn-default my-2 px-2 py-1 opacity-50",
+			class: "btn btn-default my-1 px-2 py-1 opacity-50",
 			onClick: K(c, ["stop"])
 		}, [w(u, { name: a.value ? "maximize" : "minimize" }, null, 8, ["name"])])])])])]), W(S("div", { class: A(["form-section-body", s.value && e.summaryClass]) }, [
 			!t.$slots.summary || !s.value ? F(t.$slots, "default", {

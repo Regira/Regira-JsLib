@@ -37,7 +37,8 @@ already exists** (pass `--force` to overwrite — e.g. to replace the `npm creat
 `src/entities/index.ts`.
 
 > **`--no-auth`** strips the auth wiring (lines tagged `@auth:only` / blocks between `@auth:block-start` and
-> `@auth:block-end`) and omits the auth-only files (`infrastructure/user-plugin.ts`, `shims.d.ts`). The default
+> `@auth:block-end`) and omits the auth-only files (`infrastructure/user-plugin.ts`, `shims.d.ts`,
+> `views/AccountView.vue`). The default
 > build strips the inverse `@noauth:*` markers. Both variants build green. See
 > [entities.setup.md → Running without authentication](entities.setup.md#running-without-authentication).
 
@@ -309,6 +310,8 @@ import Main from "@/components/layout/Main.vue"
 
 // @auth:block-start
 const authStore = useAuthStore()
+// isRequired is route-driven (auth enabled + no allowAnonymous meta), so on any protected route — home
+// included — an unauthenticated visitor gets the sign-in modal immediately, before any 401.
 const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
 // @auth:block-end
 </script>
@@ -368,7 +371,11 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 
 ```json
 {
+    "account": { "en": "Account" },
+    "addNewFile(s)": { "en": "Add new file(s)" },
+    "changePassword": { "en": "Change password" },
     "deleteItem": { "en": "Delete" },
+    "files": { "en": "Files" },
     "filtersAreApplied": { "en": "Filters are applied" },
     "keywords": { "en": "Keywords" },
     "main": { "en": "Main" },
@@ -431,13 +438,17 @@ export default function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
 ```ts
 import type { RouteRecordRaw } from "vue-router"
 import HomeView from "@/views/HomeView.vue"
+import AccountView from "@/views/AccountView.vue" // @auth:only
 import NotFound from "@/views/NotFound.vue"
 import Forbidden from "@/views/Forbidden.vue"
 import Unauthorized from "@/views/Unauthorized.vue"
 
 // login is driven by the App.vue modal (auth-on); routes without allowAnonymous are treated as protected
+// — home included: an anonymous visitor gets the sign-in modal, not a dashboard they can't act on // @auth:only
 const routes: Array<RouteRecordRaw> = [
-    { path: "/", name: "home", component: HomeView, meta: { allowAnonymous: true } },
+    { path: "/", name: "home", component: HomeView }, // @auth:only
+    { path: "/", name: "home", component: HomeView, meta: { allowAnonymous: true } }, // @noauth:only
+    { path: "/account", name: "account", component: AccountView }, // @auth:only
     { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
     { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
     { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
@@ -640,8 +651,8 @@ import { RouterView } from "vue-router"
 
 ```vue
 <script setup lang="ts">
-import { ref } from "vue"
-import { useAuthStore } from "regira_modules/vue/auth" // @auth:only
+import { computed, ref } from "vue"
+import { useAuthStore, getAccountName } from "regira_modules/vue/auth" // @auth:only
 import { useConfig } from "@/app-config"
 import { NavBar, NavSearch } from "@/components/entity-navigation"
 
@@ -650,6 +661,8 @@ const open = ref(false)
 const closeMenu = () => (open.value = false)
 const authStore = useAuthStore() // @auth:only
 const logout = () => authStore.logout() // @auth:only
+// resolved from $auth (the store the auth plugin was configured with); not every JWT carries a displayName claim // @auth:only
+const accountLabel = computed(() => getAccountName()) // @auth:only
 </script>
 <template>
     <nav class="navbar navbar-expand-sm" v-click-outside="closeMenu">
@@ -661,6 +674,10 @@ const logout = () => authStore.logout() // @auth:only
                 <div class="d-flex ms-auto align-items-center gap-2">
                     <NavSearch @search="closeMenu" />
                     <!-- @auth:block-start -->
+                    <router-link v-if="$auth.enabled && $auth.isAuthenticated" class="nav-link" :to="{ name: 'account' }" @click="closeMenu">
+                        <!-- the $t fallback guards a token with no name claims at all — never an empty (invisible) link -->
+                        {{ accountLabel ?? $t("account") }}
+                    </router-link>
                     <button v-if="$auth.enabled && $auth.isAuthenticated" class="btn btn-outline-secondary btn-sm" @click="logout">
                         {{ $t("signOut") }}
                     </button>
@@ -701,6 +718,36 @@ const { title } = useConfig()
     <section>
         <h1 class="text-center my-4">{{ $tm(title) }}</h1>
         <Dashboard />
+    </section>
+</template>
+```
+
+## `src/views/AccountView.vue`
+
+Auth-only (omitted on `--no-auth`): the signed-in user's account page, reached from the header's
+displayName link. Hosts `ChangePasswordForm` from the auth module.
+
+```vue
+<script setup lang="ts">
+import { computed } from "vue"
+import { ChangePasswordForm, getAccountName } from "regira_modules/vue/auth"
+import { FormSection } from "regira_modules/vue/ui"
+
+// resolved from $auth — the store the auth plugin was configured with, NOT necessarily the module's
+// default useAuthStore(); not every JWT carries a displayName claim, hence the $t fallback below
+const accountName = computed(() => getAccountName())
+</script>
+<template>
+    <section>
+        <h1 class="my-4">{{ accountName ?? $t("account") }}</h1>
+        <div class="row mb-3">
+            <div class="col-md-8 col-lg-6">
+                <FormSection :title="$t('changePassword')">
+                    <!-- username feeds the hidden password-manager field -->
+                    <ChangePasswordForm :username="accountName" />
+                </FormSection>
+            </div>
+        </div>
     </section>
 </template>
 ```

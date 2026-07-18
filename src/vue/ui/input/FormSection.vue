@@ -1,23 +1,23 @@
 <template>
-    <div class="form-section">
-        <div class="form-section-title">
+    <div class="form-section mb-3">
+        <div class="form-section-title bg-body-secondary rounded-2 px-2 mb-2">
             <slot name="header" :collapsed="collapsed" :showSummary="showSummary">
-                <div class="row">
+                <div class="row align-items-center">
                     <div class="col" @click="showSummary = !showSummary">
                         <slot name="title" :showSummary="showSummary">
-                            <h3 class="p-2 mb-2">{{ title }}</h3>
+                            <h3 class="fs-6 fw-semibold py-2 mb-0">{{ title }}</h3>
                         </slot>
                     </div>
                     <div class="col-auto">
                         <button
                             v-if="!readonly && $slots.summary"
                             type="button"
-                            class="btn btn-default my-2 px-2 py-1 opacity-50"
+                            class="btn btn-default my-1 px-2 py-1 opacity-50"
                             @click.stop="showSummary = !showSummary"
                         >
                             <Icon :name="showSummary ? 'look' : 'edit'" />
                         </button>
-                        <button type="button" class="btn btn-default my-2 px-2 py-1 opacity-50" @click.stop="toggleCollapsed">
+                        <button type="button" class="btn btn-default my-1 px-2 py-1 opacity-50" @click.stop="toggleCollapsed">
                             <Icon :name="collapsed ? 'maximize' : 'minimize'" />
                         </button>
                     </div>

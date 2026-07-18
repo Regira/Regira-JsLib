@@ -4,7 +4,7 @@ import { addBearerHeader, autoLogoutOnFailedRequest } from "./auth-axios"
 import { useAuthStore, type IAuthStore } from "./store"
 import routeGuard from "./route-guard"
 import type { ITokenManager } from "./token-manager"
-import { createAuth, type IAuthOptions } from "./auth"
+import { createAuth, setGlobalAuth, type IAuthOptions } from "./auth"
 import type { IAuthData } from "./AuthData"
 
 type Input<TStore extends IAuthStore, TTokenManager extends ITokenManager> = IAuthOptions & {
@@ -67,6 +67,8 @@ export default {
         } else {
             app.config.globalProperties.$auth = { enabled: false }
         }
+        // script-side access to the same object (useGlobalAuth) — templates use $auth
+        setGlobalAuth(app.config.globalProperties.$auth)
 
         if (enabled) {
             addBearerHeader(axios, tokenManager)
