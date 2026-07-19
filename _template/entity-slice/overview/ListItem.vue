@@ -12,12 +12,9 @@
 
         <!-- TODO: your columns — mirror List.vue's headers 1:1, keep the row inside the viewport (flexible
              `col text-truncate`, drop secondary columns with d-none d-md-block/d-lg-block, few col-auto cells).
-             A displayed relation defaults to the related entity's FormModalButton (opens its form) + a pooled
-             label — import { FormModalButton as BarButton } from "@/entities/bars", const { fromPool: getBar }
-             = useBarStore(), then:
-                 <div class="col d-none d-md-block text-truncate"><BarButton :modelValue="item.bar" /> {{ getBar(item.bar)?.$title }}</div>
-             (item.bar?.$title is undefined — nested DTOs aren't hydrated; item.bar?.title is a static
-             snapshot). Plain text is the exception. See entities.patterns.md → Resolving relations with fromPool. -->
+             Relation columns: `scaffold.mjs <Entity> --rel <Related>` generates each one below as the related
+             entity's FormModalButton + a pooled label. Plain text is the exception — see entities.patterns.md
+             → Resolving relations with fromPool. -->
         <div class="col text-truncate">{{ item.$title }}</div>
 
         <div class="col-auto">

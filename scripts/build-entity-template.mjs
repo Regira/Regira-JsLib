@@ -55,8 +55,11 @@ const tokenize = (s) =>
 // PascalCase name), distinct from the lowercase route/api placeholders. The doc's single-word `Foo` example
 // can't show that, so rewrite the three i18n property values after the generic tokenize — keyed on the stable
 // property names so it stays robust. See _template/scaffold.mjs.
+// The api path additionally gets its own token: it defaults to the route/folder name but is separable from
+// it (`scaffold.mjs --api /relationship-types`), which the doc's single placeholder can't express.
 const tokenizeConfigKeys = (s) =>
     s
+        .replace(/(\bconst api = ")\/__entities__(")/, "$1__api__$2")
         .replace(/(\boverviewTitle:\s*")__entities__(")/, "$1__entitiesKey__$2")
         .replace(/(\bdetailsTitle:\s*")__entity__(")/, "$1__entityKey__$2")
         .replace(/(\bdescription:\s*")__entity__(\.description")/, "$1__entityKey__$2")

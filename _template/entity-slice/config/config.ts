@@ -1,7 +1,9 @@
 import type { IConfig } from "regira_modules/vue/entities"
 import Entity from "../data/Entity"
 
-const api = "/__entities__" // TODO: API resource path (relative to the axios baseURL)
+// Relative to the axios baseURL, and must equal the server's [Route(...)] exactly — repeating the base here
+// sends requests to /api/api/... See entities.setup → The URL contract.
+const api = "__api__"
 
 const config: IConfig = {
     id: Entity.name,

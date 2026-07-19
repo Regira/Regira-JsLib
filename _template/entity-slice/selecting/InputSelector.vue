@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, type Ref } from "vue"
+import { computed, getCurrentInstance, onMounted, type Ref } from "vue"
 import { Icon } from "regira_modules/vue/ui"
 import config from "../config/config"
 import Entity from "../data/Entity"
@@ -90,6 +90,15 @@ function handleSelect(selected?: Entity) {
 }
 
 onMounted(async () => {
+    // Two v-models: `idValue` is the FK that gets saved, `modelValue` is the entity that gets displayed. With
+    // only `idValue` bound the resolution below emits into nothing and the control renders blank on a
+    // populated form — it fails silently, so say so.
+    if (import.meta.env.DEV && props.idValue !== undefined && !("onUpdate:modelValue" in (getCurrentInstance()?.vnode.props ?? {}))) {
+        console.warn(
+            `[${config.key}InputSelector] v-model:idValue is bound without v-model — the resolved entity has nowhere to go, so the control renders blank. Bind both.`
+        )
+    }
+
     if (props.idValue && !props.modelValue?.id) {
         const model = await list({ id: props.idValue })
         emit("update:modelValue", model[0])

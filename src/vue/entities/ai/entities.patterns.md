@@ -116,12 +116,11 @@ const { updateOverviewRoute } = useRouteOverview({ searchObject, pagingInfo, han
 // Paging @change → updateOverviewRoute()
 ```
 
-## Overview list layout (no horizontal scroll)
+## Overview list layout (avoiding horizontal scroll)
 
 `overview/List.vue` (headers) and `overview/ListItem.vue` (rows) render one Bootstrap `.row` per line. A
 fixed-width `col-auto` column does **not** shrink, so stacking several of them (plus a few flexible `col`s)
-pushes the row past narrow viewports and the whole page scrolls sideways. Keep it responsive so the row always
-fits:
+pushes the row past narrow viewports. Design the row to fit:
 
 - **Flex + clip text columns** — `class="col text-truncate"`, not a fixed width.
 - **Drop secondary columns on smaller breakpoints** — `d-none d-md-block` / `d-none d-lg-block`, so mobile
@@ -129,6 +128,10 @@ fits:
 - **Reserve `col-auto` (with a `width`) for genuinely fixed cells** — an icon/edit button, a short status —
   and keep them few.
 - **Headers and cells must use the same breakpoint classes**, or columns stop lining up.
+
+The shell's `.entity-list` rule backs this up — it zeroes the `.row` gutter margins and sets `min-width: 0` on
+the cells so `text-truncate` can actually clip. It scrolls with `overflow-x: auto`, never `hidden`: a row that
+still cannot fit stays reachable inside the list instead of being clipped away or pushing the page sideways.
 
 ```vue
 <!-- List.vue header cell + ListItem.vue body cell — identical column classes, mirrored 1:1. A foreign
@@ -395,9 +398,10 @@ Four numbered steps, one per layer:
 
     The chip embeds the related entity's `FormModalButton`, so every linked row is also an edit affordance —
     don't simplify it away to a bare label. When the button expects the entity class, note that a nested
-    relation from an `?includes=` payload is a plain DTO (no prototype, no `$id`/`$title`) — hydrate it
-    first: `Object.assign(new Category(), row.category)`, or resolve it through the sibling store's
-    `fromPool`.
+    relation from an `?includes=` payload is a plain DTO (no prototype, no `$id`/`$title`). Resolve it
+    through the sibling store's `fromPool(row.category)`: that returns the one shared instance, so an edit
+    made through the chip's own modal relabels the chip immediately. `Object.assign(new Category(),
+    row.category)` hydrates too, but the copy is detached — its label stays stale until a reload.
 
 3. **Purge on save** — the `prepareItem` override from [Transient client-only fields](#transient-client-only-fields)
    filters `_deleted` rows per collection; `Related()` then deletes by omission. Purge **every nesting

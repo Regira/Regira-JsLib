@@ -57,8 +57,7 @@
 - **Day-one signatures — verify, never extrapolate** (`.d.ts` / `entities.signatures`): `new
   PagingInfo(pageSize?, page?)` — positional args, not an options object; `service.search(so?)` — paging
   travels *inside* the search object; `Tab.create("form", { title: translate("form"), icon })` — tab
-  titles render untranslated; a nested DTO from `?includes=` is **not** hydrated — no `$id`/`$title`, so
-  wrap it (`Object.assign(new Category(), dto)`) before handing it to `FormModalButton` or a selector.
+  titles render untranslated.
 - **Login can switch the language.** The scaffolded `main.ts` applies the JWT culture claim
   (`setLangCode(auth.culture.split("-")[0])`), so an app translated in one language silently degrades to
   raw keys after login when the user's culture differs. Provide translations for every `langs` entry and
@@ -70,10 +69,18 @@
 - **Forms show state through feedback.** `useForm` drives it, but only a rendered
   `<Feedback :feedback="feedback" />` shows it; any save you call yourself gets its own `useFeedback()`.
   A form with 2+ related collections splits into `TabContainer` tabs; overview rows use flexible
-  `col text-truncate` + breakpoint-hidden columns — never horizontal scroll.
+  `col text-truncate` + breakpoint-hidden columns, so the row fits without scrolling sideways.
 - **Pooling is the point of the store.** Views use the store's pooled `service` (saves propagate to every
-  view); render relation labels via `fromPool(item.relation)?.$title` — a raw nested DTO has no `$`
-  getters. Custom endpoints live on the raw `get<EntityService>(Entity.name)`, not the pooled store.
+  view). A nested DTO from `?includes=` is a plain object — no `$id`/`$title` — so route every displayed
+  relation through the owning slice's `fromPool(item.relation)`, which both rehydrates it and returns the
+  one shared instance, so editing that entity anywhere relabels it here. `Object.assign(new Category(),
+  dto)` also rehydrates but yields a **detached copy that goes stale** — use it only when a snapshot is
+  what you want. Custom endpoints live on the raw `get<EntityService>(Entity.name)`, not the pooled store.
+- **A displayed relation is a component, not text**: the related entity's `FormModalButton` beside its
+  pooled `$title`. `scaffold.mjs <Entity> --rel <Related>` generates the column wired correctly.
+- **`InputSelector` has two v-models** — `v-model` (the entity it displays) and `v-model:idValue` (the FK
+  it saves). Bind only `idValue` and a populated form renders the control blank; it resolves the id on
+  mount and emits `update:modelValue` into nothing. Dev builds warn.
 - **The URL contract has four owners** — `config.json → api` (axios base), `IConfig.api` (relative
   resource), the Vite dev proxy, the server route prefix. Align them once or every call 404s; and
   `config.json → clientApp` must equal the API's JWT audience or every call 401s.

@@ -23,6 +23,28 @@
 .striped > *:nth-child(even) {
     background-color: var(--bs-secondary-bg, #e9ecef);
 }
+
+// Overview lists should not need to scroll horizontally: Bootstrap's .row carries negative gutter margins
+// that bleed past a parent without matching padding, and a flex child's default min-width:auto refuses to
+// shrink below its content — so a long title pushes the row wider than the viewport instead of truncating.
+// Both are neutralised below. `auto`, not `hidden`: when a row genuinely cannot fit (an unbreakable token, a
+// very narrow viewport) the list scrolls within itself, rather than clipping content out of reach or dragging
+// the whole page sideways.
+.entity-list {
+    overflow-x: auto;
+
+    > .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    // text-truncate only clips once the cell is allowed to be narrower than its text
+    [class^="col"],
+    [class*=" col"] {
+        min-width: 0;
+    }
+}
+
 .form-buttons {
     position: sticky;
     top: 0;

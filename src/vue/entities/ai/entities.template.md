@@ -4,6 +4,15 @@ A **blank fill-in-the-blanks scaffold** for one entity slice. Copy the folder se
 placeholders below (the files marked `// TODO`). The placeholder entity is **`Foo`** (resource `"/foos"`,
 route prefix `foos`) — rename it to your entity throughout.
 
+`scaffold.mjs <Entity>` derives the folder, client route and `api` path as the **kebab-case plural** of the
+class name (`InterventionType` → `intervention-types`), matching the conventional `[Route(...)]`. Two flags
+generate what would otherwise be hand-written and are worth passing up front:
+
+| Flag | Generates |
+| ---- | --------- |
+| `--api <path>` | a resource path that differs from the folder name (`--api relationship-types`) |
+| `--rel <Related>` | an overview column for a to-one relation — the related entity's `FormModalButton` + a `fromPool` label, plus the FK and nested field on the model. Repeatable; the related slice must exist first |
+
 > **Indicative, not prescriptive.** The templates fix the _functional wiring_ (service ↔ store ↔ composable ↔
 > `IConfig`, DI, routing) so a scaffolded slice is green out of the box — the **markup, columns, layout, and
 > styling are yours to restructure and restyle freely**. Preserve the composable/service contract, the `(c)`
@@ -152,7 +161,9 @@ export default Foo
 import type { IConfig } from "@/regira_modules/vue/entities"
 import Entity from "../data/Entity"
 
-const api = "/foos" // TODO: API resource path (relative to the axios baseURL)
+// Relative to the axios baseURL, and must equal the server's [Route(...)] exactly — repeating the base here
+// sends requests to /api/api/... See entities.setup → The URL contract.
+const api = "/foos"
 
 const config: IConfig = {
     id: Entity.name,
@@ -235,13 +246,13 @@ const { handleReset } = useFilter({ searchObject, emit, Constructor: SearchObjec
 <template>
     <div class="entity-list">
         <div class="row fw-bold border-bottom pb-2">
-            <!-- TODO: your column headers — must mirror ListItem.vue 1:1. Keep the row inside the viewport:
-                 the list must never scroll horizontally. Use flexible `col` (+ text-truncate on the cell) for
+            <!-- TODO: your column headers — must mirror ListItem.vue 1:1. Design the row to fit the viewport
+                 so it doesn't have to scroll sideways. Use flexible `col` (+ text-truncate on the cell) for
                  text, drop secondary columns on small screens with d-none d-md-block / d-lg-block, and reserve
                  fixed-width col-auto for a couple of narrow cells only (they don't shrink). e.g.:
                      <div class="col d-none d-md-block fw-bold">{{ $t("code") }}</div>
                      <div class="col-auto d-none d-lg-block fw-bold" style="width: 9rem">{{ $t("created") }}</div>
-                 See entities.patterns.md → Overview list layout (no horizontal scroll). -->
+                 See entities.patterns.md → Overview list layout (avoiding horizontal scroll). -->
             <div class="col">{{ $t("name") }}</div>
         </div>
         <ListItem
@@ -293,12 +304,9 @@ const items = computed<Array<Entity>>({
 
         <!-- TODO: your columns — mirror List.vue's headers 1:1, keep the row inside the viewport (flexible
              `col text-truncate`, drop secondary columns with d-none d-md-block/d-lg-block, few col-auto cells).
-             A displayed relation defaults to the related entity's FormModalButton (opens its form) + a pooled
-             label — import { FormModalButton as BarButton } from "@/entities/bars", const { fromPool: getBar }
-             = useBarStore(), then:
-                 <div class="col d-none d-md-block text-truncate"><BarButton :modelValue="item.bar" /> {{ getBar(item.bar)?.$title }}</div>
-             (item.bar?.$title is undefined — nested DTOs aren't hydrated; item.bar?.title is a static
-             snapshot). Plain text is the exception. See entities.patterns.md → Resolving relations with fromPool. -->
+             Relation columns: `scaffold.mjs <Entity> --rel <Related>` generates each one below as the related
+             entity's FormModalButton + a pooled label. Plain text is the exception — see entities.patterns.md
+             → Resolving relations with fromPool. -->
         <div class="col text-truncate">{{ item.$title }}</div>
 
         <div class="col-auto">

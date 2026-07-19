@@ -19,6 +19,10 @@ plus a `Category` lookup — so it lines up with the basic example.
 > → [entities.examples.md](entities.examples.md) (simple `UnitType` + standard `Product` slices) /
 > [entities.advanced.example.md](entities.advanced.example.md) (complex slice) →
 > [entities.patterns.md](entities.patterns.md) (recipes, load on demand).
+>
+> **Minimum viable read:** the card, then the workflow sections of `entities.instructions`. Everything after
+> that is fetched by heading when the task needs it — `get_section_toc`, then the one heading. Loading a whole
+> reference section is the exception, not the on-ramp.
 
 ## Install
 
@@ -505,6 +509,10 @@ Resolution: `products.search()` → axios base `/api` + `IConfig.api` `/products
 - The proxy forwards `/api/*` but the API serves controllers at root — add the prefix **once** on the
   back-end (`Regira.Entities` → `entities.setup` → _API route prefix_), or skip the proxy entirely and point
   `config.json → api` straight at the API origin (then configure CORS instead).
+
+Multi-word resources are **kebab-case plural** on both sides: `InterventionType` → `[Route("intervention-types")]`
+and `api: "/intervention-types"`. `scaffold.mjs` derives that spelling from the class name; pass `--api <path>`
+when the server exposes the resource under a different name than the slice folder.
 
 ### Navigation map
 

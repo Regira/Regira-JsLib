@@ -14,6 +14,10 @@ node node_modules/regira_modules/_template/scaffold.mjs Product
 node node_modules/regira_modules/_template/scaffold.mjs Product --no-auth
 # owns a collection (back-end e.Related)? scaffold its editable table too (repeat --owns per child):
 node node_modules/regira_modules/_template/scaffold.mjs Order --owns OrderLine
+# a to-one relation shown in the overview? generate the pooled column (repeat --rel per relation):
+node node_modules/regira_modules/_template/scaffold.mjs Intervention --rel Vehicle
+# server exposes the resource under a different name than the slice folder?
+node node_modules/regira_modules/_template/scaffold.mjs PartyRelationshipType --api relationship-types
 ```
 
 Or copy by hand and replace the tokens:
@@ -24,11 +28,12 @@ cp -r node_modules/regira_modules/_template/entity-slice src/entities/products
 
 | Token             | Replace with                            | Example         |
 | ----------------- | --------------------------------------- | --------------- |
-| `__Entity__`      | PascalCase class name                   | `ShoppingList`  |
-| `__entities__`    | route prefix / API path (lowercase)     | `shoppinglists` |
-| `__entity__`      | singular route/id (lowercase)           | `shoppinglist`  |
-| `__entitiesKey__` | plural **camelCase** i18n key           | `shoppingLists` |
-| `__entityKey__`   | singular **camelCase** i18n key         | `shoppingList`  |
+| `__Entity__`      | PascalCase class name                   | `ShoppingList`   |
+| `__entities__`    | folder + client route (kebab-case)      | `shopping-lists` |
+| `__entity__`      | singular route/id (kebab-case)          | `shopping-list`  |
+| `__api__`         | API resource path — must equal `[Route]`| `/shopping-lists`|
+| `__entitiesKey__` | plural **camelCase** i18n key           | `shoppingLists`  |
+| `__entityKey__`   | singular **camelCase** i18n key         | `shoppingList`   |
 
 (`scaffold.mjs` fills these automatically; the camelCase i18n keys keep multi-word titles from rendering raw.)
 

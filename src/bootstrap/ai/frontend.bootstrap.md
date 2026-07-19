@@ -95,14 +95,16 @@ never a verbatim dump of every file (that alone can cost 100k+ tokens for little
 
 ## Reading order (start here)
 
-Read in this order; consult the deep references by section on demand. Keep this list identical to the
+Minimum viable read: the card, then the workflow sections of `entities.instructions`. Everything below
+that is fetched by heading when the current task needs it — `get_section_toc` first, then the one heading.
+Loading a whole reference section is the exception, not the on-ramp. Keep this list identical to the
 reading-order note in `regira_modules.vue.entities` → `entities.setup`.
 
 0. `get_package_card id="regira_modules.vue.entities"` — the must-know bullets (built-ins checklist,
    owned-collection rule, save/paging contract). Orient here; it decides which sections you need at all.
 1. `get_package id="regira_modules.vue.entities" section="entities.instructions"` — the entity-slice
-   workflow and conventions (incl. the list-vs-search / simple-vs-complex composable mapping). Read in
-   full before writing a slice.
+   workflow and conventions (incl. the list-vs-search / simple-vs-complex composable mapping). Read the
+   workflow before writing a slice; leave the gotcha and troubleshooting tables for symptom lookup.
 2. `section="entities.setup"` — the new-project template (Vite + Pinia + vue-router): `main.ts`,
    `App.vue`, router, plugin install order, **required-vs-optional plugins**, **running with or without
    authentication**, the npm install (no alias needed), the **full project structure** (per-entity folder

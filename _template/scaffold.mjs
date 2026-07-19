@@ -8,8 +8,17 @@
 //   node node_modules/regira_modules/_template/scaffold.mjs --attachments        # the shared offline file/attachments slice (once per app)
 //
 //   <Entity>            PascalCase class name, e.g. Product
-//   --plural <name>     route prefix / API path (default: derived — Category → categories, Box → boxes)
-//   --singular <name>   singular i18n key (default: lowercased Entity)
+//   --plural <name>     slice folder + client route prefix (default: kebab-cased plural — Category →
+//                       categories, Box → boxes, InterventionType → intervention-types)
+//   --api <path>        API resource path, relative to the axios baseURL (default: /<plural>). Must equal the
+//                       server's [Route(...)] exactly; pass it when the two differ, e.g. a
+//                       party-relationship-types slice served under --api relationship-types. The leading
+//                       slash is optional — omit it under Git Bash, which rewrites /foo into a file path.
+//   --singular <name>   singular i18n key (default: kebab-cased Entity)
+//   --rel <Entity>      generate an overview column for a to-one relation: the related entity's
+//                       FormModalButton + a label resolved through its pool (never the raw nested DTO, which
+//                       has no $title, nor item.rel.title, which goes stale). Repeatable. The related slice
+//                       must already be scaffolded — the column imports from its barrel.
 //   --dir <path>        target base folder for a slice (default: src/entities) or an ejected skin (default: src/components/ui)
 //   --owns <Child>      also scaffold an editable owned-collection sub-slice (a `_deleted`-marked scalar-row
 //                       table via useOwnedCollection) under the entity, for a back-end `e.Related(...)` child.
@@ -31,6 +40,8 @@
 //
 // Examples:
 //   node .../scaffold.mjs Category --plural categories
+//   node .../scaffold.mjs PartyRelationshipType --api /relationship-types
+//   node .../scaffold.mjs Intervention --rel Vehicle --rel Supplier
 //   node .../scaffold.mjs Order --owns OrderLine
 //   node .../scaffold.mjs Order --owns OrderLine --as lines   # back-end nav `Lines` → JSON key "lines"
 //   node .../scaffold.mjs --shell --no-auth
@@ -112,10 +123,27 @@ if (!name) {
 }
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1)
 const pluralize = (s) => (/(?:s|x|z|ch|sh)$/i.test(s) ? s + "es" : /[^aeiou]y$/i.test(s) ? s.slice(0, -1) + "ies" : s + "s")
-const plural = lowerFirst(opt("--plural", pluralize(name.toLowerCase())))
-const singular = lowerFirst(opt("--singular", name.toLowerCase()))
-// i18n keys are camelCase (derived from the PascalCase name), unlike the all-lowercase route/folder/api
-// identifiers above: ShoppingList → route "shoppinglists" but i18n keys "shoppingLists" / "shoppingList".
+// Route/folder identifiers are kebab-case, matching the conventional controller route: InterventionType →
+// "intervention-types", which is what [Route("intervention-types")] serves. Flattening to one lowercase word
+// would emit "/interventiontypes" and every request 404s.
+const kebab = (s) =>
+    s
+        .replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2")
+        .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+        .toLowerCase()
+const plural = lowerFirst(opt("--plural", kebab(pluralize(name))))
+const singular = lowerFirst(opt("--singular", kebab(name)))
+// The API resource path defaults to the folder name, but the two are separable: the server may expose a
+// resource under a different name than the slice is filed under (--api /relationship-types).
+const api = opt("--api", `/${plural}`).replace(/^\/*/, "/")
+// A POSIX shell on Windows (Git Bash/MSYS) rewrites a leading-slash argument into a filesystem path, so
+// `--api /products` silently arrives as `/C:/Program Files/Git/products`. Catch it rather than emit it.
+if (/^\/[A-Za-z]:\//.test(api)) {
+    console.error(`✗ --api received "${api}" — a POSIX shell on Windows expanded the leading slash. Pass it without one: --api ${api.split("/").pop()}`)
+    process.exit(1)
+}
+// i18n keys are camelCase (derived from the PascalCase name), unlike the kebab-case route/folder/api
+// identifiers above: ShoppingList → route "shopping-lists" but i18n keys "shoppingLists" / "shoppingList".
 // A lowercase i18n key silently renders raw (only a console warning), so keep the word boundaries.
 const camelPlural = lowerFirst(pluralize(name))
 const camelSingular = lowerFirst(name)
@@ -148,18 +176,92 @@ for (let i = 0; i < argv.length; i++) {
     }
 }
 
+// --rel <Entity>: a to-one relation displayed in the overview. Generates the documented form — the related
+// entity's FormModalButton beside a label resolved through its store's pool — rather than describing it.
+// A raw nested DTO has no $title at all, and item.rel.title is a snapshot that goes stale the moment the
+// related entity is edited anywhere else; both are the mistakes this exists to pre-empt.
+// The value must look like a class name, or the next flag gets consumed as one: `--rel --no-auth` would
+// otherwise scaffold a relation named "--no-auth" importing from an "--no-auths" slice.
+const rels = argv.flatMap((a, i) => (a === "--rel" ? [argv[i + 1]] : []))
+if (rels.some((rel) => !/^[A-Z][A-Za-z0-9]*$/.test(rel ?? ""))) {
+    console.error("✗ --rel requires a PascalCase related class name (e.g. --rel Vehicle).")
+    process.exit(1)
+}
+// The import alias mirrors the target folder: `--dir src/modules` must emit "@/modules/...", not the
+// default "@/entities/...", or the generated slice cannot resolve its imports.
+const aliasRoot = baseDir.replace(/\\/g, "/").replace(/^\.?\/?src\//, "").replace(/\/+$/, "")
+const relations = rels.map((rel) => ({
+    name: rel,
+    field: lowerFirst(rel),
+    folder: lowerFirst(kebab(pluralize(rel))),
+    key: lowerFirst(rel),
+    alias: `@/${aliasRoot}/${lowerFirst(kebab(pluralize(rel)))}`,
+}))
+// Generated content is inserted after a stable line in the template rather than at a placeholder, so the
+// doc sources these templates are built from stay readable as worked examples.
+const insertAfter = (text, anchor, addition) => {
+    if (!addition) return text
+    const i = text.indexOf(anchor)
+    if (i < 0) return text
+    // after the whole line, not the match — anchors are often followed by a trailing comment
+    const eol = text.indexOf("\n", i + anchor.length)
+    const at = eol < 0 ? text.length : eol
+    return text.slice(0, at) + "\n" + addition + text.slice(at)
+}
+const relationBlocks = {
+    // overview/ListItem.vue
+    cells: relations
+        // both the button and the label take the pooled instance — a raw nested DTO has no $title, and an
+        // edit made through the button's own modal must relabel this cell without a reload
+        .map((r) => `        <div class="col d-none d-md-block text-truncate">\n            <${r.name}Button :model-value="get${r.name}(item.${r.field})" /> {{ get${r.name}(item.${r.field})?.$title }}\n        </div>`)
+        .join("\n"),
+    imports: relations
+        .map((r) => `import { FormModalButton as ${r.name}Button, useEntityStore as use${r.name}Store } from "${r.alias}"`)
+        .join("\n"),
+    stores: relations.map((r) => `const { fromPool: get${r.name} } = use${r.name}Store()`).join("\n"),
+    // overview/List.vue — headers mirror the cells 1:1
+    headers: relations.map((r) => `            <div class="col d-none d-md-block">{{ $t("${r.key}") }}</div>`).join("\n"),
+    // data/Entity.ts — the FK and the nested relation, so the generated column type-checks as scaffolded.
+    // Barrels export the model as `Entity`, hence the alias.
+    modelImports: relations.map((r) => `import { type Entity as ${r.name} } from "${r.alias}"`).join("\n"),
+    fields: relations
+        .map((r) => `    ${r.field}Id?: number\n    ${r.field}?: ${r.name} // populated only when the request asks for it: baseQueryParams.includes`)
+        .join("\n"),
+}
+function applyRelations(relPath, text) {
+    if (!relations.length) return text
+    switch (relPath.replace(/\\/g, "/")) {
+        case "config/config.ts":
+            // Without the includes the API returns no nested relation and every generated column renders
+            // blank — the flag names mirror the back-end's [Flags] enum, conventionally the entity name.
+            return text.replace("includes: []", `includes: [${relations.map((r) => `"${r.name}"`).join(", ")}]`)
+        case "overview/ListItem.vue":
+            text = insertAfter(text, `<div class="col text-truncate">{{ item.$title }}</div>`, relationBlocks.cells)
+            text = insertAfter(text, `import FormModalButton from "../details/FormModalButton.vue"`, relationBlocks.imports)
+            return insertAfter(text, `const item = defineModel<Entity>({ required: true })`, relationBlocks.stores)
+        case "overview/List.vue":
+            return insertAfter(text, `<div class="col">{{ $t("name") }}</div>`, relationBlocks.headers)
+        case "data/Entity.ts":
+            text = insertAfter(text, `import { EntityBase } from "regira_modules/vue/entities"`, relationBlocks.modelImports)
+            return insertAfter(text, `title = ""`, relationBlocks.fields)
+        default:
+            return text
+    }
+}
+
 const sliceExists = existsSync(destRoot)
 if (sliceExists && !overwriteSlice && !owns.length) {
     console.error(`✗ ${destRoot} already exists — pass --owns <Child> to add an owned sub-slice to it, or --overwrite-slice to regenerate it (customized (c) files included; --force deliberately does NOT apply to slices).`)
     process.exit(1)
 }
 
-// Replace the camelCase i18n-key placeholders before the lowercase route placeholders (longest-match first).
+// Replace the camelCase i18n-key placeholders before the kebab-case route placeholders (longest-match first).
 const subst = (s) =>
     s
         .replace(/__Entity__/g, name)
         .replace(/__entitiesKey__/g, camelPlural)
         .replace(/__entityKey__/g, camelSingular)
+        .replace(/__api__/g, api)
         .replace(/__entities__/g, plural)
         .replace(/__entity__/g, singular)
 // the auth-coupled lines in Overview.vue / Details.vue: the useAuthStore import + store, the
@@ -169,15 +271,16 @@ const authLine = /useAuthStore|authStore\.\$onAction|no-auth app:/
 const dropLoad = (line) => (line.includes("useDetails(") ? line.replace(/\bload\s*,\s*/, "").replace(/,\s*load\b/, "") : line)
 const stripAuth = (s) => s.split("\n").filter((line) => !authLine.test(line)).map(dropLoad).join("\n")
 
-function copyDir(from, to) {
+function copyDir(from, to, rootFrom = from) {
     mkdirSync(to, { recursive: true })
     for (const entry of readdirSync(from, { withFileTypes: true })) {
         const src = join(from, entry.name)
         const dst = join(to, entry.name)
-        if (entry.isDirectory()) copyDir(src, dst)
+        if (entry.isDirectory()) copyDir(src, dst, rootFrom)
         else {
             let content = subst(readFileSync(src, "utf8"))
             if (noAuth) content = stripAuth(content)
+            content = applyRelations(relative(rootFrom, src), content)
             writeFileSync(dst, content)
         }
     }
@@ -196,6 +299,15 @@ if (!sliceExists || overwriteSlice) {
     console.log(`  Customize these ${customize.length} (c) files (a lookup drops the overview trio List/ListItem/FilterAdv):`)
     for (const f of customize) console.log(`    · ${join(baseDir, plural, f)}`)
     console.log(`  Then register its plugin in ${join(baseDir, "index.ts")} (see the entities setup guide → Add entities).`)
+    console.log(`  Confirm api "${api}" equals the server route — [Route("${api.slice(1)}")] on ${name}Controller. A mismatch 404s every call; re-run with --api <path> to change it.`)
+    for (const r of relations) {
+        const relDir = join(baseDir, r.folder)
+        console.log(
+            existsSync(resolve(process.cwd(), relDir))
+                ? `  Relation column for ${r.name}: reads item.${r.field} (baseQueryParams.includes "${r.name}" — must match the API's [Flags] enum, or the cell stays blank); add the "${r.key}" translation key.`
+                : `  ! Relation column for ${r.name} imports from ${relDir}, which does not exist yet — scaffold that slice or vue-tsc will fail.`
+        )
+    }
 } else {
     console.log(`· ${join(baseDir, plural)} exists — leaving the slice as-is, adding owned sub-slice(s) only.`)
 }
