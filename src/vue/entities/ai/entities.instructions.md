@@ -67,17 +67,17 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 
 ## Quick Agent Playbook
 
-| Task                                                                                                                                    | Go to                                                                                                                                            |
-| --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Stand up a new app** (full SPA: deps, full plugin stack, `main.ts`, `App.vue`, router, preloader, app shell, `app-config.ts`)         | → [entities.setup.md](entities.setup.md)                                                                                                         |
-| **Scaffold the app shell** (`scaffold.mjs --shell` → bootstrap, config, router, dashboard + navbar, layout, views; `--no-auth` variant) | → [entities.shell.template.md](entities.shell.template.md) · [setup §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
-| **Add an entity**                                                                                                                       | → [§Entity Implementation Workflow](#entity-implementation-workflow)                                                                             |
+| Task                                                                                                                                                                                                                | Go to                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Stand up a new app** (full SPA: deps, full plugin stack, `main.ts`, `App.vue`, router, preloader, app shell, `app-config.ts`)                                                                                     | → [entities.setup.md](entities.setup.md)                                                                                                         |
+| **Scaffold the app shell** (`scaffold.mjs --shell` → bootstrap, config, router, dashboard + navbar, layout, views; `--no-auth` variant)                                                                             | → [entities.shell.template.md](entities.shell.template.md) · [setup §App shell](entities.setup.md#app-shell--components-infrastructure--styling) |
+| **Add an entity**                                                                                                                                                                                                   | → [§Entity Implementation Workflow](#entity-implementation-workflow)                                                                             |
 | **Scaffold a new entity** (`scaffold.mjs <Entity>` copies the full slice; `--api <path>` when the server route differs from the folder, `--rel <Related>` per displayed to-one relation; then fill the `(c)` files) | → [entities.template.md](entities.template.md)                                                                                                   |
-| **Scaffold file attachments** (`scaffold.mjs --attachments` copies the shared offline file/upload slice, once per app)                   | → [entities.attachments.template.md](entities.attachments.template.md)                                                                            |
-| **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                         | → [entities.examples.md](entities.examples.md)                                                                                                   |
-| **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                             | → [entities.advanced.example.md](entities.advanced.example.md)                                                                                   |
-| **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing)          | → [entities.patterns.md](entities.patterns.md)                                                                                                   |
-| **Run without authentication**                                                                                                          | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication)                                                    |
+| **Scaffold file attachments** (`scaffold.mjs --attachments` copies the shared offline file/upload slice, once per app)                                                                                              | → [entities.attachments.template.md](entities.attachments.template.md)                                                                           |
+| **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                                                                                                     | → [entities.examples.md](entities.examples.md)                                                                                                   |
+| **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                                                                                                         | → [entities.advanced.example.md](entities.advanced.example.md)                                                                                   |
+| **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing)                                                                                      | → [entities.patterns.md](entities.patterns.md)                                                                                                   |
+| **Run without authentication**                                                                                                                                                                                      | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication)                                                    |
 
 ## References
 
@@ -270,10 +270,10 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 `isComplex` decides where the entity's **own** create/edit form lives, and it is the lever behind the
 "forms shouldn't be popups" rule:
 
-| `isComplex` | The entity's own form | Set it for |
-| ----------- | --------------------- | ---------- |
+| `isComplex`            | The entity's own form                                                                   | Set it for                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | **`true`** _(default)_ | a **Details page** (row-edit + "new" navigate there; tabs, deep-links, `showToggleAdv`) | every real business entity — anything with relations, an owned collection, or more than a handful of fields |
-| **`false`** | a **modal** (`FormModalButton`) | only a **very basic** entity — a few scalar fields, no relations, no tabs (a lookup/reference row) |
+| **`false`**            | a **modal** (`FormModalButton`)                                                         | only a **very basic** entity — a few scalar fields, no relations, no tabs (a lookup/reference row)          |
 
 Default to the page. A modal per real entity does not scale — no deep-link, no tab strip, cramped on
 mobile — so reserve `isComplex: false` for the trivial case. This is **separate** from quick-editing a
@@ -399,19 +399,19 @@ Keep every view thin: bind the refs the composables return.
 Run through this before writing any `Form.vue`; each row is a shipped composable/component, and
 hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](entities.patterns.md)):
 
-| The form has…                                                     | Reach for                                                                                                                                                                            |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2+ related collections / many fields                              | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                                                                      |
-| an editable child/join **relation** (rows link to another entity) | **`InputSelectorInline`** chips (`_deleted` mark + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls                            |
-| editable owned rows with **scalar fields** (nothing to pick)      | an inline **table** via `useOwnedCollection` (add-row + `_deleted`) + the same `prepareItem` filter — [recipe](entities.patterns.md#owned-rows-with-scalar-fields--the-inline-table) |
+| The form has…                                                     | Reach for                                                                                                                                                                                                                                                             |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2+ related collections / many fields                              | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                                                                                                                                                       |
+| an editable child/join **relation** (rows link to another entity) | **`InputSelectorInline`** chips (`_deleted` mark + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls                                                                                                             |
+| editable owned rows with **scalar fields** (nothing to pick)      | an inline **table** via `useOwnedCollection` (add-row + `_deleted`) + the same `prepareItem` filter — [recipe](entities.patterns.md#owned-rows-with-scalar-fields--the-inline-table)                                                                                  |
 | **files / pictures** on the entity                                | the `entity-attachments` slice in a tab: `FileDropZone` drop, offline add/rename/remove (`_deleted`), flush on save via `useAxios().upload` — never `FileHelper.send` — [recipe](entities.patterns.md#attachments-files--offline-add--rename--remove-confirm-on-save) |
-| a related entity displayed anywhere                               | that entity's **`FormModalButton`** (chip/badge that opens its form in a modal) — a bare label is the exception, not the default                                                     |
-| "add related entity" controls                                     | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows)                                                                                         |
-| any save/remove path                                              | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                                                                                |
-| relation labels                                                   | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                                                                      |
-| tricky state while developing                                     | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                                                                          |
-| breakpoint-dependent layout                                       | CSS/flex first; `useScreen` when the structure itself changes (e.g. dropping a tab)                                                                                                  |
-| any component you drop in                                         | **deliberate spacing** — wrap fields in `FormSection`, give each `mb-2`/`mb-3` + margins; scaffolded markup ships tight on purpose (overriding a Bootstrap `!important` utility needs `!important` back)  |
+| a related entity displayed anywhere                               | that entity's **`FormModalButton`** (chip/badge that opens its form in a modal) — a bare label is the exception, not the default                                                                                                                                      |
+| "add related entity" controls                                     | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows)                                                                                                                                                                          |
+| any save/remove path                                              | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                                                                                                                                                                 |
+| relation labels                                                   | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                                                                                                                                                       |
+| tricky state while developing                                     | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                                                                                                                                                           |
+| breakpoint-dependent layout                                       | CSS/flex first; `useScreen` when the structure itself changes (e.g. dropping a tab)                                                                                                                                                                                   |
+| any component you drop in                                         | **deliberate spacing** — wrap fields in `FormSection`, give each `mb-2`/`mb-3` + margins; scaffolded markup ships tight on purpose (overriding a Bootstrap `!important` utility needs `!important` back)                                                              |
 
 > **An owned collection is done only when it's editable.** If the parent's back-end `e.Related(...)` owns a
 > collection, its add/edit/remove editor (the chips or table row above) is **part of this slice** — shipping the
@@ -432,7 +432,7 @@ hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](enti
 > **Never guess a composable's shape — the signatures are indexed (mind the module split).** Feedback, tabs,
 > breakpoints, loading and `DefaultModal` live in **`ui.signatures.md`** (`useFeedback` → `pending`/`success`/
 > `fail`/`reset` — there is no `loading()`; `Tab.create("form", { title: translate("form"), icon })` — the first
-> arg seeds `key` *and* `title`, and **`TabNavigation` renders `tab.title` verbatim, no `$t()`**, so always
+> arg seeds `key` _and_ `title`, and **`TabNavigation` renders `tab.title` verbatim, no `$t()`**, so always
 > supply a translated `title` in `values`; `useScreen` → `screen.isLarge`);
 > `useForm`/`useSearchView`/`useModal`/`FormModalButton`/`usePreloader` live in **`entities.signatures.md`**.
 > Pull the signature (or `get_type`) before wiring — don't reverse-engineer it from the `.d.ts` by trial.
@@ -504,25 +504,25 @@ SPA counterparts of the back-end domain blueprints (`get_package("Regira.Entitie
 
 ## Quick reference
 
-| I want to…                         | Use                                                        |
-| ---------------------------------- | ---------------------------------------------------------- |
-| Define a model                     | `extends EntityBase` (`$id`, `$title`)                     |
-| Call the API                       | `extends EntityServiceBase<T>` → implement `toEntity`      |
-| Static lookup list                 | `extends JSONService<T>`                                   |
-| List + search + URL sync (counted) | `useSearchView` + `useRouteOverview`                       |
-| Plain list (no count)              | `useListView`                                              |
-| Load one item                      | `useDetails`                                               |
-| Create/edit/delete form            | `useForm` (modal: `useModal`)                              |
-| Tabbed form                        | `TabContainer` + `Tab.create` (`initialTab`)               |
-| Debug panel (dev-only)             | `<Debug :modelValue>` · `$isDebug` / `$setDebug`           |
-| Filter UI                          | `useFilter`                                                |
-| Reactive shared cache              | `createStore` (Pinia store)                                |
-| Owned/join chips (marked delete)   | `InputSelectorInline` (+ `prepareItem` filter)             |
-| Child collections                  | `useOwnedCollection` / `useOwnedModal` / `useListInput`    |
+| I want to…                         | Use                                                              |
+| ---------------------------------- | ---------------------------------------------------------------- |
+| Define a model                     | `extends EntityBase` (`$id`, `$title`)                           |
+| Call the API                       | `extends EntityServiceBase<T>` → implement `toEntity`            |
+| Static lookup list                 | `extends JSONService<T>`                                         |
+| List + search + URL sync (counted) | `useSearchView` + `useRouteOverview`                             |
+| Plain list (no count)              | `useListView`                                                    |
+| Load one item                      | `useDetails`                                                     |
+| Create/edit/delete form            | `useForm` (modal: `useModal`)                                    |
+| Tabbed form                        | `TabContainer` + `Tab.create` (`initialTab`)                     |
+| Debug panel (dev-only)             | `<Debug :modelValue>` · `$isDebug` / `$setDebug`                 |
+| Filter UI                          | `useFilter`                                                      |
+| Reactive shared cache              | `createStore` (Pinia store)                                      |
+| Owned/join chips (marked delete)   | `InputSelectorInline` (+ `prepareItem` filter)                   |
+| Child collections                  | `useOwnedCollection` / `useOwnedModal` / `useListInput`          |
 | File attachments (offline staging) | `entity-attachments` slice: `FileDropZone` + `useAxios().upload` |
-| Hierarchy                          | `useTree`                                                  |
-| Navigation from configs            | `importDashboard` / `importNavbar` / `buildNavigationTree` |
-| Lean overview/form (no scaffold)   | `EntityOverview` / `EntityForm`                            |
+| Hierarchy                          | `useTree`                                                        |
+| Navigation from configs            | `importDashboard` / `importNavbar` / `buildNavigationTree`       |
+| Lean overview/form (no scaffold)   | `EntityOverview` / `EntityForm`                                  |
 
 ---
 
@@ -545,7 +545,7 @@ SPA counterparts of the back-end domain blueprints (`get_package("Regira.Entitie
 | Overview total wrong / count missing                               | `useSearchView` bound to an endpoint that returns `{ items }` without `count`                                                                                                 | Use `useListView` for a plain list, or read from the counted `/search` ([composables](#overview-uselistview-vs-usesearchview))                                                                                                                                                                                     |
 | Import not found / wrong path                                      | Guessed an import specifier                                                                                                                                                   | Look it up in [entities.namespaces.md](entities.namespaces.md) — never guess                                                                                                                                                                                                                                       |
 | Wrong method name/params/return                                    | Guessed a signature                                                                                                                                                           | Look it up in [entities.signatures.md](entities.signatures.md)                                                                                                                                                                                                                                                     |
-| Overview list row scrolls horizontally on narrow screens           | Several fixed-width `col-auto` columns (they don't shrink) stacked in the list row                                                                                            | Make columns responsive: flexible `col text-truncate`, drop secondary ones with `d-none d-md-block`/`d-lg-block`, keep few `col-auto`. See [entities.patterns.md → Overview list layout](entities.patterns.md#overview-list-layout-avoiding-horizontal-scroll)                                                           |
+| Overview list row scrolls horizontally on narrow screens           | Several fixed-width `col-auto` columns (they don't shrink) stacked in the list row                                                                                            | Make columns responsive: flexible `col text-truncate`, drop secondary ones with `d-none d-md-block`/`d-lg-block`, keep few `col-auto`. See [entities.patterns.md → Overview list layout](entities.patterns.md#overview-list-layout-avoiding-horizontal-scroll)                                                     |
 | A checkbox/radio list used to pick related entities (m2m)          | An entity relation modelled like a serviceless enum                                                                                                                           | Prefer the entity `Selector` + join bridge for service-loaded relations — even a small closed set (it scales server-side); a checkbox group suits a serviceless enum. See [entities.patterns.md → Editing a many-to-many join](entities.patterns.md#editing-a-many-to-many-join-with-the-related-entitys-selector) |
 | A custom save/toggle/checkout shows no feedback                    | Only `useForm`/`useSearchView`/`useDetails` auto-drive feedback                                                                                                               | Drive your own `useFeedback()` + `<Feedback>` around the direct `service.save()`/`remove()` call. See [entities.patterns.md → Feedback for custom saves](entities.patterns.md#feedback-for-custom-saves-outside-useform)                                                                                           |
 | Standard form/details save shows no confirmation                   | The composable drives `feedback`, but the view renders no `<Feedback>`                                                                                                        | Render `<Feedback :feedback="feedback" />` (the scaffolded `Form.vue`/`Details.vue` do; a hand-rolled form must add it)                                                                                                                                                                                            |

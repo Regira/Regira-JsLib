@@ -42,7 +42,12 @@ export class EntityService extends EntityServiceBase<Entity> {
 
     override insert(item) {
         // the follow-up update callback sends the attachments in display order — the server assigns SortOrder from array position
-        return insertWithAttachments(this.config.api, item, () => super.insert(item), (saved) => super.update(saved))
+        return insertWithAttachments(
+            this.config.api,
+            item,
+            () => super.insert(item),
+            (saved) => super.update(saved)
+        )
     }
     override update(item) {
         return updateWithAttachments(this.config.api, item, () => super.update(item))

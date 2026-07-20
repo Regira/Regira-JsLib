@@ -349,13 +349,13 @@ not `service.search`) and bind the picked list — same model, richer control.
 lines, join rows, shares/members). One decision on the back-end drives the whole chain — decide it
 _before_ scaffolding (`Regira.Entities` → `entities.instructions` → Step 0):
 
-| Layer    | Piece                                                                                                     |
-| -------- | --------------------------------------------------------------------------------------------------------- |
-| back-end | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot  |
-| contract | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together |
-| form     | **`InputSelectorInline`** chips (below); heavier per-row editing → `useOwnedCollection` / `useOwnedModal` |
+| Layer    | Piece                                                                                                                       |
+| -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| back-end | `e.Related(x => x.Rows)` on the **parent** — the child gets no `.For<>()`, no controller, no budget slot                    |
+| contract | the rows ride on the parent's DTO/InputDto; one `save(parent)` persists adds, edits, and deletes together                   |
+| form     | **`InputSelectorInline`** chips (below); heavier per-row editing → `useOwnedCollection` / `useOwnedModal`                   |
 | removal  | persisted row → mark `_deleted` (visible, undoable); row added this session → remove outright; never per-row `DELETE` calls |
-| service  | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission          |
+| service  | a per-collection `prepareItem` override drops `_deleted` rows so `Related()` deletes by omission                            |
 
 For rows only ever edited inside the parent's form, modelling them first-class instead (own
 service/routes, separate `DELETE` flushes) is the classic expensive rework — the parent's `Related()`
@@ -401,7 +401,7 @@ Four numbered steps, one per layer:
     relation from an `?includes=` payload is a plain DTO (no prototype, no `$id`/`$title`). Resolve it
     through the sibling store's `fromPool(row.category)`: that returns the one shared instance, so an edit
     made through the chip's own modal relabels the chip immediately. `Object.assign(new Category(),
-    row.category)` hydrates too, but the copy is detached — its label stays stale until a reload.
+ row.category)` hydrates too, but the copy is detached — its label stays stale until a reload.
 
 3. **Purge on save** — the `prepareItem` override from [Transient client-only fields](#transient-client-only-fields)
    filters `_deleted` rows per collection; `Related()` then deletes by omission. Purge **every nesting
@@ -461,7 +461,7 @@ Parent form binds it to the array: `<OrderLineOverview v-model="item.orderLines"
 > `Order.OrderLines`), never derived from the child class name or the lowercase folder. A mismatch fails
 > **silently**: no type error, no runtime error — the collection just never round-trips and nothing
 > persists. Verify the key against an actual API response before binding (`scaffold.mjs --owns … --as
-> <fieldName>` sets it explicitly).
+<fieldName>` sets it explicitly).
 
 New rows mint
 **negative temp ids** and insert with the parent's single `save()`; `_deleted` rows drop in the `prepareItem`
@@ -493,12 +493,12 @@ The generated slice (full source: [entities.attachments.template.md](entities.at
 builds on four **shipped** primitives — never hand-roll them (verify in
 [namespaces](entities.namespaces.md) / [signatures](entities.signatures.md)):
 
-| Primitive | From | Role |
-| --------- | ---- | ---- |
-| `FileDropZone` | `regira_modules/vue/ui` | drag-drop zone — emits `drop-files: Array<Blob>`, scoped slot `{ isDropping }` |
-| `useAxios().upload(url, [blob], data?)` | `regira_modules/vue/http` | multipart upload on the **shared, baseURL-aware** axios; field name defaults to **`"file"`** |
-| `useAxios().getFile(url)` | `regira_modules/vue/http` | authenticated download → `Blob` |
-| `formatFileSize`, `fileToBlob` | `regira_modules/utilities/file-utility` | size label; re-wrap a blob under a new name |
+| Primitive                               | From                                    | Role                                                                                         |
+| --------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `FileDropZone`                          | `regira_modules/vue/ui`                 | drag-drop zone — emits `drop-files: Array<Blob>`, scoped slot `{ isDropping }`               |
+| `useAxios().upload(url, [blob], data?)` | `regira_modules/vue/http`               | multipart upload on the **shared, baseURL-aware** axios; field name defaults to **`"file"`** |
+| `useAxios().getFile(url)`               | `regira_modules/vue/http`               | authenticated download → `Blob`                                                              |
+| `formatFileSize`, `fileToBlob`          | `regira_modules/utilities/file-utility` | size label; re-wrap a blob under a new name                                                  |
 
 > **Use `useAxios().upload`, not `FileHelper.send`.** `FileHelper.send` uses a **bare axios** — no
 > `baseURL`, no auth interceptor — and its field name defaults to **`"files"`**. The attachment endpoint

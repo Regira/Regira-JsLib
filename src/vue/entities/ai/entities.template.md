@@ -8,9 +8,9 @@ route prefix `foos`) — rename it to your entity throughout.
 class name (`InterventionType` → `intervention-types`), matching the conventional `[Route(...)]`. Two flags
 generate what would otherwise be hand-written and are worth passing up front:
 
-| Flag | Generates |
-| ---- | --------- |
-| `--api <path>` | a resource path that differs from the folder name (`--api relationship-types`) |
+| Flag              | Generates                                                                                                                                                                                         |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--api <path>`    | a resource path that differs from the folder name (`--api relationship-types`)                                                                                                                    |
 | `--rel <Related>` | an overview column for a to-one relation — the related entity's `FormModalButton` + a `fromPool` label, plus the FK and nested field on the model. Repeatable; the related slice must exist first |
 
 > **Indicative, not prescriptive.** The templates fix the _functional wiring_ (service ↔ store ↔ composable ↔
@@ -359,7 +359,13 @@ const item = defineModel<Entity>({ required: true })
             </div>
             <div class="col-auto">
                 <!-- In a modal (isPopup) there is no overview to return to — offer a pop-out to the full page instead. -->
-                <RouterLink v-if="isPopup" :to="{ name: `${config.key}Details`, params: { id: item.$id } }" target="_blank" class="btn btn-outline-secondary" :title="$t('popOut')">
+                <RouterLink
+                    v-if="isPopup"
+                    :to="{ name: `${config.key}Details`, params: { id: item.$id } }"
+                    target="_blank"
+                    class="btn btn-outline-secondary"
+                    :title="$t('popOut')"
+                >
                     <Icon name="popOut" />
                 </RouterLink>
                 <RouterLink v-else-if="overviewUrl" :to="overviewUrl" class="btn btn-outline-info">

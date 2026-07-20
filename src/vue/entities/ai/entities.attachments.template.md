@@ -20,7 +20,7 @@ server-sent `sortOrder` on load and mirrors the array index back into it after e
 (a host `prepareItem` assigning a fresh array) re-sorts to the same order instead of reverting a drag.
 
 > **Shared slice — no per-entity tokens.** Unlike an entity slice, this is copied verbatim (one folder per
-> app). You do not customize its files; you customize which entities *use* it (the 3-line host wiring below).
+> app). You do not customize its files; you customize which entities _use_ it (the 3-line host wiring below).
 
 ## `attachments/Entity.ts`
 
@@ -112,7 +112,13 @@ export function createEntity(file: Blob & { name?: string }): Entity {
     return item
 }
 
-export function useEntityAttachments({ props, emit }: { props: { modelValue?: Array<Entity>; readonly?: boolean }; emit: (e: "update:modelValue", v: Array<Entity>) => void }) {
+export function useEntityAttachments({
+    props,
+    emit,
+}: {
+    props: { modelValue?: Array<Entity>; readonly?: boolean }
+    emit: (e: "update:modelValue", v: Array<Entity>) => void
+}) {
     // Map incoming JSON rows to instances ONCE and own the array; emitting it up shares the refs, so in-place
     // edits (rename, _deleted, reorder) persist without re-mapping. Re-map only when the host swaps in a new record.
     // The ARRAY ORDER is the wire contract (the server assigns SortOrder from position on every parent
@@ -187,7 +193,12 @@ export function useEntityAttachments({ props, emit }: { props: { modelValue?: Ar
 }
 
 // Insert needs the parent's id before it can POST files → save the record first, then upload.
-export async function insertWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(api: string, item: T, insert: () => Promise<T | null>, update: (saved: T) => Promise<T | null>): Promise<T | null> {
+export async function insertWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(
+    api: string,
+    item: T,
+    insert: () => Promise<T | null>,
+    update: (saved: T) => Promise<T | null>
+): Promise<T | null> {
     const attachments = item.attachments
     if (!attachments?.length) return await insert()
     delete item.attachments // the insert must POST without attachments; restored below so a failed save never loses the staged files
@@ -211,7 +222,11 @@ export async function insertWithAttachments<T extends { id: number; attachments?
         item.attachments = attachments // the caller's live entity keeps its rows on every failure path
     }
 }
-export async function updateWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(api: string, item: T, update: () => Promise<T | null>): Promise<T | null> {
+export async function updateWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(
+    api: string,
+    item: T,
+    update: () => Promise<T | null>
+): Promise<T | null> {
     await saveAll(api, item)
     item.attachments?.forEach((x) => delete x.attachment?._file) // free the blobs, like insert
     return await update()
@@ -221,7 +236,8 @@ async function saveAll(api: string, item: { id: number; attachments?: Array<Enti
     await enqueue(
         pending.map((x) => async () => {
             // re-wrap under the edited name so the uploaded file carries it
-            if (x.fileName && x.fileName !== x.attachment!._file!.name) x.attachment!._file = await fileToBlob(x.attachment!._file as File, x.fileName)
+            if (x.fileName && x.fileName !== x.attachment!._file!.name)
+                x.attachment!._file = await fileToBlob(x.attachment!._file as File, x.fileName)
             const {
                 data: { item: saved },
             } = await useAxios().upload(`${api}/${item.id}/files`, [x.attachment!._file!]) // field name "file"; baseURL-relative
@@ -241,8 +257,21 @@ export async function download(item: Entity) {
     <FormSection :title="$t('files')">
         <!-- drag the handle onto another row to reorder; sortOrder follows the array index.
              rows also accept OS file drops (added like the drop zone) — never let the browser navigate -->
-        <div v-for="(row, i) in items" :key="row.$id" class="d-flex align-items-center gap-2 mb-2" @dragover.prevent @drop.prevent="handleDrop(i, $event)">
-            <span v-if="!readonly" class="text-muted" style="cursor: grab" draggable="true" @dragstart="handleDragStart(i, $event)" @dragend="handleDragEnd">
+        <div
+            v-for="(row, i) in items"
+            :key="row.$id"
+            class="d-flex align-items-center gap-2 mb-2"
+            @dragover.prevent
+            @drop.prevent="handleDrop(i, $event)"
+        >
+            <span
+                v-if="!readonly"
+                class="text-muted"
+                style="cursor: grab"
+                draggable="true"
+                @dragstart="handleDragStart(i, $event)"
+                @dragend="handleDragEnd"
+            >
                 <Icon name="move" />
             </span>
             <ListItem v-model="items[i]!" :class="{ 'is-deleted': row._deleted }" class="flex-grow-1" :readonly="readonly" @change="sync" />
@@ -279,7 +308,15 @@ const { items, sync, triggerBrowse, handleBrowse, handleDragStart, handleDragEnd
     <div class="input-group">
         <a :href="item.uri" class="btn btn-outline-info" @click.prevent="handleDownload"><Icon name="download" /></a>
         <!-- an existing file edits newFileName; a staged file edits fileName directly -->
-        <input v-if="item.id > 0" v-model.lazy="item.newFileName" :placeholder="item.fileName" :readonly="readonly" maxlength="256" class="form-control" @change="emit('change')" />
+        <input
+            v-if="item.id > 0"
+            v-model.lazy="item.newFileName"
+            :placeholder="item.fileName"
+            :readonly="readonly"
+            maxlength="256"
+            class="form-control"
+            @change="emit('change')"
+        />
         <input v-else v-model.lazy="item.fileName" :readonly="readonly" maxlength="256" class="form-control" @change="emit('change')" />
         <span class="input-group-text">{{ formatFileSize(item.attachment?.length ?? 0) }}</span>
         <button v-if="!readonly" type="button" class="btn btn-outline-danger" @click="toggleRemove"><Icon name="delete" /></button>

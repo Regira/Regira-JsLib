@@ -33,14 +33,14 @@ from `regira_modules/vue/ui` (or its sub-path). To opt back into app-wide regist
 `configureGlobals({ registerComponentsGlobally: true })` (from `regira_modules/vue/ioc`) before
 installing the plugins — see the **Global registration** column.
 
-| Plugin           | Configures                                                                      | Options                                          | Global registration                            |
-| ---------------- | ------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
-| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                                   | `{ autoHideDelay? }`                             | —                                              |
+| Plugin           | Configures                                                                      | Options                                                              | Global registration                            |
+| ---------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------- |
+| `feedbackPlugin` | `$feedback` (`FeedbackOut`) — app-wide toasts                                   | `{ autoHideDelay? }`                                                 | —                                              |
 | `iconPlugin`     | glyph source for `Icon` (`bs`/`fa`) + friendly keys; `$icons` (`IIconProvider`) | `{ icons?, clearFirst?, source?: "bs" \| "fa", Icon?, IconButton? }` | `Icon`, `IconButton`                           |
-| `loadingPlugin`  | the image `Loading` renders + the app-wide indicator for `injectLoading()`      | `{ img, Loading?, LoadingButton?, LoadingContainer? }` | `Loading`, `LoadingButton`, `LoadingContainer` |
-| `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize?, Paging? }`                  | `Paging`                                       |
-| `modalPlugin`    | the app-wide modal — provides it for `injectModal()`                            | `{ Modal?: ModalComponent }`                     | `MyModal`                                      |
-| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                | —                                              |
+| `loadingPlugin`  | the image `Loading` renders + the app-wide indicator for `injectLoading()`      | `{ img, Loading?, LoadingButton?, LoadingContainer? }`               | `Loading`, `LoadingButton`, `LoadingContainer` |
+| `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize?, Paging? }`                                      | `Paging`                                       |
+| `modalPlugin`    | the app-wide modal — provides it for `injectModal()`                            | `{ Modal?: ModalComponent }`                                         | `MyModal`                                      |
+| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                                    | —                                              |
 
 `$feedback`, `$icons`, `$screen` are typed on Vue's `ComponentCustomProperties`. `Icon` works without
 `iconPlugin` (defaults to Bootstrap glyphs). Modals need no plugin either — but installing

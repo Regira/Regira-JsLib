@@ -206,7 +206,12 @@ export class EntityService extends EntityServiceBase<Entity> {
 
     override async insert(item: Entity): Promise<Entity | null> {
         // the follow-up update sends the attachments in display order — the server assigns SortOrder from array position
-        return await insertWithAttachments(this.config.api, item, async () => await super.insert(item), async (saved) => await super.update(saved))
+        return await insertWithAttachments(
+            this.config.api,
+            item,
+            async () => await super.insert(item),
+            async (saved) => await super.update(saved)
+        )
     }
     override async update(item: Entity): Promise<Entity | null> {
         return await updateWithAttachments(this.config.api, item, async () => await super.update(item))
@@ -346,7 +351,16 @@ flatten/rebuild bridge, so a removed chip marks pending instead of hard-removing
                                                 :filter-defaults="{ exclude }"
                                                 :readonly="readonly"
                                                 :placeholder="$t('selectType')"
-                                                @select="(it: InterventionType) => add(VehicleInterventionType.create({ interventionTypeId: it.id!, interventionType: it, vehicleId: item.id }))"
+                                                @select="
+                                                    (it: InterventionType) =>
+                                                        add(
+                                                            VehicleInterventionType.create({
+                                                                interventionTypeId: it.id!,
+                                                                interventionType: it,
+                                                                vehicleId: item.id,
+                                                            })
+                                                        )
+                                                "
                                             />
                                         </template>
                                     </InputSelectorInline>
@@ -434,11 +448,17 @@ the save-time filter — collected in one place (full files in §3–§5):
 ```ts
 // 1. Join model (§3): key on the plain FK; `_deleted` marks a row (never splice); `create()` from a payload.
 class VehicleInterventionType extends EntityBase {
-    id = 0; interventionTypeId = 0; vehicleId = 0
+    id = 0
+    interventionTypeId = 0
+    vehicleId = 0
     interventionType?: InterventionType
     _deleted = false
-    override get $id() { return this.id || "new" }
-    static create(v?: object) { return Object.assign(new VehicleInterventionType(), v || {}) }
+    override get $id() {
+        return this.id || "new"
+    }
+    static create(v?: object) {
+        return Object.assign(new VehicleInterventionType(), v || {})
+    }
 }
 ```
 

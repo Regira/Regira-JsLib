@@ -59,5 +59,4 @@ export function setGlobalAuth(value: GlobalAuth) {
 export const useGlobalAuth = () => globalAuth
 
 /** display label for the signed-in user — not every JWT carries a displayName claim */
-export const getAccountName = (auth: GlobalAuth = useGlobalAuth()) =>
-    auth?.authData?.displayName ?? auth?.authData?.name ?? auth?.authData?.email
+export const getAccountName = (auth: GlobalAuth = useGlobalAuth()) => auth?.authData?.displayName ?? auth?.authData?.name ?? auth?.authData?.email

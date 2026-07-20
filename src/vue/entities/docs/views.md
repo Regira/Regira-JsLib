@@ -46,7 +46,7 @@ passing `item`. `item` is `null` until the `onMounted` load resolves — gate th
 error. `useModal` is the in-modal variant for editing without leaving the page.
 
 For child/owned collections inside a form, render the rows with **`InputSelectorInline`** — chips that
-mark *persisted* removals `_deleted` (undoable until save, filtered out in the service's `prepareItem`
+mark _persisted_ removals `_deleted` (undoable until save, filtered out in the service's `prepareItem`
 override), remove rows added this session outright (nothing to undo; override the detection via the
 `isNew` prop), and hand the picker slot an `exclude` list. The heavier per-row editors are `useOwnedCollection`,
 `useOwnedModal`, `useListInput`, and `useListItemInput` — see

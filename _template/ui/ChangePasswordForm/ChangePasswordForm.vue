@@ -8,7 +8,16 @@
         </div>
         <!-- hidden username field so password managers can associate the new password with the account.
              visually-hidden, NOT d-none: display:none removes it from the form parse most password managers do -->
-        <input type="text" class="visually-hidden" name="username" autocomplete="username" :value="username" readonly tabindex="-1" aria-hidden="true" />
+        <input
+            type="text"
+            class="visually-hidden"
+            name="username"
+            autocomplete="username"
+            :value="username"
+            readonly
+            tabindex="-1"
+            aria-hidden="true"
+        />
         <div class="row mb-3">
             <label class="col-sm-3 col-form-label">Current password</label>
             <div class="col-sm-9">

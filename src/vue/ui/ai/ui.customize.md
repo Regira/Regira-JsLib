@@ -11,13 +11,13 @@ the functionality.
 
 ## The five layers
 
-| #   | Layer                   | You change                         | Mechanism                                                                                           |
-| --- | ----------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
-| 0   | **Theme tokens**        | colors, radius, spacing — app-wide | override Bootstrap component vars + `--rg-*` tokens in `src/assets/theme.scss`                      |
-| 1   | **CSS restyle**         | one component's look, CSS only     | stable `rg-*` / `is-*` class hooks                                                                  |
-| 2   | **Recompose**           | a part of a component              | named/scoped slots (typed via `XxxSlots`)                                                           |
+| #   | Layer                   | You change                         | Mechanism                                                                                                                  |
+| --- | ----------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 0   | **Theme tokens**        | colors, radius, spacing — app-wide | override Bootstrap component vars + `--rg-*` tokens in `src/assets/theme.scss`                                             |
+| 1   | **CSS restyle**         | one component's look, CSS only     | stable `rg-*` / `is-*` class hooks                                                                                         |
+| 2   | **Recompose**           | a part of a component              | named/scoped slots (typed via `XxxSlots`)                                                                                  |
 | 3   | **Replace the skin**    | the entire markup                  | new SFC against `XxxProps`/`XxxEmits`/`XxxSlots` + `useXxx`; modal/loading swap app-wide via `modalPlugin`/`loadingPlugin` |
-| 4   | **Eject the reference** | start from the shipped markup      | `node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>`                          |
+| 4   | **Eject the reference** | start from the shipped markup      | `node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>`                                                 |
 
 ## L0 — Theme tokens
 

@@ -21,9 +21,9 @@
   the overview's row-edit and "new" actions navigate to the **Details page**. Reserve the modal form
   (`isComplex: false`, `FormModalButton`) for a **very basic** entity — a handful of scalar fields, no
   relations, no tabs. A modal per real entity does not scale (no deep-link, no tabs, cramped on mobile).
-- **A displayed *related* entity defaults to its `FormModalButton`** — every chip, badge, or list cell that
+- **A displayed _related_ entity defaults to its `FormModalButton`** — every chip, badge, or list cell that
   shows a related row opens that row's form in a modal (quick-edit), whatever that entity's own `isComplex`;
-  a bare text label is the exception. This is distinct from the rule above: it edits a *neighbour*, not the
+  a bare text label is the exception. This is distinct from the rule above: it edits a _neighbour_, not the
   page's own record.
 - **Restyle freely — and space what you add.** The default styling is deliberately plain and tight;
   improving it is expected. Group fields in `FormSection` and give every component deliberate spacing
@@ -42,9 +42,9 @@
   trap (the most common first error in a multi-entity app). Always
   `import { type Entity as MyNamedEntity } from "@/entities/my-named-entities"`.
 - **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
-  inside the parent form with **`InputSelectorInline`**: chips mark *persisted* removals `_deleted`
+  inside the parent form with **`InputSelectorInline`**: chips mark _persisted_ removals `_deleted`
   (visible, tinted, undoable until save), a `prepareItem` override drops them so `Related()` deletes by
-  omission — never flush per-row `DELETE`s. A row *added this session* is removed outright — nothing to
+  omission — never flush per-row `DELETE`s. A row _added this session_ is removed outright — nothing to
   undo. The multi-`Selector` **hard-removes** and cannot deliver this UX. New rows
   mint negative temp ids, so children can be added before the parent's first save. The chip slot shows the
   related row's `FormModalButton` + pooled label (see the card's related-entity rule), not bare text.
@@ -55,8 +55,8 @@
   to a collection, pass `:filter-defaults="{ exclude: currentIds }"` so already-added rows leave the
   picker. A checkbox group is only for serviceless enum sets.
 - **Day-one signatures — verify, never extrapolate** (`.d.ts` / `entities.signatures`): `new
-  PagingInfo(pageSize?, page?)` — positional args, not an options object; `service.search(so?)` — paging
-  travels *inside* the search object; `Tab.create("form", { title: translate("form"), icon })` — tab
+PagingInfo(pageSize?, page?)` — positional args, not an options object; `service.search(so?)` — paging
+  travels _inside_ the search object; `Tab.create("form", { title: translate("form"), icon })` — tab
   titles render untranslated.
 - **Login can switch the language.** The scaffolded `main.ts` applies the JWT culture claim
   (`setLangCode(auth.culture.split("-")[0])`), so an app translated in one language silently degrades to
@@ -74,7 +74,7 @@
   view). A nested DTO from `?includes=` is a plain object — no `$id`/`$title` — so route every displayed
   relation through the owning slice's `fromPool(item.relation)`, which both rehydrates it and returns the
   one shared instance, so editing that entity anywhere relabels it here. `Object.assign(new Category(),
-  dto)` also rehydrates but yields a **detached copy that goes stale** — use it only when a snapshot is
+dto)` also rehydrates but yields a **detached copy that goes stale** — use it only when a snapshot is
   what you want. Custom endpoints live on the raw `get<EntityService>(Entity.name)`, not the pooled store.
 - **A displayed relation is a component, not text**: the related entity's `FormModalButton` beside its
   pooled `$title`. `scaffold.mjs <Entity> --rel <Related>` generates the column wired correctly.
