@@ -16,7 +16,13 @@
             </div>
             <div class="col-auto">
                 <!-- In a modal (isPopup) there is no overview to return to — offer a pop-out to the full page instead. -->
-                <RouterLink v-if="isPopup" :to="{ name: `${config.key}Details`, params: { id: item.$id } }" target="_blank" class="btn btn-outline-secondary" :title="$t('popOut')">
+                <RouterLink
+                    v-if="isPopup"
+                    :to="{ name: `${config.key}Details`, params: { id: item.$id } }"
+                    target="_blank"
+                    class="btn btn-outline-secondary"
+                    :title="$t('popOut')"
+                >
                     <Icon name="popOut" />
                 </RouterLink>
                 <RouterLink v-else-if="overviewUrl" :to="overviewUrl" class="btn btn-outline-info">
