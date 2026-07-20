@@ -345,7 +345,7 @@ const item = defineModel<Entity>({ required: true })
     <!-- Built-ins are the slice defaults — hand-rolling feedback/buttons/tabs/debug/owned-row editors is a deviation (see entities.card). -->
     <form @submit.prevent="handleSubmit">
         <!-- Action bar: save/delete buttons, the back-to-overview link (a page form must offer the way back), feedback. -->
-        <div class="row form-buttons align-items-center mb-3">
+        <div class="row form-toolbar align-items-center mb-3">
             <div class="col-auto">
                 <FormButtonsRow
                     :item="item"

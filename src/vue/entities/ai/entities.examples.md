@@ -753,7 +753,7 @@ function handleRemove() {
 ```vue
 <template>
     <form @submit.prevent="handleSubmit" :modelValue="item">
-        <div class="row form-buttons">
+        <div class="row form-toolbar">
             <div class="col col-md-auto order-1">
                 <FormButtonsRow
                     :item="item"
@@ -2580,7 +2580,7 @@ async function handleRequestRemove(item: Entity) {
 ```vue
 <template>
     <form @submit.prevent="handleSubmit" :modelValue="item">
-        <div class="row form-buttons">
+        <div class="row form-toolbar">
             <div class="col col-md-auto order-1">
                 <FormButtonsRow
                     :item="item"

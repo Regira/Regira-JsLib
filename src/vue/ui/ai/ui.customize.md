@@ -80,9 +80,12 @@ them in `theme.scss` — no `::v-deep`, no `!important` needed.
   `rg-nullable-checkbox`, `rg-nullable-label`, `rg-anchor`, `rg-copy-button`, `rg-file-drop-zone`,
   `rg-tab-nav`, `rg-login-form`, `rg-logout-form`, `rg-change-password-form`, `rg-reset-password-form`,
   `rg-lang-selector`.
-- **Pre-existing semantic roots** (kept as-is): `entity-overview`, `entity-form`, `input-selector-inline`,
+- **Semantic roots** (no `rg-` prefix): `entity-overview`, `entity-form`, `input-selector-inline`,
   `details-summary`, `result-summary`, `form-buttons`, `form-section`, `description-input`,
   `tab-container`, `autocomplete-items` / `autocomplete-item`.
+  `form-buttons` is `FormButtonsRow`'s own root, and the entity-slice scaffold wraps it in an
+  app-owned `.form-toolbar` row — style that wrapper for chrome around the buttons (sticky bar,
+  padding, border), or the rule lands on both elements.
 - **Part hooks** where inner parts are styling targets: `rg-modal__header` / `rg-modal__body` /
   `rg-modal__footer`, `rg-paging__page`, `rg-feedback__pending` / `rg-feedback__success` /
   `rg-feedback__error` / `rg-feedback__close-button`.

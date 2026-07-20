@@ -1139,7 +1139,8 @@ in the app's `src/assets/theme.scss`** (scaffolded by the shell), imported after
 customize guide (`ui.customize`) is the canonical 5-layer ladder (tokens → css hooks → slots →
 contract-typed replacement → eject). Common app-level hooks: the `--rg-*` tokens (`--rg-accent-bg`,
 `--rg-deleted-bg`, …), `.is-deleted` (pending-delete rows, incl. `InputSelectorInline` chips),
-`.is-selected`, a sticky `.form-buttons` toolbar (`position: sticky; top: 0`), `.form-section` framing,
+`.is-selected`, a sticky `.form-toolbar` (`position: sticky; top: 0`; the app-owned wrapper — styling
+`FormButtonsRow`'s own `.form-buttons` root instead applies the rule twice), `.form-section` framing,
 zebra `.striped` rows.
 Preserve behaviour, not looks — see [entities.patterns.md → Restyling & overriding the
 built-ins](entities.patterns.md#restyling--overriding-the-built-ins).

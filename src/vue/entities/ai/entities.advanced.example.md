@@ -243,7 +243,7 @@ flatten/rebuild bridge, so a removed chip marks pending instead of hard-removing
 ```vue
 <template>
     <form @submit.prevent="handleSubmit" :modelValue="item">
-        <div class="row form-buttons">
+        <div class="row form-toolbar">
             <div class="col col-md-auto order-1">
                 <FormButtonsRow
                     :item="item"

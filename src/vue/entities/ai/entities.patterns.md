@@ -683,7 +683,9 @@ cheapest first:
   overriding `:root { --bs-primary }` alone recolors almost nothing.
 - **L1 — CSS only** — stable class hooks, no component changes: `rg-modal__header`, `rg-paging__page`,
   `.is-deleted` (pending-delete tint, incl. inside `InputSelectorInline`), `.is-selected`, a sticky
-  `.form-buttons` toolbar (`position: sticky; top: 0`), `.form-section` framing.
+  `.form-toolbar` (`position: sticky; top: 0`), `.form-section` framing. Style the app-owned
+  `.form-toolbar` wrapper, not `.form-buttons` — the latter is `FormButtonsRow`'s own root and the
+  scaffold nests one inside the other, so a rule on it applies twice.
 - **L2 — slots / wrap** — fill the typed slots, or wrap: e.g. a local `FormButtonsRow.vue` that renders
   the library one with translated labels (`$t`), then import the wrapper everywhere. Same props/events,
   richer skin.

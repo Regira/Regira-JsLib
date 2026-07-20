@@ -45,7 +45,12 @@
     }
 }
 
-.form-buttons {
+// The app-owned wrapper around FormButtonsRow. Deliberately NOT `.form-buttons` — that class is the
+// library component's own root, and a rule on it would apply to both the wrapper and the component
+// inside it (doubled padding, a second border, a nested sticky context).
+// Raising `top` to clear a fixed navbar also applies inside modals, where there is no navbar —
+// reset it with `.modal & { top: 0 }` if you do.
+.form-toolbar {
     position: sticky;
     top: 0;
     z-index: 100;
