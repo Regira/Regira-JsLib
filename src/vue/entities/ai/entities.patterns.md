@@ -478,6 +478,78 @@ after the parent exists. Pick owned for "edit the whole graph in one form" (no s
 first-class for "operate on one row independently" (accept the save-first step, or persist the parent silently
 on open).
 
+**Both at once — reordered through the parent, one field patched on its own.** The common business shape
+(list items that drag to reorder but toggle active individually; invoice lines that reorder but flip a
+status) is a hybrid: the rows stay **owned**, and only the independently-managed field gets its own narrow
+endpoint. That is the default split below; two alternatives follow for when it does not fit.
+
+- **Reorder rides the parent's save.** Drag over the owned array and mirror the index into `sortOrder`
+  after every move, then save the parent once — the server takes order from array position.
+- **The toggle does not** — it calls its own endpoint and updates the row in place. It must then survive
+  the parent's next save, and this is where the shape is usually got wrong: the `Related()` re-diff
+  rewrites matched rows **from the payload**, so dropping the field from the child input DTO resets it to
+  default rather than protecting it. Either restore it in a prepper from `original`
+  (`EntityPrepperBase<T>.Prepare(modified, original)`), or keep the whole collection out of the parent's
+  input DTO so the sync short-circuits. Sending a stale client value fails the same way, just as quietly.
+- **Only persisted rows can be patched.** A row added this session carries a negative temp id and does not
+  exist server-side yet, so its toggle has to stay local until the parent's save gives it a real id.
+
+The default split on top of the inline table above — the drag mechanism is yours (native handlers or a drag
+library); only the two functions shown are load-bearing:
+
+```vue
+<script setup lang="ts">
+import { useOwnedCollection } from "regira_modules/vue/entities"
+import { useAxios } from "regira_modules/vue/http"
+import OrderLine from "./Entity"
+
+const props = defineProps<{ modelValue?: Array<OrderLine> }>()
+const emit = defineEmits<{ "update:modelValue": [Array<OrderLine>] }>()
+const { items } = useOwnedCollection<OrderLine>({ props, emit })
+const axios = useAxios()
+
+// call after every move — order travels as array position; mirroring it into sortOrder also survives a
+// host prepareItem that hands back a freshly rebuilt array
+function applyOrder() {
+    items.value.forEach((row, index) => (row.sortOrder = index))
+}
+
+// not part of the parent's save — its own endpoint, then reflect what the server returned
+async function toggleActive(row: OrderLine) {
+    if (row.id < 0) {
+        row.isActive = !row.isActive // unsaved row: local until the parent's save mints a real id
+        return
+    }
+    const { data } = await axios.patch(`/order-lines/${row.id}`, { isActive: !row.isActive })
+    row.isActive = data.isActive
+}
+</script>
+```
+
+**Alternative — two narrow endpoints (order _and_ state).** Give reordering its own call too, typically one
+that takes `[{ id, sortOrder }]`, and leave the parent's save for add/remove. Choose it when order must
+persist immediately without a form save, when the list is long enough that resaving the whole graph per drag
+is wasteful, or when the parent form is expensive to submit. The rows stay owned — still `Related()`, still
+no controller, still no extra registration slot — and the survive-the-parent-save rule above now applies to
+both fields.
+
+**Alternative — a separate endpoint for the child.** Promote it to its own registration when the rows are
+managed on their own screen, need their own permissions, or are numerous enough to page. It costs a
+registration slot, gives up editing rows before the parent is first saved, and creates a second write path
+— safe only while the parent's input DTO omits the collection, which is exactly what the startup
+write-authority warning checks.
+
+Pick by **who owns the write**, not by which is least code: the default keeps one writer and one round trip,
+the alternatives buy immediacy or independence and pay for it in endpoints and in fields you must protect.
+
+**Verify the interaction, not the pieces** — whichever split you pick: change the independent field, then
+reorder and save, then reopen. Each action passes on its own while the combination silently drops one of
+them, so a test that exercises only one proves nothing about the split.
+
+The server-side half of this contract (which writer owns which field, and the startup warning when two
+of them claim the same rows) is in `Regira.Entities` → `entities.patterns` → _Owned children that are
+both sortable and individually togglable_.
+
 ## Attachments (files) — offline add / rename / remove, confirm on save
 
 File/picture management on an entity, staged **offline**: the user adds (browse or drop), renames, and

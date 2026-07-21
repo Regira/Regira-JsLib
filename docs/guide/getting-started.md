@@ -17,6 +17,11 @@ build step runs on install).
 }
 ```
 
+> npm resolves this with `git`, so a `git` binary must be on `PATH`. Where non-registry installs are
+> blocked or SSH (port 22) is unavailable — CI, containers, locked-down networks — pin HTTPS instead:
+> `"regira_modules": "git+https://github.com/Regira/Regira-JsLib.git"`, or map it globally with
+> `git config --global url."https://github.com/".insteadOf git@github.com:`.
+
 Bare subpath imports resolve via the package `exports` map:
 
 ```ts
@@ -29,13 +34,14 @@ import { initAxios } from "regira_modules/vue/http"
 Pin known-good versions of the peers and install:
 
 ```bash
-npm install vue@^3.5 vue-router@^5 pinia@^3 axios@^1.16 date-fns@^4
+npm install vue@^3.5 vue-router@^5 pinia@^3 axios@^1 date-fns@^4
 npm install
 ```
 
-> The toolchain needs **Vite 7+** (`vite@^7`, `@vitejs/plugin-vue@^6`, `vue-tsc@^3`) because
-> `vue-router@5` requires it. Older `create-vue` defaults (Vite 6 / router 4 / pinia 2) will hit
-> peer-resolution errors.
+> The toolchain moves as a set: `vue-router@5` pulls **Vite 8** (`vite@^8`, `@vitejs/plugin-vue@^6`,
+> `typescript@^6`, `vue-tsc@^3`). Older `create-vue` defaults (Vite 6 / router 4 / pinia 2) hit
+> peer-resolution errors — install the whole set at once rather than one `ERESOLVE` at a time. The
+> authoritative list is the known-good dependency set in the `entities.setup` guide.
 
 ### Optional dev alias
 

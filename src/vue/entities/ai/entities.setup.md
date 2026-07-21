@@ -26,13 +26,18 @@ plus a `Category` lookup — so it lines up with the basic example.
 
 ## Install
 
-Install from npm — the published package ships a built `dist/` with an `exports` map, so the **plain
-package specifier resolves with no alias or tsconfig path**:
+Install from GitHub, not a registry — the repo ships a built `dist/` with an `exports` map, so nothing
+compiles on install and the **plain package specifier resolves with no alias or tsconfig path**:
 
 ```jsonc
 // package.json
 "dependencies": { "regira_modules": "github:Regira/Regira-JsLib" }
 ```
+
+> Resolving this needs a **`git` binary on `PATH`**. Where non-registry installs are blocked or SSH
+> (port 22) is closed — CI, containers, locked-down networks — pin HTTPS:
+> `"regira_modules": "git+https://github.com/Regira/Regira-JsLib.git"`, or map it once with
+> `git config --global url."https://github.com/".insteadOf git@github.com:`.
 
 ```ts
 import { EntityBase, EntityServiceBase } from "regira_modules/vue/entities"
@@ -147,6 +152,11 @@ export default defineConfig({
 > Two traps: `scaffold.mjs --shell` **won't overwrite** an existing (`npm create vue`) `index.html` without
 > `--force`, and hand-authored files routinely omit the host. After scaffolding, confirm `#modals` (and
 > `#loginModal` when auth is on) exist, then verify a modal actually opens.
+
+> **You do not install a plugin to get modals.** `injectModal()` falls back to `DefaultModal`, so every
+> generated dialog works with the `#modals` host alone. `modalPlugin` exists only to swap that component
+> app-wide — including the library's own `injectModal()` call sites — for a custom skin; see
+> `regira_modules.vue.ui` → `ui.customize`. A missing modal is a missing host, never a missing plugin.
 
 `env.d.ts` keeps the Vite client types (and must be in the tsconfig `include`, above); declare the `__APP_VERSION__` define where `app-config.ts` reads it:
 
@@ -879,6 +889,15 @@ still matters where dependencies exist (see [Bootstrap — main.ts](#bootstrap--
 Auth is **optional**. The template in [Bootstrap](#bootstrap--maints) / [Root component](#root-component--appvue)
 is the auth-on path; to run the SPA without a login (internal tools, demos, or while the back-end has auth
 disabled), make these four changes:
+
+> **Generate this variant — don't hand-subtract it.** `scaffold.mjs --shell --no-auth`, plus `--no-auth`
+> on each entity slice, emits exactly the four changes below. They are written out for review and for
+> retrofitting an app that already exists.
+
+> **The one that bites: without auth, nothing reaches `Ready` on its own.** `AppStatus` starts at `Init`
+> and `onAuthenticationChange` was what advanced it, so an app that skips change 2 mounts cleanly and then
+> sits on the loading spinner forever — no error, no console message, just a blank shell. When a fresh
+> no-auth app renders nothing, check that before anything else.
 
 1. **`main.ts` — don't install `authPlugin`.** Remove its import, its `app.use(authPlugin, …)` block,
    and the `LocalStorageTokenManager` import. Nothing else depends on it.

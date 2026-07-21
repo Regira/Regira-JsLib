@@ -76,9 +76,13 @@ never a verbatim dump of every file (that alone can cost 100k+ tokens for little
 ## Pre-flight checklist
 
 - [ ] **Probe the install before reading further.** `regira_modules` installs from GitHub
-      (`"regira_modules": "github:Regira/Regira-JsLib"`) — sandboxed/CI environments may block or require
-      approval for non-registry installs, so run the `npm install` first and surface any blocker before
-      spending context on guides. No NuGet, no license key, no service budget on the front-end.
+      (`"regira_modules": "github:Regira/Regira-JsLib"`), so npm needs a **`git` binary on `PATH`** plus
+      network access — sandboxed/CI environments may block non-registry installs, and the shorthand can
+      resolve over SSH where port 22 is closed. Pin HTTPS when either bites:
+      `"regira_modules": "git+https://github.com/Regira/Regira-JsLib.git"` (or
+      `git config --global url."https://github.com/".insteadOf git@github.com:`). Run the `npm install`
+      first and surface any blocker before spending context on guides. No NuGet, no license key, no
+      service budget on the front-end.
 - [ ] Peers + toolchain installed from the **known-good dependency set** (`entities.setup` → Install) in
       one `npm install` — the majors move as a set (`vue-router 5` → `vite 8` → `typescript 6` /
       `vue-tsc 3`); do not resolve them one `ERESOLVE` at a time.
@@ -97,8 +101,7 @@ never a verbatim dump of every file (that alone can cost 100k+ tokens for little
 
 Minimum viable read: the card, then the workflow sections of `entities.instructions`. Everything below
 that is fetched by heading when the current task needs it — `get_section_toc` first, then the one heading.
-Loading a whole reference section is the exception, not the on-ramp. Keep this list identical to the
-reading-order note in `regira_modules.vue.entities` → `entities.setup`.
+Loading a whole reference section is the exception, not the on-ramp.
 
 0. `get_package_card id="regira_modules.vue.entities"` — the must-know bullets (built-ins checklist,
    owned-collection rule, save/paging contract). Orient here; it decides which sections you need at all.
