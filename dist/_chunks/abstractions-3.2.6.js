@@ -1,5 +1,5 @@
-import { C as e, g as t, w as n } from "./array-utility-3.2.5.js";
-import { t as r } from "./query-3.2.5.js";
+import { C as e, g as t, w as n } from "./array-utility-3.2.6.js";
+import { t as r } from "./query-3.2.6.js";
 import { isNewEntity as i } from "../vue/entities/abstractions/IEntity.js";
 import { AxiosError as a } from "axios";
 //#region src/vue/entities/abstractions/IConfig.ts

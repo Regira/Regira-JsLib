@@ -1,4 +1,4 @@
-import { a as e, t } from "./Icon-3.2.5.js";
+import { a as e, t } from "./Icon-3.2.6.js";
 import { createElementBlock as n, createVNode as r, defineComponent as i, mergeDefaults as a, openBlock as o, renderSlot as s } from "vue";
 //#region src/vue/ui/icons/IconButton.vue?vue&type=script&setup=true&lang.ts
 var c = ["type"], l = /* @__PURE__ */ i({

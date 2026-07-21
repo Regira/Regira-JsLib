@@ -1,6 +1,6 @@
-import { a as e, n as t } from "./modal-3.2.5.js";
-import { t as n } from "./Icon-3.2.5.js";
-import { t as r } from "./IconButton-3.2.5.js";
+import { a as e, n as t } from "./modal-3.2.6.js";
+import { t as n } from "./Icon-3.2.6.js";
+import { t as r } from "./IconButton-3.2.6.js";
 import { Fragment as i, Teleport as a, computed as o, createBlock as s, createCommentVNode as c, createElementBlock as l, createElementVNode as u, createTextVNode as d, createVNode as f, defineComponent as p, mergeDefaults as m, normalizeClass as h, openBlock as g, ref as _, renderList as v, renderSlot as y, resolveDynamicComponent as b, toDisplayString as x, unref as S, withCtx as C } from "vue";
 //#region src/vue/ui/feedback/Pending.vue?vue&type=script&setup=true&lang.ts
 var w = { class: "rg-pending bg-light text-info" }, T = /* @__PURE__ */ p({

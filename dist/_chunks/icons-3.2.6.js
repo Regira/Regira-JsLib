@@ -1,6 +1,6 @@
-import { c as e, i as t, l as n, s as r, t as i } from "./Icon-3.2.5.js";
-import { t as a } from "./IconButton-3.2.5.js";
-import { n as o } from "./ioc-3.2.5.js";
+import { c as e, i as t, l as n, s as r, t as i } from "./Icon-3.2.6.js";
+import { t as a } from "./IconButton-3.2.6.js";
+import { n as o } from "./ioc-3.2.6.js";
 //#region src/vue/ui/icons/fontawesome-icons.ts
 var s = {
 	address: "fa-regular fa-address-card",

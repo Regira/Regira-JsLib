@@ -1,4 +1,4 @@
-import { n as e } from "../_chunks/datetime-utility-3.2.5.js";
+import { n as e } from "../_chunks/datetime-utility-3.2.6.js";
 //#region src/extensions/date-extensions.ts
 var t = { use() {
 	Date.prototype.toJSON = function() {
