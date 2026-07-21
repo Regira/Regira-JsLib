@@ -88,7 +88,8 @@ them in `theme.scss` — no `::v-deep`, no `!important` needed.
   padding, border), or the rule lands on both elements.
 - **Part hooks** where inner parts are styling targets: `rg-modal__header` / `rg-modal__body` /
   `rg-modal__footer`, `rg-paging__page`, `rg-feedback__pending` / `rg-feedback__success` /
-  `rg-feedback__error` / `rg-feedback__close-button`.
+  `rg-feedback__error` / `rg-feedback__close-button`, `rg-loading-fallback` / `rg-loading-spinner`
+  (the unbranded spinner and its wrapper — size or restyle them when no `loadingPlugin` image is set).
 - **State classes** (`is-*`): `is-deleted`, `is-dragging`, `is-selected` (app convention), `.active`
   on the current page.
 - Adding a class to a component's **root** needs no prop — Vue class fallthrough:

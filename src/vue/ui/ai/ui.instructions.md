@@ -42,6 +42,11 @@ installing the plugins — see the **Global registration** column.
 | `modalPlugin`    | the app-wide modal — provides it for `injectModal()`                            | `{ Modal?: ModalComponent }`                                         | `MyModal`                                      |
 | `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                                    | —                                              |
 
+`loadingPlugin`'s `img` brands the indicator; skip the plugin (or leave the image out) and `Loading`
+renders a built-in Bootstrap spinner instead, so the loading state stays visible either way. Its
+screen-reader text comes from an injectable `loadingLabel` (`app.provide("loadingLabel", …)`, default
+`"Loading…"`) — provide it from your translations to localise.
+
 `$feedback`, `$icons`, `$screen` are typed on Vue's `ComponentCustomProperties`. `Icon` works without
 `iconPlugin` (defaults to Bootstrap glyphs). Modals need no plugin either — but installing
 `app.use(modalPlugin, { Modal: MyBrandedModal })` swaps **every** modal in the app, including the ones

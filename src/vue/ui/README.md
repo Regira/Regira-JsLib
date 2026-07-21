@@ -35,7 +35,8 @@ Install the plugins for the areas you use; each configures app-wide state only:
 
 - `feedbackPlugin` → `$feedback` · `screenPlugin` → `$screen`
 - `iconPlugin` → glyph source (`bs`/`fa`) + friendly icon keys, `$icons`
-- `loadingPlugin` → the image `Loading`/`LoadingContainer` render · `pagingPlugin` → `Paging` page size
+- `loadingPlugin` → the image `Loading`/`LoadingContainer` render (a built-in spinner when there is none) ·
+  `pagingPlugin` → `Paging` page size
 
 To opt back into app-wide registration, set `configureGlobals({ registerComponentsGlobally: true })`
 (from `regira_modules/vue/ioc`) **before** installing the plugins. With the flag on, `iconPlugin`

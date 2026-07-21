@@ -110,7 +110,8 @@ export type ResultSummarySlots = { default?(props: { visibleCount?: number; tota
 ```ts
 import { Loading, LoadingButton, LoadingContainer, injectLoading } from "regira_modules/vue/ui"
 import { type LoadingComponent, type LoadingContainerProps, type LoadingContainerSlots, type LoadingButtonProps, type LoadingButtonSlots } from "regira_modules/vue/ui"
-// Loading: no props — renders the img provided by loadingPlugin ({ img })
+// Loading: no props — renders the img provided by loadingPlugin ({ img }); without one it falls back to a
+// built-in Bootstrap spinner labelled by the injectable `loadingLabel` (default "Loading…")
 export type LoadingContainerProps = { isLoading: boolean }
 export type LoadingContainerSlots = { loading?(): any; default?(): any }
 export type LoadingButtonProps = { isLoading: boolean; disabled?: boolean }
