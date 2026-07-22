@@ -16,7 +16,7 @@ import { feedbackPlugin, iconPlugin, loadingPlugin, pagingPlugin, modalPlugin, s
 
 feedbackPlugin.install(app, { autoHideDelay?: number })
 iconPlugin.install(app, { icons?: Record<string, string>; clearFirst?: boolean; source?: "bs" | "fa"; Icon?: IconComponent; IconButton?: IconButtonComponent })
-loadingPlugin.install(app, { img: string; Loading?: LoadingComponent; LoadingButton?: LoadingButtonComponent; LoadingContainer?: LoadingContainerComponent })
+loadingPlugin.install(app, options?: { img?: string; Loading?: LoadingComponent; LoadingButton?: LoadingButtonComponent; LoadingContainer?: LoadingContainerComponent })
 // loadingPlugin's Loading swaps the indicator app-wide — incl. inside LoadingContainer/LoadingButton, which resolve it via injectLoading()
 pagingPlugin.install(app, { defaultPageSize?: number; Paging?: PagingComponent })
 modalPlugin.install(app, { Modal?: ModalComponent }) // provides the app-wide modal — swaps EVERY modal, incl. the ones inside library components

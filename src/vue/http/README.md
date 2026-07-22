@@ -25,10 +25,3 @@ initAxios({ api, includeCredentials })  →  one AxiosWithFilesInstance
 
 Create exactly one instance and reuse it so credentials and auth apply uniformly. Entity `IConfig.*Url`
 values are relative paths resolved against the `baseURL` set here.
-
-## Reference
-
-Exact signatures and worked examples (download, upload, query strings, startup) live in the AI guides:
-[ai/http.signatures.md](ai/http.signatures.md), [ai/http.examples.md](ai/http.examples.md),
-[ai/http.instructions.md](ai/http.instructions.md) — also served by the Regira MCP server as
-`regira_modules.vue.http`.

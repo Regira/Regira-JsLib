@@ -28,10 +28,3 @@ app.use(plugin, { defaultLang, messages })   →  drives the singleton useLang()
 
 `defaultLang` sets both the active and fallback language; `translate` retries the fallback and the
 2-letter language prefix (`en-US` → `en`) automatically.
-
-## Reference
-
-Exact signatures and agent guidance live in the AI guides:
-[ai/lang.signatures.md](ai/lang.signatures.md), [ai/lang.instructions.md](ai/lang.instructions.md),
-and [ai/lang.examples.md](ai/lang.examples.md) for copy-paste basics
-— also served by the Regira MCP server as `regira_modules.vue.lang`.

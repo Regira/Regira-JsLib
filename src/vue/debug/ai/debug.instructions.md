@@ -27,8 +27,8 @@ A replacement skin (declare `DebugProps`, honor `$isDebug`) swaps in via the plu
 app.use(plugin, { isDebug: appConfig.isDebug }) // isDebug defaults to false
 ```
 
-- **`$isDebug`** (getter) — `true` when debug output should show. Its value is `enableDebug && (?debug
-query param when present, else the `isDebug` option)`: a `?debug=1` query string forces it on, any
+- **`$isDebug`** (getter) — `true` when debug output should show. Its value is `enableDebug` && (the
+  `?debug` query param when present, else the `isDebug` option): a `?debug=1` query string forces it on, any
   other value of `?debug` forces it off, and with no `?debug` param it falls back to the `isDebug`
   install option.
 - **`$setDebug(value = true)`** — toggles the `enableDebug` master switch (returns the new value).

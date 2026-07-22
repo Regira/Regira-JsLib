@@ -14,11 +14,3 @@
 | `off(key, listener?)`             | Unsubscribe one callback, or all for `key` when `listener` is omitted.                       |
 | `trigger(event, arg?)`            | Fire by `Event` or string; async, runs listeners sequentially, returns `Promise<unknown[]>`. |
 | `Event`                           | Value object: `new Event(type, src?, data?)` — `data` keys are copied onto the event.        |
-
-## Reference
-
-Usage, gotchas and exact signatures live in the AI guides:
-[ai/events.instructions.md](ai/events.instructions.md),
-[ai/events.signatures.md](ai/events.signatures.md), with copy-paste snippets in
-[ai/events.examples.md](ai/events.examples.md) — also served by the Regira MCP server as
-`regira_modules.events`.

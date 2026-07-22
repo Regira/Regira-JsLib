@@ -6,7 +6,8 @@ import LoadingButton from "./LoadingButton.vue"
 import LoadingContainer from "./LoadingContainer.vue"
 
 export type LoadingInput = {
-    img: string
+    /** custom loading image; when omitted the built-in spinner is used */
+    img?: string
     /** swaps the loading indicator app-wide — including inside LoadingContainer/LoadingButton (compile-checked) */
     Loading?: LoadingComponent
     LoadingButton?: LoadingButtonComponent
@@ -14,7 +15,7 @@ export type LoadingInput = {
 }
 
 export default {
-    install(app: App<Element>, options: LoadingInput) {
+    install(app: App<Element>, options: LoadingInput = {}) {
         app.provide("loadingImg", options.img)
 
         // every library-internal loading indicator resolves to this component

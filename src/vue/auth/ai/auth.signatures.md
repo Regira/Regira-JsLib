@@ -91,7 +91,7 @@ export interface IGlobalAuth {
     isAuthenticated: boolean
     isRequired: boolean
 }
-export function createAuth(options: IAuthOptions & { enabled: boolean; tokenManager: ITokenManager; axios: AxiosInstance }): IAuth
+export function createAuth(options: IAuthOptions & { enabled: boolean; tokenManager: ITokenManager; axios: AxiosInstance }): IAuth // createAuth is internal — NOT re-exported from the barrel; the IAuth type is exported
 export const useAuth: () => IAuth
 
 export type GlobalAuth = IGlobalAuth | { enabled: false; authData?: IAuthData }

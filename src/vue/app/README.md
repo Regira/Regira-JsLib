@@ -27,10 +27,3 @@ app.use(plugin, { culture })          →  $appStatus / $culture / $isReady glob
 
 The status is driven by the app's own bootstrap (load config, `initAxios`, prime entities); nothing
 advances to `Ready` until you call `setStatus(AppStatus.Ready)`.
-
-## Reference
-
-Exact signatures and the agent guide live in the AI guides:
-[ai/app.signatures.md](ai/app.signatures.md), [ai/app.instructions.md](ai/app.instructions.md),
-and [ai/app.examples.md](ai/app.examples.md) for copy-paste snippets —
-also served by the Regira MCP server as `regira_modules.vue.app`.

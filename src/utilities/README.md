@@ -24,11 +24,3 @@ No Vue dependency; used throughout the app and by the [entities client](../vue/e
 `array-utility`, `file-utility`, `string-utility`, and `promise-utility` also have granular subpaths
 (e.g. `regira_modules/utilities/array-utility`) whose named exports include a few functions the barrel
 object omits — see the reference.
-
-## Reference
-
-Exact signatures, usage notes, and gotchas live in the AI guides:
-[ai/utilities.signatures.md](ai/utilities.signatures.md) and
-[ai/utilities.instructions.md](ai/utilities.instructions.md), with copy-paste basics in
-[ai/utilities.examples.md](ai/utilities.examples.md) — also served by the Regira MCP server as
-`regira_modules.utilities`.

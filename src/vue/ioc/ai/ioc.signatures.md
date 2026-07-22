@@ -44,7 +44,8 @@ export default defaultServiceProvider
 export const plugin: {
     install(app: App<Element>, { configure }?: { configure?(services: IServiceProvider): IServiceProvider }): void
 }
-// install sets app.config.globalProperties.$services and provide("services", …), then runs configure(sp)
+// install sets app.config.globalProperties.$services and provide("services", …), initializes
+// app.config.globalProperties.$configs ??= {} (entity setup.ts files write $configs[Entity.name]), then runs configure(sp)
 ```
 
 `$services` is augmented onto `ComponentCustomProperties` (available as `this.$services`).

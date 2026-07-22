@@ -102,7 +102,7 @@ export declare const trim: (s: string, chars?: string) => string
 export declare const replaceAll: (s: string, find: string, replace: string) => string // find is a RegExp source
 export declare function randomize(length?: number): string
 export declare function newGuid(): string
-export declare const newPassword: (length?: number) => string // top-level export only (not on the barrel)
+export declare const newPassword: (length?: number) => string // named export of the string-utility subpath only (not on the barrel's stringUtility)
 export declare function isEmail(email: string): boolean
 export declare function isUrl(url: string): boolean
 export declare function isIP(input: string): boolean

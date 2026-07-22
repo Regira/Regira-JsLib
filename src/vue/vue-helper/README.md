@@ -17,10 +17,3 @@ from the `regira_modules/vue` barrel.
 | `useVModelField<T>(props, emit, name?, defaultValue?)`    | `WritableComputedRef<T>` bridging a prop to its `update:<name>` emit — for **composables** that receive `props`/`emit` (in a component's `<script setup>`, prefer native `defineModel`).           |
 | `createFromComputedPool<T>(store)`                        | Wraps a pool store's `fromPool` in a `ComputedRef` so template bindings re-resolve when the [entity pool](../entities/README.md) updates — resolve relation display values from preloaded lookups. |
 | `useEventListener(target, event, callback, allChildren?)` | Adds a DOM listener on mount and removes it on unmount; `event` accepts multiple space-separated names; `allChildren` is the capture flag.                                                         |
-
-## Reference
-
-Exact signatures and usage guidance live in the AI guides:
-[ai/vue-helper.signatures.md](ai/vue-helper.signatures.md), [ai/vue-helper.instructions.md](ai/vue-helper.instructions.md),
-[ai/vue-helper.examples.md](ai/vue-helper.examples.md)
-— also served by the Regira MCP server as `regira_modules.vue.vue-helper`.

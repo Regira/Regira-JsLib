@@ -41,8 +41,8 @@ You produce a complete entity slice under `src/entities/<name>/`:
 - `data/EntityService.ts` — `extends EntityServiceBase<Entity>`, implementing `toEntity` (or `JSONService` for lookups)
 - `data/store.ts` — `defineStore(Entity.name, () => createStore(get(Entity.name)!, Entity.name))`
 - `filter/SearchObject.ts` — `extends SearchObjectBase`
-- views — `Overview.vue` (`useSearchView`/`useListView` + `useRouteOverview`), `Details.vue` (`useDetails`), `Form.vue` (`useForm`), `Filter.vue` (`useFilter`)
-- `selecting/Selector.vue` — the relation picker for this entity (see entities.patterns.md)
+- views — `overview/Overview.vue` (`useSearchView`/`useListView` + `useRouteOverview`) + `overview/List.vue` + `overview/ListItem.vue`; `filter/Filter.vue` (`useFilter` shell) + `filter/FilterInline.vue` + `filter/FilterAdv.vue`; `details/Details.vue` (`useDetails`) + `details/Form.vue` (`useForm`) + `details/FormModalButton.vue`
+- `selecting/` — the relation-picker set (`Selector.vue` et al., copied verbatim) plus `selecting/SelectorList.vue`, the one customized selecting file (see entities.patterns.md)
 - `setup.ts` — `createRoutes()` + `addServices()` + `addIcons()` + the default install plugin
 - register the plugin in `src/entities/index.ts`
 

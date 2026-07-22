@@ -1,8 +1,6 @@
 # Views
 
-Each view is a thin Vue component that delegates to a composable. Exact signatures:
-[../ai/entities.signatures.md](../ai/entities.signatures.md). Full view code:
-[../ai/entities.examples.md](../ai/entities.examples.md).
+Each view is a thin Vue component that delegates to a composable.
 
 ## Route structure
 
@@ -23,12 +21,10 @@ returning `updateOverviewRoute`. (`useOverviewCore` is the shared base.)
 
 **`useSearchView` vs `useListView`** — a fetch-shape choice (every controller exposes `/search`): use
 `useSearchView` when you want counted paging + filters (`service.search()` → `{ items, count }`), and
-`useListView` when a plain list is enough (`service.list()` → `{ items }`). See
-[../ai/entities.instructions.md](../ai/entities.instructions.md#overview-uselistview-vs-usesearchview).
+`useListView` when a plain list is enough (`service.list()` → `{ items }`).
 
 > **Guard the lazy refs.** `items` / `itemsCount` are `undefined` until the first fetch, so bind
-> `v-for="x in items ?? []"` and `:count="itemsCount ?? 0"`. See the
-> [overview gotcha](../ai/entities.instructions.md#gotchas).
+> `v-for="x in items ?? []"` and `:count="itemsCount ?? 0"`.
 
 ## Details — `useDetails`
 
@@ -49,20 +45,20 @@ For child/owned collections inside a form, render the rows with **`InputSelector
 mark _persisted_ removals `_deleted` (undoable until save, filtered out in the service's `prepareItem`
 override), remove rows added this session outright (nothing to undo; override the detection via the
 `isNew` prop), and hand the picker slot an `exclude` list. The heavier per-row editors are `useOwnedCollection`,
-`useOwnedModal`, `useListInput`, and `useListItemInput` — see
-[../ai/entities.patterns.md](../ai/entities.patterns.md#owned-child-collections). The multi-`Selector`
+`useOwnedModal`, `useListInput`, and `useListItemInput`. The multi-`Selector`
 hard-removes on delete, so it does not fit collections that need the marked-delete UX.
 
 ## Filter — `useFilter`
 
-`useFilter({ searchObject, emit })` manages a search-object model (`defineModel<SearchObject>`) and
+`useFilter({ searchObject, emit })` takes the search object as a `Ref` (the filter component supplies
+it via `defineModel<SearchObject>`) and
 returns `handleUpdate`, `handleFilter`, `handleReset`, `handleToggle`, and `filterIsActive`. Emit
 `filter` to trigger a search; the overview calls `updateOverviewRoute(true)` in response.
 
 ## Selector
 
-`Selector.vue` (from the barrel's `components`) is a reusable entity picker for choosing related
-entities in forms.
+`Selector.vue` (generated per slice under `selecting/`) is a reusable entity picker for choosing
+related entities in forms.
 
 ## Overview
 

@@ -34,7 +34,7 @@ import {
 
 > **Alias convention:** the demo apps vendor the package and alias it, so their imports read
 > `@/regira_modules/vue/entities`. In a clean npm install the specifier is `regira_modules/vue/entities`.
-> Both resolve to the same module — see the repo [README](../../../../README.md) for the alias setup.
+> Both resolve to the same module.
 
 The two non-entities modules the entities layer depends on for wiring:
 
@@ -55,10 +55,10 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Entity contract        | `IEntity`, `EntityBase`                                                                                                                                                                                                    |
 | Service                | `IEntityService`, `EntityServiceBase`, `JSONService`                                                                                                                                                                       |
-| Result envelopes       | `DetailsResult`, `ListResult`, `SearchResult`, `SavedResult`, `SaveResult`, `DeleteResult`                                                                                                                                 |
+| Result envelopes       | `DetailsResult`, `ListResult`, `SearchResult`, `SaveResult`, `SavedResult`, `DeleteResult`                                                                                                                                 |
 | Search / paging / sort | `ISearchObject`, `SearchObjectBase`, `DefaultSearchObject`, `IPagingInfo`, `PagingInfo`, `DEFAULT_PAGESIZE`, `ISortByInfo`, `SortByInfo`                                                                                   |
 | Config / descriptor    | `IConfig`, `NavTypes`, `EntityDescriptor`, `IEntityDescriptor`                                                                                                                                                             |
-| Overview               | `useSearchView`, `useListView`, `useOverviewCore`, `useRouteOverview`, `OverviewProps`, `OverviewEmits`, `DEFAULT_DEBOUNCE`                                                                                                |
+| Overview               | `useSearchView`, `useListView`, `useOverviewCore`, `useRouteOverview`, `OverviewEmits` (`OverviewProps` and `DEFAULT_DEBOUNCE` are internal — not re-exported)                                                             |
 | Details                | `useDetails`, `DetailsSummary`, `DetailsSummaryProps`                                                                                                                                                                      |
 | Form                   | `useForm`, `useModal`, `FormProps`, `FormEmits`, `FormStates`, `formDefaults`, `useOwnedCollection`, `useOwnedModal`, `useListInput`, `useListItemInput`, `InputSelectorInline` (+ `InputSelectorInlineProps/Emits/Slots`) |
 | Filter                 | `useFilter`, `FilterIn`, `FilterEmits`, `FilterOut`                                                                                                                                                                        |
@@ -69,7 +69,7 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 | Preloading             | `usePreloader`, `preloaderPlugin`                                                                                                                                                                                          |
 | Utilities              | `cleanQueryParams`, `parseQueryParams`                                                                                                                                                                                     |
 
-`Selector.vue` (entity picker) is exported from the barrel's `components`.
+`Selector.vue` (entity picker) is not on the barrel — it is generated per slice as `selecting/Selector.vue`.
 
 ## Granular subpaths
 

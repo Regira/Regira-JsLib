@@ -69,6 +69,21 @@ It writes `src/**` + `public/config.json` + `public/data/translations.json`, ski
 exist (`--force` overwrites). Set up the build toolchain (`vite.config`/`tsconfig`/`index.html`) from the
 entities setup guide → Install first.
 
+## Attachments (`--attachments`)
+
+`entity-attachments/` is the shared offline file slice — an add / rename / remove list plus a drop zone
+(`useOwnedCollection` over `EntityAttachment` rows), committed on the parent's save. Scaffold it once per
+app, then wire it into each file-owning entity:
+
+```bash
+node node_modules/regira_modules/_template/scaffold.mjs --attachments   # once per app (--force overwrites)
+```
+
+It prints the lines that connect it to a parent: an `attachments?: Array<EntityAttachment>` field on the
+model, the `<EntityAttachments>` tab in the form, the `prepareItem` `_deleted` filter, and the
+`EntityService` registration with an `AxiosWithFilesInstance` (the default `axios` registration will not
+compile). Back-end: register the owner's files (`WithAttachments` + `HasAttachments<>`).
+
 ## Ejected UI skins (`--ui <Component>`)
 
 `ui/` holds ejectable copies of the UI-kit reference skins — every imported built-in, from the modal,
@@ -86,6 +101,7 @@ contract (props/emits/slots, `rg-*`/`is-*` hooks, responsive) per the ui customi
 modal is registered app-wide via `app.use(modalPlugin, { Modal })`; the ejected loading indicator via
 `app.use(loadingPlugin, { img, Loading })` — each `--ui` eject prints its own wiring note.
 
-> `entity-slice/` and `app-shell/` are generated from the AI docs by `scripts/build-entity-template.mjs`;
-> `ui/` is generated from the real component source by `scripts/build-ui-template.mjs` —
-> do not edit any of them by hand.
+> `entity-slice/`, `app-shell/`, and `entity-attachments/` are generated from the AI docs by
+> `scripts/build-entity-template.mjs`; `ui/` is generated from the real component source by
+> `scripts/build-ui-template.mjs` — do not edit any of those by hand. `owned-slice/` (used by `--owns`) is
+> hand-maintained: no generator produces it, so edit it directly.

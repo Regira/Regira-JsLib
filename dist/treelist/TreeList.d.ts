@@ -9,7 +9,7 @@ export declare class TreeList<T = any> extends Array<TreeNode<T>> {
     addValue(value: T, parentNode?: IParentNode<T>): TreeNode<T>;
     addValues(values: Array<T>, parentNode?: IParentNode<T>): Array<TreeNode<T>>;
     remove(node: TreeNode<T>): boolean;
-    move(node: TreeNode<T>, parent: TreeNode<T>): void;
+    move(node: TreeNode<T>, parent?: TreeNode<T> | null): void;
     /**
      * Retrieves all TreeNodes for the given value(s)
      * @param {any} values (default undefined so we can treat null as a valid value)

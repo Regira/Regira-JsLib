@@ -64,13 +64,13 @@ sites keep the library `Icon` (re-map glyphs via `icons`/`source`, restyle via `
 
 | Area         | Key components                                                                                                                                                        | Programmatic                                                     |
 | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| paging       | `Paging`, `ResultSummary`                                                                                                                                             | `pagingDefaults`, `ButtonType`, `pagingPlugin`                   |
+| paging       | `Paging`, `ResultSummary`                                                                                                                                             | `usePaging`, `pagingDefaults`, `ButtonType`, `pagingPlugin`      |
 | loading      | `Loading`, `LoadingContainer`, `LoadingButton`                                                                                                                        | `loadingPlugin`                                                  |
 | feedback     | `Feedback`, `Pending`, `Success`, `ErrorSummary`                                                                                                                      | `useFeedback`, `FeedbackStatus`, `feedbackPlugin`, `FeedbackOut` |
 | modal        | `DefaultModal`                                                                                                                                                        | `ModalType`, `modalPlugin`, `injectModal`                        |
 | tabs         | `TabContainer`, `TabNavigation`                                                                                                                                       | `Tab` / `ITab`                                                   |
 | icons        | `BsIcon`, `FaIcon`, `IconButton`                                                                                                                                      | `iconPlugin`, `loadIcons`, `IIconProvider`                       |
-| screen       | —                                                                                                                                                                     | `useScreen`, `SCREEN_SIZES`, `screenPlugin`                      |
+| screen       | —                                                                                                                                                                     | `useScreen`, `screenPlugin`                                      |
 | autocomplete | `Autocomplete`                                                                                                                                                        | `useAutocomplete`, `autocompleteDefaults`                        |
 | buttons      | `ConfirmButton`                                                                                                                                                       | —                                                                |
 | input        | `Anchor`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `FormLabel`, `FormSection`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `CopyToClipboardButton` | —                                                                |
@@ -117,8 +117,8 @@ it before writing a new component.
   the [entities](../../entities/ai/entities.signatures.md) module.
 - **`Feedback` needs a `FeedbackOut`** — pass the one from a composable (`useFeedback()` or an
   overview/form composable), not a string.
-- **Sub-path exports.** `Pending`/`Success`/`ErrorSummary`, `IIconProvider`/`IconProps`, and the modal
-  `style.scss` come from the `/feedback`, `/icons`, `/modal` sub-paths, not the main barrel.
+- **Sub-path exports.** `FeedbackError`/`FeedbackIn` (from `/feedback`) and the modal `style.scss`
+  (from `/modal`) are sub-path-only — everything else is on the main barrel.
 
 ## See also
 

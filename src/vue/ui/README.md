@@ -55,7 +55,7 @@ friendly key or a raw icon class. Most-used in entity UIs: `Paging`, `LoadingCon
 ## Customizing the look
 
 The default styling is deliberately plain Bootstrap 5 — restyling is encouraged and expected. Five
-layers, cheapest first (canonical guide: [ai/ui.customize.md](ai/ui.customize.md)):
+layers, cheapest first:
 
 1. **Theme tokens** — override the `--rg-*` CSS variables (+ Bootstrap component-level vars) in the
    app's `theme.scss`, loaded after `regira_modules/style.css`.
@@ -70,15 +70,7 @@ layers, cheapest first (canonical guide: [ai/ui.customize.md](ai/ui.customize.md
 ## Notes
 
 - The barrel `regira_modules/vue/ui` re-exports everything; `feedback`, `icons`, and `modal` also have
-  dedicated sub-paths for extra exports (e.g. `Pending`/`Success`, `IIconProvider`).
+  dedicated sub-paths for extra exports (e.g. `FeedbackError`/`FeedbackIn`, the modal `style.scss`).
 - Modal is a component (`DefaultModal` + `:is-visible` — one-way, flip your own state on
   `@close`/`@cancel`/`@submit`), not an `openModal()` composable; for entity edit-in-modal use
   `useModal` from the entities module.
-
-## Reference
-
-Exact signatures, component props, and worked examples are in the AI guides:
-[ai/ui.instructions.md](ai/ui.instructions.md), [ai/ui.signatures.md](ai/ui.signatures.md),
-[ai/ui.examples.md](ai/ui.examples.md), [ai/ui.customize.md](ai/ui.customize.md) — also served by the
-Regira MCP server as `regira_modules.vue.ui` (use `list_types` / `get_type` for any component prop not
-in the guides).

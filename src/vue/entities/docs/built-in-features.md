@@ -1,7 +1,6 @@
 # Built-in features
 
-Ready-to-use pieces beyond the basic CRUD slice. Exact signatures:
-[../ai/entities.signatures.md](../ai/entities.signatures.md).
+Ready-to-use pieces beyond the basic CRUD slice.
 
 ## Pooling
 
@@ -24,8 +23,7 @@ nested relation into a real model so `$id`/`$title` work, and pooling it on firs
 through untouched). Alias a sibling store's `fromPool` to display a relation's label —
 `const { fromPool: getUnitType } = useUnitTypeStore()`, then bind `getUnitType(item.unitType)?.$title` in a
 template — passing the relation **object**, not its id. **`fromCache(id?)`** is read-only: an id returns that `Ref<T>` (or
-`null`), no argument returns all cached refs of the type; it never fetches. Full details:
-[../ai/entities.patterns.md](../ai/entities.patterns.md#resolving-relations-with-frompool).
+`null`), no argument returns all cached refs of the type; it never fetches.
 
 ## Preloading
 
@@ -36,8 +34,7 @@ open with their dropdowns already populated. Preload the entities a form depends
 
 Each `setup.ts` registers its `IConfig` in `app.config.globalProperties.$configs`. Build menus from that
 map with `importDashboard`, `importNavbar`, and `buildNavigationTree`; `createNavItem(config)` /
-`createNavGroup(...)` produce `NavItem` / `NavGroup` (`INavItem` / `INavCore`). See
-[../ai/entities.patterns.md](../ai/entities.patterns.md#navigation-from-the-config-map).
+`createNavGroup(...)` produce `NavItem` / `NavGroup` (`INavItem` / `INavCore`).
 
 ## Trees
 

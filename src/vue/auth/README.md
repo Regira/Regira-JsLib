@@ -31,10 +31,3 @@ Install **after** the router and `initAxios`, passing that same axios instance. 
 relative to the axios `baseURL` (`auth`, `auth/validate`, `auth/refresh`, `auth/password*`). `logout()`
 is client-side (clears the token); unauthenticated navigation is allowed (the app shows a login popup),
 so provide a login view and a `forbidden` route.
-
-## Reference
-
-Exact signatures, the endpoint table, and worked wiring are in the AI guides:
-[ai/auth.instructions.md](ai/auth.instructions.md), [ai/auth.signatures.md](ai/auth.signatures.md),
-[ai/auth.examples.md](ai/auth.examples.md) — also served by the Regira MCP server as
-`regira_modules.vue.auth`.

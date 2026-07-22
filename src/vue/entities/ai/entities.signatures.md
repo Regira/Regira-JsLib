@@ -226,8 +226,8 @@ export class EntityDescriptor<T extends IEntity = IEntity> {
 ## 5. Overview composables
 
 ```ts
-import { useSearchView, useListView, useOverviewCore, useRouteOverview, DEFAULT_DEBOUNCE } from "regira_modules/vue/entities"
-export const DEFAULT_DEBOUNCE = 250
+import { useSearchView, useListView, useOverviewCore, useRouteOverview } from "regira_modules/vue/entities"
+export const DEFAULT_DEBOUNCE = 250 // internal — NOT re-exported from the barrel
 
 export type OverviewCoreIn<T extends IEntity, SO extends ISearchObject = ISearchObject> = {
     service: IEntityService<T>
@@ -237,7 +237,7 @@ export type OverviewCoreIn<T extends IEntity, SO extends ISearchObject = ISearch
 export type OverviewCoreOut<T extends IEntity, SO extends ISearchObject = ISearchObject> = {
     searchObject: Ref<SO>
     pagingInfo: Ref<IPagingInfo>
-    items: Ref<Array<T>>
+    items: Ref<Array<T> | undefined> // undefined until the first fetch resolves
     itemsCount: Ref<number | undefined>
     isLoading: Ref<boolean>
     feedback: FeedbackOut

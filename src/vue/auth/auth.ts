@@ -3,7 +3,7 @@ import type { ITokenManager } from "./token-manager"
 import { AuthService, type IAuthService } from "./auth-service"
 import type { IAuthData } from "./AuthData"
 
-interface IAuth {
+export interface IAuth {
     enabled: boolean
     clientApp?: string
     tokenManager: ITokenManager

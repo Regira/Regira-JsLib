@@ -21,7 +21,7 @@ export declare class TreeList<T = any> extends Array<TreeNode<T>> {
     addValue(value: T, parentNode?: IParentNode<T>): TreeNode<T>
     addValues(values: Array<T>, parentNode?: IParentNode<T>): Array<TreeNode<T>>
     remove(node: TreeNode<T>): boolean
-    move(node: TreeNode<T>, parent: TreeNode<T>): void
+    move(node: TreeNode<T>, parent?: TreeNode<T> | null): void
     getNodes(input?: T | Array<T>): Array<TreeNode<T>>
     getRoots(nodes?: TreeNode<T> | Array<TreeNode<T>>): Array<TreeNode<T>>
     getAncestors(nodes?: TreeNode<T> | Array<TreeNode<T>>): Array<TreeNode<T>>

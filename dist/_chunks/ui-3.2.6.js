@@ -704,7 +704,7 @@ var tt = ["disabled"], nt = /* @__PURE__ */ T({
 			ref: i
 		}, null, 512)) : b("", !0)]), S("div", { style: j({ opacity: e.isLoading ? "0.4" : "" }) }, [F(t.$slots, "default")], 4)], 4));
 	}
-}), it = { install(e, t) {
+}), it = { install(e, t = {}) {
 	e.provide("loadingImg", t.img);
 	let n = t.Loading ?? q;
 	e.provide(J, n), f.registerComponentsGlobally && (e.component("Loading", n), e.component("LoadingButton", t.LoadingButton ?? nt), e.component("LoadingContainer", t.LoadingContainer ?? rt));

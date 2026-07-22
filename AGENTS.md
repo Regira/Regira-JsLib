@@ -26,7 +26,7 @@ been authored cleanly, with no record of prior errors or revisions.
 ## 2. Layout
 
 - **Core:** `src/{utilities,extensions,treelist,events,io}`. **Vue:** `src/vue/{entities,http,ioc,auth,ui,app,lang,formatters,directives,online,debug}` + `src/vue/vue-helper.ts` (code; its docs live in `src/vue/vue-helper/`).
-- Each module: `README.md` (developer docs) + `ai/` = `<m>.instructions.md`, `<m>.signatures.md`, `<m>.examples.md`, `module.json`. Entities adds `namespaces.md`, `patterns.md`, `setup.md`, `template.md`, `shell.template.md`, `advanced.example.md`, a `docs/` folder, and `vue-entities-agent.md` at the module root.
+- Each module: `README.md` (developer docs) + `ai/` = `<m>.instructions.md`, `<m>.signatures.md`, `<m>.examples.md`, `module.json`. Entities adds `card.md`, `namespaces.md`, `patterns.md`, `setup.md`, `template.md`, `shell.template.md`, `attachments.template.md`, `advanced.example.md`, `blueprints.md`, a `docs/` folder, and `vue-entities-agent.md` at the module root.
 - Root `README.md` indexes all modules; each is published via a `package.json` `exports` subpath (`regira_modules/<m>`).
 - `dist/**/*.d.ts` (committed) = authoritative public API.
 - **Meta package:** `src/bootstrap/ai/` (`frontend.bootstrap.md` + `module.json`, id `regira_modules`) holds the *front-end consumer bootstrap* — the SPA routing entry the MCP serves as `get_package id="regira_modules" section="frontend.bootstrap"`. Documentation-only: no `src` code, no `package.json` `exports` subpath. Distinct from this `AGENTS.md`/`CLAUDE.md`, which guide agents *working in* this repo.
@@ -53,7 +53,9 @@ Update together: `src/<path>/README.md` + `ai/` set (incl. `module.json`), the r
 and `package.json` `exports`.
 
 The `src/bootstrap/ai/` meta package (front-end consumer bootstrap) is the exception: update its `ai/` set
-+ the root `README.md` index only — it has **no `package.json` `exports` entry** (not a runtime subpath).
+only. It is served by the MCP (§6), has **no `package.json` `exports` entry** (not a runtime subpath), and
+is **not** listed in the developer `README.md` (which stays purely developer-facing — agent docs and
+developer docs never cross-reference).
 
 ## 6. MCP
 

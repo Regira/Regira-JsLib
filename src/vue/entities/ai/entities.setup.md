@@ -388,7 +388,7 @@ src/entities/<name>/             # one entity slice — copy this folder set for
     overview/
         List.vue (c)             # results table (header + rows)
         ListItem.vue (c)         # one result row
-        Overview.vue             # useSearchView + useRouteOverview (useListView for simple entities)
+        Overview.vue             # useSearchView + useRouteOverview (useListView only for a count-less lookup)
     selecting/
         Autocomplete.vue         # type-ahead search input
         InputSelector.vue        # single-item picker
@@ -1007,8 +1007,7 @@ export default {
 ```
 
 Full slice code is in [entities.examples.md](entities.examples.md); the relation picker (`selecting/`) is
-in [entities.patterns.md — Entity selector / relation picker](entities.patterns.md#entity-selector-relation-picker--selecting);
-step list in the [checklist](../docs/checklist.md).
+in [entities.patterns.md — Entity selector / relation picker](entities.patterns.md#entity-selector-relation-picker--selecting).
 
 ### `src/components/`
 
@@ -1182,7 +1181,6 @@ built-ins](entities.patterns.md#restyling--overriding-the-built-ins).
 - [entities.shell.template.md](entities.shell.template.md) — the app-shell scaffold (`scaffold.mjs --shell`): every bootstrap/shell file
 - [entities.patterns.md](entities.patterns.md#navigation-from-the-config-map) — per-feature recipes
   (navigation importers, selectors, trees, …)
-- [checklist.md](../docs/checklist.md) — add an entity, step by step
 - Module guides: [http](../../http/ai/http.instructions.md) · [ioc](../../ioc/ai/ioc.instructions.md) ·
   [auth](../../auth/ai/auth.instructions.md) · [ui](../../ui/ai/ui.instructions.md) ·
   [app](../../app/ai/app.instructions.md) · [lang](../../lang/ai/lang.instructions.md)

@@ -40,15 +40,17 @@ Because the injected methods are not on the TS type, cast when calling them:
 
 ## Subscribing
 
-`on(key, [constraint], callback, { scope?, constraint? })` registers a listener; `once(…)` does the same
-but auto-removes after the first matching fire. The argument parsing is flexible:
+`on(key, callback)` and `on(key, constraint, callback)` register a listener; `once(…)` does the same
+but auto-removes after the first matching fire. The argument forms:
 
 - The **first** argument is the event `key`. Space-separate to subscribe to several at once
   (`on("login logoff", cb)` registers the same listener under both keys).
 - An empty key (`""`) is a **wildcard** — those listeners run for every `trigger`.
-- An optional `constraint(e, arg) => boolean` filters whether the callback runs.
+- An optional `constraint(e, arg) => boolean` goes **before** the callback (`on(key, constraint, callback)`)
+  and filters whether the callback runs.
 - `callback(event, arg) => unknown` may be sync or async; `arg` defaults to `{}`.
-- Options as the leading object can carry `callback`, `constraint` and `scope` (the `this` for both).
+- Pass a trailing `{ scope }` object to bind `this` inside the callback and constraint
+  (`on(key, callback, { scope })`); without it, `this` is the emitting target.
 
 `on`/`once`/`off` return the target, so calls chain.
 

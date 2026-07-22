@@ -1,7 +1,6 @@
 # Abstractions
 
-The contracts and value objects every entity slice builds on. Exact signatures:
-[../ai/entities.signatures.md](../ai/entities.signatures.md).
+The contracts and value objects every entity slice builds on.
 
 ## Entity contract
 

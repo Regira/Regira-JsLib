@@ -25,62 +25,30 @@ Vue view → composable (useSearchView / useForm / useDetails / useFilter)
 ```
 
 A single axios instance (`initAxios`) is shared across all services; the auth plugin adds the bearer
-token via an interceptor, so every entity request is authenticated. **Auth is optional** — see
-[running without authentication](ai/entities.setup.md#running-without-authentication). Services are
+token via an interceptor, so every entity request is authenticated. **Auth is optional.** Services are
 registered in a small IoC container keyed by `Entity.name` and resolved with `get()`.
 
 ## Quick start
 
-Starting a new app? [ai/entities.setup.md](ai/entities.setup.md) is the project template —
-`main.ts`, `App.vue`, router, plugin install order, **running with or without authentication**, the
-required-vs-optional plugin set, the **[entity slice anatomy](ai/entities.setup.md#entity-slice-anatomy)**,
-the app-level [entity aggregator](ai/entities.setup.md#add-entities), and the npm install (the
-`@/regira_modules` alias is optional). To type the client from the API's OpenAPI, see
-[entities.patterns.md](ai/entities.patterns.md#type-the-client-from-the-apis-openapi).
+Starting a new app? A running app wires `main.ts`, `App.vue`, the router, the plugin install order
+(with or without authentication), the required-vs-optional plugin set, an entity slice per model, and an
+app-level entity aggregator; the `@/regira_modules` alias is optional.
 
 Pick a **build tier** first — the lean tier (the data layer + the library's `EntityOverview` / `EntityForm`)
-or the full per-entity scaffold; see [How much to build](ai/entities.instructions.md#how-much-to-build).
-Every tier keeps the [UI kit](../ui/README.md) à la carte — paging, loading, feedback, modals, tabs,
-autocomplete and the [formatters](../formatters/README.md) import individually, with no scaffold or
-plugins required ([UI building blocks without the scaffold](ai/entities.setup.md#ui-building-blocks-without-the-scaffold)).
+or the full per-entity scaffold. Every tier keeps the [UI kit](../ui/README.md) à la carte — paging,
+loading, feedback, modals, tabs, autocomplete and the [formatters](../formatters/README.md) import
+individually, with no scaffold or plugins required.
 
 A complete entity slice lives under `src/entities/<name>/` with the standard folder set
-(`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`). See the full worked
-code for the worked slices — a **simple** `UnitType` then a **standard** `Product` — in
-[ai/entities.examples.md](ai/entities.examples.md), the complex
-`Vehicle` slice (attachments, link model, owned children) in
-[ai/entities.advanced.example.md](ai/entities.advanced.example.md), or the step list in
-[checklist.md](docs/checklist.md). The app shell (project structure, `components/`, `infrastructure/`,
-`config.json` + `app-config.ts`, and Bootstrap 5 styling) is in
-[ai/entities.setup.md](ai/entities.setup.md#project-structure). For a complete working example, see the
-public sample app [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin); the app shell is also
-inlined in [ai/entities.setup.md](ai/entities.setup.md#app-shell--components-infrastructure--styling).
+(`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`). Build one step by step
+with the [checklist](docs/checklist.md). For a complete working example, see the public sample app
+[Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin).
 
 ## API contract
 
 The client mirrors the back-end Web endpoints and expects item-wrapped envelopes
 (`{ item }`, `{ items, count }`), with `GET` for reads, `POST`/`PUT` for save, `DELETE` for remove. The
 full table is in [services.md](docs/services.md#http-contract).
-
-## Documentation
-
-For AI agents, the same material is served by the Regira MCP server (package
-`regira_modules.vue.entities`) and authored under [`ai/`](ai), in this reading order:
-
-1. [`entities.instructions.md`](ai/entities.instructions.md) — the spine: the module stack, concepts,
-   decision tables, and the entity workflow.
-2. [`entities.setup.md`](ai/entities.setup.md) — scaffold a new app: install, project structure, entity
-   slice anatomy, router, `main.ts` / `App.vue`, required-vs-optional plugins, running without auth, app shell.
-3. [`entities.namespaces.md`](ai/entities.namespaces.md) — which import specifier each type comes from.
-4. [`entities.signatures.md`](ai/entities.signatures.md) — exact TypeScript signatures.
-5. [`entities.examples.md`](ai/entities.examples.md) — worked slices, simplest first: a **simple** (`UnitType`) then a **standard** (`Product`) slice, copy-pasteable.
-6. [`entities.template.md`](ai/entities.template.md) — a blank slice scaffold: the file tree plus a placeholder skeleton for each `(c)` file to fill in.
-7. [`entities.advanced.example.md`](ai/entities.advanced.example.md) — one complete complex slice
-   (`Vehicle`): attachments + many-to-many link model + owned child collection.
-8. [`entities.patterns.md`](ai/entities.patterns.md) — per-feature recipes (load on demand).
-9. [`entities.blueprints.md`](ai/entities.blueprints.md) — domain blueprints (load on demand): SPA
-   counterparts of the back-end blueprints — labels editor, tenant switcher, family tree view,
-   polymorphic (TPH) entity.
 
 ## The module stack
 
@@ -106,12 +74,9 @@ entities app will not run without it.
 | **utilities**       | [`utilities`](../../utilities/README.md)    | File / array / query helpers (`file-utility`, `array-utility`, …).                                                               | optional  |
 
 > `regira_modules/treelist` is **not** part of the common stack — it's a direct dependency only for
-> explicit client-side hierarchies built with `useTree`. See
-> [ai/entities.patterns.md](ai/entities.patterns.md#hierarchical-tree-entities).
+> explicit client-side hierarchies built with `useTree`.
 
-Also required at runtime but not Regira modules: **Pinia** (stores) and **vue-router** (routes). The
-canonical plugin install order and full bootstrap live in
-[ai/entities.setup.md](ai/entities.setup.md#plugins--required-vs-optional).
+Also required at runtime but not Regira modules: **Pinia** (stores) and **vue-router** (routes).
 
 ## Overview
 

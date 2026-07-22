@@ -23,11 +23,3 @@ currency and percentages, plus a few string utilities. All are named exports; us
 | `getInitials(input)`                                     | Uppercase initials from words.                       |
 | `formatTextPreserveNewLines(input)`                      | `\n` → `<br/>` (use with `v-html`).                  |
 | `shortenString(str, maxLength)`                          | Truncate at a word boundary with `...`.              |
-
-## Reference
-
-Exact signatures and usage notes live in the AI guides:
-[ai/formatters.signatures.md](ai/formatters.signatures.md),
-[ai/formatters.instructions.md](ai/formatters.instructions.md), with copy-paste snippets in
-[ai/formatters.examples.md](ai/formatters.examples.md) — also served by the Regira MCP server as
-`regira_modules.vue.formatters`.

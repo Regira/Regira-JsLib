@@ -1,8 +1,7 @@
 # Config
 
 `IConfig` is the per-entity configuration object — the front-end "descriptor". One `const config: IConfig`
-per entity drives its service, routes, and navigation. Exact shape:
-[../ai/entities.signatures.md](../ai/entities.signatures.md#4-config--descriptor).
+per entity drives its service, routes, and navigation.
 
 ## Fields
 

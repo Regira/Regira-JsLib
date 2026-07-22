@@ -8,12 +8,12 @@ var e = class {
 		});
 	}
 }, t = (e) => {
-	let t = e[0], n = e.splice(0, 1)[0], r = n.callback ?? e[e.length - 1], i = n.constraint ?? (e.length > 2 ? e.splice(0, 1).find((e) => e !== r && typeof e == "function") : void 0), a = n.scope;
+	let t = e[0] ?? "", n = e.slice(1).filter((e) => e != null), r = typeof n[n.length - 1] == "object" ? n.pop().scope : void 0, i = n.pop();
 	return {
-		key: t ?? "",
-		constraint: i,
-		callback: r,
-		thisScope: a
+		key: t,
+		constraint: typeof n[n.length - 1] == "function" ? n.pop() : void 0,
+		callback: i,
+		thisScope: r
 	};
 };
 function n(e) {

@@ -73,13 +73,11 @@ export class TreeList<T = any> extends Array<TreeNode<T>> {
         }
         return false
     }
-    move(node: TreeNode<T>, parent: TreeNode<T>) {
+    move(node: TreeNode<T>, parent?: TreeNode<T> | null) {
         if (node.parent != null) {
             const childIndex = node.parent.children.findIndex((n) => n === node)
             if (childIndex !== -1) {
                 node.parent.children.splice(childIndex, 1)
-            } else {
-                debugger
             }
         } else {
             const rootIndex = this.roots.findIndex((n) => n === node)
@@ -98,7 +96,7 @@ export class TreeList<T = any> extends Array<TreeNode<T>> {
             }
         }
 
-        node._parentNode = parent
+        node._parentNode = parent ?? null
     }
 
     /**

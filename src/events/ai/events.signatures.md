@@ -40,7 +40,7 @@ type ConstraintFn = (e: unknown, arg?: unknown) => boolean
 
 interface Injected {
     listeners: Record<string, Listener[]> // lazy per-instance map (getter)
-    on(key: string, ...args: unknown[]): this // key | options-object first; callback last
+    on(key: string, ...args: unknown[]): this // (callback) | (constraint, callback); optional trailing { scope }
     once(key: string, ...args: unknown[]): this // same as on, but auto-removed after first fire
     off(key: string, listener?: EventCallback | null): this // omit listener to drop all for key
     trigger(e: Event | string, arg?: unknown): Promise<unknown[]> // async; results in registration order

@@ -5,52 +5,38 @@ http, ioc, auth, ui, formatters, …) that pair with the Regira back-end package
 
 ## Documentation
 
-**Start here (AI agents):** the [front-end consumer bootstrap](src/bootstrap/ai/frontend.bootstrap.md)
-(`get_package id="regira_modules" section="frontend.bootstrap"`) is the routing entry for building a Vue 3
-SPA against a Regira.Entities API; it points into the per-module guides below.
+Each module ships a developer README (linked below) with deeper guides under its `docs/` folder where
+present. Building a Vue 3 SPA against a Regira.Entities API? Start with the
+[entities client](src/vue/entities/README.md); otherwise pick a module from the tables.
 
 **Vue modules**
 
-| Module | Developer docs | AI guides |
-|--------|----------------|-----------|
-| Entities (Vue CRUD client) | [src/vue/entities](src/vue/entities/README.md) | [src/vue/entities/ai](src/vue/entities/ai) |
-| HTTP (shared axios + helpers) | [src/vue/http](src/vue/http/README.md) | [src/vue/http/ai](src/vue/http/ai) |
-| IoC (service container) | [src/vue/ioc](src/vue/ioc/README.md) | [src/vue/ioc/ai](src/vue/ioc/ai) |
-| Auth (JWT bearer auth) | [src/vue/auth](src/vue/auth/README.md) | [src/vue/auth/ai](src/vue/auth/ai) |
-| UI (components & plugins) | [src/vue/ui](src/vue/ui/README.md) | [src/vue/ui/ai](src/vue/ui/ai) |
-| App (lifecycle & culture) | [src/vue/app](src/vue/app/README.md) | [src/vue/app/ai](src/vue/app/ai) |
-| Lang (i18n) | [src/vue/lang](src/vue/lang/README.md) | [src/vue/lang/ai](src/vue/lang/ai) |
-| Formatters | [src/vue/formatters](src/vue/formatters/README.md) | [src/vue/formatters/ai](src/vue/formatters/ai) |
-| Directives | [src/vue/directives](src/vue/directives/README.md) | [src/vue/directives/ai](src/vue/directives/ai) |
-| Online (connectivity) | [src/vue/online](src/vue/online/README.md) | [src/vue/online/ai](src/vue/online/ai) |
-| Debug | [src/vue/debug](src/vue/debug/README.md) | [src/vue/debug/ai](src/vue/debug/ai) |
-| Vue Helper (composition helpers) | [src/vue/vue-helper](src/vue/vue-helper/README.md) | [src/vue/vue-helper/ai](src/vue/vue-helper/ai) |
+| Module | Developer docs |
+|--------|----------------|
+| Entities (Vue CRUD client) | [src/vue/entities](src/vue/entities/README.md) |
+| HTTP (shared axios + helpers) | [src/vue/http](src/vue/http/README.md) |
+| IoC (service container) | [src/vue/ioc](src/vue/ioc/README.md) |
+| Auth (JWT bearer auth) | [src/vue/auth](src/vue/auth/README.md) |
+| UI (components & plugins) | [src/vue/ui](src/vue/ui/README.md) |
+| App (lifecycle & culture) | [src/vue/app](src/vue/app/README.md) |
+| Lang (i18n) | [src/vue/lang](src/vue/lang/README.md) |
+| Formatters | [src/vue/formatters](src/vue/formatters/README.md) |
+| Directives | [src/vue/directives](src/vue/directives/README.md) |
+| Online (connectivity) | [src/vue/online](src/vue/online/README.md) |
+| Debug | [src/vue/debug](src/vue/debug/README.md) |
+| Vue Helper (composition helpers) | [src/vue/vue-helper](src/vue/vue-helper/README.md) |
 
 **Core (framework-agnostic)**
 
-| Module | Developer docs | AI guides |
-|--------|----------------|-----------|
-| Utilities | [src/utilities](src/utilities/README.md) | [src/utilities/ai](src/utilities/ai) |
-| Extensions | [src/extensions](src/extensions/README.md) | [src/extensions/ai](src/extensions/ai) |
-| TreeList | [src/treelist](src/treelist/README.md) | [src/treelist/ai](src/treelist/ai) |
-| Events | [src/events](src/events/README.md) | [src/events/ai](src/events/ai) |
-| IO (file/image helpers) | [src/io](src/io/README.md) | [src/io/ai](src/io/ai) |
+| Module | Developer docs |
+|--------|----------------|
+| Utilities | [src/utilities](src/utilities/README.md) |
+| Extensions | [src/extensions](src/extensions/README.md) |
+| TreeList | [src/treelist](src/treelist/README.md) |
+| Events | [src/events](src/events/README.md) |
+| IO (file/image helpers) | [src/io](src/io/README.md) |
 
-**For AI agents — the Regira MCP server.** The hosted server at `https://mcp.regira.com/mcp` serves the
-front-end modules alongside the back-end packages. Connect it once and the agent can discover and read
-the guides on demand (front-end ids look like `regira_modules.vue.entities`):
-
-```json
-{ "mcpServers": { "regira": { "url": "https://mcp.regira.com/mcp", "transport": "http" } } }
-```
-
-Front-end consumers should start at the **front-end consumer bootstrap** —
-`get_package id="regira_modules" section="frontend.bootstrap"` — then follow its reading order. From
-there, use `list_packages` (filter `vue` or `frontend`), `get_package`, and `get_example`. Each documented
-module ships an `ai/module.json` (catalog metadata) plus `ai/*.md` guides; the knowledge builder reads
-them and the committed `dist/**/*.d.ts` for an exact API map.
-
-> Consuming the library (git install + Vite/TypeScript alias) is covered under **git import** below.
+> Consuming the library (git install) is covered under **Git import** below.
 
 ## Updating
 
@@ -63,7 +49,7 @@ npm install
 npm audit fix
 ```
 
-## publish
+## Publish
 
 *Increase (major/minor/patch) version*
 ```bash
@@ -76,7 +62,7 @@ npm version major --no-git-tag-version
 npm run build
 ```
 
-## git import
+## Git import
 
 https://github.com/Regira/Regira-JsLib
 
@@ -86,6 +72,19 @@ https://github.com/Regira/Regira-JsLib
     "regira_modules": "github:Regira/Regira-JsLib"
   }
 ```
+
+`package.json` defines full `exports` subpaths, so consumers import the published specifiers directly — no
+Vite alias or tsconfig path required:
+
+```ts
+import { EntityBase } from "regira_modules/vue/entities"
+import { useAxios } from "regira_modules/vue/http"
+```
+
+<details><summary>Legacy <code>@/regira_modules</code> alias (opt-in)</summary>
+
+Redundant with the `exports` subpaths above — use it only for an app already written against the
+`@/regira_modules/*` specifier.
 
 *vite.config.ts*
 ```ts
@@ -108,7 +107,9 @@ https://github.com/Regira/Regira-JsLib
   }
 ```
 
-## symlinks (legacy)
+</details>
+
+## Symlinks (legacy)
 
 ```bash
 mklink /J "regira_modules" "C:\Projects\Regira\Regira-JsLib\src"

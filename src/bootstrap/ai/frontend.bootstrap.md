@@ -25,13 +25,11 @@ a lighter or custom approach, follow it. Declare the chosen tier either way (tie
 | **Lean** (generic views)    | the user asks for a lighter build with standard lists         | `entities.instructions` → _How much to build_ + `entities.setup` → _Install_ / _Lean tier_ + `ui.instructions`                              |
 | **Headless** (data layer)   | the user asks for data-only access / a fully bespoke UI       | `entities.setup` → _Install_ / _Headless quick-start_ + `entities.namespaces` + `ui.instructions` for any list/form UI; skip the shell docs |
 
-**Every tier keeps the building blocks.** A lighter tier drops the slice scaffold and the shell — **not**
-the UI kit. `Paging`/`ResultSummary`, `LoadingContainer`, `Feedback`/`useFeedback`, `DefaultModal`,
-`TabContainer`, `ConfirmButton`, and `Autocomplete` import à la carte from `vue/ui` into any Vue 3 app
-(no plugins required); dates/currency come from `vue/formatters`; hierarchies from `treelist`. On a lean
-or headless build, hand-rolling a pager, spinner, toast, modal, currency string, or category tree is a
-deviation to declare, not a shortcut — see `entities.setup` → _UI building blocks without the scaffold_
-and `ui.instructions`.
+**Every tier keeps the UI kit** — a lighter tier drops the slice scaffold and the shell, not the building
+blocks. `Paging`/`ResultSummary`, `LoadingContainer`, `Feedback`/`useFeedback`, `DefaultModal`,
+`TabContainer`, `ConfirmButton`, and `Autocomplete` import à la carte from `vue/ui` into any Vue 3 app (no
+plugins required); dates/currency come from `vue/formatters`, hierarchies from `treelist` — see
+`entities.setup` → _UI building blocks without the scaffold_ and `ui.instructions`.
 
 **Full scaffold** = the complete plugin stack, the per-entity slice
 (`config`/`data`/`filter`/`overview`/`details`/`selecting`/`setup`), the app shell (dashboard + navbar),
@@ -50,8 +48,7 @@ The app shell — the config-driven **dashboard + navbar** (`entity-navigation/`
 even for a no-auth app. Navigation entries reference each entity by its **`config.key`** — the literal string
 in the slice's `config.ts` (conventionally the class name, e.g. `"Product"`), not the route/kebab plural and
 **not** `Entity.name` (minified in a build). An unmatched key is skipped with a console warning. Hand-rolling a navbar
-instead of `useNavigation()` forfeits that config-driven shell
-and is a deviation to declare, not a default; only `users/` + `user-plugin` are auth-coupled.
+instead of `useNavigation()` forfeits that config-driven shell; only `users/` + `user-plugin` are auth-coupled.
 
 ## MCP server
 
@@ -98,7 +95,7 @@ never a verbatim dump of every file (that alone can cost 100k+ tokens for little
 - [ ] **Restyling never requires forking the library.** Theme tokens, stable `rg-*`/`is-*` css hooks,
       typed slots, contract-typed replacement skins, and `scaffold.mjs --ui <Component>` ejects cover
       every customization level — see `regira_modules.vue.ui` → `ui.customize`.
-- [ ] Verify the SPA with `npm run build` (`vue-tsc -b`) — not only a `--noEmit` typecheck.
+- [ ] Verify the SPA with `npm run build` (`vue-tsc -b`) in the generated app — not only a `--noEmit` typecheck.
 
 ## Reading order (start here)
 
@@ -162,8 +159,7 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
 ## App-quality defaults (apply unless the user opts out)
 
 - **Prefer the provided components.** Reach for a built-in and restyle/wrap/eject it before writing a
-  new component; hand-rolling a pager, spinner, toast, modal, tab strip, confirm button, autocomplete,
-  or account form is a deviation to declare.
+  new component (pager, spinner, toast, modal, tab strip, confirm button, autocomplete, account form).
 - **Responsive layout, always** — unless the user explicitly requests otherwise. Bootstrap grid with
   breakpoint variants, `d-none d-md-inline` button labels, `d-none d-md-block` to drop list columns on
   small screens, `$screen` for JS-side switches (`entities.patterns` → _Overview list layout_).

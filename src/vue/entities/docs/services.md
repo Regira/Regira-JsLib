@@ -1,7 +1,6 @@
 # Services
 
-A service is the HTTP layer for one entity. Exact signatures:
-[../ai/entities.signatures.md](../ai/entities.signatures.md).
+A service is the HTTP layer for one entity.
 
 ## `IEntityService<T>`
 
@@ -50,8 +49,7 @@ Add bespoke endpoints by calling `this.axios` against `this.config.api`.
 
 For small static/lookup lists. Same constructor plus a cache key; it fetches the list once and then
 serves all reads/filters/paging from an in-memory cache (shared per key). Choose it for stable
-reference data, not frequently changing entities. See
-[../ai/entities.patterns.md](../ai/entities.patterns.md#static--lookup-data--jsonservice).
+reference data, not frequently changing entities.
 
 ## HTTP contract
 
@@ -72,8 +70,7 @@ you, so the method return types are _not_ these envelopes (see the note under th
 > **The methods return _unwrapped_ values, not these envelopes.** `list()` resolves to `Array<T>` (not
 > `{ items }`), `details()` to `T | null`, `search()`/`searchUnion()` to `SearchResult<T>` (`{ items, count }`),
 > `save()`/`insert()`/`update()` to `SaveResult<T>`/`T | null`. Destructure accordingly —
-> `const items = await service.list()`, never `const { items } = await service.list()`. Exact signatures:
-> [../ai/entities.signatures.md](../ai/entities.signatures.md).
+> `const items = await service.list()`, never `const { items } = await service.list()`.
 
 `save(item)` inserts when `$id` is an unsaved sentinel — `null`/`undefined`/`"new"`/`""` or a non-positive
 number (`0`, or a negative temp id) via the exported `isNewEntity($id)` predicate — otherwise updates, and

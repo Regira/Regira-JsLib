@@ -21,15 +21,15 @@ interface ListenerOptions {
 type ListenerMap = Record<string, Listener[]>
 
 const getOptions = (argArray: unknown[]): ListenerOptions => {
-    const key = argArray[0] as string
-    const options = argArray.splice(0, 1)[0] as Record<string, unknown>
-    const callback = (options["callback"] ?? argArray[argArray.length - 1]) as EventCallback
-    const constraint = (options["constraint"] ??
-        (argArray.length > 2 ? argArray.splice(0, 1).find((x): x is ConstraintFn => x !== callback && typeof x === "function") : undefined)) as
-        ConstraintFn | undefined
-    const thisScope = options["scope"]
+    const key = (argArray[0] as string) ?? ""
+    // Positional args after the key, ignoring null/undefined placeholders:
+    //   on(key, callback) | on(key, constraint, callback), each with an optional trailing { scope }
+    const rest = argArray.slice(1).filter((x) => x != null)
+    const thisScope = typeof rest[rest.length - 1] === "object" ? (rest.pop() as Record<string, unknown>)["scope"] : undefined
+    const callback = rest.pop() as EventCallback
+    const constraint = (typeof rest[rest.length - 1] === "function" ? rest.pop() : undefined) as ConstraintFn | undefined
     return {
-        key: key ?? "",
+        key,
         constraint,
         callback,
         thisScope,

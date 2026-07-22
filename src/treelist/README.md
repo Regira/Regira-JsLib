@@ -16,11 +16,3 @@ are both built on it.
 Build from a flat list with `new TreeList<T>().init(values, findParents)`, or imperatively via the
 constructor / `addValue` / `addValues`. Navigate with `getRoots`, `getAncestors`, `getOffspring`,
 `getNodes`, `getValues`; mutate with `remove` (cascades to descendants) and `move` (re-parent).
-
-## Reference
-
-Exact signatures and the agent guide live in the AI docs:
-[ai/treelist.signatures.md](ai/treelist.signatures.md),
-[ai/treelist.instructions.md](ai/treelist.instructions.md), with copy-paste basics in
-[ai/treelist.examples.md](ai/treelist.examples.md) — also served by the Regira MCP server as
-`regira_modules.treelist`.

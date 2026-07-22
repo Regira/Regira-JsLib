@@ -14,11 +14,3 @@ file/image utilities and are DOM-dependent (browser only).
 
 Both are named exports; the package root also default-exports `{ FileHelper, ImageHelper }`. Instantiate
 per use (`new FileHelper()`, `new ImageHelper()`).
-
-## Reference
-
-Exact signatures, usage notes, and gotchas (the `createUrl` data-URL surprise, `send` not using the
-shared axios instance) live in the AI guides: [ai/io.signatures.md](ai/io.signatures.md) and
-[ai/io.instructions.md](ai/io.instructions.md), with copy-ready snippets in
-[ai/io.examples.md](ai/io.examples.md) — also served by the Regira MCP server as
-`regira_modules.io`.

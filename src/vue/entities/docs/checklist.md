@@ -1,10 +1,7 @@
 # Checklist — add an entity
 
-Step-by-step companion to the worked example ([../ai/entities.examples.md](../ai/entities.examples.md)).
 Create `src/entities/<name>/` with the standard folder set (keep it identical for every entity):
-`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`. The relation picker in
-`selecting/Selector.vue` is covered in
-[../ai/entities.patterns.md](../ai/entities.patterns.md#entity-selector-relation-picker--selecting).
+`config/ data/ details/ filter/ overview/ selecting/` + `index.ts` + `setup.ts`.
 
 ## Full entity (with list UI)
 
@@ -19,8 +16,11 @@ Create `src/entities/<name>/` with the standard folder set (keep it identical fo
    `defineStore(Entity.name, () => createStore<Entity>(get<IEntityService<Entity>>(Entity.name)!, Entity.name))`.
 5. **Search object** — `filter/SearchObject.ts`: `class EntitySearchObject extends SearchObjectBase`
    with filter fields.
-6. **Views** — `overview/Overview.vue` (`useSearchView` + `useRouteOverview`), `details/Details.vue`
-   (`useDetails`), `details/Form.vue` (`useForm`), `filter/Filter.vue` (`useFilter`). Keep them thin.
+6. **Views** — keep them thin; `(c)` = customize per entity, the rest is boilerplate copied as-is.
+   `overview/`: `Overview.vue` (`useSearchView` + `useRouteOverview`), `List.vue` (c), `ListItem.vue` (c).
+   `filter/`: `Filter.vue` (shell, `useFilter`), `FilterInline.vue`, `FilterAdv.vue` (c).
+   `details/`: `Details.vue` (`useDetails`), `Form.vue` (c) (`useForm`), `FormModalButton.vue`.
+   `selecting/`: `Selector.vue` (boilerplate relation picker), `SelectorList.vue` (c).
 7. **Plugin** — `setup.ts`: `createRoutes()` (Overview + Details with Fiche/Form children),
    `addServices(sp)`, `addIcons(icons)`, and a default `install(app, { routes })` that pushes routes,
    registers services/icons, and sets `app.config.globalProperties.$configs[Entity.name] = config`.
@@ -36,16 +36,12 @@ lists, extend `JSONService` instead of `EntityServiceBase`.
 
 ## App-level setup (once per app)
 
-- **Plugins & bootstrap** — `main.ts` / `App.vue`, install order, and the required-vs-optional plugin
-  set: [../ai/entities.setup.md](../ai/entities.setup.md).
+- **Plugins & bootstrap** — `main.ts` / `App.vue`, install order, and the required-vs-optional plugin set.
 - **App-shell scaffold** — the concrete tooling, router split, `components/`, `infrastructure/`, and
   views that surround the slices — see the public sample app
-  [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin); the same shell is inlined in
-  [../ai/entities.setup.md](../ai/entities.setup.md#app-shell--components-infrastructure--styling).
-- **No authentication** — omit `authPlugin`, advance `AppStatus` to `Ready` yourself, drop the auth UI:
-  [../ai/entities.setup.md](../ai/entities.setup.md#running-without-authentication).
-- **Types from OpenAPI** — generate DTO types and feed them into the models:
-  [../ai/entities.patterns.md](../ai/entities.patterns.md#type-the-client-from-the-apis-openapi).
+  [Regira-PIM-Admin](https://github.com/Regira/Regira-PIM-Admin).
+- **No authentication** — omit `authPlugin`, advance `AppStatus` to `Ready` yourself, drop the auth UI.
+- **Types from OpenAPI** — generate DTO types and feed them into the models.
 
 ## Verify
 

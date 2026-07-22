@@ -86,13 +86,12 @@ var r = class e {
 	move(e, t) {
 		if (e.parent != null) {
 			let t = e.parent.children.findIndex((t) => t === e);
-			if (t !== -1) e.parent.children.splice(t, 1);
-			else debugger;
+			t !== -1 && e.parent.children.splice(t, 1);
 		} else {
 			let t = this.roots.findIndex((t) => t === e);
 			t !== -1 && this.roots.splice(t, 1);
 		}
-		t == null ? this.roots.includes(e) || this.roots.push(e) : t.children.includes(e) || t.children.push(e), e._parentNode = t;
+		t == null ? this.roots.includes(e) || this.roots.push(e) : t.children.includes(e) || t.children.push(e), e._parentNode = t ?? null;
 	}
 	getNodes(e) {
 		if (e == null) return [...this];

@@ -1,9 +1,7 @@
 # Attachments
 
 Uploading and downloading files attached to an entity — a front-end concern layered on top of the basic
-CRUD slice. The full worked code lives in the complex `Vehicle` slice:
-[../ai/entities.advanced.example.md](../ai/entities.advanced.example.md). Exact signatures (file helpers,
-HTTP wiring): [../ai/entities.signatures.md](../ai/entities.signatures.md#10-wiring-ioc--http).
+CRUD slice.
 
 ## The shape
 
@@ -20,8 +18,8 @@ class Vehicle extends EntityBase {
 ```
 
 A file is a `Blob`; an attachment wraps one. The `entity-attachments` module exports the helpers that turn
-files into savable attachments and round-trip them with the host (`createEntity`, `save`,
-`insertWithAttachments`, `updateWithAttachments`) plus the reusable `Overview` component (imported as
+files into savable attachments and round-trip them with the host (`createEntity`, `useEntityAttachments`,
+`insertWithAttachments`, `updateWithAttachments`, `download`) plus the reusable `Overview` component (imported as
 `EntityAttachments`) and the model `Entity` (imported as `EntityAttachment`).
 
 ## The attachment service
@@ -56,9 +54,7 @@ export class EntityService extends EntityServiceBase<Entity> {
 ```
 
 `prepareItem` filters out soft-deleted attachments (and other owned children) before save — see
-[services.md](services.md#entityservicebaset) for `prepareItem` / `processItem`. The full method bodies,
-imports, and the `AxiosWithFilesInstance` registration in `setup.ts` are in
-[../ai/entities.advanced.example.md §4](../ai/entities.advanced.example.md) (service) and §13 (plugin).
+[services.md](services.md#entityservicebaset) for `prepareItem` / `processItem`.
 
 ## Upload / download UI — file fields
 
@@ -70,20 +66,18 @@ In the form, a dedicated **files tab** binds the host's `attachments` array to t
 ```
 
 That component owns the add/remove/preview interactions; you do not hand-roll the file `<input>`. Wire it
-into a tab alongside the main form — the complete three-tab `Form.vue` (main / files / interventions) is in
-[../ai/entities.advanced.example.md §5](../ai/entities.advanced.example.md).
+into a tab alongside the main form.
 
 ## Download URLs
 
 Downloads go through the file-aware axios from `vue/http`, not a bare `<a href>`: `AxiosWithFilesInstance`
 exposes `getFile(url, method?, filename?, type?)` (returns a `Blob`) and `upload(url, files, options?)`.
 Resolve the instance with `useAxios()` and build the URL from `config.api` (e.g. `{api}/{id}/files`).
-Exact signatures: [../ai/entities.signatures.md §10](../ai/entities.signatures.md#10-wiring-ioc--http).
 
 ## When you need it
 
-Only complex entities that own files. The simple/standard slices (see [../ai/entities.examples.md](../ai/entities.examples.md))
-have none of the above — no file fields, the plain `AxiosInstance`, and the default `insert`/`update`. Reach
+Only complex entities that own files. The simple/standard slices have none of the above — no file fields,
+the plain `AxiosInstance`, and the default `insert`/`update`. Reach
 for the attachments variant only when the entity actually carries files, and keep everything else identical
 to those slices.
 

@@ -23,11 +23,3 @@ extensions.usePromiseExtensions() →  Promise.debounce / Promise.enqueue (via p
 
 Call the enablers once at startup, before code relies on the new prototype members. Array injection skips
 members that already exist unless `overwrite` is `true`.
-
-## Reference
-
-Exact signatures and usage notes live in the AI guides:
-[ai/extensions.signatures.md](ai/extensions.signatures.md),
-[ai/extensions.instructions.md](ai/extensions.instructions.md), with copy-paste snippets in
-[ai/extensions.examples.md](ai/extensions.examples.md) — also served by the Regira MCP server
-as `regira_modules.extensions`.

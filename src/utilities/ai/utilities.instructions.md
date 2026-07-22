@@ -97,11 +97,13 @@ also exports `isHttps`, `tryCreateValidURL`, and `toAbsoluteUrl`. For the app's 
 ## Gotchas
 
 - **Barrel ≠ full export set.** The default per-namespace object omits some functions present in the
-  source: `arrayUtility` drops `except`; `fileUtility` drops `browse`/`dropHandler`; `httpUtility` drops
-  `isHttps`/`tryCreateValidURL`/`toAbsoluteUrl`; `objectUtility` drops `removeEmpty`/`deepCopy`;
-  `datetimeUtility` drops `daysDiff`; `htmlUtility` drops the offset helpers; `imageUtility` drops the
-  low-level canvas helpers; `stringUtility` keeps `newPassword` only as a top-level export. To use those,
-  import from the granular subpath / file, not the barrel.
+  source: `arrayUtility` drops `except`; `fileUtility` drops `browse`/`dropHandler`; `stringUtility`
+  drops `newPassword`; `httpUtility` drops `isHttps`/`tryCreateValidURL`/`toAbsoluteUrl`;
+  `objectUtility` drops `removeEmpty`/`deepCopy`; `datetimeUtility` drops `daysDiff`; `htmlUtility`
+  drops the offset helpers; `imageUtility` drops the low-level canvas helpers. Only four granular
+  subpaths are published (`array-utility`, `file-utility`, `promise-utility`, `string-utility`) —
+  `except`, `browse`/`dropHandler`, and `newPassword` are importable as named exports from theirs; the
+  other omitted functions have no published subpath and are internal (not importable from the package).
 - **`stringUtility.replaceAll(s, find, replace)`** builds `new RegExp(find, "g")` — `find` is a **regex**,
   so escape metacharacters (`.`, `(`, `*`, …) if you mean them literally.
 - **`datetimeUtility.countDown`** starts a `setInterval` that is **never cleared** and mutates the returned
