@@ -259,7 +259,9 @@ const { items, count } = await products.search({ q: "blue", pageSize: 10 })
 ```
 
 Add `baseQueryParams: { includes: "All" }` to the config when the API gates nested collections behind
-`?includes=` (complex entities do — `Details` loads them, `List`/`Search` omit them by default).
+`?includes=` — **complex API entities only** (`For<…, TSortBy, TIncludes>`, not the front-end `isComplex` page/modal flag; `Details` eager-loads them, `List`/`Search` omit them by default).
+A **simple** entity binds no `?includes=`, so a relation needed on its list rows must be eager-loaded
+unconditionally on the back-end (`e.Includes(...)`); `baseQueryParams` can't add it.
 
 ### UI building blocks without the scaffold
 
@@ -401,8 +403,10 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 
 > `(c)` marks the files you customize per entity; the rest is near-identical boilerplate you copy as-is
 > (a blank fill-in scaffold with a placeholder per file is [entities.template.md](entities.template.md);
-> full slice code in [entities.examples.md](entities.examples.md)). The build order for these files is the
-> [Entity Implementation Workflow](entities.instructions.md#entity-implementation-workflow). Everything
+> full slice code in [entities.examples.md](entities.examples.md)). Fill the `(c)` files in this order —
+> **`Entity.ts` → `config.ts` → `SearchObject.ts` → `FilterAdv.vue` → `List.vue` → `ListItem.vue` →
+> `Form.vue` → `SelectorList.vue`** (the
+> [Entity Implementation Workflow](entities.instructions.md#entity-implementation-workflow) details each). Everything
 > **around** the slice — the `src/entities/` aggregator ([Add entities](#add-entities)), `components/` and
 > `infrastructure/` ([App shell](#app-shell--components-infrastructure--styling)), the [Router](#router),
 > and [Runtime config](#runtime-config--publicconfigjson) — is the project template.
@@ -517,8 +521,9 @@ Resolution: `products.search()` → axios base `/api` + `IConfig.api` `/products
 
 - `IConfig.api` repeats the base (`/api/products` → requests go to `/api/api/products`) — keep it relative.
 - The proxy forwards `/api/*` but the API serves controllers at root — add the prefix **once** on the
-  back-end (`Regira.Entities` → `entities.setup` → _API route prefix_), or skip the proxy entirely and point
-  `config.json → api` straight at the API origin (then configure CORS instead).
+  back-end: `builder.Services.AddControllers(o => o.Conventions.Add(new RoutePrefixConvention("api")));`
+  (controllers stay resource-relative; full convention in `Regira.Entities` → `entities.setup` → _API route
+  prefix_). Or skip the proxy and point `config.json → api` straight at the API origin (then configure CORS).
 
 Multi-word resources are **kebab-case plural** on both sides: `InterventionType` → `[Route("intervention-types")]`
 and `api: "/intervention-types"`. `scaffold.mjs` derives that spelling from the class name; pass `--api <path>`
@@ -560,7 +565,9 @@ and navbar. Each `icon` is a **registered friendly key** or a **raw `bi bi-*` cl
 - `search` — the entity `key` whose Autocomplete powers the global search bar (read by
   `useNavigation().searchItemConfig`); omit it if there is no global search.
 
-Entity keys are the `IConfig.key` each slice sets. The shapes are confirmed in
+**Entity keys here are each slice's `config.key`** — the literal string in its `config.ts` (conventionally the
+class name; **not** `Entity.name`, which is minified in a build), not the route or kebab plural. A key that
+matches no registered slice (`"products"` instead of `"Product"`) is skipped with a console warning. The shapes are confirmed in
 [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map).
 
 ## Router

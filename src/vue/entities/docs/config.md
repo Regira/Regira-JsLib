@@ -54,7 +54,9 @@ Keep them aligned unless you have a reason not to.
 
 ## `baseQueryParams` & `initialQuery`
 
-`baseQueryParams` is merged into **every** list/search request (e.g. server-side `includes`).
+`baseQueryParams` is merged into **every** list/search request (e.g. server-side `includes`) — though only a
+**complex** API entity (`For<…, TSortBy, TIncludes>`) binds `?includes=` on List/Search; a **simple** entity
+ignores it (eager-load the relation on the back-end instead), while Details always eager-loads.
 `initialQuery` seeds the overview's starting filter. Both are plain objects; arrays serialize as
 repeated query keys, and keys starting with `$` are stripped before the request.
 

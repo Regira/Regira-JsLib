@@ -47,7 +47,10 @@ node node_modules/regira_modules/_template/scaffold.mjs Product     # → src/en
 
 The app shell — the config-driven **dashboard + navbar** (`entity-navigation/` + `layout/`) — is
 **auth-independent**: it builds from `$configs` + `config.json → navigation`, not the auth store, so build it
-even for a no-auth app. Hand-rolling a navbar instead of `useNavigation()` forfeits that config-driven shell
+even for a no-auth app. Navigation entries reference each entity by its **`config.key`** — the literal string
+in the slice's `config.ts` (conventionally the class name, e.g. `"Product"`), not the route/kebab plural and
+**not** `Entity.name` (minified in a build). An unmatched key is skipped with a console warning. Hand-rolling a navbar
+instead of `useNavigation()` forfeits that config-driven shell
 and is a deviation to declare, not a default; only `users/` + `user-plugin` are auth-coupled.
 
 ## MCP server

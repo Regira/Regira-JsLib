@@ -376,32 +376,39 @@ Four numbered steps, one per layer:
     ```vue
     <script setup lang="ts">
     import { InputSelectorInline } from "regira_modules/vue/entities"
-    import { InputSelector as CategorySelector, FormModalButton as CategoryButton } from "@/entities/categories"
-    import type { Category } from "@/entities/categories"
+    import {
+        InputSelector as CategorySelector,
+        FormModalButton as CategoryButton,
+        type Entity as Category,
+        useEntityStore as useCategoryStore,
+    } from "@/entities/categories"
     import type Article from "../data/Entity"
 
     const item = defineModel<Article>({ required: true })
+
+    // nested rows from ?includes= are plain DTOs; rehydrate through the sibling pool so a chip edit
+    // relabels live. fromPool is a pass-through, so widen the narrow join-DTO to the entity type here.
+    const { fromPool } = useCategoryStore()
+    const hydrate = (c?: Partial<Category>): Category | undefined => fromPool(c as Category)
     </script>
 
     <template>
         <InputSelectorInline v-model="item.articleCategories" :row-key="(r) => r.categoryId" :exclude-key="(r) => r.categoryId">
             <template #chip="{ row }">
-                <CategoryButton :modelValue="row.category" />
+                <CategoryButton :modelValue="hydrate(row.category)" />
                 {{ row.category?.title }}
             </template>
             <template #selector="{ add, exclude }">
-                <CategorySelector :filter-defaults="{ exclude }" @select="(c: Category) => add({ categoryId: c.id!, category: c })" />
+                <CategorySelector :filter-defaults="{ exclude }" @select="(c?: Category) => c && add({ categoryId: c.id!, category: c })" />
             </template>
         </InputSelectorInline>
     </template>
     ```
 
-    The chip embeds the related entity's `FormModalButton`, so every linked row is also an edit affordance —
-    don't simplify it away to a bare label. When the button expects the entity class, note that a nested
-    relation from an `?includes=` payload is a plain DTO (no prototype, no `$id`/`$title`). Resolve it
-    through the sibling store's `fromPool(row.category)`: that returns the one shared instance, so an edit
-    made through the chip's own modal relabels the chip immediately. `Object.assign(new Category(),
- row.category)` hydrates too, but the copy is detached — its label stays stale until a reload.
+    The chip embeds the related entity's `FormModalButton` (an edit affordance) — don't simplify it to a
+    bare label. `hydrate` widens the join-DTO and pools it in one step, so an edit through the chip's own
+    modal relabels it live; `Object.assign(new Category(), row.category)` hydrates too but yields a detached
+    copy whose label goes stale until a reload.
 
 3. **Purge on save** — the `prepareItem` override from [Transient client-only fields](#transient-client-only-fields)
    filters `_deleted` rows per collection; `Related()` then deletes by omission. Purge **every nesting
@@ -922,6 +929,11 @@ const navbar = importNavbar({
 })
 const tree = buildNavigationTree([...dashboard, ...navbar]) // → TreeList<INavCore> to render the menu
 ```
+
+> **Keys are `config.key`, not `Entity.name`.** Each `entities` entry (`"Article"`, `["Catalog", ["Category"]]`)
+> matches a config by its **`key`** — the literal string set in `config.ts`; use that, not `Entity.name`
+> (minified in a production build). An entry matching no config `key`, or a group id absent from `groups`, is
+> skipped with a `console.warn` instead of crashing the shell.
 
 > Prefer the lower-level primitives when the importer inputs feel heavy: `createNavGroup({ id, title, icon })`
 > and `createNavItem(config, parentId?)` build `INavCore` items directly, then `buildNavigationTree(items)`.

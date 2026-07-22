@@ -40,7 +40,9 @@
 - **Cross-slice model imports must alias `Entity`.** A slice barrel re-exports its model as the default
   `Entity`, not under the class name — importing `{ MyNamedEntity }` is the `TS2305 "has no exported member"`
   trap (the most common first error in a multi-entity app). Always
-  `import { type Entity as MyNamedEntity } from "@/entities/my-named-entities"`.
+  `import { type Entity as MyNamedEntity } from "@/entities/my-named-entities"`. Inside a slice, import its
+  **own** model as the default (`import type Entity from "./data/Entity"`) — `import { type Entity }` from the
+  data module grabs the `const` value binding and fails `TS2749`.
 - **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
   inside the parent form with **`InputSelectorInline`**: chips mark _persisted_ removals `_deleted`
   (visible, tinted, undoable until save), a `prepareItem` override drops them so `Related()` deletes by
@@ -84,8 +86,10 @@ dto)` also rehydrates but yields a **detached copy that goes stale** — use it 
 - **The URL contract has four owners** — `config.json → api` (axios base), `IConfig.api` (relative
   resource), the Vite dev proxy, the server route prefix. Align them once or every call 404s; and
   `config.json → clientApp` must equal the API's JWT audience or every call 401s.
-- **List rows get relations via `baseQueryParams: { includes: [...] }`** (complex entities); a detail
-  form's children come from the back-end's Details eager-load, not from `includes`.
+- **List rows get relations via `baseQueryParams: { includes: [...] }`** — **complex API entities**
+  (`For<…, TSortBy, TIncludes>`, not the front-end `isComplex` page/modal flag); a **simple** entity ignores
+  `?includes=`, so eager-load the relation on the back-end (`e.Includes(...)`). A detail form's children come
+  from the back-end's Details eager-load, not from `includes`.
 - **Never spread a model** — `{ ...item }` drops the `$id` prototype getter and `PUT`s to `/undefined`;
   mutate the instance. Overview refs are lazy: guard with `items ?? []`.
 - **Verify at runtime, not just `npm run build`.** Drive each slice once against the live API: save the

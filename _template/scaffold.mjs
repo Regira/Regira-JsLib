@@ -40,7 +40,7 @@
 //
 // Examples:
 //   node .../scaffold.mjs Category --plural categories
-//   node .../scaffold.mjs PartyRelationshipType --api /relationship-types
+//   node .../scaffold.mjs PartyRelationshipType --api relationship-types
 //   node .../scaffold.mjs Intervention --rel Vehicle --rel Supplier
 //   node .../scaffold.mjs Order --owns OrderLine
 //   node .../scaffold.mjs Order --owns OrderLine --as lines   # back-end nav `Lines` → JSON key "lines"
@@ -60,6 +60,13 @@ const noAuth = argv.includes("--no-auth")
 const force = argv.includes("--force")
 const overwriteSlice = argv.includes("--overwrite-slice")
 const here = dirname(fileURLToPath(import.meta.url))
+
+// ----------------------------------------------------------------- help / usage
+// Checked before every scaffolding path: --help is informational only, never writes files.
+if (argv.includes("--help") || argv.includes("-h")) {
+    printUsage()
+    process.exit(0)
+}
 
 // ------------------------------------------------------------------ app shell
 if (argv.includes("--shell")) {
@@ -118,7 +125,7 @@ function scaffoldUi(component) {
 // --------------------------------------------------------------- entity slice
 const name = argv.find((a) => !a.startsWith("--"))
 if (!name) {
-    console.error("Usage: scaffold.mjs <Entity> [--plural x] [--singular y] [--owns Child] [--dir src/entities]  |  scaffold.mjs --shell [--no-auth]")
+    console.error("Usage: scaffold.mjs <Entity> [options] | --shell | --ui <Component> | --attachments   (run --help for all flags)")
     process.exit(1)
 }
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1)
@@ -461,4 +468,51 @@ function applyShellVariant(content, noAuthVariant) {
         out.push(line.replace(/\s*(?:\/\/|<!--)\s*@(?:no)?auth:only\b.*$/, "")) // strip the kept line's trailing marker comment
     }
     return out.join("\n")
+}
+
+// --------------------------------------------------------------------- --help
+// The complete flag reference — descriptions kept in sync with the authored header comment above (the short
+// usage line printed when <Entity> is missing lists only the modes). Informational: prints and exits, never
+// scaffolds. Grouped by command so each flag sits with the path it applies to.
+function printUsage() {
+    console.log(`Scaffold a Regira app — one entity slice, the one-time app shell, or an ejected UI skin.
+
+Usage:
+  scaffold.mjs <Entity> [options]     scaffold an entity slice
+  scaffold.mjs --shell [--no-auth]    scaffold the app shell (once per app)
+  scaffold.mjs --ui <Component>       eject a UI-kit reference skin  (--ui list to list them)
+  scaffold.mjs --attachments          scaffold the shared file/attachments slice (once per app)
+
+Entity slice:
+  <Entity>            PascalCase class name, e.g. Product
+  --plural <name>     slice folder + client route prefix (default: kebab-cased plural — Category → categories)
+  --singular <name>   singular i18n key (default: kebab-cased Entity)
+  --api <path>        API resource path relative to the axios baseURL (default: /<plural>). Must equal the
+                      server's [Route(...)] exactly; leading slash optional (omit it under Git Bash)
+  --rel <Entity>      overview column for a to-one relation (the related entity's FormModalButton + a label
+                      resolved through its pool). Repeatable; the related slice must already be scaffolded
+  --dir <path>        target base folder (slice default: src/entities; ejected skin default: src/components/ui)
+
+Owned collections (a back-end e.Related(...) child):
+  --owns <Child>      also scaffold an editable owned-collection sub-slice. Repeatable, PascalCase, e.g.
+                      --owns OrderLine. Works on an existing slice too (only the sub-slice is generated then)
+  --as <fieldName>    parent field / JSON key for the --owns right before it (default: camelCase plural of the
+                      child class, OrderLine → orderLines). Must match the back-end navigation's JSON key
+
+Modes & shared flags:
+  --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard, layout, views)
+  --ui <Component>    copy a UI-kit component's reference skin for free restyling (--ui list lists them)
+  --attachments       scaffold the shared entity-attachments slice, then wire it into each file-owning entity
+  --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
+  --force             overwrite files that already exist (--shell / --ui / --attachments only — never a slice)
+  --overwrite-slice   overwrite an existing entity slice or owned sub-slice, customized (c) files included
+  -h, --help          show this reference and exit
+
+Examples:
+  scaffold.mjs Category --plural categories
+  scaffold.mjs PartyRelationshipType --api relationship-types
+  scaffold.mjs Intervention --rel Vehicle --rel Supplier
+  scaffold.mjs Order --owns OrderLine --as lines
+  scaffold.mjs --shell --no-auth
+  scaffold.mjs --ui DefaultModal`)
 }

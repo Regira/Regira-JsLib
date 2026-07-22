@@ -26,14 +26,21 @@ export type IImportDashboardInput = {
     configs: Array<IConfig>
     hasAccess: (config: IConfig) => boolean
 }
+function resolveEntityConfigs(keys: Array<string>, configs: Array<IConfig>): Array<IConfig> {
+    return keys.flatMap((key) => {
+        const config = configs.find((x) => x.key == key)
+        if (!config) {
+            console.warn(
+                `[regira] navigation entry "${key}" matches no registered entity config (expected the entity key, e.g. "Article") — skipping.`
+            )
+            return []
+        }
+        return [config]
+    })
+}
 export function importDashboard(input: IImportDashboardInput): Array<INavCore> {
-    function findEntityConfig(key: string): IConfig | undefined {
-        return input.configs.find((x) => x.key == key)
-    }
-
     const navEntities = input.entities!.flatMap(([parentId, items]) =>
-        items
-            .map((x) => findEntityConfig(x)!)
+        resolveEntityConfigs(items, input.configs)
             .filter((config) => input.hasAccess(config))
             .map((config) => createNavItem(config, parentId))
     )
@@ -47,22 +54,22 @@ export type IImportNavbarInput = {
     hasAccess: (config: IConfig) => boolean
 }
 export function importNavbar(input: IImportNavbarInput): Array<INavCore> {
-    function findEntityConfig(key: string): IConfig | undefined {
-        return input.configs.find((x) => x.key == key)
-    }
     const groups = input.groups?.map(createNavGroup)
     return input.entities!.flatMap((x) => {
         if (x.length == 2 && Array.isArray(x[1])) {
-            const group = groups!.find((g) => g.id == x[0])!
-            const navItems = x[1]
-                .map((x) => findEntityConfig(x)!)
+            const group = groups?.find((g) => g.id == x[0])
+            if (!group) {
+                console.warn(`[regira] navigation group "${x[0]}" matches no entry in navigation.groups — skipping.`)
+                return []
+            }
+            const navItems = resolveEntityConfigs(x[1], input.configs)
                 .filter((config) => input.hasAccess(config))
                 .map((config) => createNavItem(config, group.id))
             return [group, ...navItems]
         }
         // else
-        const config = findEntityConfig(x as string)!
-        return input.hasAccess(config) ? [createNavItem(config)] : []
+        const [config] = resolveEntityConfigs([x as string], input.configs)
+        return config && input.hasAccess(config) ? [createNavItem(config)] : []
     })
 }
 
