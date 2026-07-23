@@ -554,11 +554,12 @@ export { default as NavSearch } from "./NavSearch.vue"
 
 ```vue
 <script setup lang="ts">
+import type { RouteLocationRaw, LocationQueryRaw } from "vue-router"
 import { Icon } from "regira_modules/vue/ui"
 import type { INavItem } from "regira_modules/vue/entities"
 import { useNavigation } from "./functions"
 const { dashboardTree } = useNavigation()
-const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
+const to = (v: INavItem): RouteLocationRaw => ({ name: v.routeName, query: (v.initialQuery ?? {}) as LocationQueryRaw })
 </script>
 <template>
     <div v-if="dashboardTree">
@@ -597,12 +598,13 @@ const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
 ```vue
 <script setup lang="ts">
 import { ref } from "vue"
+import type { RouteLocationRaw, LocationQueryRaw } from "vue-router"
 import { Icon } from "regira_modules/vue/ui"
 import { isNavItem, type INavItem } from "regira_modules/vue/entities"
 import { useNavigation } from "./functions"
 const { navbarTree } = useNavigation()
 const openId = ref<string>()
-const to = (v: INavItem) => ({ name: v.routeName, query: v.initialQuery || {} })
+const to = (v: INavItem): RouteLocationRaw => ({ name: v.routeName, query: (v.initialQuery ?? {}) as LocationQueryRaw })
 </script>
 <template>
     <ul v-if="navbarTree" class="navbar-nav me-auto">

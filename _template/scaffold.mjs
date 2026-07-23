@@ -239,9 +239,13 @@ function applyRelations(relPath, text) {
     if (!relations.length) return text
     switch (relPath.replace(/\\/g, "/")) {
         case "config/config.ts":
-            // Without the includes the API returns no nested relation and every generated column renders
-            // blank — the flag names mirror the back-end's [Flags] enum, conventionally the entity name.
-            return text.replace("includes: []", `includes: [${relations.map((r) => `"${r.name}"`).join(", ")}]`)
+            // Without the includes the API returns no nested relation and every generated column renders blank.
+            // "All" is the safe universal default: the generic EntityIncludes enum accepts only Default/All, so
+            // emitting a relation name here would 400 at runtime ("The value '<Rel>' is not valid").
+            return text.replace(
+                /\{ includes: \[\] \}[^\r\n]*/,
+                '{ includes: ["All"] }, // "All" loads every nested relation; an entity that exposes a named [Flags] includes enum can replace it with specific member names, e.g. ["Bar"]'
+            )
         case "overview/ListItem.vue":
             text = insertAfter(text, `<div class="col text-truncate">{{ item.$title }}</div>`, relationBlocks.cells)
             text = insertAfter(text, `import FormModalButton from "../details/FormModalButton.vue"`, relationBlocks.imports)

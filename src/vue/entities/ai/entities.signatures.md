@@ -515,6 +515,24 @@ import { InputSelectorInline } from "regira_modules/vue/entities"
 //   contract types (for a replacement skin): InputSelectorInlineProps<T> / InputSelectorInlineEmits<T> / InputSelectorInlineSlots<T>
 ```
 
+`InputSelector` (scaffolded per-slice into `selecting/`, re-exported from the slice barrel) is the
+single-relation (FK) picker — Autocomplete + inline create/edit + selector-modal in one `input-group`:
+
+```ts
+import { InputSelector } from "../../<slice>"
+
+// InputSelector — single-relation FK picker.
+//   props: { modelValue?: Entity (v-model — the displayed entity);
+//            idValue?: number | string (v-model:idValue — the FK actually saved; bind BOTH, idValue alone renders blank);
+//            readonly?: boolean; canEdit?: boolean (default true — shows the inline FormModalButton);
+//            itemDefaults?: Ref<Record<string, any>> | Record<string, any>; filterDefaults?: Record<string, any>;
+//            closeOnSave?: boolean; placeholder?: string }
+//   slots: default (the Autocomplete) | prepend (create/edit button) | append (clear + selector-modal button)
+//   emits: "update:modelValue" (args?: Entity) | "update:idValue" (args?: number | string) | "select" (args?: Entity)
+//   NOTE: the "select" payload is NULLABLE (Entity | undefined) — the clear button emits undefined — so a
+//         @select handler must accept undefined: @select="(e?: Entity) => …", not (e: Entity).
+```
+
 ---
 
 ## 7. Pooling (entity cache)

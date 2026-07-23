@@ -50,6 +50,11 @@ in the slice's `config.ts` (conventionally the class name, e.g. `"Product"`), no
 **not** `Entity.name` (minified in a build). An unmatched key is skipped with a console warning. Hand-rolling a navbar
 instead of `useNavigation()` forfeits that config-driven shell; only `users/` + `user-plugin` are auth-coupled.
 
+**Token economy.** Prefer heading-scoped reads — `get_package(id, section, heading)` — over pulling a whole
+large section. When scaffolding multiple slices, read **one** generated slice in full, then template the
+rest: `List.vue`, `ListItem.vue` and `SelectorList.vue` are model-agnostic (they render `item.$title`), so
+only `Form.vue` and `FilterAdv.vue` change per entity.
+
 ## MCP server
 
 The Regira MCP server (`https://mcp.regira.com/mcp`) has full knowledge of every front-end module,

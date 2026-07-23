@@ -14,6 +14,11 @@ export class __Child__ extends EntityBase {
     override get $id(): string | number {
         return this.id || "new"
     }
+    // The row label shown in list/selector skins. TODO: point this at your real title-like field
+    // after renaming the placeholder scalars above (same pass as $id / Overview.vue).
+    override get $title(): string | undefined {
+        return this.description
+    }
 }
 
 export const Entity = __Child__

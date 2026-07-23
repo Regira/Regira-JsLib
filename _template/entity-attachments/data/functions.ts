@@ -105,7 +105,7 @@ export async function insertWithAttachments<T extends { id: number; attachments?
     delete item.attachments // the insert must POST without attachments; restored below so a failed save never loses the staged files
     try {
         const saved = await insert()
-        if (saved == null) return null // insert failed — nothing to attach files to
+        if (saved == null) return undefined // insert failed — nothing to attach files to
         saved.attachments = attachments
         await saveAll(api, saved)
         attachments.forEach((x) => delete x.attachment?._file) // free the blobs

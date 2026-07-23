@@ -186,7 +186,9 @@ axios `baseURL` (set from app config).
 
 - `processItem` converts the string fields **`created`** and **`lastModified`** into `Date` instances
   on every fetched/saved item. Other date fields are not auto-converted (convert them in `toEntity` —
-  see [entities.patterns.md → Date hydration](entities.patterns.md#date-hydration)).
+  see [entities.patterns.md → Date hydration](entities.patterns.md#date-hydration)). To **bind** a date to
+  an `<input type="date">`, don't hand-roll a bridge — use the ejectable `DateInput` skin, or the
+  `dateInputString(date?)` formatter (`yyyy-MM-dd`) from `regira_modules/vue/formatters`.
 - `prepareItem` strips **top-level** `_`-prefixed properties before sending — use them for transient
   client-only state. The strip does **not** recurse, so a `_deleted` child row is still sent; drop such rows
   in a per-collection `prepareItem` override to delete them ([entities.patterns.md → Transient client-only
