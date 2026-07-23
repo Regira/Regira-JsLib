@@ -4,7 +4,7 @@ type EventCallback = (event: Event, arg?: unknown) => unknown
 type ConstraintFn = (e: unknown, arg?: unknown) => boolean
 
 interface Listener {
-    constraint?: ConstraintFn | null
+    constraint?: ConstraintFn
     callback: EventCallback
     scope?: unknown
     once?: boolean
@@ -12,7 +12,7 @@ interface Listener {
 
 interface ListenerOptions {
     key: string
-    constraint?: ConstraintFn | null
+    constraint?: ConstraintFn
     callback: EventCallback
     thisScope?: unknown
     once?: boolean
@@ -82,7 +82,7 @@ class EventHandler {
                 configurable: true,
             },
             off: {
-                value(this: { listeners: ListenerMap }, key: string, listener?: EventCallback | null) {
+                value(this: { listeners: ListenerMap }, key: string, listener?: EventCallback) {
                     if (this.listeners[key]) {
                         if (this.listeners[key].length && typeof listener === "function") {
                             const index = this.listeners[key].findIndex((x) => x.callback === listener)

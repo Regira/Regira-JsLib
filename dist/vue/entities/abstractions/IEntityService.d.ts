@@ -31,7 +31,7 @@ export type DeleteResult<T> = {
     duration?: number;
 };
 export interface IEntityService<T extends IEntity = IEntity> {
-    details(id: number | string): Promise<T | null>;
+    details(id: number | string): Promise<T | undefined>;
     list(so?: object): Promise<Array<T>>;
     search(so?: object): Promise<SearchResult<T>>;
     searchUnion(searchObjects: Array<object>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>;

@@ -58,7 +58,7 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         return id
     }
 
-    public async details(id: string | number): Promise<T | null> {
+    public async details(id: string | number): Promise<T | undefined> {
         const response = await this.axios.get<DetailsResult<T>>(`${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${id}`)
         if (response?.status == 200) {
             const {
@@ -157,9 +157,9 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
 
     // abstract to force items to be instances of T
     // https://www.typescriptlang.org/docs/handbook/2/generics.html (not working for generic generics...)
-    protected processItem(item: T | null): T | null {
+    protected processItem(item: T | undefined): T | undefined {
         if (item == null) {
-            return null
+            return undefined
         }
         const entity = this.toEntity(item)
         if ("created" in item) {

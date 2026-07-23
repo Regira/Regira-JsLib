@@ -24,7 +24,7 @@ var e = (e) => {
 	let n = -t.getTimezoneOffset(), r = n / 60, i = n % 60;
 	return `${r >= 0 ? "+" : "-"}${Math.abs(r).toString().padStart(2, "0")}:${Math.abs(i).toString().padStart(2, "0")}`;
 }, i = function(t) {
-	if (!e(t)) return null;
+	if (!e(t)) return;
 	let n = t instanceof Date ? t : new Date(t), i = new Date(t instanceof Date ? t.getTime() : t), a = r(n);
 	return i.setHours(n.getHours() + parseInt(a.split(":")[0])), `${i.toISOString().replace("Z", "")}${a}`;
 }, a = {

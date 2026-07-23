@@ -31,7 +31,7 @@ export function useOwnedCollection<T extends IEntity & { id: number }>({ props, 
     }
     function handleSave({ saved, isNew }: SaveResult<T>) {
         if (isNew) {
-            const minId = Math.min((min(items.value, (x) => x.id) as number | null) ?? 0, 0) - 1
+            const minId = Math.min((min(items.value, (x) => x.id) as number | undefined) ?? 0, 0) - 1
             saved.id = minId
             const newItems = items.value.concat([saved])
             items.value = newItems

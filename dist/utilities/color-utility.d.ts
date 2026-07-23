@@ -4,10 +4,10 @@ export declare const hexToRgb: (hex: string, opacity?: number) => {
     g: number;
     b: number;
     a: number;
-} | null;
-export declare const hexToRgbString: (hex: string, opacity?: number) => string | null;
+} | undefined;
+export declare const hexToRgbString: (hex: string, opacity?: number) => string | undefined;
 export declare const hexToRgbArray: (hex: string, opacity?: number) => number[];
-export declare const getRgbString: (input: number[] | string, opacity?: number) => string | null;
+export declare const getRgbString: (input: number[] | string, opacity?: number) => string | undefined;
 export declare const invertRgb: (r: number, g: number, b: number) => {
     ri: number;
     gi: number;
@@ -22,10 +22,10 @@ declare const _default: {
         g: number;
         b: number;
         a: number;
-    } | null;
-    hexToRgbString: (hex: string, opacity?: number) => string | null;
+    } | undefined;
+    hexToRgbString: (hex: string, opacity?: number) => string | undefined;
     hexToRgbArray: (hex: string, opacity?: number) => number[];
-    getRgbString: (input: number[] | string, opacity?: number) => string | null;
+    getRgbString: (input: number[] | string, opacity?: number) => string | undefined;
     invertRgb: (r: number, g: number, b: number) => {
         ri: number;
         gi: number;

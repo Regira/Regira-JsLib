@@ -11,6 +11,6 @@ import { iconDefaults, type IconsConfig, type IconProps } from "regira_modules/v
 withDefaults(defineProps<IconProps>(), { ...iconDefaults })
 
 // renders the glyph set selected by iconPlugin ({ source }); defaults to Bootstrap icons
-const config = inject<IconsConfig | null>("icons.config", null)
+const config = inject<IconsConfig | undefined>("icons.config", undefined)
 const iconComponent = computed(() => (config?.source === "fa" ? FaIcon : BsIcon))
 </script>

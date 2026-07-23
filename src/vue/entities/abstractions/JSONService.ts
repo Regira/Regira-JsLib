@@ -19,7 +19,7 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
     }
 
     get cachedItems(): Array<T> {
-        return cache.get(this.key) || null
+        return cache.get(this.key) || undefined
     }
     set cachedItems(value: Array<T>) {
         cache.set(this.key, value)
@@ -32,12 +32,12 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
         return this.cachedItems
     }
 
-    override async details(id: string | number): Promise<T | null> {
-        const item = (await this.list({ pageSize: 0 })).find((x) => x.$id == id) || null
+    override async details(id: string | number): Promise<T | undefined> {
+        const item = (await this.list({ pageSize: 0 })).find((x) => x.$id == id) || undefined
         if (item != null) {
             return this.toEntity(item)
         }
-        return null
+        return undefined
     }
     public override async list(so?: ISearchObject & IPagingInfo): Promise<T[]> {
         const searchObject = this.processSearchObject(so)
@@ -58,7 +58,7 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
         const isNew = isNewEntity(processedItem.$id)
         const items = await this.fetchJSONItems()
         if (isNew) {
-            const newId = ((max(items, (x: T) => parseInt(x.$id.toString())) as number | null) ?? 0) + 1
+            const newId = ((max(items, (x: T) => parseInt(x.$id.toString())) as number | undefined) ?? 0) + 1
             //processedItem.id = newId
             Object.defineProperty(processedItem, "id", { value: newId, enumerable: true, writable: true, configurable: true })
             this.cachedItems!.push(processedItem)
@@ -83,7 +83,7 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
             ...searchObject
         } = {
             ...(so || {}),
-            "*$title*": so?.q || null,
+            "*$title*": so?.q || undefined,
         }
         return Object.fromEntries(Object.entries(searchObject).filter(([, v]) => v != null))
     }

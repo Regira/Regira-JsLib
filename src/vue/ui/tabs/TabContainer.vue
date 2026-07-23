@@ -57,7 +57,7 @@ onMounted(() => {
     }
 
     if (props.useRouteNav) {
-        let tab = (props.useRouteNav ? router.currentRoute.value.hash?.substring(1) : null) || defaultTab.value
+        let tab = (props.useRouteNav ? router.currentRoute.value.hash?.substring(1) : undefined) || defaultTab.value
         handleSelect(tab)
     }
 })

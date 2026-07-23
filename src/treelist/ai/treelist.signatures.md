@@ -11,7 +11,7 @@ import { TreeList, TreeNode, type IFindParents } from "regira_modules/treelist"
 
 ```ts
 export type IFindParents<T = any> = (value: T, candidates: Array<T>) => Array<T>
-type IParentNode<T> = TreeNode<T> | null // not exported
+type IParentNode<T> = TreeNode<T> | undefined // not exported
 
 export declare class TreeList<T = any> extends Array<TreeNode<T>> {
     roots: Array<TreeNode<T>>
@@ -21,7 +21,7 @@ export declare class TreeList<T = any> extends Array<TreeNode<T>> {
     addValue(value: T, parentNode?: IParentNode<T>): TreeNode<T>
     addValues(values: Array<T>, parentNode?: IParentNode<T>): Array<TreeNode<T>>
     remove(node: TreeNode<T>): boolean
-    move(node: TreeNode<T>, parent?: TreeNode<T> | null): void
+    move(node: TreeNode<T>, parent?: TreeNode<T>): void
     getNodes(input?: T | Array<T>): Array<TreeNode<T>>
     getRoots(nodes?: TreeNode<T> | Array<TreeNode<T>>): Array<TreeNode<T>>
     getAncestors(nodes?: TreeNode<T> | Array<TreeNode<T>>): Array<TreeNode<T>>
@@ -37,13 +37,13 @@ export default TreeList
 ```ts
 declare class TreeNode<T = any> {
     _value: T
-    _parentNode: TreeNode<T> | null
+    _parentNode: TreeNode<T> | undefined
     _level: number
     _tree: TreeList<T>
     _children: Array<TreeNode<T>>
-    constructor(value: T, parentNode: (TreeNode<T> | null) | undefined, tree: TreeList<T>)
+    constructor(value: T, parentNode: TreeNode<T> | undefined, tree: TreeList<T>)
     get value(): T
-    get parent(): TreeNode<T> | null
+    get parent(): TreeNode<T> | undefined
     get level(): number
     get children(): TreeNode<T>[]
     add(value: T): TreeNode<T>

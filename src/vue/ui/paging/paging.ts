@@ -64,7 +64,7 @@ export default function usePaging({ pagingInfo, count, maxPages, emit }: PagingI
     maxPages = window.innerWidth < 576 ? Math.ceil(maxPages / 2) : maxPages
 
     const defaultPageSize = computed(
-        () => (!isNaN(parseInt(pagingInfo.value.pageSize + "")) ? pagingInfo.value.pageSize : null) || PAGING_DEFAULTS.PAGESIZE
+        () => (!isNaN(parseInt(pagingInfo.value.pageSize + "")) ? pagingInfo.value.pageSize : undefined) || PAGING_DEFAULTS.PAGESIZE
     )
 
     const router = useRouter()

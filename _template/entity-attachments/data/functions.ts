@@ -97,9 +97,9 @@ export function useEntityAttachments({
 export async function insertWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(
     api: string,
     item: T,
-    insert: () => Promise<T | null>,
-    update: (saved: T) => Promise<T | null>
-): Promise<T | null> {
+    insert: () => Promise<T | undefined>,
+    update: (saved: T) => Promise<T | undefined>
+): Promise<T | undefined> {
     const attachments = item.attachments
     if (!attachments?.length) return await insert()
     delete item.attachments // the insert must POST without attachments; restored below so a failed save never loses the staged files
@@ -126,8 +126,8 @@ export async function insertWithAttachments<T extends { id: number; attachments?
 export async function updateWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(
     api: string,
     item: T,
-    update: () => Promise<T | null>
-): Promise<T | null> {
+    update: () => Promise<T | undefined>
+): Promise<T | undefined> {
     await saveAll(api, item)
     item.attachments?.forEach((x) => delete x.attachment?._file) // free the blobs, like insert
     return await update()

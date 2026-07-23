@@ -537,7 +537,7 @@ import config from "../config/config"
 import useEntityStore from "../data/store"
 
 const { service } = useEntityStore()
-const { item, isLoading, overviewUrl, feedback } = useDetails(service) // item is null until onMounted load
+const { item, isLoading, overviewUrl, feedback } = useDetails(service) // item is undefined until onMounted load
 
 const router = useRouter()
 function handleRemove() {

@@ -8,7 +8,7 @@ export interface IPoolHandler<T extends IEntity> extends IPoolService<T> {
     set(item: T): Ref<T>;
     setMany(items: Array<T>): Array<Ref<T>>;
     fromPool<P = Array<T> | T>(input: P): P;
-    fromCache(id?: string | number): Ref<T> | null | Array<Ref<T>>;
+    fromCache(id?: string | number): Ref<T> | undefined | Array<Ref<T>>;
 }
 export declare const defaultPoolCache: PoolCache;
 export declare function usePooling<T extends IEntity>(service: IEntityService<T>, type: string, cache?: IPoolCache, persistent?: boolean): IPoolHandler<T>;

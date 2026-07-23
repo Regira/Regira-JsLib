@@ -112,7 +112,7 @@ var f = class {
 		return a;
 	}
 	processItem(e) {
-		if (e == null) return null;
+		if (e == null) return;
 		let t = this.toEntity(e);
 		if ("created" in e) {
 			let e = t;
@@ -141,7 +141,7 @@ var f = class {
 		super(e, t), this.key = n;
 	}
 	get cachedItems() {
-		return p.get(this.key) || null;
+		return p.get(this.key) || void 0;
 	}
 	set cachedItems(e) {
 		p.set(this.key, e);
@@ -150,8 +150,8 @@ var f = class {
 		return this.cachedItems ??= await super.list(), this.cachedItems;
 	}
 	async details(e) {
-		let t = (await this.list({ pageSize: 0 })).find((t) => t.$id == e) || null;
-		return t == null ? null : this.toEntity(t);
+		let t = (await this.list({ pageSize: 0 })).find((t) => t.$id == e) || void 0;
+		if (t != null) return this.toEntity(t);
 	}
 	async list(t) {
 		let r = this.processSearchObject(t), i = n(await this.fetchJSONItems(), r), a = t?.pageSize === void 0 ? this.config.defaultPageSize : t.pageSize;
@@ -190,7 +190,7 @@ var f = class {
 	processSearchObject(e) {
 		let { pageSize: t = 0, page: n = 0, q: r = "", ...i } = {
 			...e || {},
-			"*$title*": e?.q || null
+			"*$title*": e?.q || void 0
 		};
 		return Object.fromEntries(Object.entries(i).filter(([, e]) => e != null));
 	}

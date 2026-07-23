@@ -28,7 +28,7 @@ export function useRouteOverview({ pagingInfo, searchObject, defaultPageSize = D
 
         const currentRoute = router.currentRoute.value
 
-        // remove empty parameters (null) from query
+        // remove empty parameters (null/undefined) from query
         const query = cleanQueryParams(
             {
                 ...currentRoute.query, // values that should be removed should explicitly be overwritten by <<null|undefined>> in searchObject

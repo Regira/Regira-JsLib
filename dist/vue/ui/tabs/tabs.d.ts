@@ -1,6 +1,6 @@
 import type { ITab } from "./Tab";
 export type TabContainerProps = {
-    tabs: Array<ITab | string | null>;
+    tabs: Array<ITab | string | undefined>;
     /** sync the active tab with the route hash (deep-linkable, back-button friendly) */
     useRouteNav?: boolean;
     active?: string;

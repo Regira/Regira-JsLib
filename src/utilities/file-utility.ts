@@ -81,9 +81,9 @@ export const getExtension = (filename: string): string => {
     const ext = last(filenameSegmentsWithoutFirst)
     return ext ? "." + ext : ""
 }
-export const getFilenameWithoutExtension = (uri: string | null | undefined): string | null | undefined => {
+export const getFilenameWithoutExtension = (uri: string | undefined): string | undefined => {
     if (!uri) {
-        return null
+        return undefined
     }
 
     const filename = getFilename(uri)
@@ -131,7 +131,7 @@ export const base64ToBlob = (base64: string, filename: string, type?: string): N
     return blob
 
     // https://stackoverflow.com/questions/12168909/blob-from-dataurl/36183379#answer-12300351
-    // let byteString = null;
+    // let byteString = undefined;
 
     // if (base64.startsWith("data:")) {
     //   // convert base64 to raw binary data held in a string
@@ -200,10 +200,10 @@ export const saveAs = (blob: Blob & { name?: string }, filename?: string): void 
             FileReader?: typeof FileReader
         }
     type SaverFn = (blob: Blob & { name?: string }, name: string) => void
-    const saveAsImpl = (function (win: WindowLike | null): SaverFn | null {
+    const saveAsImpl = (function (win?: WindowLike): SaverFn | undefined {
         "use strict"
         if (win == null || (typeof navigator !== "undefined" && /MSIE [1-9]\./.test(navigator.userAgent))) {
-            return null
+            return undefined
         }
         const doc = win.document
         const getURLAPI = (): typeof URL => win.URL ?? win.webkitURL ?? (win as unknown as typeof URL)
@@ -261,13 +261,13 @@ export const saveAs = (blob: Blob & { name?: string }, filename?: string): void 
             INIT: number
             WRITING: number
             DONE: number
-            error: null
-            onwritestart: null
-            onprogress: null
-            onwrite: null
-            onabort: null
-            onerror: null
-            onwriteend: null
+            error?: Error
+            onwritestart?: (e: Event) => void
+            onprogress?: (e: Event) => void
+            onwrite?: (e: Event) => void
+            onabort?: (e: Event) => void
+            onerror?: (e: Event) => void
+            onwriteend?: (e: Event) => void
             abort(): void
         }
         function SaverCtor(this: SaverState, blobArg: Blob & { name?: string }, saveName: string, noAutoBOM?: boolean): void {
@@ -343,9 +343,9 @@ export const saveAs = (blob: Blob & { name?: string }, filename?: string): void 
         proto.readyState = proto.INIT = 0
         proto.WRITING = 1
         proto.DONE = 2
-        proto.error = proto.onwritestart = proto.onprogress = proto.onwrite = proto.onabort = proto.onerror = proto.onwriteend = null
+        proto.error = proto.onwritestart = proto.onprogress = proto.onwrite = proto.onabort = proto.onerror = proto.onwriteend = undefined
         return createSaver
-    })((typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : null) as WindowLike | null)
+    })((typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : undefined) as WindowLike)
     saveAsImpl?.(blob, filename ?? blob.name ?? "file")
 }
 

@@ -52,8 +52,8 @@ declare const _default: {
             skip: <T>(items: Iterable<T>, n: number) => T[];
             page: <T>(items: Iterable<T>, pageSize: number, pageIndex?: number) => T[];
             countPages: (items: Iterable<unknown>, pageSize: number) => number;
-            min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => (string | number | bigint | boolean) | null | undefined;
-            max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => (string | number | bigint | boolean) | null | undefined;
+            min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => (string | number | bigint | boolean) | undefined;
+            max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => (string | number | bigint | boolean) | undefined;
             sum: <T>(items: Iterable<T>, selector?: (x: T) => number) => number;
             average: <T>(items: Iterable<T>, selector?: (x: T) => number) => number;
             toMap: <T, K, V = T>(items: Iterable<T>, keySelector: (x: T) => K, valueSelector?: (item: T, i?: number, map?: Map<K, V>) => V) => Map<K, V>;
@@ -62,7 +62,7 @@ declare const _default: {
             getEnumerator: <T>(arr: T[]) => {
                 selectedIndex: number;
                 readonly length: number;
-                readonly current: T | null;
+                readonly current: T | undefined;
                 first(): void;
                 previous(): boolean;
                 next(): boolean;
@@ -78,10 +78,10 @@ declare const _default: {
                 g: number;
                 b: number;
                 a: number;
-            } | null;
-            hexToRgbString: (hex: string, opacity?: number) => string | null;
+            } | undefined;
+            hexToRgbString: (hex: string, opacity?: number) => string | undefined;
             hexToRgbArray: (hex: string, opacity?: number) => number[];
-            getRgbString: (input: number[] | string, opacity?: number) => string | null;
+            getRgbString: (input: number[] | string, opacity?: number) => string | undefined;
             invertRgb: (r: number, g: number, b: number) => {
                 ri: number;
                 gi: number;
@@ -97,7 +97,7 @@ declare const _default: {
                 log(dateToCompare?: Date | number | string): number;
             };
             countDown: (startDate: Date | number | string, interval?: number) => import("./utilities/datetime-utility").CountdownValues;
-            stringifyDate: (date: Date | number) => string | null;
+            stringifyDate: (date: Date | number) => string | undefined;
         };
         fileUtility: {
             isFile: (item: unknown) => item is Blob;
@@ -105,7 +105,7 @@ declare const _default: {
             revokeUrl: (url: string) => void;
             getFilename: (uri: string) => string | undefined;
             getExtension: (filename: string) => string;
-            getFilenameWithoutExtension: (uri: string | null | undefined) => string | null | undefined;
+            getFilenameWithoutExtension: (uri: string | undefined) => string | undefined;
             toFormData: (files: Blob[], data: Record<string, unknown>, { filesParameterName }?: {
                 filesParameterName?: string;
             }) => FormData;

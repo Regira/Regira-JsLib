@@ -32,7 +32,7 @@ the package root above.
     ```
 
 - **Imperatively.** Pass a flat `Array<T>` to the constructor (each becomes a root), or call
-  `addValue(value, parentNode?)` / `addValues(values, parentNode?)`. Omit `parentNode` (or pass `null`)
+  `addValue(value, parentNode?)` / `addValues(values, parentNode?)`. Omit `parentNode` (or pass `undefined`)
   to add roots; pass a node to add children under it.
 
 ## Navigating

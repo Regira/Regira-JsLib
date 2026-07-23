@@ -32,7 +32,7 @@ var s = ({ multiple: e, accept: t } = {}) => new Promise(function(n) {
 	let t = r(n(e.split("."), 1));
 	return t ? "." + t : "";
 }, p = (t) => {
-	if (!t) return null;
+	if (!t) return;
 	let n = d(t);
 	if (!n || !n.includes(".")) return n;
 	let r = n.split(".");
@@ -67,7 +67,7 @@ var s = ({ multiple: e, accept: t } = {}) => new Promise(function(n) {
 	return t && (r.name = t), r;
 }, x = (e, t) => {
 	(function(e) {
-		if (e == null || typeof navigator < "u" && /MSIE [1-9]\./.test(navigator.userAgent)) return null;
+		if (e == null || typeof navigator < "u" && /MSIE [1-9]\./.test(navigator.userAgent)) return;
 		let t = e.document, n = () => e.URL ?? e.webkitURL ?? e, r = t.createElementNS("http://www.w3.org/1999/xhtml", "a"), i = "download" in r, a = (e) => {
 			e.dispatchEvent(new MouseEvent("click"));
 		}, o = /constructor/i.test(String(e.HTMLElement ?? "")) || !!e.safari, s = /CriOS\/[\d]+/.test(navigator.userAgent), c = (t) => {
@@ -119,8 +119,8 @@ var s = ({ multiple: e, accept: t } = {}) => new Promise(function(n) {
 		}, h = navigator;
 		return typeof navigator < "u" && h.msSaveOrOpenBlob ? function(e, t) {
 			t = t || e.name || "download", h.msSaveOrOpenBlob(d(e), t);
-		} : (p.abort = function() {}, p.readyState = p.INIT = 0, p.WRITING = 1, p.DONE = 2, p.error = p.onwritestart = p.onprogress = p.onwrite = p.onabort = p.onerror = p.onwriteend = null, m);
-	})(typeof self < "u" ? self : typeof window < "u" ? window : null)?.(e, t ?? e.name ?? "file");
+		} : (p.abort = function() {}, p.readyState = p.INIT = 0, p.WRITING = 1, p.DONE = 2, p.error = p.onwritestart = p.onprogress = p.onwrite = p.onabort = p.onerror = p.onwriteend = void 0, m);
+	})(typeof self < "u" ? self : typeof window < "u" ? window : void 0)?.(e, t ?? e.name ?? "file");
 }, S = (e, t = !0, n = 1) => {
 	let r = t ? 1e3 : 1024;
 	if (Math.abs(e) < r) return e + " B";

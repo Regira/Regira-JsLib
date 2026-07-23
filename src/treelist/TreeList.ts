@@ -2,7 +2,7 @@
 import { isIterable, toArray, distinct } from "../utilities/array-utility"
 
 export type IFindParents<T = any> = (value: T, candidates: Array<T>) => Array<T>
-type IParentNode<T> = TreeNode<T> | null
+type IParentNode<T> = TreeNode<T> | undefined
 
 export class TreeList<T = any> extends Array<TreeNode<T>> {
     roots: Array<TreeNode<T>>
@@ -31,7 +31,7 @@ export class TreeList<T = any> extends Array<TreeNode<T>> {
                 const parentNode = this.find((x) => x.value === parent) || addNode(parent)
                 this.addValue(value, parentNode)
             })
-            return null
+            return undefined
         }
         values.forEach(addNode)
 
@@ -42,7 +42,7 @@ export class TreeList<T = any> extends Array<TreeNode<T>> {
     }
     addValues(values: Array<T>, parentNode?: IParentNode<T>): Array<TreeNode<T>> {
         if (!parentNode) {
-            const nodes = values.map((v) => new TreeNode(v, null, this))
+            const nodes = values.map((v) => new TreeNode(v, undefined, this))
             this.push(...nodes)
             this.roots.push(...nodes)
             return nodes
@@ -73,7 +73,7 @@ export class TreeList<T = any> extends Array<TreeNode<T>> {
         }
         return false
     }
-    move(node: TreeNode<T>, parent?: TreeNode<T> | null) {
+    move(node: TreeNode<T>, parent?: TreeNode<T>) {
         if (node.parent != null) {
             const childIndex = node.parent.children.findIndex((n) => n === node)
             if (childIndex !== -1) {
@@ -96,7 +96,7 @@ export class TreeList<T = any> extends Array<TreeNode<T>> {
             }
         }
 
-        node._parentNode = parent ?? null
+        node._parentNode = parent
     }
 
     /**

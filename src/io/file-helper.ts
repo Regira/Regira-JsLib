@@ -101,7 +101,7 @@ class FileHelper {
             headers,
         })
     }
-    async saveAs(input: File | Blob | string, type?: string, filename?: string | null) {
+    async saveAs(input: File | Blob | string, type?: string, filename?: string) {
         const namedInput = input as Partial<File>
         const blob = await this.getBlob(input, filename || namedInput.name, type || namedInput.type)
         return fileUtility.saveAs(blob, (blob as Blob & { name?: string }).name || "file")

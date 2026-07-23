@@ -11,7 +11,7 @@ export declare abstract class JSONService<T extends IEntity> extends EntityServi
     get cachedItems(): Array<T>;
     set cachedItems(value: Array<T>);
     fetchJSONItems(): Promise<Array<T>>;
-    details(id: string | number): Promise<T | null>;
+    details(id: string | number): Promise<T | undefined>;
     list(so?: ISearchObject & IPagingInfo): Promise<T[]>;
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>;
     save(item: T): Promise<{

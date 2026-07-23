@@ -36,7 +36,7 @@ export type OverviewCoreOut<T extends IEntity, SO extends ISearchObject = ISearc
     itemsCount: Ref<number | undefined>;
     isLoading: Ref<boolean>;
     feedback: FeedbackOut;
-    applySave(item: T): Promise<SaveResult<T> | null>;
+    applySave(item: T): Promise<SaveResult<T> | undefined>;
     applyRemove(item: T): Promise<void>;
     handleSave({ saved, isNew }: SaveResult<T>): void;
     handleRemove(item: T): void;

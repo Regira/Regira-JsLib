@@ -61,8 +61,8 @@ export declare const take: <T>(items: Iterable<T>, n: number) => T[]
 export declare const skip: <T>(items: Iterable<T>, n: number) => T[]
 export declare const page: <T>(items: Iterable<T>, pageSize: number, pageIndex?: number) => T[]
 export declare const countPages: (items: Iterable<unknown>, pageSize: number) => number
-export declare const min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | null | undefined
-export declare const max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | null | undefined
+export declare const min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | undefined
+export declare const max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | undefined
 export declare const sum: <T>(items: Iterable<T>, selector?: (x: T) => number) => number
 export declare const average: <T>(items: Iterable<T>, selector?: (x: T) => number) => number
 export declare const toMap: <T, K, V = T>(
@@ -79,7 +79,7 @@ export declare const query: <T>(items: Iterable<T>, filter: Partial<T>) => T[]
 export declare const getEnumerator: <T>(arr: T[]) => {
     selectedIndex: number
     readonly length: number
-    readonly current: T | null
+    readonly current: T | undefined
     first(): void
     previous(): boolean
     next(): boolean
@@ -133,7 +133,7 @@ export declare const createUrl: (blob: Blob) => string
 export declare const revokeUrl: (url: string) => void
 export declare const getFilename: (uri: string) => string | undefined
 export declare const getExtension: (filename: string) => string
-export declare const getFilenameWithoutExtension: (uri: string | null | undefined) => string | null | undefined
+export declare const getFilenameWithoutExtension: (uri: string | undefined) => string | undefined
 export declare const toFormData: (files: Blob[], data: Record<string, unknown>, { filesParameterName }?: { filesParameterName?: string }) => FormData
 export declare const fileToBlob: (file: File, filename?: string, type?: string) => Promise<NamedBlob>
 export declare const base64ToBlob: (base64: string, filename: string, type?: string) => NamedBlob
@@ -159,7 +159,7 @@ export interface CountdownValues {
     seconds: number
 }
 export declare const countDown: (startDate: Date | number | string, interval?: number) => CountdownValues // sets an interval that is never cleared
-export declare const stringifyDate: (date: Date | number) => string | null
+export declare const stringifyDate: (date: Date | number) => string | undefined
 ```
 
 ## httpUtility
@@ -170,7 +170,7 @@ export declare const isHttps: (url: string | URL) => boolean // file only
 export declare const getHttpsUrl: (url: string) => string
 export declare const forceHttps: (currentUrl: string) => void
 export declare function tryCreateValidURL(input: string): string // file only
-export declare const toAbsoluteUrl: (relative: string, baseUrl?: string | null) => string // file only
+export declare const toAbsoluteUrl: (relative: string, baseUrl?: string) => string // file only
 export declare const toQueryString: (obj: Record<string, unknown>, includeNulls?: boolean) => string
 export declare const getQueryStringParams: (url?: string) => { [k: string]: string }
 ```
@@ -179,10 +179,10 @@ export declare const getQueryStringParams: (url?: string) => { [k: string]: stri
 
 ```ts
 export declare const rgbToHex: (r: number, g: number, b: number) => string
-export declare const hexToRgb: (hex: string, opacity?: number) => { r: number; g: number; b: number; a: number } | null
-export declare const hexToRgbString: (hex: string, opacity?: number) => string | null
+export declare const hexToRgb: (hex: string, opacity?: number) => { r: number; g: number; b: number; a: number } | undefined
+export declare const hexToRgbString: (hex: string, opacity?: number) => string | undefined
 export declare const hexToRgbArray: (hex: string, opacity?: number) => number[]
-export declare const getRgbString: (input: number[] | string, opacity?: number) => string | null
+export declare const getRgbString: (input: number[] | string, opacity?: number) => string | undefined
 export declare const invertRgb: (r: number, g: number, b: number) => { ri: number; gi: number; bi: number }
 export declare const invertHex: (hex: string) => string
 export declare const grayscale: (hex: string, type?: string) => string

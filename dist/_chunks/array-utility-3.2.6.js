@@ -18,7 +18,7 @@ var t = (e) => typeof e == "object" && !!e && Object.prototype.toString.call(e) 
 		return i;
 	};
 	return n(e);
-}, r = (e, t) => t.split(".").reduce((e, t) => e == null ? null : e[t], e), i = (e) => {
+}, r = (e, t) => t.split(".").reduce((e, t) => e?.[t], e), i = (e) => {
 	let t = (e, t) => e.filter(t)[0], n = (e, r = []) => {
 		if (typeof e != "object" || !e) return e;
 		let i = t(r, (t) => t.original === e);
@@ -152,13 +152,13 @@ var t = (e) => typeof e == "object" && !!e && Object.prototype.toString.call(e) 
 	if (n.length) return n.reduce((e, n) => {
 		let r = t(n);
 		return e == null || r < e ? r : e;
-	}, null);
+	}, void 0);
 }, R = (e, t = f) => {
 	let n = _(e);
 	if (n.length) return n.reduce((e, n) => {
 		let r = t(n);
 		return e == null || r > e ? r : e;
-	}, null);
+	}, void 0);
 }, z = (e, t) => {
 	let n = t ?? f;
 	return _(e).reduce((e, t) => e + n(t), 0);
@@ -194,7 +194,7 @@ var t = (e) => typeof e == "object" && !!e && Object.prototype.toString.call(e) 
 			return e.length;
 		},
 		get current() {
-			return t >= 0 && t < e.length ? e[t] ?? null : null;
+			if (t >= 0 && t < e.length) return e[t];
 		},
 		first() {
 			t = 0;

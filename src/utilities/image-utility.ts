@@ -69,7 +69,7 @@ export const get2dContext = (canvas: HTMLCanvasElement, options?: Record<string,
     if (options != null) {
         Object.keys(options).forEach(function (x) {
             const option = options[x]
-            if (option !== null) {
+            if (option != null) {
                 switch (x) {
                     case "backgroundColor":
                     case "background-color":
@@ -264,7 +264,7 @@ var sA = 0;  //source alpha  */
         // create result canvas
         var resultCanvas = createCanvas(tw, th)
         var resultContext = get2dContext(resultCanvas, {
-            "background-color": type === contentTypes.jpg ? "#FFF" : null,
+            "background-color": type === contentTypes.jpg ? "#FFF" : undefined,
         })
         var imgRes = resultContext.getImageData(0, 0, tw, th)
         var tByteBuffer = imgRes.data
@@ -285,7 +285,7 @@ var sA = 0;  //source alpha  */
     function downScaleImage(img: HTMLImageElement, scale: number, type: string) {
         const canvas = createCanvas(img.width, img.height)
         const context = get2dContext(canvas, {
-            "background-color": type === contentTypes.png ? "transparent" : type === contentTypes.jpg ? "#FFF" : null,
+            "background-color": type === contentTypes.png ? "transparent" : type === contentTypes.jpg ? "#FFF" : undefined,
         })
         context.drawImage(img, 0, 0)
         return downScaleCanvas(canvas, scale, type)
@@ -355,7 +355,7 @@ export const rotate = async (img: HTMLImageElement, direction = 1, type = DEFAUL
     const canvas = createCanvas(maxDimension, maxDimension)
     const ctx = get2dContext(canvas, {
         imageSmoothingEnabled: false, //keep quality!
-        "background-color": contentType === contentTypes.jpg ? "#FFF" : null,
+        "background-color": contentType === contentTypes.jpg ? "#FFF" : undefined,
     })
     ctx.translate(canvas.width / 2, canvas.height / 2)
     ctx.rotate((degrees * Math.PI) / 180)
@@ -368,7 +368,7 @@ export const rotate = async (img: HTMLImageElement, direction = 1, type = DEFAUL
     const canvas2 = createCanvas(newWidth, newHeight)
     const ctx2 = get2dContext(canvas2, {
         imageSmoothingEnabled: false, //keep quality!
-        "background-color": contentType === contentTypes.jpg ? "#FFF" : null,
+        "background-color": contentType === contentTypes.jpg ? "#FFF" : undefined,
     })
     ctx2.putImageData(imgData, 0, 0)
 
@@ -381,7 +381,7 @@ export const flipFlop = async (img: HTMLImageElement, flip: boolean, flop: boole
 
     const canvas = imageToCanvas(img)
     const ctx = get2dContext(canvas, {
-        "background-color": contentType === contentTypes.jpg ? "#FFF" : null,
+        "background-color": contentType === contentTypes.jpg ? "#FFF" : undefined,
     })
     ctx.translate(flip ? img.width : 0, flop ? img.height : 0)
     ctx.scale(flip ? -1 : 1, flop ? -1 : 1)
@@ -394,7 +394,7 @@ export const flipFlop = async (img: HTMLImageElement, flip: boolean, flop: boole
 export const convertType = async (img: HTMLImageElement, targetType: string) => {
     const canvas = createCanvas(img.width, img.height)
     const ctx = get2dContext(canvas, {
-        "background-color": targetType === contentTypes.jpg ? "#FFF" : null,
+        "background-color": targetType === contentTypes.jpg ? "#FFF" : undefined,
     })
     ctx.drawImage(img, 0, 0)
     return canvasToImage(canvas, targetType, 1)

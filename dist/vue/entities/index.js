@@ -276,7 +276,6 @@ function W({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
 		} finally {
 			s.value = !1;
 		}
-		return null;
 	}
 	async function u(t) {
 		s.value = !0;
@@ -450,7 +449,7 @@ var G = class {
 	}
 	async details(e) {
 		let t = await this.service.details(e);
-		return t == null ? null : (this.cache.set(this.toEntity({ ...t })), this.toEntity({ ...t }));
+		if (t != null) return this.cache.set(this.toEntity({ ...t })), this.toEntity({ ...t });
 	}
 	async list(e) {
 		let t = await this.service.list(e);

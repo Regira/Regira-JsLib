@@ -53,7 +53,7 @@ export abstract class EntityBase implements IEntity {
 ```ts
 import type { IEntityService } from "regira_modules/vue/entities"
 export interface IEntityService<T extends IEntity = IEntity> {
-    details(id: number | string): Promise<T | null>
+    details(id: number | string): Promise<T | undefined>
     list(so?: object): Promise<Array<T>>
     search(so?: object): Promise<SearchResult<T>>
     searchUnion(searchObjects: Array<object>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>
@@ -85,16 +85,16 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     protected config: IConfig
     defaultPageSize: number
     constructor(axios: AxiosInstance, config: IConfig)
-    details(id: string | number): Promise<T | null>
+    details(id: string | number): Promise<T | undefined>
     list(so?: ISearchObject & IPagingInfo): Promise<Array<T>>
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>
     searchUnion(searchObjects: Array<ISearchObject>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>
     save(item: T): Promise<SaveResult<T>>
     remove(item: T): Promise<void>
-    update(item: T): Promise<T | null>
-    insert(item: T): Promise<T | null>
+    update(item: T): Promise<T | undefined>
+    insert(item: T): Promise<T | undefined>
     protected fetchItems<TResult extends { items: Array<T> }>(api: string, so?: ISearchObject & IPagingInfo): Promise<TResult>
-    protected processItem(item: T | null): T | null // hydrates `created`/`lastModified` strings to Date
+    protected processItem(item: T | undefined): T | undefined // hydrates `created`/`lastModified` strings to Date
     protected prepareItem(item: T): T // strips top-level properties whose key starts with "_" (does not recurse)
     protected createInstance<T>(type: { new (): T }): T
     newEntity(values?: Record<string, any>): Promise<T>
@@ -111,7 +111,7 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
     get cachedItems(): Array<T>
     set cachedItems(value: Array<T>)
     fetchJSONItems(): Promise<Array<T>>
-    details(id: string | number): Promise<T | null>
+    details(id: string | number): Promise<T | undefined>
     list(so?: ISearchObject & IPagingInfo): Promise<T[]>
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>
     save(item: T): Promise<{ saved: T; isNew: boolean }>
@@ -241,7 +241,7 @@ export type OverviewCoreOut<T extends IEntity, SO extends ISearchObject = ISearc
     itemsCount: Ref<number | undefined>
     isLoading: Ref<boolean>
     feedback: FeedbackOut
-    applySave(item: T): Promise<SaveResult<T> | null>
+    applySave(item: T): Promise<SaveResult<T> | undefined>
     applyRemove(item: T): Promise<void>
     handleSave({ saved, isNew }: SaveResult<T>): void
     handleRemove(item: T): void
@@ -319,7 +319,7 @@ export interface OverviewEmits<T> {
 import { useDetails } from "regira_modules/vue/entities"
 export function useDetails<T extends IEntity>(entityService: IEntityService<T>, feedback?: FeedbackOut): DetailsOut<T>
 export type DetailsOut<T> = {
-    item: Ref<T | null> // null until the onMounted load resolves — guard with v-if="item"
+    item: Ref<T | undefined> // undefined until the onMounted load resolves — guard with v-if="item"
     routeId: ComputedRef<string>
     isNew: ComputedRef<boolean>
     overviewUrl?: RouteRecordRaw | string
@@ -436,7 +436,7 @@ import type { FeedbackOut } from "regira_modules/vue/ui"
 export interface FeedbackOut {
     status: Ref<FeedbackStatus> // "" | "Pending" | "Success" | "Failed"
     message: Ref<string>
-    error: Ref<string | Record<string, string> | null>
+    error: Ref<string | Record<string, string> | undefined>
     pending(msg: string): void
     success(msg: string): void
     fail(msg: string, ex?: string | Record<string, string>): void
@@ -526,7 +526,7 @@ export function usePooling<T extends IEntity>(service: IEntityService<T>, type: 
 export const defaultPoolCache: PoolCache
 
 export interface IPoolService<T extends IEntity> extends IEntityService<T> {
-    get(input: T): Ref<T> | null
+    get(input: T): Ref<T> | undefined
     getMany(input: Array<T>): Array<Ref<T>>
 }
 export interface IPoolHandler<T extends IEntity> extends IPoolService<T> {
@@ -535,12 +535,12 @@ export interface IPoolHandler<T extends IEntity> extends IPoolService<T> {
     set(item: T): Ref<T>
     setMany(items: Array<T>): Array<Ref<T>>
     fromPool<P = Array<T> | T>(input: P): P // entity/relation (or array) → its shared pooled instance; runs toEntity, dedups by $id, caches on first sight (unsaved inputs pass through)
-    fromCache(id?: string | number): Ref<T> | null | Array<Ref<T>> // read-only: id → that cached Ref (or null); no arg → all cached refs of the type; never fetches
+    fromCache(id?: string | number): Ref<T> | undefined | Array<Ref<T>> // read-only: id → that cached Ref (or undefined); no arg → all cached refs of the type; never fetches
 }
 export interface IPoolCache {
     persistentTypes: Array<string>
     set<T extends IEntity>(item: T): Ref<T>
-    get<T extends IEntity>(type: string, key: number | string): Ref<T> | null
+    get<T extends IEntity>(type: string, key: number | string): Ref<T> | undefined
     remove<T extends IEntity>(item: T): boolean
     hasType(type: string): boolean
     getAll<T extends IEntity>(type: string): Array<Ref<T>>
@@ -646,13 +646,13 @@ and HTTP entry points used at app startup (live in sibling modules).
 ```ts
 import { ServiceProvider, get, type IServiceProvider } from "regira_modules/vue/ioc"
 export interface IServiceProvider {
-    get<T = any>(key: any): T | null
+    get<T = any>(key: any): T | undefined
     add<T = any>(key: any, factory: (sp: IServiceProvider) => T): IServiceProvider
 }
 export class ServiceProvider implements IServiceProvider {
     /* members above; factory re-runs on every get */
 }
-export function get<T>(key: any): T | null // resolves from the default ServiceProvider singleton
+export function get<T>(key: any): T | undefined // resolves from the default ServiceProvider singleton
 ```
 
 ```ts

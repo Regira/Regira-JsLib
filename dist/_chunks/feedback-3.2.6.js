@@ -84,18 +84,18 @@ var w = { class: "rg-pending bg-light text-info" }, T = /* @__PURE__ */ p({
 	enableErrorPopup: !1
 };
 function W({ autoHideDelay: e = 1500 } = {}) {
-	let t = _(""), n = _(""), r = _(null), i;
+	let t = _(""), n = _(""), r = _(void 0), i;
 	function a() {
 		e > 0 && (clearTimeout(i), i = setTimeout(o, e));
 	}
 	function o() {
-		t.value = "", n.value = "", r.value = null;
+		t.value = "", n.value = "", r.value = void 0;
 	}
 	function s(e) {
-		t.value = "Pending", n.value = e, r.value = null;
+		t.value = "Pending", n.value = e, r.value = void 0;
 	}
 	function c(i) {
-		t.value = "Success", n.value = i, r.value = null, e && a();
+		t.value = "Success", n.value = i, r.value = void 0, e && a();
 	}
 	function l(e, i) {
 		t.value = "Failed", n.value = e, typeof i == "string" ? n.value = `${n.value}: ${i.split("\n")[0]}` : r.value = i?.message || i;

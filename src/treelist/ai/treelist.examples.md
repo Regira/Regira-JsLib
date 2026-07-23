@@ -20,7 +20,7 @@ const tree = new TreeList<FamilyItem>().init(items, (value, candidates) => {
 
 ## Build imperatively with `addValue`
 
-Pass `null` (or omit) for a root, or a parent `TreeNode` to nest under it:
+Omit (or pass `undefined`) for a root, or a parent `TreeNode` to nest under it:
 
 ```ts
 import { TreeList, type TreeNode } from "@/regira_modules/treelist"
@@ -50,7 +50,7 @@ const descendants = node.getOffspring() // everything below it
 ## Re-parent a node
 
 `move` detaches the node from its current parent and re-attaches it under another; omitting `parent`
-(or passing `null`) re-attaches it as a root:
+(or passing `undefined`) re-attaches it as a root:
 
 ```ts
 tree.move(child, parent) // child and parent are TreeNode<T>

@@ -14,10 +14,10 @@ var l = (e, t, n) => "#" + [
 		g: parseInt(r[2], 16),
 		b: parseInt(r[3], 16),
 		a: n ?? 1
-	} : null;
+	} : void 0;
 }, d = (e, t) => {
 	let n = u(e, t);
-	return n ? `rgba(${n.r}, ${n.g}, ${n.b}, ${n.a})` : null;
+	return n ? `rgba(${n.r}, ${n.g}, ${n.b}, ${n.a})` : void 0;
 }, f = (e, t) => {
 	let n = u(e, t);
 	if (!n) return [
@@ -43,7 +43,6 @@ var l = (e, t, n) => "#" + [
 		if (e(n, "rgba")) return n;
 		if (e(n, "rgb")) return p(t(n.substring(3), "()").split(",").map(Number), r);
 	}
-	return null;
 }, m = (e, t, n) => {
 	let [r, i, a] = [
 		e,
@@ -154,7 +153,7 @@ var l = (e, t, n) => "#" + [
 	let n = e.getContext("2d");
 	return t != null && Object.keys(t).forEach(function(r) {
 		let i = t[r];
-		if (i !== null) switch (r) {
+		if (i != null) switch (r) {
 			case "backgroundColor":
 			case "background-color":
 				n.fillStyle = p(i, void 0), n.fillRect(0, 0, e.width, e.height);
@@ -189,13 +188,13 @@ var l = (e, t, n) => "#" + [
 		function i(e, t, n) {
 			var r = t * t, i = e.width, a = e.height, o = Math.floor(i * t), s = Math.floor(a * t), c = 0, l = 0, u = 0, d = 0, f = 0, p = 0, m = 0, h = 0, _ = 0, v = 0, y = 0, S = 0, C = 0, w = 0, T = 0, E = !1, D = !1, O = x(e).getImageData(0, 0, i, a).data, k = new Float32Array(3 * o * s), A = 0, j = 0, M = 0;
 			for (l = 0; l < a; l++) for (f = l * t, _ = 0 | f, p = 3 * _ * o, D = _ !== (0 | f + t), D && (w = _ + 1 - f, T = f + t - _ - 1), c = 0; c < i; c++, u += 4) d = c * t, h = 0 | d, m = p + h * 3, E = h !== (0 | d + t), E && (S = h + 1 - d, C = d + t - h - 1), A = O[u], j = O[u + 1], M = O[u + 2], !E && !D ? (k[m] += A * r, k[m + 1] += j * r, k[m + 2] += M * r) : E && !D ? (v = S * t, k[m] += A * v, k[m + 1] += j * v, k[m + 2] += M * v, y = C * t, k[m + 3] += A * y, k[m + 4] += j * y, k[m + 5] += M * y) : D && !E ? (v = w * t, k[m] += A * v, k[m + 1] += j * v, k[m + 2] += M * v, y = T * t, k[m + 3 * o] += A * y, k[m + 3 * o + 1] += j * y, k[m + 3 * o + 2] += M * y) : (v = S * w, k[m] += A * v, k[m + 1] += j * v, k[m + 2] += M * v, y = C * w, k[m + 3] += A * y, k[m + 4] += j * y, k[m + 5] += M * y, y = S * T, k[m + 3 * o] += A * y, k[m + 3 * o + 1] += j * y, k[m + 3 * o + 2] += M * y, y = C * T, k[m + 3 * o + 3] += A * y, k[m + 3 * o + 4] += j * y, k[m + 3 * o + 5] += M * y);
-			var N = b(o, s), P = x(N, { "background-color": n === g.jpg ? "#FFF" : null }), F = P.getImageData(0, 0, o, s), I = F.data, L = 0;
+			var N = b(o, s), P = x(N, { "background-color": n === g.jpg ? "#FFF" : void 0 }), F = P.getImageData(0, 0, o, s), I = F.data, L = 0;
 			for (u = 0, m = 0; L < o * s; u += 3, m += 4, L++) I[m] = Math.ceil(k[u]), I[m + 1] = Math.ceil(k[u + 1]), I[m + 2] = Math.ceil(k[u + 2]), I[m + 3] = 255;
 			return P.putImageData(F, 0, 0), N;
 		}
 		function a(e, t, n) {
 			let r = b(e.width, e.height);
-			return x(r, { "background-color": n === g.png ? "transparent" : n === g.jpg ? "#FFF" : null }).drawImage(e, 0, 0), i(r, t, n);
+			return x(r, { "background-color": n === g.png ? "transparent" : n === g.jpg ? "#FFF" : void 0 }).drawImage(e, 0, 0), i(r, t, n);
 		}
 		let o = y(r || await v(e));
 		return E(a(e, t, o), o, n);
@@ -209,22 +208,22 @@ var l = (e, t, n) => "#" + [
 	rotate: async (e, t = 1, n = _) => {
 		let r = t > 0 ? 90 : t < 0 ? -90 : 0, i = Math.max(e.width, e.height), a = e.naturalWidth, o = e.naturalHeight, s = r === 0 ? a : o, c = r === 0 ? o : a, l = y(n || await v(e)), u = b(i, i), d = x(u, {
 			imageSmoothingEnabled: !1,
-			"background-color": l === g.jpg ? "#FFF" : null
+			"background-color": l === g.jpg ? "#FFF" : void 0
 		});
 		d.translate(u.width / 2, u.height / 2), d.rotate(r * Math.PI / 180), d.translate(-(u.width / 2), -(u.height / 2)), d.drawImage(e, (u.width - a) / 2, (u.height - o) / 2);
 		let f = d.getImageData((i - s) / 2, (i - c) / 2, s, c), p = b(s, c);
 		return x(p, {
 			imageSmoothingEnabled: !1,
-			"background-color": l === g.jpg ? "#FFF" : null
+			"background-color": l === g.jpg ? "#FFF" : void 0
 		}).putImageData(f, 0, 0), E(p, l, 1);
 	},
 	flipFlop: async (e, t, n, r = _) => {
-		let i = y(r || await v(e)), a = D(e), o = x(a, { "background-color": i === g.jpg ? "#FFF" : null });
+		let i = y(r || await v(e)), a = D(e), o = x(a, { "background-color": i === g.jpg ? "#FFF" : void 0 });
 		return o.translate(t ? e.width : 0, n ? e.height : 0), o.scale(t ? -1 : 1, n ? -1 : 1), S(a), o.drawImage(e, 0, 0), o.restore(), E(a, i, 1);
 	},
 	convertType: async (e, t) => {
 		let n = b(e.width, e.height);
-		return x(n, { "background-color": t === g.jpg ? "#FFF" : null }).drawImage(e, 0, 0), E(n, t, 1);
+		return x(n, { "background-color": t === g.jpg ? "#FFF" : void 0 }).drawImage(e, 0, 0), E(n, t, 1);
 	},
 	getLightness: (e) => {
 		let t = 0, n = D(e), r = x(n).getImageData(0, 0, n.width, n.height).data, i, a, o, s;

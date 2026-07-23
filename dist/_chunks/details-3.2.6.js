@@ -3,7 +3,7 @@ import { Fragment as t, computed as n, createElementBlock as r, createElementVNo
 import { useRouter as h } from "vue-router";
 //#region src/vue/entities/details/details.ts
 function g(t, r = e()) {
-	let i = h(), a = n(() => i.currentRoute.value.params.id), o = n(() => a.value === "new"), s = u(null), l = u(!1);
+	let i = h(), a = n(() => i.currentRoute.value.params.id), o = n(() => a.value === "new"), s = u(void 0), l = u(!1);
 	function d() {
 		function e(e) {
 			if (!e) return !1;

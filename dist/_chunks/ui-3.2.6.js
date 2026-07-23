@@ -716,7 +716,7 @@ var tt = ["disabled"], nt = /* @__PURE__ */ T({
 };
 function ct({ pagingInfo: e, count: t, maxPages: n, emit: r }) {
 	n = window.innerWidth < 576 ? Math.ceil(n / 2) : n;
-	let i = v(() => (isNaN(parseInt(e.value.pageSize + "")) ? null : e.value.pageSize) || at.PAGESIZE), a = le();
+	let i = v(() => (isNaN(parseInt(e.value.pageSize + "")) ? void 0 : e.value.pageSize) || at.PAGESIZE), a = le();
 	function o(e) {
 		let { name: t, path: n, hash: r, query: i } = a.currentRoute.value, o = {
 			name: t,
@@ -998,7 +998,7 @@ var xt = { install: (e, { sizes: t } = {}) => {
 			s.value !== e && (c.value = e);
 		}
 		return ne(() => {
-			s.value == null && r.useRouteNav && l((r.useRouteNav ? i.currentRoute.value.hash?.substring(1) : null) || o.value);
+			s.value == null && r.useRouteNav && l((r.useRouteNav ? i.currentRoute.value.hash?.substring(1) : void 0) || o.value);
 		}), (e, t) => (M(), x("div", Tt, [w(wt, {
 			tabs: a.value,
 			activeTab: c.value,

@@ -7,7 +7,7 @@ A service is the HTTP layer for one entity.
 The contract every view programs against:
 
 ```ts
-details(id): Promise<T | null>
+details(id): Promise<T | undefined>
 list(so?): Promise<Array<T>>
 search(so?): Promise<SearchResult<T>>
 searchUnion(searchObjects, extra?): Promise<SearchResult<T>>
@@ -68,8 +68,8 @@ you, so the method return types are _not_ these envelopes (see the note under th
 | `remove(item)`     | DELETE | `{deleteUrl}/{$id}`                           | —                  |
 
 > **The methods return _unwrapped_ values, not these envelopes.** `list()` resolves to `Array<T>` (not
-> `{ items }`), `details()` to `T | null`, `search()`/`searchUnion()` to `SearchResult<T>` (`{ items, count }`),
-> `save()`/`insert()`/`update()` to `SaveResult<T>`/`T | null`. Destructure accordingly —
+> `{ items }`), `details()` to `T | undefined`, `search()`/`searchUnion()` to `SearchResult<T>` (`{ items, count }`),
+> `save()`/`insert()`/`update()` to `SaveResult<T>`/`T | undefined`. Destructure accordingly —
 > `const items = await service.list()`, never `const { items } = await service.list()`.
 
 `save(item)` inserts when `$id` is an unsaved sentinel — `null`/`undefined`/`"new"`/`""` or a non-positive

@@ -17,7 +17,7 @@ export declare const countDown: (startDate: Date | number | string, interval?: n
  *  the date as Date or time in milliseconds
  * @returns the serialized date
  */
-export declare const stringifyDate: (date: Date | number) => string | null;
+export declare const stringifyDate: (date: Date | number) => string | undefined;
 declare const _default: {
     isValidDate: (date: unknown) => boolean;
     timer: {
@@ -25,6 +25,6 @@ declare const _default: {
         log(dateToCompare?: Date | number | string): number;
     };
     countDown: (startDate: Date | number | string, interval?: number) => CountdownValues;
-    stringifyDate: (date: Date | number) => string | null;
+    stringifyDate: (date: Date | number) => string | undefined;
 };
 export default _default;

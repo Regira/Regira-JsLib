@@ -3,7 +3,7 @@ import { type IEntity } from "../abstractions";
 export interface IPoolCache {
     persistentTypes: Array<string>;
     set<T extends IEntity>(item: T): Ref<T>;
-    get<T extends IEntity>(type: string, key: number | string): Ref<T> | null;
+    get<T extends IEntity>(type: string, key: number | string): Ref<T> | undefined;
     remove<T extends IEntity>(item: T): boolean;
     hasType(type: string): boolean;
     getAll<T extends IEntity>(type: string): Array<Ref<T>>;
@@ -26,7 +26,7 @@ export declare class PoolCache implements IPoolCache {
     persistentTypes: Array<string>;
     constructor({ interval, expires, maxItems }?: ICacheOptions);
     set<T extends ValueItem>(item: T): Ref<T>;
-    get<T extends ValueItem>(type: string, key: number | string): Ref<T> | null;
+    get<T extends ValueItem>(type: string, key: number | string): Ref<T> | undefined;
     remove<T extends ValueItem>(item: T): boolean;
     hasType(type: string): boolean;
     getAll<T extends IEntity>(type?: string): Array<Ref<T>>;

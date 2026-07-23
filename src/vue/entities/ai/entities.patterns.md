@@ -602,11 +602,11 @@ attachments?: Array<EntityAttachment>
 ```ts
 // data/EntityService.ts — flush on save; drop marked rows (deleted by omission)
 import { insertWithAttachments, updateWithAttachments } from "../../entity-attachments/data/functions"
-override async insert(item: Owner): Promise<Owner | null> {
+override async insert(item: Owner): Promise<Owner | undefined> {
     // the follow-up update sends the attachments in display order — the server assigns SortOrder from array position
     return await insertWithAttachments(this.config.api, item, () => super.insert(item), (saved) => super.update(saved))
 }
-override async update(item: Owner): Promise<Owner | null> {
+override async update(item: Owner): Promise<Owner | undefined> {
     return await updateWithAttachments(this.config.api, item, () => super.update(item))
 }
 protected override prepareItem(item: Owner): Owner {
@@ -868,7 +868,7 @@ This is the supported way to show a related entity's `$title`, and it supersedes
 when that entity is already pooled — loaded by its own overview, or warmed by a preloader (`usePreloader`) —
 **or** the nested DTO carries the display fields; otherwise the getter is `undefined`.
 
-`fromCache(id?)` is the read-only counterpart: with an id it returns the cached `Ref<T>` (or `null`); with no
+`fromCache(id?)` is the read-only counterpart: with an id it returns the cached `Ref<T>` (or `undefined`); with no
 argument, every cached `Ref<T>` of the type (`Array<Ref<T>>`). It never fetches — it reports only what
 pooling has already seen.
 

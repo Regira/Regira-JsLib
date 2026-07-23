@@ -39,12 +39,12 @@ export function tryCreateValidURL(input: string): string {
     return url
 }
 
-export const toAbsoluteUrl = (relative: string, baseUrl: string | null = null) => {
+export const toAbsoluteUrl = (relative: string, baseUrl?: string) => {
     // https://stackoverflow.com/questions/14780350/convert-relative-path-to-absolute-using-javascript#answer-14780463
     if (!baseUrl) {
         baseUrl = window.location.origin
     }
-    const stack = (baseUrl as string).split("/")
+    const stack = baseUrl.split("/")
     const parts = trim(relative, "/").split("/")
     for (let i = 0; i < parts.length; i++) {
         if (parts[i] !== ".") {

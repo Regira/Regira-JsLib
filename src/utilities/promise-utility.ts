@@ -9,15 +9,15 @@
  * @returns {Promise} Returns the result of the invoked function, wrapped in a Promise
  */
 export const debounceToPromise = <T>(func: (...args: unknown[]) => T, wait = 250) => {
-    let timeout: ReturnType<typeof setTimeout> | null = null
+    let timeout: ReturnType<typeof setTimeout> | undefined = undefined
     let funcsToResolve: Array<(value: T) => void> = []
     return async function (...args: unknown[]) {
         // https://davidwalsh.name/javascript-debounce-function
-        if (timeout !== null) clearTimeout(timeout)
+        if (timeout !== undefined) clearTimeout(timeout)
         return new Promise<T>((resolve) => {
             funcsToResolve.push(resolve)
             timeout = setTimeout(() => {
-                timeout = null
+                timeout = undefined
                 const result = func(...args)
                 while (funcsToResolve.length) {
                     funcsToResolve.shift()!(result)

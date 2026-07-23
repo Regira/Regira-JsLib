@@ -5,7 +5,7 @@ import type { IEntity } from "../abstractions/IEntity"
 import type { IEntityService } from "../abstractions/IEntityService"
 
 export type DetailsOut<T extends IEntity> = {
-    item: Ref<T | null>
+    item: Ref<T | undefined>
     routeId: ComputedRef<string>
     isNew: ComputedRef<boolean>
 
@@ -24,7 +24,7 @@ export function useDetails<T extends IEntity>(entityService: IEntityService<T>, 
     const router = useRouter()
     const routeId = computed(() => router.currentRoute.value.params.id as string)
     const isNew = computed(() => routeId.value === "new")
-    const item = ref<T | null>(null) as Ref<T | null>
+    const item = ref<T | undefined>(undefined) as Ref<T | undefined>
     const isLoading = ref(false)
 
     function getOverviewUrl() {

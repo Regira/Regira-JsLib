@@ -19,19 +19,19 @@ import {
 
 ```ts
 export interface IServiceProvider {
-    get<T = any>(key: any): T | null
+    get<T = any>(key: any): T | undefined
     add<T = any>(key: any, factory: (sp: IServiceProvider) => T): IServiceProvider
 }
 
 export class ServiceProvider implements IServiceProvider {
     services: Map<any, (sp: IServiceProvider) => any>
     constructor()
-    get<T = any>(key: any): T | null // returns factory(this) or null
+    get<T = any>(key: any): T | undefined // returns factory(this) or undefined
     add<T = any>(key: any, factory: (sp: IServiceProvider) => T): IServiceProvider // chainable
 }
 
 // resolves from the default singleton
-export function get<T>(key: any): T | null
+export function get<T>(key: any): T | undefined
 
 // default export
 declare const defaultServiceProvider: IServiceProvider

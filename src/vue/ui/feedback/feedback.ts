@@ -14,14 +14,14 @@ export type FeedbackError = string | Record<string, string>
 export interface FeedbackOut {
     status: Ref<FeedbackStatus>
     message: Ref<string>
-    error: Ref<FeedbackError | null>
+    error: Ref<FeedbackError | undefined>
 
     pending(msg: string): void
     success(msg: string): void
     fail(msg: string, ex?: FeedbackError): void
     reset(): void
 }
-type FeedbackStatusOrError = { status: FeedbackStatus; error?: FeedbackError | null }
+type FeedbackStatusOrError = { status: FeedbackStatus; error?: FeedbackError }
 export interface FeedbackEmits {
     (e: "close", arg: FeedbackStatusOrError): void
 }
@@ -44,7 +44,7 @@ export type FeedbackSlots = {
 export function useFeedback({ autoHideDelay = 1500 }: FeedbackIn = {}): FeedbackOut {
     const status = ref<FeedbackStatus>(FeedbackStatus.none)
     const message = ref<string>("")
-    const error = ref<FeedbackError | null>(null)
+    const error = ref<FeedbackError | undefined>(undefined)
 
     let timeout: any
 
@@ -58,17 +58,17 @@ export function useFeedback({ autoHideDelay = 1500 }: FeedbackIn = {}): Feedback
     function reset() {
         status.value = FeedbackStatus.none
         message.value = ""
-        error.value = null
+        error.value = undefined
     }
     function pending(msg: string) {
         status.value = FeedbackStatus.pending
         message.value = msg
-        error.value = null
+        error.value = undefined
     }
     function success(msg: string) {
         status.value = FeedbackStatus.success
         message.value = msg
-        error.value = null
+        error.value = undefined
         autoHideDelay && fadeOut()
     }
     function fail(msg: string, ex: FeedbackError) {

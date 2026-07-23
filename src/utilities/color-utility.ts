@@ -16,11 +16,11 @@ export const hexToRgb = (hex: string, opacity?: number) => {
               b: parseInt(result[3], 16),
               a: opacity != undefined ? opacity : 1,
           }
-        : null
+        : undefined
 }
-export const hexToRgbString = (hex: string, opacity?: number): string | null => {
+export const hexToRgbString = (hex: string, opacity?: number): string | undefined => {
     const rgba = hexToRgb(hex, opacity)
-    return rgba ? `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` : null
+    return rgba ? `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})` : undefined
 }
 export const hexToRgbArray = (hex: string, opacity?: number): number[] => {
     const rgb = hexToRgb(hex, opacity)
@@ -28,7 +28,7 @@ export const hexToRgbArray = (hex: string, opacity?: number): number[] => {
     const { r, g, b, a = 1 } = rgb
     return [r, g, b, a]
 }
-export const getRgbString = (input: number[] | string, opacity?: number): string | null => {
+export const getRgbString = (input: number[] | string, opacity?: number): string | undefined => {
     if (isArray(input)) {
         const [r, g, b, a = 1] = input
         return `rgba(${r},${g},${b},${a})`
@@ -45,7 +45,7 @@ export const getRgbString = (input: number[] | string, opacity?: number): string
             return getRgbString(segments, opacity)
         }
     }
-    return null
+    return undefined
 }
 export const invertRgb = (r: number, g: number, b: number) => {
     const [ri, gi, bi] = [r, g, b].map((x) => 255 - x)

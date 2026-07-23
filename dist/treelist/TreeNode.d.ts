@@ -1,13 +1,13 @@
 import type TreeList from "./TreeList";
 declare class TreeNode<T = any> {
     _value: T;
-    _parentNode: TreeNode<T> | null;
+    _parentNode: TreeNode<T> | undefined;
     _level: number;
     _tree: TreeList<T>;
     _children: Array<TreeNode<T>>;
-    constructor(value: T, parentNode: (TreeNode<T> | null) | undefined, tree: TreeList<T>);
+    constructor(value: T, parentNode: TreeNode<T> | undefined, tree: TreeList<T>);
     get value(): T;
-    get parent(): TreeNode<T> | null;
+    get parent(): TreeNode<T> | undefined;
     get level(): number;
     get children(): TreeNode<T>[];
     add(value: T): TreeNode<T>;

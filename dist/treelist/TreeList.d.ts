@@ -1,6 +1,6 @@
 import TreeNode from "./TreeNode";
 export type IFindParents<T = any> = (value: T, candidates: Array<T>) => Array<T>;
-type IParentNode<T> = TreeNode<T> | null;
+type IParentNode<T> = TreeNode<T> | undefined;
 export declare class TreeList<T = any> extends Array<TreeNode<T>> {
     roots: Array<TreeNode<T>>;
     constructor(collection?: Array<T>);
@@ -9,7 +9,7 @@ export declare class TreeList<T = any> extends Array<TreeNode<T>> {
     addValue(value: T, parentNode?: IParentNode<T>): TreeNode<T>;
     addValues(values: Array<T>, parentNode?: IParentNode<T>): Array<TreeNode<T>>;
     remove(node: TreeNode<T>): boolean;
-    move(node: TreeNode<T>, parent?: TreeNode<T> | null): void;
+    move(node: TreeNode<T>, parent?: TreeNode<T>): void;
     /**
      * Retrieves all TreeNodes for the given value(s)
      * @param {any} values (default undefined so we can treat null as a valid value)

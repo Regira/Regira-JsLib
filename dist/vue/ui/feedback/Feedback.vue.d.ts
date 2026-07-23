@@ -3,12 +3,12 @@ type __VLS_Slots = FeedbackSlots;
 declare const __VLS_base: import("vue").DefineComponent<FeedbackProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
     close: (arg: {
         status: FeedbackStatus;
-        error?: import("./feedback").FeedbackError | null;
+        error?: import("./feedback").FeedbackError;
     }) => any;
 }, string, import("vue").PublicProps, Readonly<FeedbackProps> & Readonly<{
     onClose?: ((arg: {
         status: FeedbackStatus;
-        error?: import("./feedback").FeedbackError | null;
+        error?: import("./feedback").FeedbackError;
     }) => any) | undefined;
 }>, {
     hideCloseButton: boolean;

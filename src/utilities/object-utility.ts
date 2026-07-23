@@ -38,7 +38,7 @@ export const flattenObject = (obj: Record<string, unknown>): Record<string, unkn
     return flattenProperties(obj)
 }
 export const crawlObject = (obj: Record<string, unknown>, key: string) =>
-    key.split(".").reduce<unknown>((res, p) => (res == null ? null : (res as Record<string, unknown>)[p]), obj)
+    key.split(".").reduce<unknown>((res, p) => (res == null ? undefined : (res as Record<string, unknown>)[p]), obj)
 export const removeEmpty = (obj: Record<string, unknown>): Record<string, unknown> =>
     Object.fromEntries(
         Object.entries(obj)

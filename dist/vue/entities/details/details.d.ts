@@ -4,7 +4,7 @@ import { type FeedbackOut } from "../../ui/feedback";
 import type { IEntity } from "../abstractions/IEntity";
 import type { IEntityService } from "../abstractions/IEntityService";
 export type DetailsOut<T extends IEntity> = {
-    item: Ref<T | null>;
+    item: Ref<T | undefined>;
     routeId: ComputedRef<string>;
     isNew: ComputedRef<boolean>;
     overviewUrl?: RouteRecordRaw | string;

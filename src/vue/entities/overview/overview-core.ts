@@ -15,7 +15,7 @@ export function useOverviewCore<T extends IEntity, SO extends ISearchObject = IS
     const isLoading = ref<boolean>(false)
     const feedback = useFeedback()
 
-    async function applySave(item: T): Promise<SaveResult<T> | null> {
+    async function applySave(item: T): Promise<SaveResult<T> | undefined> {
         isLoading.value = true
         try {
             feedback.reset()
@@ -29,7 +29,7 @@ export function useOverviewCore<T extends IEntity, SO extends ISearchObject = IS
         } finally {
             isLoading.value = false
         }
-        return null
+        return undefined
     }
     async function applyRemove(item: T): Promise<void> {
         isLoading.value = true

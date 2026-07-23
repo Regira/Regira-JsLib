@@ -2,12 +2,12 @@ import type TreeList from "./TreeList"
 
 class TreeNode<T = any> {
     _value: T
-    _parentNode: TreeNode<T> | null
+    _parentNode: TreeNode<T> | undefined
     _level: number
     _tree: TreeList<T>
     _children: Array<TreeNode<T>>
 
-    constructor(value: T, parentNode: TreeNode<T> | null = null, tree: TreeList<T>) {
+    constructor(value: T, parentNode: TreeNode<T> | undefined = undefined, tree: TreeList<T>) {
         this._value = value
         this._parentNode = parentNode
         this._level = parentNode ? parentNode.level + 1 : 0

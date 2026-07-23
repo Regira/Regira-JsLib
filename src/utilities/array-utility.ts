@@ -160,11 +160,11 @@ export const min = <T>(items: Iterable<T>, selector: (x: T) => unknown = selfSel
     if (!arr.length) {
         return undefined
     }
-    return arr.reduce<Comparable | null>((r, x) => {
+    return arr.reduce<Comparable | undefined>((r, x) => {
         const v = selector(x) as Comparable
         if (r == null) return v
         return v < r ? v : r
-    }, null)
+    }, undefined)
 }
 export const max = <T>(items: Iterable<T>, selector: (x: T) => unknown = selfSelector) => {
     //return Math.max(...items.map(selector)); -> only numeric
@@ -172,11 +172,11 @@ export const max = <T>(items: Iterable<T>, selector: (x: T) => unknown = selfSel
     if (!arr.length) {
         return undefined
     }
-    return arr.reduce<Comparable | null>((r, x) => {
+    return arr.reduce<Comparable | undefined>((r, x) => {
         const v = selector(x) as Comparable
         if (r == null) return v
         return v > r ? v : r
-    }, null)
+    }, undefined)
 }
 export const sum = <T>(items: Iterable<T>, selector?: (x: T) => number): number => {
     const sel = selector ?? (selfSelector as unknown as (x: T) => number)
@@ -247,11 +247,11 @@ export const getEnumerator = <T>(arr: T[]) => {
         get length() {
             return arr.length
         },
-        get current(): T | null {
+        get current(): T | undefined {
             if (index >= 0 && index < arr.length) {
-                return arr[index] ?? null
+                return arr[index]
             }
-            return null
+            return undefined
         },
         first() {
             index = 0

@@ -12,7 +12,7 @@ export interface IPoolCache {
     persistentTypes: Array<string>
 
     set<T extends IEntity>(item: T): Ref<T>
-    get<T extends IEntity>(type: string, key: number | string): Ref<T> | null
+    get<T extends IEntity>(type: string, key: number | string): Ref<T> | undefined
     remove<T extends IEntity>(item: T): boolean
 
     hasType(type: string): boolean
@@ -57,7 +57,7 @@ export class PoolCache implements IPoolCache {
         map.set(item.$id, itemRef)
         return itemRef
     }
-    get<T extends ValueItem>(type: string, key: number | string): Ref<T> | null {
+    get<T extends ValueItem>(type: string, key: number | string): Ref<T> | undefined {
         const map = this.getEntityMap(type)
         const itemRef = map.get(key) as Ref<T>
         return itemRef

@@ -21,8 +21,8 @@ export declare const take: <T>(items: Iterable<T>, n: number) => T[];
 export declare const skip: <T>(items: Iterable<T>, n: number) => T[];
 export declare const page: <T>(items: Iterable<T>, pageSize: number, pageIndex?: number) => T[];
 export declare const countPages: (items: Iterable<unknown>, pageSize: number) => number;
-export declare const min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | null | undefined;
-export declare const max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | null | undefined;
+export declare const min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | undefined;
+export declare const max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | undefined;
 export declare const sum: <T>(items: Iterable<T>, selector?: (x: T) => number) => number;
 export declare const average: <T>(items: Iterable<T>, selector?: (x: T) => number) => number;
 export declare const toMap: <T, K, V = T>(items: Iterable<T>, keySelector: (x: T) => K, valueSelector?: (item: T, i?: number, map?: Map<K, V>) => V) => Map<K, V>;
@@ -31,7 +31,7 @@ export declare const query: <T>(items: Iterable<T>, filter: Partial<T>) => T[];
 export declare const getEnumerator: <T>(arr: T[]) => {
     selectedIndex: number;
     readonly length: number;
-    readonly current: T | null;
+    readonly current: T | undefined;
     first(): void;
     previous(): boolean;
     next(): boolean;
@@ -61,8 +61,8 @@ declare const _default: {
     skip: <T>(items: Iterable<T>, n: number) => T[];
     page: <T>(items: Iterable<T>, pageSize: number, pageIndex?: number) => T[];
     countPages: (items: Iterable<unknown>, pageSize: number) => number;
-    min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | null | undefined;
-    max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | null | undefined;
+    min: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | undefined;
+    max: <T>(items: Iterable<T>, selector?: (x: T) => unknown) => Comparable | undefined;
     sum: <T>(items: Iterable<T>, selector?: (x: T) => number) => number;
     average: <T>(items: Iterable<T>, selector?: (x: T) => number) => number;
     toMap: <T, K, V = T>(items: Iterable<T>, keySelector: (x: T) => K, valueSelector?: (item: T, i?: number, map?: Map<K, V>) => V) => Map<K, V>;
@@ -71,7 +71,7 @@ declare const _default: {
     getEnumerator: <T>(arr: T[]) => {
         selectedIndex: number;
         readonly length: number;
-        readonly current: T | null;
+        readonly current: T | undefined;
         first(): void;
         previous(): boolean;
         next(): boolean;

@@ -10,7 +10,7 @@ export declare const createUrl: (blob: Blob) => string;
 export declare const revokeUrl: (url: string) => void;
 export declare const getFilename: (uri: string) => string | undefined;
 export declare const getExtension: (filename: string) => string;
-export declare const getFilenameWithoutExtension: (uri: string | null | undefined) => string | null | undefined;
+export declare const getFilenameWithoutExtension: (uri: string | undefined) => string | undefined;
 export declare const toFormData: (files: Blob[], data: Record<string, unknown>, { filesParameterName }?: {
     filesParameterName?: string;
 }) => FormData;
@@ -31,7 +31,7 @@ declare const _default: {
     revokeUrl: (url: string) => void;
     getFilename: (uri: string) => string | undefined;
     getExtension: (filename: string) => string;
-    getFilenameWithoutExtension: (uri: string | null | undefined) => string | null | undefined;
+    getFilenameWithoutExtension: (uri: string | undefined) => string | undefined;
     toFormData: (files: Blob[], data: Record<string, unknown>, { filesParameterName }?: {
         filesParameterName?: string;
     }) => FormData;

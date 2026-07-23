@@ -204,7 +204,7 @@ export class EntityService extends EntityServiceBase<Entity> {
         return attachment
     }
 
-    override async insert(item: Entity): Promise<Entity | null> {
+    override async insert(item: Entity): Promise<Entity | undefined> {
         // the follow-up update sends the attachments in display order — the server assigns SortOrder from array position
         return await insertWithAttachments(
             this.config.api,
@@ -213,7 +213,7 @@ export class EntityService extends EntityServiceBase<Entity> {
             async (saved) => await super.update(saved)
         )
     }
-    override async update(item: Entity): Promise<Entity | null> {
+    override async update(item: Entity): Promise<Entity | undefined> {
         return await updateWithAttachments(this.config.api, item, async () => await super.update(item))
     }
 

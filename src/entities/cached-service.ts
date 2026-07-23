@@ -2,7 +2,7 @@
 //     constructor(service) {
 //         this._service = service;
 //         this._details = new Map();
-//         this._items = null;
+//         this._items = undefined;
 //     }
 
 //     async details(id) {
@@ -20,13 +20,13 @@
 //         return this._items;
 //     }
 //     async save(item) {
-//         this._items = null;
-//         this._details.remove(item.id);
+//         this._items = undefined;
+//         this._details.delete(item.id);
 //         return this._service.save(item);
 //     }
 //     async delete(item) {
-//         this._items = null;
-//         this._details.remove(item.id);
+//         this._items = undefined;
+//         this._details.delete(item.id);
 //         return this._service.delete(item);
 //     }
 // }

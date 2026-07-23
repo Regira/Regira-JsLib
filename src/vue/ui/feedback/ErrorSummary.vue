@@ -71,7 +71,7 @@ import { ModalType, injectModal } from "../modal"
 const props = withDefaults(
     defineProps<{
         msg: string
-        error: FeedbackError | null
+        error: FeedbackError | undefined
         enablePopup?: boolean
     }>(),
     {

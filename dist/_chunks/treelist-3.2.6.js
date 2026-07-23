@@ -6,7 +6,7 @@ var r = class e {
 	_level;
 	_tree;
 	_children;
-	constructor(e, t = null, n) {
+	constructor(e, t = void 0, n) {
 		this._value = e, this._parentNode = t, this._level = t ? t.level + 1 : 0, this._tree = n, this._children = [];
 	}
 	get value() {
@@ -55,10 +55,11 @@ var r = class e {
 		this.length = 0, this.roots = [];
 		let n = (r) => {
 			let i = t(r, e);
-			return i.length ? (i.forEach((e) => {
+			if (!i.length) return this.roots.find((e) => e.value === r) ?? this.addValue(r);
+			i.forEach((e) => {
 				let t = this.find((t) => t.value === e) || n(e);
 				this.addValue(r, t);
-			}), null) : this.roots.find((e) => e.value === r) ?? this.addValue(r);
+			});
 		};
 		return e.forEach(n), this;
 	}
@@ -67,7 +68,7 @@ var r = class e {
 	}
 	addValues(e, t) {
 		if (!t) {
-			let t = e.map((e) => new r(e, null, this));
+			let t = e.map((e) => new r(e, void 0, this));
 			return this.push(...t), this.roots.push(...t), t;
 		}
 		return e.map((e) => t.add(e));
@@ -91,7 +92,7 @@ var r = class e {
 			let t = this.roots.findIndex((t) => t === e);
 			t !== -1 && this.roots.splice(t, 1);
 		}
-		t == null ? this.roots.includes(e) || this.roots.push(e) : t.children.includes(e) || t.children.push(e), e._parentNode = t ?? null;
+		t == null ? this.roots.includes(e) || this.roots.push(e) : t.children.includes(e) || t.children.push(e), e._parentNode = t;
 	}
 	getNodes(e) {
 		if (e == null) return [...this];

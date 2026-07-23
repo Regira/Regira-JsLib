@@ -52,7 +52,7 @@ const { screen } = useScreen()
 const tabs = computed(() =>
     [
         Tab.create("form", { icon: "form", title: "Form", isDefault: true }),
-        !screen.isLarge ? Tab.create("more", { icon: "list", title: "More" }) : null,
+        !screen.isLarge ? Tab.create("more", { icon: "list", title: "More" }) : undefined,
     ].filter(Boolean)
 )
 </script>

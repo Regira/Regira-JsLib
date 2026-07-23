@@ -23,7 +23,7 @@ nested relation into a real model so `$id`/`$title` work, and pooling it on firs
 through untouched). Alias a sibling store's `fromPool` to display a relation's label —
 `const { fromPool: getUnitType } = useUnitTypeStore()`, then bind `getUnitType(item.unitType)?.$title` in a
 template — passing the relation **object**, not its id. **`fromCache(id?)`** is read-only: an id returns that `Ref<T>` (or
-`null`), no argument returns all cached refs of the type; it never fetches.
+`undefined`), no argument returns all cached refs of the type; it never fetches.
 
 ## Preloading
 

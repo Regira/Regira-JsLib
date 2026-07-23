@@ -12,7 +12,7 @@ export type FeedbackError = string | Record<string, string>;
 export interface FeedbackOut {
     status: Ref<FeedbackStatus>;
     message: Ref<string>;
-    error: Ref<FeedbackError | null>;
+    error: Ref<FeedbackError | undefined>;
     pending(msg: string): void;
     success(msg: string): void;
     fail(msg: string, ex?: FeedbackError): void;
@@ -20,7 +20,7 @@ export interface FeedbackOut {
 }
 type FeedbackStatusOrError = {
     status: FeedbackStatus;
-    error?: FeedbackError | null;
+    error?: FeedbackError;
 };
 export interface FeedbackEmits {
     (e: "close", arg: FeedbackStatusOrError): void;

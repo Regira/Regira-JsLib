@@ -1,5 +1,5 @@
 export interface IServiceProvider {
-    get<T = any>(key: any): T | null
+    get<T = any>(key: any): T | undefined
     add<T = any>(key: any, factory: (sp: IServiceProvider) => T): IServiceProvider
 }
 
@@ -9,10 +9,10 @@ export class ServiceProvider implements IServiceProvider {
         this.services = new Map<any, (sp: IServiceProvider) => any>()
     }
 
-    get<T = any>(key: any): T | null {
+    get<T = any>(key: any): T | undefined {
         const factory = this.services.get(key)
         if (factory == null) {
-            return null
+            return undefined
         }
         return factory(this) as T
     }
@@ -24,7 +24,7 @@ export class ServiceProvider implements IServiceProvider {
 
 const defaultServiceProvider: IServiceProvider = new ServiceProvider()
 
-export function get<T>(key: any): T | null {
+export function get<T>(key: any): T | undefined {
     return defaultServiceProvider.get<T>(key)
 }
 

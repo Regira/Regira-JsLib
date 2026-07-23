@@ -6,7 +6,7 @@ var e = class {
 	}
 	get(e) {
 		let t = this.services.get(e);
-		return t == null ? null : t(this);
+		if (t != null) return t(this);
 	}
 	add(e, t) {
 		return this.services.set(e, t), this;

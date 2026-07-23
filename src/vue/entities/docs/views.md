@@ -30,7 +30,7 @@ returning `updateOverviewRoute`. (`useOverviewCore` is the shared base.)
 
 `useDetails(service)` loads the item for the route `:id` and returns `item`, `isLoading`, `overviewUrl`,
 `load`, and `feedback`. The Details component renders a nested `<RouterView>` for the Fiche/Form child,
-passing `item`. `item` is `null` until the `onMounted` load resolves — gate the child with
+passing `item`. `item` is `undefined` until the `onMounted` load resolves — gate the child with
 `<RouterView v-if="item" …>`.
 
 ## Form — `useForm` (and `useModal`)

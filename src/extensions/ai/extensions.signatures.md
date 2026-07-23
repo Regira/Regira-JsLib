@@ -51,7 +51,7 @@ export default _default
 
 ```ts
 // from utilities/datetime-utility
-export declare const stringifyDate: (date: Date | number) => string | null
+export declare const stringifyDate: (date: Date | number) => string | undefined
 ```
 
 ## promiseExtensions (promise-extensions.d.ts)

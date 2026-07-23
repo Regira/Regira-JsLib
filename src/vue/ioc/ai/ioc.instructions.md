@@ -14,7 +14,7 @@ import { ServiceProvider, get, plugin as servicesPlugin, type IServiceProvider }
 ## Container
 
 `ServiceProvider` holds a `Map` of `key → factory`. `add(key, factory)` registers a factory and returns
-the provider (chainable); `get<T>(key)` returns `factory(this)` or `null` when the key is unknown. A
+the provider (chainable); `get<T>(key)` returns `factory(this)` or `undefined` when the key is unknown. A
 module-level **default singleton** backs the standalone `get<T>(key)` function and the Vue plugin.
 
 > **Resolution is transient.** `get(key)` re-invokes the factory **every call**, so each `get` of a

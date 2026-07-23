@@ -3,7 +3,7 @@ import type { IEntity, IEntityService, IPagingInfo, SearchResult } from "../abst
 import type { IPoolCache } from "./PoolCache"
 
 export interface IPoolService<T extends IEntity> extends IEntityService<T> {
-    get(input: T): Ref<T> | null
+    get(input: T): Ref<T> | undefined
     getMany(input: Array<T>): Array<Ref<T>>
 }
 
@@ -14,10 +14,10 @@ export class PoolService<T extends IEntity> implements IPoolService<T> {
         private type: string
     ) {}
 
-    async details(id: string | number): Promise<T | null> {
+    async details(id: string | number): Promise<T | undefined> {
         const item = await this.service.details(id)
         if (item == null) {
-            return null
+            return undefined
         }
         this.cache.set(this.toEntity({ ...item }))
         return this.toEntity({ ...item })
@@ -47,7 +47,7 @@ export class PoolService<T extends IEntity> implements IPoolService<T> {
         this.cache.remove(item)
     }
 
-    get(item: T): Ref<T> | null {
+    get(item: T): Ref<T> | undefined {
         const entity = this.toEntity(item)
         return this.cache.get<T>(this.type, entity.$id) || this.cache.set(entity)
     }

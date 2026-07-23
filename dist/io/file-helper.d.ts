@@ -15,6 +15,6 @@ declare class FileHelper {
         headers?: Record<string, string>;
         filesParameterName?: string;
     }): Promise<import("axios").AxiosResponse<any, any, {}>>;
-    saveAs(input: File | Blob | string, type?: string, filename?: string | null): Promise<void>;
+    saveAs(input: File | Blob | string, type?: string, filename?: string): Promise<void>;
 }
 export default FileHelper;

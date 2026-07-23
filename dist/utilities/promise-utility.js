@@ -1,10 +1,10 @@
 //#region src/utilities/promise-utility.ts
 var e = (e, t = 250) => {
-	let n = null, r = [];
+	let n, r = [];
 	return async function(...i) {
-		return n !== null && clearTimeout(n), new Promise((a) => {
+		return n !== void 0 && clearTimeout(n), new Promise((a) => {
 			r.push(a), n = setTimeout(() => {
-				n = null;
+				n = void 0;
 				let t = e(...i);
 				for (; r.length;) r.shift()(t);
 			}, t);

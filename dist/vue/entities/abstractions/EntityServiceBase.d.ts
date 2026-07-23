@@ -18,18 +18,18 @@ export declare abstract class EntityServiceBase<T extends IEntity> implements IE
     private requireUrl;
     /** Returns the item's `$id` or throws instead of building a `/undefined` URL. */
     private requireId;
-    details(id: string | number): Promise<T | null>;
+    details(id: string | number): Promise<T | undefined>;
     list(so?: ISearchObject & IPagingInfo): Promise<Array<T>>;
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>;
     searchUnion(searchObjects: Array<ISearchObject>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>;
     save(item: T): Promise<SaveResult<T>>;
     remove(item: T): Promise<void>;
-    update(item: T): Promise<T | null>;
-    insert(item: T): Promise<T | null>;
+    update(item: T): Promise<T | undefined>;
+    insert(item: T): Promise<T | undefined>;
     protected fetchItems<TResult extends {
         items: Array<T>;
     }>(api: string, so?: ISearchObject & IPagingInfo): Promise<TResult>;
-    protected processItem(item: T | null): T | null;
+    protected processItem(item: T | undefined): T | undefined;
     protected prepareItem(item: T): T;
     protected createInstance<T>(type: {
         new (): T;

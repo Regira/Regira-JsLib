@@ -50,7 +50,7 @@ export type FeedbackError = string | Record<string, string>
 export interface FeedbackOut {
     status: Ref<FeedbackStatus>
     message: Ref<string>
-    error: Ref<FeedbackError | null>
+    error: Ref<FeedbackError | undefined>
     pending(msg: string): void
     success(msg: string): void
     fail(msg: string, ex?: FeedbackError): void
@@ -62,7 +62,7 @@ export function useFeedback({ autoHideDelay }?: FeedbackIn): FeedbackOut
 export type FeedbackProps = { feedback: FeedbackOut; hideCloseButton?: boolean; enableErrorPopup?: boolean }
 export const feedbackDefaults: { hideCloseButton: false; enableErrorPopup: false }
 export interface FeedbackEmits {
-    (e: "close", arg: { status: FeedbackStatus; error?: FeedbackError | null }): void
+    (e: "close", arg: { status: FeedbackStatus; error?: FeedbackError }): void
 }
 export type FeedbackSlots = { "close-button"?(): any; pending?(): any; success?(): any; error?(): any }
 ```
@@ -184,7 +184,7 @@ export class Tab implements ITab {
 // icon: "form", isDefault: true }). Never Tab.create("My Products", …) — a spaced/cased key breaks both.
 // TabNavigation renders `tab.title` VERBATIM — it does not run `$t()`. Omitting `values.title` shows the
 // raw key in the tab strip; translate eagerly (useLang().translate(...)) when building the tabs array.
-export type TabContainerProps = { tabs: Array<ITab | string | null>; useRouteNav?: boolean; active?: string }
+export type TabContainerProps = { tabs: Array<ITab | string | undefined>; useRouteNav?: boolean; active?: string }
 export type TabsEmits = { (e: "select", tab: string): void }
 export type TabNavigationProps = { tabs: Array<ITab>; activeTab: string }
 // TabContainer renders one named slot per tab key; `useRouteNav` syncs the active tab with the route

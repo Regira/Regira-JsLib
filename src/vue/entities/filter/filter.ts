@@ -48,7 +48,7 @@ export function useFilter<SO extends ISearchObject = DefaultSearchObject>({ sear
         },
         handleReset: () => {
             //searchObject.value.reset()
-            //set all values to null
+            //set all values to undefined
             const newValue = Object.fromEntries(
                 Object.entries({
                     ...searchObject.value,

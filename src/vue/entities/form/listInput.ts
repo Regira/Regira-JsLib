@@ -20,7 +20,7 @@ export function useListInput<T extends IEntity & { id: number }>({ props, emit }
     }
     function handleSave({ saved, isNew }: SaveResult<T>) {
         if (isNew) {
-            const minId = ((min(items.value, (x) => x.id) as number | null) ?? 0) - 1
+            const minId = ((min(items.value, (x) => x.id) as number | undefined) ?? 0) - 1
             saved.id = minId
             emit("update:modelValue", items.value.concat([saved]))
             newItem.value = { id: 0 } as T

@@ -71,9 +71,9 @@ const getTimezoneOffset = function (date: Date): string {
  *  the date as Date or time in milliseconds
  * @returns the serialized date
  */
-export const stringifyDate = function (date: Date | number): string | null {
+export const stringifyDate = function (date: Date | number): string | undefined {
     if (!isValidDate(date)) {
-        return null
+        return undefined
     }
 
     //https://stackoverflow.com/questions/31096130/how-to-json-stringify-a-javascript-date-and-preserve-timezone#36643588
