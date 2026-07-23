@@ -19,7 +19,7 @@ export declare const formModalDefaults: {
 interface FormModalIn<T extends IEntity> {
     entityService: IEntityService<T>;
     model: Ref<T | undefined>;
-    itemDefaults?: Ref<Record<string, any>> | Record<string, any> | Ref<object> | ((item: T) => Promise<T>);
+    itemDefaults?: Ref<Record<string, unknown>> | Record<string, unknown> | Ref<object> | ((item: T) => Promise<T>);
     closeOnSave?: boolean;
     closeOnCancel?: boolean;
     closeOnDelete?: boolean;

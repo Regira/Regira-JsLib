@@ -6,7 +6,7 @@ var t = class {
 	_autoRefresh;
 	state;
 	constructor({ authenticationService: e, autoRefresh: t = !1 }) {
-		this._service = e, this._autoRefreshTimer = null, this._autoRefresh = t, this._setState();
+		this._service = e, this._autoRefresh = t, this._setState();
 	}
 	get autoRefresh() {
 		return this._autoRefresh;
@@ -26,7 +26,7 @@ var t = class {
 		let e = { ...this.state };
 		return this._setState(), this.trigger("logoff", e);
 	}
-	_setState(e = null) {
+	_setState(e) {
 		if (!e) {
 			this.state = { isAuthenticated: !1 };
 			return;

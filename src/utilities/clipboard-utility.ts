@@ -1,4 +1,5 @@
-function fallbackCopyTextToClipboard(text: string) {
+function fallbackCopyTextToClipboard(text: string): Promise<void> {
+    // last resort for non-secure contexts where navigator.clipboard is unavailable
     const textArea = document.createElement("textarea")
     textArea.value = text
 
@@ -11,17 +12,17 @@ function fallbackCopyTextToClipboard(text: string) {
     textArea.focus()
     textArea.select()
 
-    const successful = document.execCommand("copy")
-    document.body.removeChild(textArea)
+    try {
+        document.execCommand("copy")
+    } finally {
+        textArea.remove()
+    }
 
-    return Promise.resolve(successful)
+    return Promise.resolve()
 }
 
-export function copyTextToClipboard(text: string) {
-    if (!navigator.clipboard) {
-        return fallbackCopyTextToClipboard(text)
-    }
-    return navigator.clipboard.writeText(text)
+export function copyTextToClipboard(text: string): Promise<void> {
+    return navigator.clipboard?.writeText(text) ?? fallbackCopyTextToClipboard(text)
 }
 
 export default copyTextToClipboard

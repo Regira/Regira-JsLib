@@ -2,7 +2,7 @@ import { type Ref, type ComputedRef } from "vue";
 import type { IEntity, IEntityService } from "../abstractions";
 export type LeanOverviewProps<T extends IEntity> = {
     service: IEntityService<T>;
-    query?: Record<string, any>;
+    query?: Record<string, unknown>;
     pageSize?: number;
 };
 export declare const leanOverviewDefaults: {

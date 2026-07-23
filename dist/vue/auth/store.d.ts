@@ -16,7 +16,7 @@ export interface IDefineAuthStore {
     setClientApp(clientApp?: string): void;
     login({ username, password }: LoginInput): Promise<boolean>;
     validateToken(): Promise<boolean>;
-    refresh(o: Record<string, any>): Promise<boolean>;
+    refresh(o: Record<string, unknown>): Promise<boolean>;
     logout(): void;
 }
 export interface IAuthStore extends Store {
@@ -33,7 +33,7 @@ export interface IAuthStore extends Store {
     setClientApp(clientApp?: string): void;
     login({ username, password }: LoginInput): Promise<boolean>;
     validateToken(): Promise<boolean>;
-    refresh(o: Record<string, any>): Promise<boolean>;
+    refresh(o: Record<string, unknown>): Promise<boolean>;
     logout(): void;
 }
 export declare function createStore(): IDefineAuthStore;

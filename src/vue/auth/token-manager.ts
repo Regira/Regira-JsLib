@@ -21,7 +21,7 @@ export class CookieTokenManager implements ITokenManager {
         if (value != null) {
             document.cookie = `${this.fullKey}=${value}; path=/;`
         } else {
-            document.cookie = `${this.fullKey}=;expires=${(new Date() as any) - 1}; path=/;`
+            document.cookie = `${this.fullKey}=;expires=${new Date(0).toUTCString()}; path=/;`
         }
     }
 

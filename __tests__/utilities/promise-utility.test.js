@@ -36,13 +36,9 @@ describe("testing enqueue on Promise functions", () => {
             expect(result).toEqual([1, 2, 3, 4])
         })
     })
-    test("enqueue a collection of functions resulting in a Promise with at least 1 error response", () => {
-        return enqueue(data.fnListWithError).catch(async (results) => {
-            expect(data.spyFunc.mock.calls.length).toBe(results.length)
-            expect(results[1]).instanceOf(Error)
-            expect(results[1].message).toBe(data.errorMessage)
-            expect(results).toEqual([1, Error(data.errorMessage), 3, 4])
-        })
+    test("enqueue a collection of functions resulting in a Promise, rejecting with all errors", async () => {
+        await expect(enqueue(data.fnListWithError)).rejects.toEqual([Error(data.errorMessage)])
+        expect(data.spyFunc.mock.calls.length).toBe(data.fnListWithError.length)
     })
 })
 // test async
@@ -51,12 +47,17 @@ describe("testing enqueue on async functions", () => {
         await expect(enqueue(data.fnListSuccess)).resolves.toEqual([1, 2, 3, 4])
         await expect(data.spyFunc.mock.calls.length).toBe(data.fnListSuccess.length)
     })
-    test("enqueue a collection of async functions with at least 1 error response", async () => {
-        try {
-            await enqueue(data.fnListWithError)
-        } catch (results) {
-            expect(data.spyFunc.mock.calls.length).toBe(data.fnListWithError.length)
-            expect(results).toEqual([1, Error(data.errorMessage), 3, 4])
-        }
+    test("enqueue a collection of async functions, rejecting with all errors", async () => {
+        await expect(enqueue(data.fnListWithError)).rejects.toEqual([Error(data.errorMessage)])
+        expect(data.spyFunc.mock.calls.length).toBe(data.fnListWithError.length)
+    })
+    test("runs every function and rejects with ALL errors when multiple fail", async () => {
+        const list = [() => data.func(1, 5), () => data.func(2, 5, "first"), () => data.func(3, 5), () => data.func(4, 5, "second")]
+        await expect(enqueue(list)).rejects.toEqual([Error("first"), Error("second")])
+    })
+    test("throwOnFirstError stops at and rejects with the first error", async () => {
+        const list = [() => data.func(1, 5, "boom"), () => data.func(2, 5)]
+        await expect(enqueue(list, true)).rejects.toEqual(Error("boom"))
+        expect(data.spyFunc.mock.calls.length).toBe(1) // the second task never ran
     })
 })

@@ -1,9 +1,9 @@
-import type { App } from "vue"
+import type { App, DirectiveBinding } from "vue"
 
 export const clickOutside = {
-    beforeMount: (el: any, binding: any) => {
+    beforeMount: (el: HTMLElement & { clickOutsideEvent?: (event: PointerEvent) => void }, binding: DirectiveBinding) => {
         el.clickOutsideEvent = (event: PointerEvent): void => {
-            if (!(el == event.target || el.contains(event.target))) {
+            if (!(el == event.target || el.contains(event.target as Node | null))) {
                 if (typeof binding.value == "function") {
                     binding.value(event)
                 }

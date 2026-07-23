@@ -13,11 +13,11 @@ export function cleanQueryParams(queryParams: Record<string, unknown>, _defaultP
         })
     )
 }
-export function parseQueryParams(queryParams: Record<string, any>): Record<string, any> {
+export function parseQueryParams(queryParams: Record<string, unknown>): { searchObject: Record<string, unknown>; pagingInfo: IPagingInfo } {
     const { page, pageSize, ...searchObject } = queryParams
     const pagingInfo: IPagingInfo = {
-        page: parseInt(page) || 1,
-        pageSize: parseInt(pageSize),
+        page: parseInt(page as string) || 1,
+        pageSize: parseInt(pageSize as string),
     }
     return { searchObject, pagingInfo }
 }

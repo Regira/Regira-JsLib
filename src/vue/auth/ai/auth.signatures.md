@@ -64,7 +64,7 @@ export interface IAuthService {
     options: IAuthOptions
     authenticate({ token, isAuthenticated }: IAuthenticateInput): IAuthData
     login(username: string, password: string, clientApp?: string): Promise<IAuthData>
-    refresh(o?: Record<string, any>): Promise<IAuthData>
+    refresh(o?: Record<string, unknown>): Promise<IAuthData>
     validateToken(): Promise<IAuthData>
     logout(): void
     changePassword(input: IChangePasswordInput): Promise<void>
@@ -154,7 +154,7 @@ export interface IAuthStore extends Store {
     setClientApp(clientApp?: string): void
     login({ username, password }: LoginInput): Promise<boolean>
     validateToken(): Promise<boolean>
-    refresh(o: Record<string, any>): Promise<boolean>
+    refresh(o: Record<string, unknown>): Promise<boolean>
     logout(): void
 }
 export function createStore(): IDefineAuthStore // createStore.storeName

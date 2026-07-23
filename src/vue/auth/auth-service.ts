@@ -13,7 +13,7 @@ export interface IAuthService {
     options: IAuthOptions
     authenticate({ token, isAuthenticated }: IAuthenticateInput): IAuthData
     login(username: string, password: string, clientApp?: string): Promise<IAuthData>
-    refresh(o?: Record<string, any>): Promise<IAuthData>
+    refresh(o?: Record<string, unknown>): Promise<IAuthData>
     validateToken(): Promise<IAuthData>
     logout(): void
     changePassword(input: IChangePasswordInput): Promise<void>
@@ -48,7 +48,7 @@ export class AuthService implements IAuthService {
         const response = await this.axios.post(url, { username, password })
         return this.authenticate(response.data)
     }
-    async refresh(queryParams?: Record<string, any>): Promise<IAuthData> {
+    async refresh(queryParams?: Record<string, unknown>): Promise<IAuthData> {
         const query = createQueryString(queryParams || {})
         const url = `auth/refresh/?${query}`
         const response = await this.axios.post(url)

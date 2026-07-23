@@ -10,12 +10,15 @@ var e = (e, t = 250) => {
 			}, t);
 		});
 	};
-}, t = async (e) => {
-	let t = !1, n = await e.reduce(async (e, n) => {
-		let r = await e, i = await Promise.resolve(n()).catch((e) => (t = !0, e));
-		return r.push(i), r;
-	}, Promise.resolve([]));
-	return t ? Promise.reject(n) : n;
+}, t = async (e, t = !1) => {
+	let n = [], r = [];
+	for (let i of e) try {
+		n.push(await i());
+	} catch (e) {
+		if (t) throw e;
+		r.push(e);
+	}
+	return r.length ? Promise.reject(r) : n;
 }, n = (e = 1e3) => new Promise((t) => setTimeout(t, e)), r = {
 	debounceToPromise: e,
 	enqueue: t,

@@ -57,7 +57,9 @@ back-end expects.
 
 - `Promise.debounce(func, wait?)` — wraps `func` in a debouncer; every call returns a promise and they all
   resolve to the final invoked value (see `debounceToPromise`).
-- `Promise.enqueue(arr)` — runs an array of (async) functions in order, resolving to the array of results.
+- `Promise.enqueue(arr, throwOnFirstError?)` — runs an array of (async) functions in order, resolving to the
+  array of results. By default it runs them all and rejects with the array of every error; pass
+  `throwOnFirstError` to stop at and reject with the first error.
 
 ## Gotchas
 

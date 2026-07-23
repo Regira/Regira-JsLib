@@ -9,11 +9,9 @@ let growOptions: Options
 function convertRemToPixels(rem: number) {
     return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
-function callback(e: any) {
-    const {
-        target: el,
-        target: { value },
-    } = e
+function callback(e: Event) {
+    const el = e.target as HTMLTextAreaElement
+    const value = el.value
     const lines = value?.split("\n").length || 0
     if (lines > 1 && lines <= growOptions.maxGrow) {
         const newHeight = lines * 1.75

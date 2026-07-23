@@ -15,7 +15,7 @@ type IdentityState = {
  */
 declare class IdentityManager {
     private _service;
-    private _autoRefreshTimer;
+    private _autoRefreshTimer?;
     private _autoRefresh;
     state: IdentityState;
     constructor({ authenticationService, autoRefresh }: {

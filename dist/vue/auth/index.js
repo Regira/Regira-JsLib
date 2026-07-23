@@ -106,7 +106,7 @@ var O = class {
 		return Object.fromEntries((document.cookie || "").split(";").filter((e) => e.indexOf("=") > 1 && e.indexOf("=") < e.length - 1).map((e) => [e.substring(0, e.indexOf("=")).trim(), e.substring(e.indexOf("=") + 1).trim()]))[this.fullKey];
 	}
 	set token(e) {
-		e == null ? document.cookie = `${this.fullKey}=;expires=${/* @__PURE__ */ new Date() - 1}; path=/;` : document.cookie = `${this.fullKey}=${e}; path=/;`;
+		e == null ? document.cookie = `${this.fullKey}=;expires=${(/* @__PURE__ */ new Date(0)).toUTCString()}; path=/;` : document.cookie = `${this.fullKey}=${e}; path=/;`;
 	}
 	get fullKey() {
 		return this.prefix + M;
@@ -235,7 +235,7 @@ var G = { async install(e, t) {
 		}
 	}, n && f.$patch({ clientApp: n })) : e.config.globalProperties.$auth = { enabled: !1 }, R(e.config.globalProperties.$auth), c) {
 		U(o, i);
-		let e = 0;
+		let e;
 		S(() => f.isAuthenticated, () => {
 			f.isAuthenticated && (clearInterval(e), e = setInterval(() => f.validateToken(), f.authData.expires * 1e3)), l(f.authData);
 		}), await f.validateToken(), s && j({

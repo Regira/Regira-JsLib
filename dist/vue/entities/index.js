@@ -66,7 +66,7 @@ function N({ searchObject: e, emit: t, Constructor: n }) {
 			r(), i();
 		},
 		handleReset: () => {
-			t("update:modelValue", Object.fromEntries(Object.entries({ ...e.value }).map(([e, t]) => [e, void 0]))), i();
+			t("update:modelValue", Object.fromEntries(Object.entries({ ...e.value }).map(([e]) => [e, void 0]))), i();
 		}
 	};
 }
@@ -427,7 +427,7 @@ function Me({ pagingInfo: e, searchObject: t, defaultPageSize: n = 10, handler: 
 	}
 	async function o() {
 		let { searchObject: a, pagingInfo: o } = p(i.currentRoute.value.query);
-		o.page ||= 1, (isNaN(o.pageSize) || o.pageSize == null) && n > 0 && (o.pageSize = n), t.value != null && (t.value = a), e.value != null && (e.value = o), await r();
+		o.page ||= 1, (o.pageSize == null || isNaN(o.pageSize)) && n > 0 && (o.pageSize = n), t.value != null && (t.value = a), e.value != null && (e.value = o), await r();
 	}
 	let s = me(i.currentRoute, async (e, t) => {
 		e.name === t.name && await o();

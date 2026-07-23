@@ -1,7 +1,7 @@
 import "regenerator-runtime/runtime";
 //import { Blob } from "blob-polyfill";
-import { expect, test, describe, beforeEach } from "vitest";
-import { isFile, getFilename, base64ToBlob, blobToBase64, getExtension, readAllText } from "../../src/utilities/file-utility";
+import { expect, test, describe, beforeEach, afterEach, vi } from "vitest";
+import { isFile, getFilename, base64ToBlob, blobToBase64, getExtension, readAllText, fileToBlob, saveAs } from "../../src/utilities/file-utility";
 
 const data = {};
 beforeEach(() => {
@@ -78,4 +78,64 @@ test("reading content", async (done) => {
   const jsonContent = await readAllText(data.jsonBlob);
   expect(jsonContent).toBe(data.jsonContent);
   return Promise.resolve();
+});
+
+test("fileToBlob returns a renamable Blob with preserved content", async () => {
+  const file = new File(["file-content"], "orig.txt", { type: "text/plain" });
+  const blob = await fileToBlob(file);
+  expect(blob instanceof Blob).toBeTruthy();
+  expect(blob.name).toBe("orig.txt");
+  expect(await blob.text()).toBe("file-content");
+
+  const renamed = await fileToBlob(file, "renamed.txt", "application/x-custom");
+  expect(renamed.name).toBe("renamed.txt");
+  expect(renamed.type).toBe("application/x-custom");
+  expect(await renamed.text()).toBe("file-content");
+});
+
+describe("saveAs triggers a browser download", () => {
+  let createSpy, revokeSpy, clickSpy, clicked;
+  beforeEach(() => {
+    createSpy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock-url");
+    revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    clicked = undefined;
+    clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function () {
+      clicked = this;
+    });
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  test("creates an object URL, clicks a download link and revokes the URL", () => {
+    vi.useFakeTimers();
+    try {
+      const blob = new Blob(["hello"], { type: "text/plain" });
+      saveAs(blob, "greeting.txt");
+
+      expect(createSpy).toHaveBeenCalledWith(blob);
+      expect(clickSpy).toHaveBeenCalledTimes(1);
+      expect(clicked).toBeTruthy();
+      expect(clicked.download).toBe("greeting.txt");
+      expect(clicked.getAttribute("href")).toBe("blob:mock-url");
+      // the link is removed from the DOM right after the click
+      expect(document.querySelector("a[download]")).toBeNull();
+
+      // the object URL is released on the scheduled timeout
+      vi.runAllTimers();
+      expect(revokeSpy).toHaveBeenCalledWith("blob:mock-url");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("falls back to the blob name, then to 'file'", () => {
+    const named = new Blob(["x"]);
+    named.name = "from-name.bin";
+    saveAs(named);
+    expect(clicked.download).toBe("from-name.bin");
+
+    saveAs(new Blob(["x"]));
+    expect(clicked.download).toBe("file");
+  });
 });

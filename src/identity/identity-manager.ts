@@ -19,13 +19,12 @@ type IdentityState = {
  */
 class IdentityManager {
     private _service: AuthService
-    private _autoRefreshTimer: ReturnType<typeof setTimeout> | null
+    private _autoRefreshTimer?: ReturnType<typeof setTimeout>
     private _autoRefresh: boolean
     state!: IdentityState
 
     constructor({ authenticationService, autoRefresh = false }: { authenticationService: AuthService; autoRefresh?: boolean }) {
         this._service = authenticationService
-        this._autoRefreshTimer = null
         this._autoRefresh = autoRefresh
 
         this._setState()
@@ -57,7 +56,7 @@ class IdentityManager {
         return (this as unknown as { trigger(e: string, arg?: unknown): Promise<unknown[]> }).trigger("logoff", oldState)
     }
 
-    _setState(response: unknown = null) {
+    _setState(response?: unknown) {
         if (!response) {
             this.state = { isAuthenticated: false }
             return

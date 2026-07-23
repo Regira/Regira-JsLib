@@ -1,4 +1,4 @@
-const ALPHABET_SIZE = 26
+const RANDOM_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const WHITESPACE_CHARS = " \t\v\f\uFEFF\n\r\u2028\u2029"
 
 // basic
@@ -59,19 +59,34 @@ export const replaceAll = (s: string, find: string, replace: string) => {
 }
 
 // generating
+const secureRandomInt = (maxExclusive: number): number => crypto.getRandomValues(new Uint32Array(1))[0]! % maxExclusive
+// cryptographically secure random alphanumeric string, unbiased across the 62-char set
 export function randomize(length = 10) {
-    return [...Array(length)]
-        .map(() => Math.floor(Math.random() * (10 + ALPHABET_SIZE * 2))) // include uppercase
-        .map((x) => (x > 10 + ALPHABET_SIZE ? (x - ALPHABET_SIZE).toString(36).toUpperCase() : x.toString(36)))
-        .join("")
+    const maxUnbiased = Math.floor(256 / RANDOM_CHARS.length) * RANDOM_CHARS.length
+    let result = ""
+    while (result.length < length) {
+        const bytes = crypto.getRandomValues(new Uint8Array(length - result.length))
+        for (let i = 0; i < bytes.length && result.length < length; i++) {
+            // drop the top bytes that would bias the modulo, then map into the charset
+            if (bytes[i]! < maxUnbiased) {
+                result += RANDOM_CHARS[bytes[i]! % RANDOM_CHARS.length]
+            }
+        }
+    }
+    return result
 }
 export function newGuid() {
-    return ("" + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: any) =>
-        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0]! & (15 >> (c / 4)))).toString(16)
-    )
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID()
+    }
+    // fallback for older browsers / non-secure contexts where randomUUID is unavailable
+    return ("" + 1e7 + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c: string) => {
+        const n = Number(c)
+        return (n ^ (crypto.getRandomValues(new Uint8Array(1))[0]! & (15 >> (n / 4)))).toString(16)
+    })
 }
-// random pasword from 8 to 32 characters
-export const newPassword = (length = Math.floor(Math.random() * 24) + 8) => randomize(length)
+// random password from 8 to 31 characters
+export const newPassword = (length = 8 + secureRandomInt(24)) => randomize(length)
 
 // validation
 // consider using https://github.com/validatorjs/validator.js
@@ -138,11 +153,15 @@ export function htmlEncode(s: string) {
     return s.replace(/[\u00A0-\u9999<>&]/gim, (i) => "&#" + i.charCodeAt(0) + ";")
 }
 export function htmlDecode(s: string) {
-    return s.replace(/&#(\d+);/g, (_match, dec) => String.fromCharCode(dec))
-    // https://stackoverflow.com/questions/3700326/decode-amp-back-to-in-javascript#answer-42254787
-    // return typeof (DOMParser) === 'function'
-    // 	? new DOMParser().parseFromString(`<!doctype html><body>${s}`, 'text/html').body.textContent
-    // 	: s.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
+    // A detached <textarea> decodes every HTML character reference (named, decimal and hex)
+    // while leaving literal markup intact — textarea content is parsed as RCDATA, not HTML.
+    if (typeof document !== "undefined") {
+        const el = document.createElement("textarea")
+        el.innerHTML = s
+        return el.value
+    }
+    // fallback for non-DOM environments: decode decimal and hex numeric entities
+    return s.replace(/&#(x?)([0-9a-f]+);/gi, (_match, hex: string, code: string) => String.fromCodePoint(parseInt(code, hex ? 16 : 10)))
 }
 // -> use _.deburr() instead
 // replaces special characters to their equivalent simple characters (e.g. é -> e)

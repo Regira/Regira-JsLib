@@ -268,14 +268,14 @@ export declare const setCanonicalTag: (url: string) => void
 
 ```ts
 export declare const debounceToPromise: <T>(func: (...args: unknown[]) => T, wait?: number) => (...args: unknown[]) => Promise<T>
-export declare const enqueue: (arr: Array<() => unknown>) => Promise<unknown[]>
+export declare const enqueue: (arr: Array<() => unknown>, throwOnFirstError?: boolean) => Promise<unknown[]> // runs all in order; rejects with the array of all errors, or the first error when throwOnFirstError
 export declare const delay: (ms?: number) => Promise<unknown>
 ```
 
 ## clipboardUtility
 
 ```ts
-export declare function copyTextToClipboard(text: string): Promise<boolean> | Promise<void>
+export declare function copyTextToClipboard(text: string): Promise<void>
 export default copyTextToClipboard // the namespace is the function itself
 ```
 

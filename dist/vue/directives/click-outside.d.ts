@@ -1,6 +1,8 @@
-import type { App } from "vue";
+import type { App, DirectiveBinding } from "vue";
 export declare const clickOutside: {
-    beforeMount: (el: any, binding: any) => void;
+    beforeMount: (el: HTMLElement & {
+        clickOutsideEvent?: (event: PointerEvent) => void;
+    }, binding: DirectiveBinding) => void;
     unmounted: (el: HTMLElement & {
         clickOutsideEvent(): void;
     }) => void;

@@ -19,7 +19,7 @@ function o(e) {
 	return e * parseFloat(getComputedStyle(document.documentElement).fontSize);
 }
 function s(e) {
-	let { target: t, target: { value: n } } = e, r = n?.split("\n").length || 0;
+	let t = e.target, n = t.value, r = n?.split("\n").length || 0;
 	if (r > 1 && r <= a.maxGrow) {
 		let e = r * 1.75;
 		o(e) > t.offsetHeight && (t.style.minHeight = e + "rem");

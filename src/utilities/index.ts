@@ -9,7 +9,6 @@ import numberUtility from "./number-utility"
 import objectUtility from "./object-utility"
 import promiseUtility from "./promise-utility"
 import stringUtility from "./string-utility"
-//import webpackUtility from "./webpack-utility";
 import clipboardUtility from "./clipboard-utility"
 
 export {
@@ -24,7 +23,6 @@ export {
     objectUtility,
     promiseUtility,
     stringUtility,
-    //webpackUtility,
     clipboardUtility,
 }
 
@@ -43,6 +41,5 @@ export default {
     objectUtility,
     promiseUtility,
     stringUtility,
-    //webpackUtility,
     clipboardUtility,
 }

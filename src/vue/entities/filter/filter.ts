@@ -52,7 +52,7 @@ export function useFilter<SO extends ISearchObject = DefaultSearchObject>({ sear
             const newValue = Object.fromEntries(
                 Object.entries({
                     ...searchObject.value,
-                }).map(([key, _]: [key: string, _: any]) => [key, undefined])
+                }).map(([key]) => [key, undefined])
             ) as SO
             emit("update:modelValue", newValue)
             handleFilter()

@@ -75,7 +75,7 @@ export default _default
 ```ts
 // from utilities/promise-utility
 export declare const debounceToPromise: <T>(func: (...args: unknown[]) => T, wait?: number) => (...args: unknown[]) => Promise<T>
-export declare const enqueue: (arr: Array<() => unknown>) => Promise<unknown[]>
+export declare const enqueue: (arr: Array<() => unknown>, throwOnFirstError?: boolean) => Promise<unknown[]>
 ```
 
 ## See also

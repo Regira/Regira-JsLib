@@ -6,7 +6,7 @@ var t = (e) => typeof e == "object" && !!e && Object.prototype.toString.call(e) 
 		else if (typeof e != "object") i[r] = e;
 		else for (let a of Object.entries(e)) {
 			let e = a[0], o = a[1];
-			if (Array.isArray(o)) for (let a in o) {
+			if (Array.isArray(o)) for (let a = 0; a < o.length; a++) {
 				let s = t(`${e}[${a}]`, r);
 				n(o[a], s, i);
 			}
@@ -19,6 +19,9 @@ var t = (e) => typeof e == "object" && !!e && Object.prototype.toString.call(e) 
 	};
 	return n(e);
 }, r = (e, t) => t.split(".").reduce((e, t) => e?.[t], e), i = (e) => {
+	if (typeof structuredClone == "function") try {
+		return structuredClone(e);
+	} catch {}
 	let t = (e, t) => e.filter(t)[0], n = (e, r = []) => {
 		if (typeof e != "object" || !e) return e;
 		let i = t(r, (t) => t.original === e);

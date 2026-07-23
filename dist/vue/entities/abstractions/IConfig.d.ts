@@ -8,8 +8,8 @@ export interface IConfig extends Record<string, any> {
     requires?: Array<string>;
     isComplex?: boolean;
     routePrefix: string;
-    baseQueryParams?: Record<string, any>;
-    initialQuery?: Record<string, any>;
+    baseQueryParams?: Record<string, unknown>;
+    initialQuery?: Record<string, unknown>;
     overviewTitle?: string;
     detailsTitle?: string;
     description?: string;

@@ -3,6 +3,7 @@ export enum NavTypes {
     navbar = "Navbar",
 }
 
+// index signature is intentionally `any` so apps can add & read arbitrary extra config fields without casts
 export interface IConfig extends Record<string, any> {
     name?: string
     key: string
@@ -10,8 +11,8 @@ export interface IConfig extends Record<string, any> {
     isComplex?: boolean
 
     routePrefix: string
-    baseQueryParams?: Record<string, any>
-    initialQuery?: Record<string, any>
+    baseQueryParams?: Record<string, unknown>
+    initialQuery?: Record<string, unknown>
 
     overviewTitle?: string
     detailsTitle?: string

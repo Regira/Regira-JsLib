@@ -7,7 +7,7 @@ export interface INavCore {
 }
 export interface IRoutingNavItem {
     routeName: string;
-    initialQuery?: Record<string, any>;
+    initialQuery?: Record<string, unknown>;
 }
 export interface INavItem extends INavCore, IRoutingNavItem {
 }

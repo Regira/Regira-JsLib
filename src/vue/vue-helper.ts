@@ -1,7 +1,12 @@
 import { computed, type WritableComputedRef, onMounted, onUnmounted, type ComputedRef } from "vue"
 import type { IEntity, IPoolHandler } from "./entities"
 
-export function useVModelField<T>(props: Readonly<Record<string, any>>, emit: any, name = "modelValue", defaultValue?: T): WritableComputedRef<T> {
+export function useVModelField<T>(
+    props: Readonly<Record<string, unknown>>,
+    emit: any,
+    name = "modelValue",
+    defaultValue?: T
+): WritableComputedRef<T> {
     return computed<T>({
         get: () => (typeof props[name] !== "undefined" ? props[name] : defaultValue) as T,
         set: (value: T) => {

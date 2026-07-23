@@ -3,7 +3,7 @@ import type { IEntity, SaveResult } from "../abstractions";
 type Input<T> = {
     props: {
         modelValue?: T;
-        itemDefaults?: Ref<Record<string, any>> | Record<string, any>;
+        itemDefaults?: Ref<Record<string, unknown>> | Record<string, unknown>;
     };
     emit: {
         (e: "update:modelValue", args?: T): void;

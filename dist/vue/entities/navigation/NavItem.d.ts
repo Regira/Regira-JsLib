@@ -6,7 +6,7 @@ export declare class NavItem implements INavItem {
     routeName: string;
     title: string;
     description?: string;
-    initialQuery?: Record<string, any>;
+    initialQuery?: Record<string, unknown>;
     parentId?: string;
 }
 export default NavItem;

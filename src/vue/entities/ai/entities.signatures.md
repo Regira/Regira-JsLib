@@ -178,8 +178,8 @@ export interface IConfig extends Record<string, any> {
     requires?: Array<string>
     isComplex?: boolean
     routePrefix: string // URL path segment
-    baseQueryParams?: Record<string, any> // merged into every list/search request
-    initialQuery?: Record<string, any>
+    baseQueryParams?: Record<string, unknown> // merged into every list/search request
+    initialQuery?: Record<string, unknown>
     overviewTitle?: string
     detailsTitle?: string
     description?: string
@@ -480,7 +480,7 @@ export function useListItemInput<T extends IEntity & { id: number; _deleted: boo
     props,
     emit,
 }: {
-    props: Readonly<Record<string, any>>
+    props: Readonly<Record<string, unknown>>
     emit: any
 }): {
     item: WritableComputedRef<T>
@@ -578,7 +578,7 @@ export interface INavCore {
 }
 export interface IRoutingNavItem {
     routeName: string
-    initialQuery?: Record<string, any>
+    initialQuery?: Record<string, unknown>
 }
 export interface INavItem extends INavCore, IRoutingNavItem {}
 export class NavGroup implements INavCore {
@@ -594,7 +594,7 @@ export class NavItem implements INavItem {
     routeName: string
     title: string
     description?: string
-    initialQuery?: Record<string, any>
+    initialQuery?: Record<string, unknown>
     parentId?: string
 }
 export function createNavItem(input: IConfig, parentId?: string): INavItem
@@ -633,7 +633,7 @@ export const plugin: { install(_: App): void; preload: typeof preload; ready: ty
 ```ts
 import { cleanQueryParams, parseQueryParams } from "regira_modules/vue/entities"
 export function cleanQueryParams(queryParams: Record<string, unknown>, _defaultPageSize?: number): Record<string, unknown>
-export function parseQueryParams(queryParams: Record<string, any>): Record<string, any> // → { searchObject, pagingInfo }
+export function parseQueryParams(queryParams: Record<string, unknown>): { searchObject: Record<string, unknown>; pagingInfo: IPagingInfo } // → { searchObject, pagingInfo }
 ```
 
 ---
@@ -680,7 +680,7 @@ they run without plugins, stores, or routes.
 import { EntityOverview, EntityForm, useLeanOverview, useLeanForm, leanOverviewDefaults } from "regira_modules/vue/entities"
 
 // EntityOverview — list + built-in server paging + delete
-//   props:   LeanOverviewProps<T> = { service: IEntityService<T>; query?: Record<string, any>; pageSize?: number }   // pageSize default 10
+//   props:   LeanOverviewProps<T> = { service: IEntityService<T>; query?: Record<string, unknown>; pageSize?: number }   // pageSize default 10
 //   slots:   LeanOverviewSlots<T> = toolbar({ reload, setPage }), head(), row({ item, remove, reload }), paging({ page, pageCount, count, setPage })
 //   exposes: { reload(): Promise<void>; setPage(p): Promise<void> }       // search({ ...query, page, pageSize })
 

@@ -9,40 +9,28 @@ export const contentTypes = {
 }
 const DEFAULT_CONTENTTYPE = contentTypes.jpg
 
-export const getImageContentType = async (img: HTMLImageElement) => {
+export const getImageContentType = async (img: HTMLImageElement): Promise<string | undefined> => {
     // https://stackoverflow.com/questions/18299806/how-to-check-file-mime-type-with-javascript-before-upload#answer-29672957
     const blob = await imageToBlob(img)
-    const fileReader = new FileReader()
-    return new Promise<string | undefined>((resolve) => {
-        fileReader.onloadend = (e) => {
-            const arr = new Uint8Array(e.target!.result as ArrayBuffer).subarray(0, 4)
-            let header = ""
-            for (var i = 0; i < arr.length; i++) {
-                header += arr[i].toString(16)
-            }
-            let type
-            switch (header) {
-                case "89504e47":
-                    type = contentTypes.png
-                    break
-                case "47494638":
-                    type = contentTypes.gif
-                    break
-                case "ffd8ffe0":
-                case "ffd8ffe1":
-                case "ffd8ffe2":
-                case "ffd8ffe3":
-                case "ffd8ffe8":
-                    type = contentTypes.jpg
-                    break
-                default:
-                    type = undefined
-                    break
-            }
-            resolve(type)
-        }
-        fileReader.readAsArrayBuffer(blob)
-    })
+    const arr = new Uint8Array(await blob.arrayBuffer()).subarray(0, 4)
+    let header = ""
+    for (let i = 0; i < arr.length; i++) {
+        header += arr[i].toString(16)
+    }
+    switch (header) {
+        case "89504e47":
+            return contentTypes.png
+        case "47494638":
+            return contentTypes.gif
+        case "ffd8ffe0":
+        case "ffd8ffe1":
+        case "ffd8ffe2":
+        case "ffd8ffe3":
+        case "ffd8ffe8":
+            return contentTypes.jpg
+        default:
+            return undefined
+    }
 }
 export const parseContentType = (type: string | undefined) => (type || contentTypes.jpg).replace("/jpg", "/jpeg")
 

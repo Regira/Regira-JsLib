@@ -170,7 +170,7 @@ declare const _default: {
     };
     promiseUtility: {
         debounceToPromise: <T>(func: (...args: unknown[]) => T, wait?: number) => (...args: unknown[]) => Promise<T>;
-        enqueue: (arr: Array<() => unknown>) => Promise<unknown[]>;
+        enqueue: (arr: Array<() => unknown>, throwOnFirstError?: boolean) => Promise<unknown[]>;
         delay: (ms?: number) => Promise<unknown>;
     };
     stringUtility: {

@@ -124,6 +124,24 @@ test("htmlEncode", () => {
 test("htmlEncode & htmlDecode equals original", () => {
   expect(htmlDecode(htmlEncode(frenchInput))).toBe(frenchInput);
 });
+test("htmlDecode decodes named and hex entities, preserving literal markup", () => {
+  expect(htmlDecode("&amp;&lt;&gt;&quot;")).toBe('&<>"');
+  expect(htmlDecode("&#x41;&#66;")).toBe("AB");
+  expect(htmlDecode("plain <b>text</b> &amp; more")).toBe("plain <b>text</b> & more");
+});
+
+import { randomize, newPassword } from "../../src/utilities/string-utility";
+test("randomize returns a string of the requested length from the alphanumeric charset", () => {
+  const s = randomize(40);
+  expect(s).toHaveLength(40);
+  expect(s).toMatch(/^[0-9a-zA-Z]+$/);
+});
+test("newPassword returns an 8-31 char alphanumeric string", () => {
+  const p = newPassword();
+  expect(p.length).toBeGreaterThanOrEqual(8);
+  expect(p.length).toBeLessThanOrEqual(31);
+  expect(p).toMatch(/^[0-9a-zA-Z]+$/);
+});
 
 // TRANSFORMING
 import { capitalize, toKebabCase, toSnakeCase, toTrainCase, toCamelCase, toPascalCase, slugify } from "../../src/utilities/string-utility";

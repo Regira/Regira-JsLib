@@ -27,22 +27,28 @@ export const debounceToPromise = <T>(func: (...args: unknown[]) => T, wait = 250
     }
 }
 /**
- * Executes a collection of async functions in order
- * @param {Array<Function>} array of (async) functions
+ * Executes a collection of (async) functions in order.
+ * By default every function runs even if earlier ones reject, and the returned promise
+ * rejects with the array of all errors. Pass `throwOnFirstError` to stop at the first
+ * rejection and reject with that single error instead.
+ * @param arr array of (async) functions
+ * @param throwOnFirstError stop and reject on the first error (default false)
  */
-export const enqueue = async (arr: Array<() => unknown>) => {
-    let hasErrors = false
-    const results = await arr.reduce(async (r: Promise<unknown[]>, p: () => unknown) => {
-        const currentResult = await r
-        const newResult = await Promise.resolve(p()).catch((err) => {
-            hasErrors = true
-            return err
-        })
-        currentResult.push(newResult)
-        return currentResult
-    }, Promise.resolve([]))
-    if (hasErrors) {
-        return Promise.reject(results)
+export const enqueue = async (arr: Array<() => unknown>, throwOnFirstError = false): Promise<unknown[]> => {
+    const results: unknown[] = []
+    const errors: unknown[] = []
+    for (const task of arr) {
+        try {
+            results.push(await task())
+        } catch (err) {
+            if (throwOnFirstError) {
+                throw err
+            }
+            errors.push(err)
+        }
+    }
+    if (errors.length) {
+        return Promise.reject(errors)
     }
     return results
 }

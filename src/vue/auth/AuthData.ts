@@ -16,7 +16,7 @@ export interface IAuthData {
 }
 
 export class AuthData implements IAuthData {
-    private _decodedToken: Record<string, any>
+    private _decodedToken: Record<string, any> // decoded JWT claim bag (mixed value types: string, number, string[])
     isAuthenticated: boolean
     expires: number
     userId?: string

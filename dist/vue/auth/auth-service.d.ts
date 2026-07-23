@@ -23,7 +23,7 @@ export interface IAuthService {
     options: IAuthOptions;
     authenticate({ token, isAuthenticated }: IAuthenticateInput): IAuthData;
     login(username: string, password: string, clientApp?: string): Promise<IAuthData>;
-    refresh(o?: Record<string, any>): Promise<IAuthData>;
+    refresh(o?: Record<string, unknown>): Promise<IAuthData>;
     validateToken(): Promise<IAuthData>;
     logout(): void;
     changePassword(input: IChangePasswordInput): Promise<void>;
@@ -38,7 +38,7 @@ export declare class AuthService implements IAuthService {
     constructor(axios: AxiosInstance, tokenManager: ITokenManager, options?: IAuthOptions);
     authenticate({ token, isAuthenticated }: IAuthenticateInput): IAuthData;
     login(username: string, password: string): Promise<IAuthData>;
-    refresh(queryParams?: Record<string, any>): Promise<IAuthData>;
+    refresh(queryParams?: Record<string, unknown>): Promise<IAuthData>;
     validateToken(): Promise<IAuthData>;
     logout(): void;
     changePassword(input: IChangePasswordInput): Promise<void>;

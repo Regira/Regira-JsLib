@@ -39,7 +39,7 @@ export function useListItemInput<T extends IEntity & { id: number; _deleted: boo
     props,
     emit,
 }: {
-    props: Readonly<Record<string, any>>
+    props: Readonly<Record<string, unknown>>
     emit: any
 }) {
     const item = useVModelField<T>(props, emit)

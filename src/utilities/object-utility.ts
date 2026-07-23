@@ -18,7 +18,7 @@ export const flattenObject = (obj: Record<string, unknown>): Record<string, unkn
                 const name = entry[0]
                 const value = entry[1]
                 if (Array.isArray(value)) {
-                    for (let i in value) {
+                    for (let i = 0; i < value.length; i++) {
                         const arrKey = getKey(`${name}[${i}]`, prefix)
                         flattenProperties(value[i], arrKey, result)
                     }
@@ -51,10 +51,19 @@ interface DeepCopyCacheEntry {
     copy: unknown
 }
 
-// ToDo?: export const deepCopy = structuredClone
 export const deepCopy = <T>(obj: T): T => {
-    // https://github.com/vuejs/vuex/blob/dev/src/util.js
+    // Prefer the native structured clone algorithm: it handles Dates, Maps, Sets, typed
+    // arrays and circular references. It throws on non-cloneable values (functions, DOM
+    // nodes, symbols), so fall back to the manual copy which tolerates those.
+    if (typeof structuredClone === "function") {
+        try {
+            return structuredClone(obj)
+        } catch {
+            /* fall through to the manual copy below */
+        }
+    }
 
+    // https://github.com/vuejs/vuex/blob/dev/src/util.js
     const find = (list: DeepCopyCacheEntry[], f: (c: DeepCopyCacheEntry) => boolean) => list.filter(f)[0]
     const copyWithCache = (o: unknown, cache: DeepCopyCacheEntry[] = []): unknown => {
         if (o === null || typeof o !== "object") {

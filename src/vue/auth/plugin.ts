@@ -73,7 +73,7 @@ export default {
         if (enabled) {
             addBearerHeader(axios, tokenManager)
 
-            let tokenInterval: any = 0
+            let tokenInterval: ReturnType<typeof setInterval> | undefined
 
             watch(
                 () => store.isAuthenticated,

@@ -10,14 +10,18 @@
  */
 export declare const debounceToPromise: <T>(func: (...args: unknown[]) => T, wait?: number) => (...args: unknown[]) => Promise<T>;
 /**
- * Executes a collection of async functions in order
- * @param {Array<Function>} array of (async) functions
+ * Executes a collection of (async) functions in order.
+ * By default every function runs even if earlier ones reject, and the returned promise
+ * rejects with the array of all errors. Pass `throwOnFirstError` to stop at the first
+ * rejection and reject with that single error instead.
+ * @param arr array of (async) functions
+ * @param throwOnFirstError stop and reject on the first error (default false)
  */
-export declare const enqueue: (arr: Array<() => unknown>) => Promise<unknown[]>;
+export declare const enqueue: (arr: Array<() => unknown>, throwOnFirstError?: boolean) => Promise<unknown[]>;
 export declare const delay: (ms?: number) => Promise<unknown>;
 declare const _default: {
     debounceToPromise: <T>(func: (...args: unknown[]) => T, wait?: number) => (...args: unknown[]) => Promise<T>;
-    enqueue: (arr: Array<() => unknown>) => Promise<unknown[]>;
+    enqueue: (arr: Array<() => unknown>, throwOnFirstError?: boolean) => Promise<unknown[]>;
     delay: (ms?: number) => Promise<unknown>;
 };
 export default _default;

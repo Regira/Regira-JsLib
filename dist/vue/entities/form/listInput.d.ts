@@ -18,7 +18,7 @@ export declare function useListItemInput<T extends IEntity & {
     id: number;
     _deleted: boolean;
 }>({ props, emit, }: {
-    props: Readonly<Record<string, any>>;
+    props: Readonly<Record<string, unknown>>;
     emit: any;
 }): {
     item: import("vue").WritableComputedRef<T, T>;

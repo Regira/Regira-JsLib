@@ -2,13 +2,13 @@ import "./style.scss";
 import { ModalType, type ModalProps, type ModalSlots } from "./modal";
 type __VLS_Slots = ModalSlots;
 declare const __VLS_base: import("vue").DefineComponent<ModalProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
+    submit: () => any;
     cancel: () => any;
     close: () => any;
-    submit: () => any;
 }, string, import("vue").PublicProps, Readonly<ModalProps> & Readonly<{
+    onSubmit?: (() => any) | undefined;
     onCancel?: (() => any) | undefined;
     onClose?: (() => any) | undefined;
-    onSubmit?: (() => any) | undefined;
 }>, {
     type: ModalType;
     showHeader: boolean;

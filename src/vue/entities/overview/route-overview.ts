@@ -50,7 +50,7 @@ export function useRouteOverview({ pagingInfo, searchObject, defaultPageSize = D
         if (!pi.page) {
             pi.page = 1
         }
-        if ((isNaN(pi.pageSize) || pi.pageSize == null) && defaultPageSize > 0) {
+        if ((pi.pageSize == null || isNaN(pi.pageSize)) && defaultPageSize > 0) {
             pi.pageSize = defaultPageSize
         }
         if (searchObject.value != null) {

@@ -33,11 +33,15 @@ var e = (e, t = 0) => {
 function r(e) {
 	let t = document.createElement("textarea");
 	t.value = e, t.style.top = "0", t.style.left = "0", t.style.position = "fixed", document.body.appendChild(t), t.focus(), t.select();
-	let n = document.execCommand("copy");
-	return document.body.removeChild(t), Promise.resolve(n);
+	try {
+		document.execCommand("copy");
+	} finally {
+		t.remove();
+	}
+	return Promise.resolve();
 }
 function i(e) {
-	return navigator.clipboard ? navigator.clipboard.writeText(e) : r(e);
+	return navigator.clipboard?.writeText(e) ?? r(e);
 }
 //#endregion
 export { e as i, t as n, n as r, i as t };

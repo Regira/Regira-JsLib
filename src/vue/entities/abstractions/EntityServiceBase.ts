@@ -180,7 +180,7 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         // remove all (private) properties starting with '_'
         Object.keys(item).forEach((key) => {
             if (key[0] == "_") {
-                delete (item as Record<string, any>)[key]
+                delete (item as Record<string, unknown>)[key]
             }
         })
         return item

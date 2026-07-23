@@ -116,33 +116,18 @@ var l = (e, t, n) => "#" + [
 	png: "image/png",
 	gif: "image/gif"
 }, _ = g.jpg, v = async (e) => {
-	let t = await T(e), n = new FileReader();
-	return new Promise((e) => {
-		n.onloadend = (t) => {
-			let n = new Uint8Array(t.target.result).subarray(0, 4), r = "";
-			for (var i = 0; i < n.length; i++) r += n[i].toString(16);
-			let a;
-			switch (r) {
-				case "89504e47":
-					a = g.png;
-					break;
-				case "47494638":
-					a = g.gif;
-					break;
-				case "ffd8ffe0":
-				case "ffd8ffe1":
-				case "ffd8ffe2":
-				case "ffd8ffe3":
-				case "ffd8ffe8":
-					a = g.jpg;
-					break;
-				default:
-					a = void 0;
-					break;
-			}
-			e(a);
-		}, n.readAsArrayBuffer(t);
-	});
+	let t = await T(e), n = new Uint8Array(await t.arrayBuffer()).subarray(0, 4), r = "";
+	for (let e = 0; e < n.length; e++) r += n[e].toString(16);
+	switch (r) {
+		case "89504e47": return g.png;
+		case "47494638": return g.gif;
+		case "ffd8ffe0":
+		case "ffd8ffe1":
+		case "ffd8ffe2":
+		case "ffd8ffe3":
+		case "ffd8ffe8": return g.jpg;
+		default: return;
+	}
 }, y = (e) => (e || g.jpg).replace("/jpg", "/jpeg"), b = (e, t, n = {
 	backgroundColor: "#ffffff",
 	imageSmoothingEnabled: !1

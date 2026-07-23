@@ -16,7 +16,12 @@ import type { IEntity, IPoolHandler } from "./entities"
 
 // name defaults to "modelValue"; writes emit `update:${name}`; reads fall back to defaultValue
 // for composables receiving props/emit — in <script setup>, use native defineModel<T>() instead
-export declare function useVModelField<T>(props: Readonly<Record<string, any>>, emit: any, name?: string, defaultValue?: T): WritableComputedRef<T>
+export declare function useVModelField<T>(
+    props: Readonly<Record<string, unknown>>,
+    emit: any,
+    name?: string,
+    defaultValue?: T
+): WritableComputedRef<T>
 
 // store.fromPool wrapped in a computed — re-resolves when the pool updates
 export declare function createFromComputedPool<T extends IEntity>(
