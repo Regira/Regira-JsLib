@@ -10,9 +10,14 @@ export type IForgotPasswordInput = { username: string; siteUrl: string; siteName
 export type IResetPasswordInput = { token: string; password: string }
 
 export interface IAuthService {
-    options: IAuthOptions
+    /**
+     * Owns `clientApp` (the JWT audience) as plain state — the store and `$auth` read through to it rather
+     * than copying it. Change it through the auth store's `setClientApp()`: that is the path that notifies
+     * Vue. Mutating a field here directly is seen by later reads but re-renders nothing.
+     */
+    readonly options: IAuthOptions
     authenticate({ token, isAuthenticated }: IAuthenticateInput): IAuthData
-    login(username: string, password: string, clientApp?: string): Promise<IAuthData>
+    login(username: string, password: string): Promise<IAuthData>
     refresh(o?: Record<string, unknown>): Promise<IAuthData>
     validateToken(): Promise<IAuthData>
     logout(): void
@@ -21,6 +26,17 @@ export interface IAuthService {
     resetPassword(input: IResetPasswordInput): Promise<void>
 }
 export const emptyAuthData = (): IAuthData => new AuthData()
+
+/**
+ * The API mints the JWT with `clientApp` as its audience (Regira's `AccountControllerBase` takes it
+ * `[FromQuery]`), so the configured `clientApp` has to ride the login request itself — every later call
+ * fails audience validation otherwise. `refresh` needs no such thing: it re-reads `aud` off the current token.
+ * An explicit `clientApp=` already in `loginUrl` wins, so a URL that spells it out keeps working untouched.
+ */
+const withClientApp = (url: string, clientApp?: string) => {
+    if (!clientApp || /[?&]clientApp=/.test(url)) return url
+    return `${url}${url.includes("?") ? "&" : "?"}clientApp=${encodeURIComponent(clientApp)}`
+}
 
 export class AuthService implements IAuthService {
     options: IAuthOptions
@@ -44,7 +60,7 @@ export class AuthService implements IAuthService {
         return emptyAuthData()
     }
     async login(username: string, password: string): Promise<IAuthData> {
-        const url = this.options?.loginUrl || "auth"
+        const url = withClientApp(this.options?.loginUrl || "auth", this.options?.clientApp)
         const response = await this.axios.post(url, { username, password })
         return this.authenticate(response.data)
     }

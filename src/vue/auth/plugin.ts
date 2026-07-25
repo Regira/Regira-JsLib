@@ -50,6 +50,11 @@ export default {
         if (enabled) {
             app.config.globalProperties.$auth = {
                 ...auth,
+                // the spread would freeze auth's clientApp getter at its current value — re-declare it so
+                // $auth keeps reading through to the service options
+                get clientApp() {
+                    return auth.clientApp
+                },
                 get authData() {
                     return store.authData
                 },
@@ -62,7 +67,9 @@ export default {
             }
 
             if (clientApp) {
-                store.$patch({ clientApp })
+                // the default store reads through to the service options (already set by createAuth), so this
+                // is a no-op there; it's what seeds a CUSTOM authStore that keeps its own state.
+                store.setClientApp(clientApp)
             }
         } else {
             app.config.globalProperties.$auth = { enabled: false }

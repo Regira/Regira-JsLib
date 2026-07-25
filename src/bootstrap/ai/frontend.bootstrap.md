@@ -86,8 +86,10 @@ never a verbatim dump of every file (that alone can cost 100k+ tokens for little
       resolve over SSH where port 22 is closed. Pin HTTPS when either bites:
       `"regira_modules": "git+https://github.com/Regira/Regira-JsLib.git"` (or
       `git config --global url."https://github.com/".insteadOf git@github.com:`). Run the `npm install`
-      first and surface any blocker before spending context on guides. No NuGet, no license key, no
-      service budget on the front-end.
+      first and surface any blocker before spending context on guides. **Expect it to be slow** — the first
+      install clones the repo and pulls the full Vite/TS toolchain, routinely past a 2-minute shell timeout;
+      run it detached (or raise the timeout) and poll, rather than reading a timeout as failure. No NuGet, no
+      license key, no service budget on the front-end.
 - [ ] Peers + toolchain installed from the **known-good dependency set** (`entities.setup` → Install) in
       one `npm install` — the majors move as a set (`vue-router 5` → `vite 8` → `typescript 6` /
       `vue-tsc 3`); do not resolve them one `ERESOLVE` at a time.

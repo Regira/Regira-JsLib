@@ -429,6 +429,10 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 { "api": "https://localhost:5001", "culture": "en-US", "clientApp": "my-app", "loginUrl": "https://accounts.example.com/login" }
 ```
 
+`clientApp` is the JWT audience and rides the login request automatically (`login()` appends `?clientApp=`);
+`loginUrl` only overrides the endpoint path. Never write a `{clientApp}` placeholder into it — nothing
+substitutes it at runtime.
+
 If you use the language plugin (`$t`), also add `public/data/translations.json`. Its shape is
 **key-first** — `Record<key, Record<langCode, string> | string>` — _not_ language-first (a wrong guess
 makes every `$t()` render the raw key):
@@ -539,7 +543,7 @@ and navbar. Each `icon` is a **registered friendly key** or a **raw `bi bi-*` cl
 ```jsonc
 {
     "clientApp": "shopping-manager",
-    "loginUrl": "https://accounts.example.com/auth/?clientApp={clientApp}",
+    "loginUrl": "https://accounts.example.com/auth/",
     "api": { "development": "https://localhost:7001", "production": "/api" },
     "includeCredentials": false,
     "title": { "en": "ShoppingManager", "nl": "ShoppingManager" },

@@ -18,15 +18,19 @@
 //   --rel <Entity>      generate an overview column for a to-one relation: the related entity's
 //                       FormModalButton + a label resolved through its pool (never the raw nested DTO, which
 //                       has no $title, nor item.rel.title, which goes stale). Repeatable. The related slice
-//                       must already be scaffolded — the column imports from its barrel.
+//                       must already be scaffolded — the column imports from its barrel. A differently-named FK
+//                       takes an optional trailing `--as <field>`: `--rel Employee --as assignedToEmployee`
+//                       binds assignedToEmployee(Id) instead of the default employee(Id), still the Employee slice.
 //   --dir <path>        target base folder for a slice (default: src/entities) or an ejected skin (default: src/components/ui)
 //   --owns <Child>      also scaffold an editable owned-collection sub-slice (a `_deleted`-marked scalar-row
 //                       table via useOwnedCollection) under the entity, for a back-end `e.Related(...)` child.
 //                       Repeatable. PascalCase, e.g. --owns OrderLine --owns OrderNote. Works on an existing
 //                       slice too: only the sub-slice files are generated then.
-//   --as <fieldName>    the parent field / JSON key for the --owns right before it (default: camelCase plural
-//                       of the child class, OrderLine → orderLines). Must match the back-end navigation's
-//                       camelCase JSON key. Place it directly after its --owns: --owns Row --as orderRows
+//   --as <fieldName>    the JSON key for the --owns OR --rel directly before it — must match the back-end
+//                       navigation's camelCase key. After --owns: the owned-collection field (default camelCase
+//                       plural of the child, OrderLine → orderLines). After --rel: the to-one navigation property
+//                       (default camelCase of the class, Employee → employee; its FK is that + Id). Place it right after its --owns/--rel:
+//                       --owns Row --as orderRows  /  --rel Employee --as assignedToEmployee
 //   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
 //   --ui <Component>    copy a UI-kit component's reference skin into the app for free restyling; the copy
 //                       imports only public regira_modules/... API, so behavior keeps flowing from the library
@@ -42,6 +46,7 @@
 //   node .../scaffold.mjs Category --plural categories
 //   node .../scaffold.mjs PartyRelationshipType --api relationship-types
 //   node .../scaffold.mjs Intervention --rel Vehicle --rel Supplier
+//   node .../scaffold.mjs Task --rel Employee --as assignedToEmployee   # FK assignedToEmployeeId → Employee slice
 //   node .../scaffold.mjs Order --owns OrderLine
 //   node .../scaffold.mjs Order --owns OrderLine --as lines   # back-end nav `Lines` → JSON key "lines"
 //   node .../scaffold.mjs --shell --no-auth
@@ -159,51 +164,71 @@ const baseDir = opt("--dir", "src/entities")
 const srcRoot = resolve(here, "entity-slice")
 const destRoot = resolve(process.cwd(), baseDir, plural)
 
-// --owns/--as pairs, in argv order (--as names the parent field of the --owns right before it).
-// Check the flag BEFORE the value: a missing value must be reported, not silently skipped — a dropped
-// --as means the default field name and a back-end that silently ignores the unknown JSON key on save.
+// --owns and --rel each accept an optional trailing `--as <field>` that renames the JSON key. Parsed in one
+// ordered pass so placement is unambiguous: an `--as` binds to the --owns/--rel whose value token sits
+// immediately before it (a misplaced --as is a hard error, like every other bad flag value, never a silent
+// default). --owns → the owned-collection field; --rel → the to-one navigation property (its FK is that +Id).
+// A --rel value must look like a class name, or the next flag is consumed as one (`--rel --no-auth` would
+// otherwise scaffold a relation named "--no-auth"); an --as value must be a camelCase JSON key.
 const owns = []
+const rels = []
+let pending = null // the last --owns/--rel still able to take an `--as`; { set, kind, valueIndex }
 for (let i = 0; i < argv.length; i++) {
-    if (argv[i] !== "--owns" && argv[i] !== "--as") continue
+    const flag = argv[i]
     const value = argv[i + 1]
     const hasValue = !!value && !value.startsWith("--")
-    if (argv[i] === "--owns") {
+    if (flag === "--owns") {
         if (!hasValue) {
             console.error("✗ --owns requires a PascalCase child class name (e.g. --owns OrderLine).")
             process.exit(1)
         }
-        owns.push({ child: value, field: undefined })
-    } else if (!owns.length) {
-        console.error(`! --as ${hasValue ? value : ""} ignored — place it directly after the --owns it applies to.`)
-    } else if (!hasValue) {
-        console.error("✗ --as requires a field name (the back-end navigation's camelCase JSON key, e.g. --as orderLines).")
-        process.exit(1)
-    } else {
-        owns[owns.length - 1].field = value
+        const entry = { child: value, field: undefined }
+        owns.push(entry)
+        pending = { set: (f) => (entry.field = f), kind: "--owns", valueIndex: i + 1 }
+    } else if (flag === "--rel") {
+        if (!hasValue || !/^[A-Z][A-Za-z0-9]*$/.test(value)) {
+            console.error("✗ --rel requires a PascalCase related class name (e.g. --rel Vehicle).")
+            process.exit(1)
+        }
+        const entry = { name: value, field: undefined }
+        rels.push(entry)
+        pending = { set: (f) => (entry.field = f), kind: "--rel", valueIndex: i + 1 }
+    } else if (flag === "--as") {
+        if (!pending || pending.valueIndex !== i - 1) {
+            console.error("✗ --as must come directly after the --owns or --rel it renames (e.g. --owns OrderLine --as lines, --rel Employee --as assignedToEmployee).")
+            process.exit(1)
+        }
+        if (!hasValue) {
+            console.error("✗ --as requires a field name — the back-end navigation's camelCase JSON key (e.g. --as orderLines, --as assignedToEmployee).")
+            process.exit(1)
+        }
+        if (!/^[a-z][A-Za-z0-9]*$/.test(value)) {
+            console.error(`✗ --as value "${value}" must be a camelCase JSON key (lower-case first letter), e.g. assignedToEmployee.`)
+            process.exit(1)
+        }
+        if (pending.kind === "--rel" && /Id$/.test(value)) {
+            const nav = value.replace(/Id$/, "")
+            console.error(`✗ --as after --rel takes the navigation property (${nav}), not its FK (${value}) — the scaffold derives the ${value} FK itself. Drop the trailing "Id".`)
+            process.exit(1)
+        }
+        pending.set(value)
+        pending = null // consumed — a second --as here would be misplaced
     }
 }
 
-// --rel <Entity>: a to-one relation displayed in the overview. Generates the documented form — the related
-// entity's FormModalButton beside a label resolved through its store's pool — rather than describing it.
-// A raw nested DTO has no $title at all, and item.rel.title is a snapshot that goes stale the moment the
-// related entity is edited anywhere else; both are the mistakes this exists to pre-empt.
-// The value must look like a class name, or the next flag gets consumed as one: `--rel --no-auth` would
-// otherwise scaffold a relation named "--no-auth" importing from an "--no-auths" slice.
-const rels = argv.flatMap((a, i) => (a === "--rel" ? [argv[i + 1]] : []))
-if (rels.some((rel) => !/^[A-Z][A-Za-z0-9]*$/.test(rel ?? ""))) {
-    console.error("✗ --rel requires a PascalCase related class name (e.g. --rel Vehicle).")
-    process.exit(1)
-}
 // The import alias mirrors the target folder: `--dir src/modules` must emit "@/modules/...", not the
 // default "@/entities/...", or the generated slice cannot resolve its imports.
 const aliasRoot = baseDir.replace(/\\/g, "/").replace(/^\.?\/?src\//, "").replace(/\/+$/, "")
-const relations = rels.map((rel) => ({
-    name: rel,
-    field: lowerFirst(rel),
-    folder: lowerFirst(kebab(pluralize(rel))),
-    key: lowerFirst(rel),
-    alias: `@/${aliasRoot}/${lowerFirst(kebab(pluralize(rel)))}`,
+const relations = rels.map((r) => ({
+    name: r.name,
+    field: r.field ?? lowerFirst(r.name),   // FK binding — `--as` overrides it for a differently-named to-one
+    folder: lowerFirst(kebab(pluralize(r.name))),
+    key: r.field ?? lowerFirst(r.name),     // header i18n key — distinct per role when `--as` renames it
+    alias: `@/${aliasRoot}/${lowerFirst(kebab(pluralize(r.name)))}`,
 }))
+// The per-ENTITY blocks (imports, store consts, model imports) de-dupe by class name, so two --rel to the
+// SAME entity (--rel Employee --as assignedTo --rel Employee --as reportedBy) never emit a duplicate identifier.
+const relEntities = [...new Map(relations.map((r) => [r.name, r])).values()]
 // Generated content is inserted after a stable line in the template rather than at a placeholder, so the
 // doc sources these templates are built from stay readable as worked examples.
 const insertAfter = (text, anchor, addition) => {
@@ -222,15 +247,15 @@ const relationBlocks = {
         // edit made through the button's own modal must relabel this cell without a reload
         .map((r) => `        <div class="col d-none d-md-block text-truncate">\n            <${r.name}Button :model-value="get${r.name}(item.${r.field})" /> {{ get${r.name}(item.${r.field})?.$title }}\n        </div>`)
         .join("\n"),
-    imports: relations
+    imports: relEntities
         .map((r) => `import { FormModalButton as ${r.name}Button, useEntityStore as use${r.name}Store } from "${r.alias}"`)
         .join("\n"),
-    stores: relations.map((r) => `const { fromPool: get${r.name} } = use${r.name}Store()`).join("\n"),
+    stores: relEntities.map((r) => `const { fromPool: get${r.name} } = use${r.name}Store()`).join("\n"),
     // overview/List.vue — headers mirror the cells 1:1
     headers: relations.map((r) => `            <div class="col d-none d-md-block">{{ $t("${r.key}") }}</div>`).join("\n"),
     // data/Entity.ts — the FK and the nested relation, so the generated column type-checks as scaffolded.
     // Barrels export the model as `Entity`, hence the alias.
-    modelImports: relations.map((r) => `import { type Entity as ${r.name} } from "${r.alias}"`).join("\n"),
+    modelImports: relEntities.map((r) => `import { type Entity as ${r.name} } from "${r.alias}"`).join("\n"),
     fields: relations
         .map((r) => `    ${r.field}Id?: number\n    ${r.field}?: ${r.name} // populated only when the request asks for it: baseQueryParams.includes`)
         .join("\n"),
@@ -494,14 +519,16 @@ Entity slice:
   --api <path>        API resource path relative to the axios baseURL (default: /<plural>). Must equal the
                       server's [Route(...)] exactly; leading slash optional (omit it under Git Bash)
   --rel <Entity>      overview column for a to-one relation (the related entity's FormModalButton + a label
-                      resolved through its pool). Repeatable; the related slice must already be scaffolded
+                      resolved through its pool). Repeatable; the related slice must already be scaffolded.
+                      A differently-named FK takes a trailing --as <field> (--rel Employee --as assignedToEmployee)
   --dir <path>        target base folder (slice default: src/entities; ejected skin default: src/components/ui)
 
 Owned collections (a back-end e.Related(...) child):
   --owns <Child>      also scaffold an editable owned-collection sub-slice. Repeatable, PascalCase, e.g.
                       --owns OrderLine. Works on an existing slice too (only the sub-slice is generated then)
-  --as <fieldName>    parent field / JSON key for the --owns right before it (default: camelCase plural of the
-                      child class, OrderLine → orderLines). Must match the back-end navigation's JSON key
+  --as <fieldName>    JSON key for the --owns OR --rel directly before it — must match the back-end navigation's
+                      camelCase key. After --owns: the collection field (default camelCase plural, OrderLine →
+                      orderLines). After --rel: the to-one nav property (default camelCase class, Employee → employee)
 
 Modes & shared flags:
   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard, layout, views)
@@ -516,6 +543,7 @@ Examples:
   scaffold.mjs Category --plural categories
   scaffold.mjs PartyRelationshipType --api relationship-types
   scaffold.mjs Intervention --rel Vehicle --rel Supplier
+  scaffold.mjs Task --rel Employee --as assignedToEmployee
   scaffold.mjs Order --owns OrderLine --as lines
   scaffold.mjs --shell --no-auth
   scaffold.mjs --ui DefaultModal`)

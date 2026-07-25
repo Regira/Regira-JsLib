@@ -5,14 +5,16 @@ import type { IAuthData } from "./AuthData"
 
 export interface IAuth {
     enabled: boolean
-    clientApp?: string
+    /** the JWT audience — reads through to `service.options`, the single owner (never assign; use the store's `setClientApp`) */
+    readonly clientApp?: string
     tokenManager: ITokenManager
     service: IAuthService
 }
 
 export interface IGlobalAuth {
     enabled: boolean
-    clientApp?: string
+    /** the JWT audience — reads through to `service.options` (see {@link IAuth.clientApp}) */
+    readonly clientApp?: string
     tokenManager: ITokenManager
     service: IAuthService
     authData: IAuthData
@@ -33,11 +35,17 @@ interface Input extends IAuthOptions {
 let auth: IAuth
 export function createAuth(options: Input): IAuth {
     const { enabled, tokenManager, axios, clientApp, loginUrl } = options
+    // Single owner for the audience: the service options login() actually sends from — plain state, no
+    // framework. Everything else (this getter, $auth, the store) reads through instead of keeping a copy,
+    // so the mirrors can't drift apart. The store wraps this in its own reactive view.
+    const service = new AuthService(axios, tokenManager, { clientApp, loginUrl })
     auth = {
         enabled,
-        clientApp,
+        get clientApp() {
+            return service.options.clientApp
+        },
         tokenManager,
-        service: new AuthService(axios, tokenManager, { clientApp, loginUrl }),
+        service,
     }
 
     return auth

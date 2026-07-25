@@ -38,8 +38,8 @@ Install once at startup, passing the **same axios instance** from `initAxios` an
 app.use(authPlugin, {
     axios, // the shared instance (initAxios)
     tokenManager: new LocalStorageTokenManager(),
-    clientApp: appConfig.clientApp,
-    loginUrl: appConfig.loginUrl, // optional; defaults to the "auth" endpoint
+    clientApp: appConfig.clientApp, // the JWT audience — login() appends it as ?clientApp=
+    loginUrl: appConfig.loginUrl, // optional; only for a login endpoint other than "auth"
     enableRouteGuard: true, // default true
     enabled: true, // default true; pass false to disable auth entirely
     onAuthenticationChange: (authData) => {},
@@ -70,6 +70,8 @@ The Pinia store is the reactive source of truth for components:
 - **state/getters:** `isAuthenticated`, `isRequired`, `authData`, `displayName`, `hasPermission(p)`,
   `hasClaim(type, value?)`, `getClaimValue(type)`, `clientApp`, `enabled`.
 - **actions:** `login({ username, password })`, `validateToken()`, `refresh(o)`, `logout()`, `setClientApp(c)`.
+  The audience has one owner — the service's plain `options` — and `store.clientApp` / `$auth.clientApp` read
+  through to it, so a switch is visible everywhere at once with no copy to go stale.
 
 `authData` (`IAuthData`) is decoded from the JWT: `userId`, `name`, `email`, `displayName`, `culture`,
 `role`, `expires`, plus `get(claim)`, `hasClaim`, `hasPermission`.
@@ -161,10 +163,13 @@ object outside components. Prefer the store in components.
 - **No login redirect:** unauthenticated navigation is allowed (popup model), so you must provide the
   login UI and a `forbidden` route; only `permissions`/`policy` failures redirect.
 - **Endpoints are relative** (`"auth"`, `"auth/validate"`) — they resolve against the axios `baseURL`.
-- **`clientApp` on login:** `login()` posts only `{ username, password }` — it does **not** append `?clientApp=`.
-  When the API makes `clientApp` the JWT audience (Regira's `AccountControllerBase` does), pass
-  `loginUrl: "auth?clientApp=<clientApp>"` in the plugin options; the store's `clientApp` is not sent on the
-  login request itself.
+- **`clientApp` travels on login automatically** — `login()` appends `?clientApp=<your value>` to the login URL
+  from the plugin's `clientApp` option, because the API mints the JWT audience from it (Regira's
+  `AccountControllerBase` takes it `[FromQuery]`). So **set `clientApp` and leave `loginUrl` alone**; `loginUrl`
+  is only for a login endpoint that isn't `auth`. Spelling `clientApp=` out in `loginUrl` yourself still wins and
+  is never doubled. Never emit a `{clientApp}`/`<clientApp>` placeholder into the URL — nothing substitutes it at
+  runtime, and the API would mint a token with that literal audience, 401-ing every later call. `refresh` needs
+  no `clientApp`: the server re-reads `aud` from the current token.
 - **Password-reset link:** the recover email lands at `{siteUrl}/?token=<base64>` (root path). Read the token
   from **vue-router `route.query.token`** (preserves `+`), never `URLSearchParams` — it turns `+` into a space
   and corrupts the base64.

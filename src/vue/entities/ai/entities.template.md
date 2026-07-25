@@ -8,10 +8,10 @@ route prefix `foos`) — rename it to your entity throughout.
 class name (`InterventionType` → `intervention-types`), matching the conventional `[Route(...)]`. Two flags
 generate what would otherwise be hand-written and are worth passing up front:
 
-| Flag              | Generates                                                                                                                                                                                         |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--api <path>`    | a resource path that differs from the folder name (`--api relationship-types`)                                                                                                                    |
-| `--rel <Related>` | an overview column for a to-one relation — the related entity's `FormModalButton` + a `fromPool` label, plus the FK and nested field on the model. Repeatable; the related slice must exist first |
+| Flag              | Generates                                                                                                                                                                                                                                                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--api <path>`    | a resource path that differs from the folder name (`--api relationship-types`)                                                                                                                                                                                                                       |
+| `--rel <Related>` | an overview column for a to-one relation — the related entity's `FormModalButton` + a `fromPool` label, plus the FK and nested field on the model. Repeatable; the related slice must exist first. A differently-named FK takes a trailing `--as <field>` (`--rel Employee --as assignedToEmployee`) |
 
 > **Indicative, not prescriptive.** The templates fix the _functional wiring_ (service ↔ store ↔ composable ↔
 > `IConfig`, DI, routing) so a scaffolded slice is green out of the box — the **markup, columns, layout, and
@@ -216,13 +216,22 @@ export default EntitySearchObject
 ```vue
 <template>
     <div class="adv-filter">
+        <!-- top row: result count (left) + clear (right) — the overview-filter convention; keep it -->
+        <div class="row">
+            <div class="col mb-2" v-if="resultCount != null">
+                <span class="text-info">{{ resultCount }} {{ $t("results") }}</span>
+                <small v-if="filterIsActive" class="ms-2 italic-muted">({{ $t("filtersAreApplied") }})</small>
+            </div>
+            <div class="col mb-2 text-end">
+                <IconButton icon="clear" :showText="true" @click="handleReset" />
+            </div>
+        </div>
+
         <!-- keywords (free-text q) -->
         <input v-model.lazy.trim="searchObject.q" class="form-control mb-2" :placeholder="$t('keywords')" />
 
         <!-- TODO: inputs for your SearchObject filter fields (placeholder `title` — keep in sync with SearchObject.ts), e.g. -->
         <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" />
-
-        <IconButton icon="clear" :showText="true" @click="handleReset" />
     </div>
 </template>
 
@@ -236,7 +245,7 @@ const emit = defineEmits<Emits & { "update:modelValue": (v: SearchObject) => tru
 defineProps<{ resultCount?: number }>()
 
 const searchObject = defineModel<SearchObject>({ required: true })
-const { handleReset } = useFilter({ searchObject, emit, Constructor: SearchObject })
+const { handleReset, filterIsActive } = useFilter({ searchObject, emit, Constructor: SearchObject })
 </script>
 ```
 

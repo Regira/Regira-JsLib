@@ -349,7 +349,8 @@ Most entities follow the same 12 steps below — one file per step. **Scaffold a
 The folder, client route and `api` path derive as the kebab-case plural of the class name, matching the
 conventional `[Route(...)]`; pass `--api <path>` when the server exposes the resource under a different name,
 and `--rel <Related>` per to-one relation shown in the overview — it generates the pooled column, the model
-fields and the matching `baseQueryParams.includes`.
+fields and the matching `baseQueryParams.includes`. A differently-named FK takes a trailing `--as <field>`
+(`--rel Employee --as assignedToEmployee` binds `assignedToEmployeeId`/`assignedToEmployee`, still the Employee slice).
 A **lookup** entity keeps the folders but drops the list UI (omit the views and `createRoutes()`; the
 `install` only registers the service/icon and `$configs[Entity.name]`; `SearchObject` may be empty; consider
 `JSONService` for static data):

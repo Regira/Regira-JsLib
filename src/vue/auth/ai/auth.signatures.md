@@ -61,9 +61,9 @@ export type IForgotPasswordInput = { username: string; siteUrl: string; siteName
 export type IResetPasswordInput = { token: string; password: string }
 
 export interface IAuthService {
-    options: IAuthOptions
+    readonly options: IAuthOptions // owns clientApp as plain state; change it via authStore.setClientApp() — that is what notifies Vue
     authenticate({ token, isAuthenticated }: IAuthenticateInput): IAuthData
-    login(username: string, password: string, clientApp?: string): Promise<IAuthData>
+    login(username: string, password: string): Promise<IAuthData>
     refresh(o?: Record<string, unknown>): Promise<IAuthData>
     validateToken(): Promise<IAuthData>
     logout(): void
@@ -81,10 +81,15 @@ export class AuthService implements IAuthService {
 ## Auth root & options
 
 ```ts
+// clientApp = the JWT audience; login() appends it to the login URL as ?clientApp= (refresh reuses the token's aud).
+// loginUrl only overrides the endpoint path (default "auth"); an explicit clientApp= in it wins and is not doubled.
+// `service.options` is the SINGLE OWNER of clientApp — plain state, no framework. IAuth/$auth expose it as
+// read-through getters; the store wraps it in a reactive view (a customRef, Vue stays in the Vue layer), so
+// `setClientApp(v)` and `store.clientApp = v` both write the owner and no copy exists to go stale.
 export type IAuthOptions = { clientApp?: string; loginUrl?: string }
 export interface IGlobalAuth {
     enabled: boolean
-    clientApp?: string
+    readonly clientApp?: string
     tokenManager: ITokenManager
     service: IAuthService
     authData: IAuthData
@@ -142,7 +147,7 @@ export function autoLogoutOnFailedRequest(
 ```ts
 export interface IAuthStore extends Store {
     enabled: boolean
-    clientApp?: string
+    clientApp?: string // reactive view of service.options.clientApp — reads and writes hit the owner directly
     authData: IAuthData
     authRequired: boolean
     isAuthenticated: boolean

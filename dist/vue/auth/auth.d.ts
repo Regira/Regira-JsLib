@@ -4,13 +4,15 @@ import { type IAuthService } from "./auth-service";
 import type { IAuthData } from "./AuthData";
 export interface IAuth {
     enabled: boolean;
-    clientApp?: string;
+    /** the JWT audience — reads through to `service.options`, the single owner (never assign; use the store's `setClientApp`) */
+    readonly clientApp?: string;
     tokenManager: ITokenManager;
     service: IAuthService;
 }
 export interface IGlobalAuth {
     enabled: boolean;
-    clientApp?: string;
+    /** the JWT audience — reads through to `service.options` (see {@link IAuth.clientApp}) */
+    readonly clientApp?: string;
     tokenManager: ITokenManager;
     service: IAuthService;
     authData: IAuthData;

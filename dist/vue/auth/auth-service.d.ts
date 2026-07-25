@@ -20,9 +20,14 @@ export type IResetPasswordInput = {
     password: string;
 };
 export interface IAuthService {
-    options: IAuthOptions;
+    /**
+     * Owns `clientApp` (the JWT audience) as plain state — the store and `$auth` read through to it rather
+     * than copying it. Change it through the auth store's `setClientApp()`: that is the path that notifies
+     * Vue. Mutating a field here directly is seen by later reads but re-renders nothing.
+     */
+    readonly options: IAuthOptions;
     authenticate({ token, isAuthenticated }: IAuthenticateInput): IAuthData;
-    login(username: string, password: string, clientApp?: string): Promise<IAuthData>;
+    login(username: string, password: string): Promise<IAuthData>;
     refresh(o?: Record<string, unknown>): Promise<IAuthData>;
     validateToken(): Promise<IAuthData>;
     logout(): void;

@@ -4,7 +4,8 @@ import type { IAuthData } from "./AuthData";
 import type { LoginInput } from "./useLoginForm";
 export interface IDefineAuthStore {
     enabled: Ref<boolean>;
-    clientApp?: Ref<string | undefined>;
+    /** reactive view of `service.options.clientApp` (the owner) — reads and writes both go straight to it */
+    clientApp: Ref<string | undefined>;
     authData: Ref<IAuthData>;
     authRequired: Ref<boolean>;
     isAuthenticated: ComputedRef<boolean>;
@@ -21,6 +22,7 @@ export interface IDefineAuthStore {
 }
 export interface IAuthStore extends Store {
     enabled: boolean;
+    /** reactive view of `service.options.clientApp` (the owner) — reads and writes both go straight to it */
     clientApp?: string | undefined;
     authData: IAuthData;
     authRequired: boolean;

@@ -380,7 +380,7 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 ```json
 {
     "clientApp": "my-app",
-    "loginUrl": "https://accounts.example.com/auth/?clientApp={clientApp}",
+    "loginUrl": "https://accounts.example.com/auth/",
     "api": { "development": "https://localhost:7001", "production": "/api" },
     "includeCredentials": false,
     "isDebug": false,
@@ -411,6 +411,7 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
     "noResults": { "en": "No results" },
     "overview": { "en": "Overview" },
     "popOut": { "en": "Open in new tab" },
+    "results": { "en": "results" },
     "signIn": { "en": "Sign in" },
     "signOut": { "en": "Sign out" }
 }

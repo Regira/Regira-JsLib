@@ -1,4 +1,4 @@
-import { ref, computed, type Ref, type ComputedRef } from "vue"
+import { ref, computed, customRef, type Ref, type ComputedRef } from "vue"
 import { useRouter } from "vue-router"
 import { defineStore, type Store } from "pinia"
 import { emptyAuthData } from "./auth-service"
@@ -10,7 +10,8 @@ const storeName: string = "Auth"
 export interface IDefineAuthStore {
     // state
     enabled: Ref<boolean>
-    clientApp?: Ref<string | undefined>
+    /** reactive view of `service.options.clientApp` (the owner) — reads and writes both go straight to it */
+    clientApp: Ref<string | undefined>
     authData: Ref<IAuthData>
     authRequired: Ref<boolean>
     // getters
@@ -30,6 +31,7 @@ export interface IDefineAuthStore {
 export interface IAuthStore extends Store {
     // state
     enabled: boolean
+    /** reactive view of `service.options.clientApp` (the owner) — reads and writes both go straight to it */
     clientApp?: string | undefined
     authData: IAuthData
     authRequired: boolean
@@ -50,7 +52,19 @@ export interface IAuthStore extends Store {
 
 export function createStore(): IDefineAuthStore {
     const enabled = ref(true)
-    const clientApp = ref<string>()
+    // The audience is owned by the (framework-free) auth service options; this is only its reactive view for
+    // Vue — it re-reads the owner on every evaluation and triggers on write, so no copy exists to go stale.
+    const clientApp = customRef<string | undefined>((track, trigger) => ({
+        get() {
+            track()
+            return useAuth()?.service?.options?.clientApp
+        },
+        set(value) {
+            const auth = useAuth()
+            if (auth?.service?.options) auth.service.options.clientApp = value
+            trigger()
+        },
+    }))
     const authData = ref(emptyAuthData())
     const authRequired = ref(false)
 
@@ -64,11 +78,12 @@ export function createStore(): IDefineAuthStore {
     const hasPermission = computed(() => (permission: string) => authData.value?.hasPermission(permission) ?? false)
 
     function setClientApp(value?: string) {
+        // one write path into the owner — `clientApp` above and `$auth` reflect it because they read through
         clientApp.value = value
     }
     async function login({ username, password }: LoginInput) {
         const { service } = useAuth()
-        authData.value = await service.login(username, password, clientApp.value)
+        authData.value = await service.login(username, password)
         return authData.value.isAuthenticated
     }
     async function refresh(o?: Record<string, unknown>) {
