@@ -1,6 +1,7 @@
 <template>
     <nav class="rg-paging" aria-label="Pagination">
-        <ul class="pagination">
+        <!-- flex-wrap: the button row must break onto a second line rather than push the page sideways -->
+        <ul class="pagination flex-wrap">
             <li class="rg-paging__page page-item">
                 <slot name="firstPage" :page="1">
                     <component :is="PagingElement" :page="1" :to="pagedRoute(1)" @click.prevent="handleChangePage(1)" aria-label="Previous"

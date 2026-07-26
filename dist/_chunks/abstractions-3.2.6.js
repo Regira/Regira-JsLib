@@ -48,13 +48,13 @@ var f = class {
 		if (n == null || n === "") throw Error(`EntityServiceBase ("${this.config.key ?? "unknown entity"}"): cannot ${t} — $id is ${String(n)}. $id/$title are prototype getters; spreading a model ({ ...item }) drops them. Mutate the instance in place (item.prop = …) instead of spreading before ${t}.`);
 		return n;
 	}
-	async details(e) {
-		let t = await this.axios.get(`${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${e}`);
-		if (t?.status == 200) {
-			let { data: { item: e } } = t;
+	async details(e, t) {
+		let n = `${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${e}`, i = r(u({ ...t || {} })).toString(), a = await this.axios.get(i ? `${n}?${i}` : n);
+		if (a?.status == 200) {
+			let { data: { item: e } } = a;
 			return this.processItem(e);
 		}
-		throw t;
+		throw a;
 	}
 	async list(e) {
 		let { items: t } = await this.fetchItems(this.requireUrl(this.config.listUrl, "listUrl"), e);
@@ -107,7 +107,7 @@ var f = class {
 			...this.config.baseQueryParams || {},
 			...t || {}
 		};
-		!n.pageSize && n.pageSize !== 0 && (n.pageSize = this.defaultPageSize), (!("isArchived" in n) || n.isArchived == null) && (n.isArchived = !1);
+		!n.pageSize && n.pageSize !== 0 && (n.pageSize = this.defaultPageSize);
 		let i = `${e}?${r(u(n, this.defaultPageSize))}`, { data: a } = await this.axios.get(i).then((e) => e);
 		return a;
 	}

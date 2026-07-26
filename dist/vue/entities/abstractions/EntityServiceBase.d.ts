@@ -18,7 +18,11 @@ export declare abstract class EntityServiceBase<T extends IEntity> implements IE
     private requireUrl;
     /** Returns the item's `$id` or throws instead of building a `/undefined` URL. */
     private requireId;
-    details(id: string | number): Promise<T | undefined>;
+    /**
+     * `GET /{id}`. The server 404s on an archived row, so pass `{ archived: ArchivedFilter.included }`
+     * to resolve one (the only way to open it in a form and restore it).
+     */
+    details(id: string | number, so?: ISearchObject): Promise<T | undefined>;
     list(so?: ISearchObject & IPagingInfo): Promise<Array<T>>;
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>;
     searchUnion(searchObjects: Array<ISearchObject>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>;

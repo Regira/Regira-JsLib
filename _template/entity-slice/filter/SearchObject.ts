@@ -1,4 +1,4 @@
-import { SearchObjectBase } from "regira_modules/vue/entities"
+import { SearchObjectBase, ArchivedFilter } from "regira_modules/vue/entities"
 
 export class EntitySearchObject extends SearchObjectBase {
     // `q` (free-text) is inherited from SearchObjectBase. Add your filters:
@@ -7,7 +7,7 @@ export class EntitySearchObject extends SearchObjectBase {
 
     minCreated?: Date
     maxCreated?: Date
-    isArchived?: boolean // set true to include archived rows (hidden by default)
+    archived?: ArchivedFilter // `only` = recycle bin, `included` = live + archived; leave unset to hide archived rows
 }
 
 export default EntitySearchObject

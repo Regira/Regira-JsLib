@@ -2,6 +2,7 @@ import type { IPagingInfo } from "../../entities/abstractions/PagingInfo"
 import { computed, type AllowedComponentProps, type ComputedRef, type Ref, type VNodeProps } from "vue"
 import { useRouter, type RouteLocationRaw } from "vue-router"
 import { PAGING_DEFAULTS } from "./defaults"
+import { useScreen } from "../screen"
 
 export enum ButtonType {
     anchor = "Anchor",
@@ -55,13 +56,19 @@ export type PagingOut = {
     firstPage: ComputedRef<number>
     lastPage: ComputedRef<number>
     pages: ComputedRef<Array<number>>
+    /** the effective button budget — half of `maxPages` below the sm breakpoint */
+    visibleMaxPages: ComputedRef<number>
 
     handleChangePage(newPage: number): void
 }
 
 export default function usePaging({ pagingInfo, count, maxPages, emit }: PagingIn): PagingOut {
     //const { modelValue = { page: 1, pageSize: PAGING_DEFAULTS.PAGESIZE }, count, maxPages = 9 } = props;
-    maxPages = window.innerWidth < 576 ? Math.ceil(maxPages / 2) : maxPages
+    // Half the buttons on a phone. Reactive on purpose: reading window.innerWidth once at setup meant a list
+    // opened on a tablet and rotated (or split-screened) to a narrow viewport kept the full-width button row
+    // and pushed the page into horizontal overflow. useScreen owns the shared, debounced resize subscription.
+    const { screen } = useScreen()
+    const visibleMaxPages = computed(() => (screen.isSmall ? maxPages : Math.ceil(maxPages / 2)))
 
     const defaultPageSize = computed(
         () => (!isNaN(parseInt(pagingInfo.value.pageSize + "")) ? pagingInfo.value.pageSize : undefined) || PAGING_DEFAULTS.PAGESIZE
@@ -85,12 +92,12 @@ export default function usePaging({ pagingInfo, count, maxPages, emit }: PagingI
     }
     const page = computed(() => pagingInfo.value.page || 1)
     const totalPages = computed(() => Math.ceil(count.value / defaultPageSize.value))
-    const totalVisiblePages = computed(() => Math.min(totalPages.value, maxPages))
+    const totalVisiblePages = computed(() => Math.min(totalPages.value, visibleMaxPages.value))
     const firstPage = computed(() => {
         const halfPages = Math.floor(totalVisiblePages.value / 2)
         let firstPage = Math.max(page.value - halfPages, 1)
-        if (firstPage + maxPages > totalPages.value) {
-            firstPage -= firstPage + maxPages - totalPages.value - 1
+        if (firstPage + visibleMaxPages.value > totalPages.value) {
+            firstPage -= firstPage + visibleMaxPages.value - totalPages.value - 1
         }
         return Math.max(firstPage, 1)
     })
@@ -123,6 +130,7 @@ export default function usePaging({ pagingInfo, count, maxPages, emit }: PagingI
         firstPage,
         lastPage,
         pages,
+        visibleMaxPages,
 
         handleChangePage,
     }

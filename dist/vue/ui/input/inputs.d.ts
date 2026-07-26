@@ -52,6 +52,7 @@ export type NullableLabelSlots = {
 export type DateInputProps = {
     modelValue?: string | Date;
     culture?: string;
+    readonly?: boolean;
 };
 export type DateInputEmits = {
     (e: "update:modelValue", modelValue?: string | Date): void;

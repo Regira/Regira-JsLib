@@ -5,7 +5,19 @@ import { getAbsScrollPosition } from "../../../utilities/html-utility"
 
 type IDefaultKey = number | string
 type IOffset = { top: number; left: number }
-type IResultStyle = StyleValue & { visibility: string; top?: string; left?: string; transform?: string; width: string }
+type IResultStyle = StyleValue & {
+    visibility: string
+    top?: string
+    left?: string
+    right?: string
+    transform?: string
+    width?: string
+    minWidth?: string
+    maxWidth?: string
+}
+
+// Breathing room kept between the result panel and the viewport edge it opens towards.
+const VIEWPORT_GUTTER = 8
 
 export interface AutocompleteEmits<T = any, TKey = IDefaultKey | T> {
     (e: "update:modelValue", args: T | undefined): void
@@ -94,12 +106,44 @@ export function useAutocomplete<T = any, TKey = IDefaultKey | T>(
     const resultOffset = ref<IOffset>({ top: 0, left: 0 })
     const scrollPosition = ref<IOffset>({ top: 0, left: 0 })
     const resultStyle = computed<IResultStyle>(() => {
-        const { width, height } = inputEl.value?.getBoundingClientRect() || { width: 0, height: 0 }
+        // getBoundingClientRect()/offsetWidth/innerWidth are plain reads, not reactive sources — touching the
+        // tracked offset is what re-runs this measurement after a resize or a scroll (see the listeners below).
+        void containerOffset.value
+        const { height } = inputEl.value?.getBoundingClientRect() || { height: 0 }
+        // The panel is absolutely positioned against the input's offsetParent. Inside an InputSelector that
+        // parent is the whole `.input-group` (prepend button + input + append buttons), so align and size to
+        // the control rather than to the bare input — the input is the narrowest part of it.
+        const offsetParent = inputEl.value?.offsetParent as HTMLElement | null | undefined
+        const control = inputEl.value?.closest?.(".input-group") as HTMLElement | null | undefined
+        const alignToControl = !!control && control === offsetParent
+        const anchor = alignToControl ? control! : inputEl.value
+        // size to the results, never narrower than the control they belong to — a fixed input width made
+        // every item wrap onto two lines
+        const floor = (alignToControl ? control!.offsetWidth : inputEl.value?.offsetWidth) || 0
+        // Right-edge guard. `width: max-content` grows rightwards from `left`, so a control sitting near the
+        // right edge of a narrow viewport would push the panel past it — and an absolutely positioned box
+        // still extends the document's scrollable area, so that overflows the PAGE even while the panel is
+        // closed (it is visibility:hidden, not display:none). Hence the guard is independent of isOpen.
+        // Two steps: cap the width to the room actually left on the side the panel opens to, and — only when
+        // even `floor` cannot fit to the right — flip to right-alignment so it grows leftwards from the
+        // control's right edge instead. minWidth beats maxWidth in CSS, so the floor above survives both.
+        const viewport = typeof window === "undefined" ? 0 : window.innerWidth || 0
+        const rect = anchor?.getBoundingClientRect?.()
+        const roomRight = rect ? viewport - rect.left - VIEWPORT_GUTTER : 0
+        const roomLeft = rect ? rect.right - VIEWPORT_GUTTER : 0
+        const alignRight = viewport > 0 && roomRight < floor && roomLeft > roomRight
+        const room = viewport > 0 ? Math.max(0, Math.round(alignRight ? roomLeft : roomRight)) : 0
+        // right-aligning insets the panel from the offsetParent's right edge to the anchor's own right edge
+        const inputRight = (inputEl.value?.offsetLeft || 0) + (inputEl.value?.offsetWidth || 0)
+        const rightInset = alignToControl ? 0 : Math.max(0, (offsetParent?.offsetWidth || 0) - inputRight)
         return {
             visibility: isOpen.value ? "visible" : "hidden",
             top: `${height}px`,
-            left: `${inputEl.value?.offsetLeft || 0}px`,
-            width: `${width}px`,
+            left: alignRight ? "auto" : `${alignToControl ? 0 : inputEl.value?.offsetLeft || 0}px`,
+            right: alignRight ? `${rightInset}px` : "auto",
+            minWidth: `${floor}px`,
+            width: "max-content",
+            maxWidth: room > 0 ? `min(90vw, 32rem, ${room}px)` : "min(90vw, 32rem)",
         }
     })
 

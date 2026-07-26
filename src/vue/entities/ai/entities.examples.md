@@ -193,7 +193,7 @@ export default useEntityStore
 > barrel and consumers import it as the module default), so this name is reproduced verbatim.
 
 ```ts
-import { SearchObjectBase } from "@/regira_modules/vue/entities"
+import { SearchObjectBase, ArchivedFilter } from "@/regira_modules/vue/entities"
 
 export class EntitySearchObject extends SearchObjectBase {
     code?: string
@@ -204,7 +204,7 @@ export class EntitySearchObject extends SearchObjectBase {
     minLastModified?: Date
     maxLastModified?: Date
 
-    isArchived?: boolean
+    archived?: ArchivedFilter
 }
 
 export default EntitySearchObject
@@ -340,6 +340,9 @@ const { filterIsActive, handleReset, handleUpdate, handleToggle } = useFilter({
 > For a simple entity the advanced filter is just keywords + name + a created-date range — no relation
 > pickers. `showToggleAdv` defaults to `config.isComplex` (false here), so the "advanced" toggle is hidden
 > on the inline filter; the panel is still wired for consumers that opt in.
+>
+> ⚠️ Every input carries `@change="handleUpdate"`. Custom components (`InputSelector`, `NullableCheckBox`,
+> `DateInput`) emit Vue events only and need `@select`/`@update:modelValue` instead — see Part 2 §5.
 
 ```vue
 <template>
@@ -360,7 +363,7 @@ const { filterIsActive, handleReset, handleUpdate, handleToggle } = useFilter({
                     <div class="input-group-text">
                         <Icon name="search" />
                     </div>
-                    <input v-model.lazy.trim="searchObject.q" class="form-control" :placeholder="$t('keywords')" />
+                    <input v-model.lazy.trim="searchObject.q" class="form-control" :placeholder="$t('keywords')" @change="handleUpdate" />
                 </div>
             </div>
         </div>
@@ -371,7 +374,7 @@ const { filterIsActive, handleReset, handleUpdate, handleToggle } = useFilter({
                     <div class="input-group-text">
                         <Icon name="title" />
                     </div>
-                    <input v-model.lazy.trim="searchObject.title" class="form-control" :placeholder="$t('name')" />
+                    <input v-model.lazy.trim="searchObject.title" class="form-control" :placeholder="$t('name')" @change="handleUpdate" />
                 </div>
             </div>
         </div>
@@ -382,7 +385,7 @@ const { filterIsActive, handleReset, handleUpdate, handleToggle } = useFilter({
                     <div class="input-group-text">
                         <Icon name="from" />
                     </div>
-                    <input type="date" v-model="searchObject.minCreated" class="form-control" />
+                    <input type="date" v-model="searchObject.minCreated" class="form-control" @change="handleUpdate" />
                 </div>
             </div>
             <!-- maxCreated -->
@@ -391,7 +394,7 @@ const { filterIsActive, handleReset, handleUpdate, handleToggle } = useFilter({
                     <div class="input-group-text">
                         <Icon name="to" />
                     </div>
-                    <input type="date" v-model="searchObject.maxCreated" class="form-control" />
+                    <input type="date" v-model="searchObject.maxCreated" class="form-control" @change="handleUpdate" />
                 </div>
             </div>
         </div>
@@ -419,7 +422,7 @@ const props = defineProps<{
 
 const searchObject = defineModel<SearchObject>({ required: true })
 
-const { filterIsActive, handleReset } = useFilter({
+const { filterIsActive, handleReset, handleUpdate } = useFilter({
     searchObject,
     emit,
     Constructor: SearchObject,
@@ -429,21 +432,23 @@ const { filterIsActive, handleReset } = useFilter({
 
 ## 9. List — `overview/List.vue` (c)
 
-> The header's edit affordance branches on `config.isComplex`: complex entities show an `edit` icon (each
-> row links to its Details page), simple ones show a disabled `FormModalButton`.
+> The header's edit affordance branches on `config.isComplex`, and each branch wears the SAME classes as
+> the row affordance it stands in for (`ListItem.vue` §10) — a `.btn`'s transparent 1px border and
+> line-height are part of the cell's width, so a spacer that drops them misaligns the header by ~2px.
+> Inert either way: `.disabled` on the span, `disabled` on the button.
 
 ```vue
 <template>
     <div class="entity-list">
         <div class="row pb-2 border-bottom border-bottom-1">
             <div class="col-auto fw-bold">
-                <Icon v-if="config.isComplex" name="edit" class="m-1" />
-                <FormModalButton v-else disabled class="border-0" />
+                <span v-if="config.isComplex" class="btn btn-link p-1 disabled"><Icon name="edit" /></span>
+                <button v-else type="button" class="btn btn-default" disabled><Icon :name="config.key" /></button>
             </div>
             <div class="col-2 col-lg-1 fw-bold">{{ $t("code") }}</div>
             <div class="col fw-bold">{{ $t("name") }}</div>
             <div class="col-auto fw-bold">
-                <Icon name="delete" class="text-muted m-1" />
+                <span class="btn disabled text-muted"><Icon name="delete" /></span>
             </div>
         </div>
         <template v-for="(item, i) in items" :key="item.$id">
@@ -468,7 +473,6 @@ import config from "../config/config"
 import type Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 import ListItem from "./ListItem.vue"
-import FormModalButton from "../details/FormModalButton.vue"
 
 interface Emits extends /* @vue-ignore */ OverviewEmits<Entity> {}
 const emit = defineEmits<Emits>()
@@ -1667,7 +1671,7 @@ What makes `Product` the **standard** tier rather than simple:
 - The `SearchObject` adds many relation/boolean filters; `FilterAdv.vue` is a full relation-picker panel.
 - The `Form` is **tabbed** (`TabContainer`) with selectors and embedded child overviews.
 
-## Boilerplate — reuse Part 1 verbatim
+## Product boilerplate — reuse Part 1 verbatim
 
 These files are byte-identical to Part 1 (only the literal `Entity`/`Product` name differs where shown);
 do not rewrite them:
@@ -1687,7 +1691,7 @@ do not rewrite them:
 - **Barrel** — `index.ts`: same export shape as [Part 1 §22](#22-barrel--indexts).
 - **Plugin** — `setup.ts`: same plugin shape as [Part 1 §23](#23-plugin--setupts).
 
-## 1. Model — `data/Entity.ts` (c)
+## 1. Product model — `data/Entity.ts` (c)
 
 ```ts
 import { EntityBase } from "@/regira_modules/vue/entities"
@@ -1726,7 +1730,7 @@ export const Entity = Product
 export default Product
 ```
 
-## 2. Config — `config/config.ts` (c)
+## 2. Product config — `config/config.ts` (c)
 
 `isComplex: true` flips the standard-tier behaviour: the Overview's "new" button navigates to the Details
 page and the Form is tabbed. (`searchUrl` is `api + "/search"` for every entity — the overview always pages
@@ -1768,7 +1772,7 @@ const config: IConfig = {
 export default config
 ```
 
-## 3. Service — `data/EntityService.ts` (c)
+## 3. Product service — `data/EntityService.ts` (c)
 
 Same `toEntity`-only shape as [Part 1 §3](#3-service--dataentityservicets-c), plus a `prepareItem` override
 that manages **related (owned child) collections** on save — the **`_deleted` pattern**: when the user removes
@@ -1807,7 +1811,7 @@ export class EntityService extends EntityServiceBase<Entity> {
 export default EntityService
 ```
 
-## 4. Search object — `filter/SearchObject.ts` (c)
+## 4. Product search object — `filter/SearchObject.ts` (c)
 
 > The class is named `EntitySearchObject` in the reference app — it is **not** renamed per entity (the
 > barrel and consumers import it as the module default), so this name is reproduced verbatim.
@@ -1846,7 +1850,7 @@ export class EntitySearchObject extends SearchObjectBase {
 export default EntitySearchObject
 ```
 
-## 5. Filter (advanced) — `filter/FilterAdv.vue` (c)
+## 5. Product filter (advanced) — `filter/FilterAdv.vue` (c)
 
 ```vue
 <template>
@@ -2262,15 +2266,15 @@ watchEffect(async () => {
 </script>
 ```
 
-## 6. List — `overview/List.vue` (c)
+## 6. Product list — `overview/List.vue` (c)
 
 ```vue
 <template>
     <div class="entity-list">
         <div class="row pb-2 border-bottom border-bottom-1">
             <div class="col-auto">
-                <Icon v-if="config.isComplex" name="edit" class="m-1" />
-                <FormModalButton v-else disabled class="border-0" />
+                <span v-if="config.isComplex" class="btn btn-link p-1 disabled"><Icon name="edit" /></span>
+                <button v-else type="button" class="btn btn-default" disabled><Icon :name="config.key" /></button>
             </div>
             <div class="col fw-bold">{{ $t("name") }}</div>
             <div class="d-none d-lg-block col-lg col-xl-3 fw-bold">
@@ -2281,7 +2285,7 @@ watchEffect(async () => {
             </div>
             <div class="col-2 d-none d-md-block fw-bold">{{ $t("unitType") }}</div>
             <div class="col-auto fw-bold">
-                <Icon name="delete" class="text-muted m-1" />
+                <span class="btn disabled text-muted"><Icon name="delete" /></span>
             </div>
         </div>
         <template v-for="(item, i) in items" :key="item.$id">
@@ -2306,7 +2310,6 @@ import config from "../config/config"
 import type Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 import ListItem from "./ListItem.vue"
-import FormModalButton from "../details/FormModalButton.vue"
 
 interface Emits extends /* @vue-ignore */ OverviewEmits<Entity> {}
 const emit = defineEmits<Emits>()
@@ -2325,7 +2328,7 @@ const items = computed<Array<Entity>>({
 </script>
 ```
 
-## 7. List item — `overview/ListItem.vue` (c)
+## 7. Product list item — `overview/ListItem.vue` (c)
 
 > This row renders **foreign relations** — `item.unitType`, `item.facets[].facet`, `item.components[].component`
 > — by aliasing each owning store's `fromPool` (`getUnitType` / `getFacet` / `getProduct`) and reading the
@@ -2405,7 +2408,7 @@ const { fromPool: getFacet } = useFacetStore()
 </script>
 ```
 
-## 8. Overview — `overview/Overview.vue`
+## 8. Product overview — `overview/Overview.vue`
 
 > The Overview shell is the boilerplate from [Part 1 §11](#11-overview--overviewoverviewvue-c), but `Product`'s
 > copy carries a **`Product`-specific `Debug` projection** that flattens `item.unitType` / `item.components` /
@@ -2569,7 +2572,7 @@ async function handleRequestRemove(item: Entity) {
 </script>
 ```
 
-## 9. Form — `details/Form.vue` (c)
+## 9. Product form — `details/Form.vue` (c)
 
 > The STANDARD-tier form: a `TabContainer` with selectors (`UnitTypeInputSelector`), embedded child
 > overviews (components, assemblies, suppliers), and a flattened `Debug` projection. Contrast with the
@@ -2755,7 +2758,7 @@ const tabs = computed(() =>
 </script>
 ```
 
-## 10. Selector list — `selecting/SelectorList.vue` (c)
+## 10. Product selector list — `selecting/SelectorList.vue` (c)
 
 ```vue
 <template>

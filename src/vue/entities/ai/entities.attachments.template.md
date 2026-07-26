@@ -355,8 +355,27 @@ export { default as Attachment } from "./attachments/Entity"
 
 ## Wire it into an owning entity
 
-Three lines in the owner's slice + a tab. The owner's service is constructed with an
-`AxiosWithFilesInstance` (see [entities.advanced.example.md](entities.advanced.example.md) §13):
+Four edits in the owner's slice: the join field, the service overrides, the form tab, and — ⚠️ **the one
+documented exception to "you never touch the boilerplate files"** — `setup.ts`, because the owner's service
+must now be constructed with an `AxiosWithFilesInstance` instead of a plain `AxiosInstance`
+(see [entities.advanced.example.md](entities.advanced.example.md) §13).
+
+The helper signatures (they live in **your** scaffolded slice, not in `regira_modules`):
+
+```ts
+// entity-attachments/data/functions.ts
+export async function insertWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(
+    api: string,
+    item: T,
+    insert: () => Promise<T | undefined>,
+    update: (saved: T) => Promise<T | undefined>
+): Promise<T | undefined>
+export async function updateWithAttachments<T extends { id: number; attachments?: Array<Entity> }>(
+    api: string,
+    item: T,
+    update: () => Promise<T | undefined>
+): Promise<T | undefined>
+```
 
 ```ts
 // data/Entity.ts — the join field (import the model aliased)
@@ -383,6 +402,12 @@ protected override prepareItem(item: Owner): Owner {
 <!-- details/Form.vue — attachments get their own tab -->
 <template #files><EntityAttachments v-model="item.attachments" :readonly="readonly" /></template>
 <!-- import { Overview as EntityAttachments } from "../../entity-attachments" -->
+```
+
+```ts
+// setup.ts — the boilerplate exception: resolve axios as the file-capable instance
+import type { AxiosWithFilesInstance } from "regira_modules/vue/http"
+serviceProvider.add(Entity.name, (sp) => new EntityService(sp.get<AxiosWithFilesInstance>("axios")!, config))
 ```
 
 > **Back-end:** register the owner's attachments (`WithAttachments` + `HasAttachments<>`); order the

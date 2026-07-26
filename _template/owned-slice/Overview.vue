@@ -13,7 +13,7 @@ const { items, newItem, handleSave } = useOwnedCollection<__Child__>({ props, em
 </script>
 
 <template>
-    <div class="__children__-editor">
+    <div class="__childrenSlug__-editor">
         <div v-for="row in items" :key="row.id" class="row g-2 mb-1 align-items-center" :class="{ 'is-deleted': row._deleted }">
             <!-- TODO: one input per scalar field of __Child__ -->
             <div class="col"><input v-model="row.description" :readonly="readonly || row._deleted" class="form-control" placeholder="description" /></div>

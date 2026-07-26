@@ -1,7 +1,7 @@
 import { deepCopy } from "../../../utilities/object-utility"
 import { ref, unref, type Ref, getCurrentInstance } from "vue"
 import { type FeedbackOut } from "../../ui"
-import { type IEntity, type IEntityService, type SaveResult, isNewEntity } from "../../entities/abstractions"
+import { ArchivedFilter, type IEntity, type IEntityService, type SaveResult, isNewEntity } from "../../entities/abstractions"
 import type { FormEmits, FormProps } from "./form"
 
 export interface FormModalEmits<T extends IEntity> extends FormEmits<T> {
@@ -73,7 +73,8 @@ export function useModalForm<T extends IEntity>({
                 itemValue = entityService.toEntity(itemValue || defaultValues)
             }
             if (entityService != null && !isNewEntity(itemValue.$id)) {
-                itemValue = (await entityService.details(itemValue.$id)) || itemValue
+                // archived-inclusive like the details route — the hosted form carries the Restore button
+                itemValue = (await entityService.details(itemValue.$id, { archived: ArchivedFilter.included })) || itemValue
             }
             if (typeof itemDefaults === "function") {
                 const itemDefaultsFunc = itemDefaults as (item: T) => Promise<T>

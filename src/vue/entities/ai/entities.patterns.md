@@ -5,17 +5,36 @@ Recipes for individual features. Each is one focused snippet + notes. Verify sig
 
 ## Soft delete / archived rows
 
-`list`/`search` send `isArchived=false` by default, so archived rows are hidden. To include them, set
-it on the search object:
+`DELETE /{id}` on an archivable entity flags the row instead of erasing it — same 200, real affected
+count, idempotent. Visibility afterwards is driven by one search-object field, `archived`:
+
+| `searchObject.archived`   | Sent as              | Result                                                                                        |
+| ------------------------- | -------------------- | --------------------------------------------------------------------------------------------- |
+| unset                     | _omitted_            | the server's default — archived rows invisible, in lists, counts **and included collections** |
+| `ArchivedFilter.excluded` | `?archived=excluded` | same, forced per request                                                                      |
+| `ArchivedFilter.only`     | `?archived=only`     | archived rows only — the recycle-bin view                                                     |
+| `ArchivedFilter.included` | `?archived=included` | live and archived rows together                                                               |
 
 ```ts
+import { SearchObjectBase, ArchivedFilter } from "regira_modules/vue/entities"
+
 class EntitySearchObject extends SearchObjectBase {
-    isArchived?: boolean
+    archived?: ArchivedFilter
 }
-// ... searchObject.isArchived = true   // include archived; leave undefined to hide
+// ... searchObject.archived = ArchivedFilter.only   // recycle bin
 ```
 
-In a form, `useForm` exposes `handleRestore` alongside `handleRemove` for un-archiving.
+`GET /{id}` **404s on an archived row**, so `useDetails` and `useModal` load archived-inclusive — that is
+what puts an archived row in front of `FormButtonsRow`'s Restore button. A hand-rolled loader needs the
+same second argument: `service.details(id, { archived: ArchivedFilter.included })`.
+
+`useForm.handleRestore` then clears the entity's own `isArchived` and saves; the write path resolves
+archived rows server-side, so the save needs no query parameter.
+
+> ⚠️ **`isArchived` stays on the entity and the input DTO.** It reads like a server-owned flag, but
+> dropping it strands the row: lists hide it, `GET /{id}` 404s, and no payload can clear it. A form
+> **hides** the field, it never removes it. The entity property `isArchived` and the search-object field
+> `archived` are different things — `handleRestore` writes the former, filters set the latter.
 
 ## State toggle (activate / deactivate)
 
@@ -62,6 +81,11 @@ override toEntity(item: object): Entity {
     return e
 }
 ```
+
+⚠️ The `typeof … === "string"` guard is mandatory, not style. `toEntity` runs inside computeds
+(`fromPool`, the library `FormModalButton.modalTitle`), so an unconditional `new Date(x)` mutates the
+computed's own dependency and throws `Maximum recursive updates exceeded` **against the library
+component** — the error names the wrong code. Keep `toEntity` idempotent.
 
 ## Transient client-only fields
 
@@ -123,15 +147,25 @@ fixed-width `col-auto` column does **not** shrink, so stacking several of them (
 pushes the row past narrow viewports. Design the row to fit:
 
 - **Flex + clip text columns** — `class="col text-truncate"`, not a fixed width.
-- **Drop secondary columns on smaller breakpoints** — `d-none d-md-block` / `d-none d-lg-block`, so mobile
-  shows only the 1–2 essential columns.
-- **Reserve `col-auto` (with a `width`) for genuinely fixed cells** — an icon/edit button, a short status —
-  and keep them few.
+- **Reveal secondary columns progressively** — the 2nd field at `d-none d-md-block`, the 3rd at
+  `d-none d-lg-block`, the 4th at `d-none d-xl-block`. Stacking them all at `d-md-block` reproduces the
+  overflow at every size above `md`.
+- **Action cells are bare `col-auto`** — an icon/edit button, a `ConfirmButton`. Let them size to content.
 - **Headers and cells must use the same breakpoint classes**, or columns stop lining up.
 
-The shell's `.entity-list` rule backs this up — it zeroes the `.row` gutter margins and sets `min-width: 0` on
-the cells so `text-truncate` can actually clip. It scrolls with `overflow-x: auto`, never `hidden`: a row that
-still cannot fit stays reachable inside the list instead of being clipped away or pushing the page sideways.
+⚠️ **A fixed `width` on a `.row` child is the classic overflow bug.** Bootstrap sets `.row > *` to
+`flex-shrink: 0` with `.75rem` horizontal padding under `box-sizing: border-box`, so the declared width is
+the **border** box: `<div class="col-auto" style="width: 3rem">` offers a 24px content box, while the
+library's `ConfirmButton` / `IconButton` renders a 42px `.btn`. Neither shrinks, so the row overflows the
+page. Budget **≥ 4.5rem** for any cell holding one `.btn` — or drop the `width` and let `col-auto` do it.
+
+The library's own `.entity-list` rule (in `regira_modules/style.css`) backs this up — it zeroes the `.row`
+gutter margins and sets `min-width: 0` on the cells so `text-truncate` can actually clip. Do not redeclare
+it in `theme.scss`. It deliberately sets **no** `overflow-x`: with `overflow-y` left at `visible` an
+`overflow-x: auto` computes to `auto` on both axes, turning the list into a scroll container that clips
+absolutely-positioned descendants (an autocomplete dropdown in an inline-edit row) and disables
+`position: sticky` inside it. A row that still doesn't fit has too many columns — cut one, or opt that one
+list in with the shipped `.entity-list--scroll-x` class.
 
 ```vue
 <!-- List.vue header cell + ListItem.vue body cell — identical column classes, mirrored 1:1. A foreign
@@ -140,7 +174,10 @@ still cannot fit stays reachable inside the list instead of being clipped away o
 <div class="col text-truncate">{{ item.$title }}</div>
 <div class="col d-none d-md-block text-truncate">{{ getBrand(item.brand)?.$title }}</div>
 <div class="col d-none d-lg-block text-truncate">{{ item.model }}</div>
-<div class="col-auto" style="width: 8rem">{{ item.status }}</div>
+<div class="col d-none d-xl-block text-truncate">{{ item.status }}</div>
+<div class="col-auto">
+    <ConfirmButton icon="delete" :modal-type="ModalType.danger" @confirm="$emit('request-remove', item)" />
+</div>
 ```
 
 The `Vehicle` slice in [entities.advanced.example.md](entities.advanced.example.md) §9–10 is the worked

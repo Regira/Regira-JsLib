@@ -46,7 +46,7 @@ lists, extend `JSONService` instead of `EntityServiceBase`.
 ## Verify
 
 - Service resolves: `get<IEntityService<Entity>>(Entity.name)` is defined (not `undefined`) after startup.
-- Overview lists and pages; archived rows hidden unless `searchObject.isArchived` is set.
+- Overview lists and pages; archived rows hidden unless `searchObject.archived` is set.
 - Save round-trips: new item (`$id === "new"`) inserts; existing updates; bind results to `saved`.
 - Routes resolve: `${key}Overview`, `${key}Details` → `${key}Form`/`${key}Fiche`.
 - Smoke-test at runtime: after `npm run build`, run the app against the live API and load one view per

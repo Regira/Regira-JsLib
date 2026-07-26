@@ -5,6 +5,10 @@ Where every type comes from. JavaScript has import specifiers, not namespaces.
 > **AI rule:** You MUST use the exact import specifiers below. Do **not** guess a path or invent a
 > deep import — verify here, then check the signature in [entities.signatures.md](entities.signatures.md).
 
+> **Entities is the only module with a separate import reference** — its surface is large enough to warrant
+> one. Every other module carries its specifiers inline in its own `<module>.signatures.md`; there is no
+> `<module>.namespaces.md` to look for, and none is missing.
+
 ## The one import you usually need
 
 The barrel **`regira_modules/vue/entities`** re-exports the entire entities surface (abstractions, config,
@@ -16,6 +20,7 @@ import {
     EntityServiceBase,
     JSONService,
     SearchObjectBase,
+    ArchivedFilter,
     PagingInfo,
     type IEntity,
     type IEntityService,
@@ -56,7 +61,7 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 | Entity contract        | `IEntity`, `EntityBase`                                                                                                                                                                                                    |
 | Service                | `IEntityService`, `EntityServiceBase`, `JSONService`                                                                                                                                                                       |
 | Result envelopes       | `DetailsResult`, `ListResult`, `SearchResult`, `SaveResult`, `SavedResult`, `DeleteResult`                                                                                                                                 |
-| Search / paging / sort | `ISearchObject`, `SearchObjectBase`, `DefaultSearchObject`, `IPagingInfo`, `PagingInfo`, `DEFAULT_PAGESIZE`, `ISortByInfo`, `SortByInfo`                                                                                   |
+| Search / paging / sort | `ISearchObject`, `SearchObjectBase`, `DefaultSearchObject`, `ArchivedFilter`, `IPagingInfo`, `PagingInfo`, `DEFAULT_PAGESIZE`, `ISortByInfo`, `SortByInfo`                                                                 |
 | Config / descriptor    | `IConfig`, `NavTypes`, `EntityDescriptor`, `IEntityDescriptor`                                                                                                                                                             |
 | Overview               | `useSearchView`, `useListView`, `useOverviewCore`, `useRouteOverview`, `OverviewEmits` (`OverviewProps` and `DEFAULT_DEBOUNCE` are internal — not re-exported)                                                             |
 | Details                | `useDetails`, `DetailsSummary`, `DetailsSummaryProps`                                                                                                                                                                      |
@@ -120,8 +125,8 @@ import type { AxiosInstance } from "axios"
 // Static/lookup data service (client-side cache)
 import { JSONService } from "regira_modules/vue/entities"
 
-// Define a search object
-import { SearchObjectBase } from "regira_modules/vue/entities"
+// Define a search object (ArchivedFilter only when the UI exposes archived rows)
+import { SearchObjectBase, ArchivedFilter } from "regira_modules/vue/entities"
 
 // Register + resolve the service
 import { get, type IServiceProvider } from "regira_modules/vue/ioc"

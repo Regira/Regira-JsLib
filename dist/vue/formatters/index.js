@@ -9,17 +9,22 @@ function i(e, t) {
 		dd: i(e.getDate()),
 		M: e.getMonth() + 1,
 		MM: i(e.getMonth() + 1),
-		yy: i(e.getFullYear()),
+		yy: i(e.getFullYear() % 100),
 		yyyy: i(e.getFullYear(), 4),
 		h: e.getHours(),
 		hh: i(e.getHours()),
+		H: e.getHours(),
+		HH: i(e.getHours()),
 		m: e.getMinutes(),
 		mm: i(e.getMinutes()),
-		n: e.getMilliseconds()
+		n: e.getMilliseconds(),
+		nn: i(e.getMilliseconds()),
+		nnn: i(e.getMilliseconds(), 3),
+		nnnn: i(e.getMilliseconds(), 4)
 	};
-	return t.replace(/d{1,2}|M{1,2}|yy(?:yy)?|h{1,2}|m{1,2}|n{1,4}/g, (e) => a[e]?.toString() ?? "");
+	return t.replace(/d{1,2}|M{1,2}|yy(?:yy)?|H{1,2}|h{1,2}|m{1,2}|n{1,4}/g, (e) => a[e]?.toString() ?? "");
 }
-var a = (e, t = "dd-MM-yyyy") => e ? i(e, t) : "", o = (e) => a(e, "yyyy-MM-dd"), s = (e) => a(e, "HH:mm"), c = (e, t) => e == null ? "" : (typeof e == "string" && (e = new Date(e)), e.toLocaleDateString(t)), l = (e, n) => e == null ? "" : (typeof e == "string" && (e = new Date(e)), n?.includes("US") ? t(e, "MM/dd") : t(e, "dd/MM"));
+var a = (e, t = "dd-MM-yyyy") => e ? i(e, t) : "", o = (e) => a(e, "yyyy-MM-dd"), s = (e) => a(e, "hh:mm"), c = (e, t) => e == null ? "" : (typeof e == "string" && (e = new Date(e)), e.toLocaleDateString(t)), l = (e, n) => e == null ? "" : (typeof e == "string" && (e = new Date(e)), n?.includes("US") ? t(e, "MM/dd") : t(e, "dd/MM"));
 function u(e, t, n = 2, r = n) {
 	return e == null ? "" : e?.toLocaleString(t, {
 		minimumFractionDigits: n,

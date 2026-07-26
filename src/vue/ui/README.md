@@ -28,7 +28,7 @@ into any Vue 3 app on its own, with no entity scaffold, no plugin stack, and no 
 lean and headless builds included. Import the library styles once in `main.ts`:
 
 ```ts
-import "regira_modules/style.css" // modal backdrop, autocomplete dropdown, …
+import "regira_modules/style.css" // --rg-* tokens, modal backdrop, autocomplete dropdown, the list layout rules
 ```
 
 Install the plugins for the areas you use; each configures app-wide state only:
@@ -66,6 +66,27 @@ layers, cheapest first:
    `app.use(modalPlugin, { Modal })` — every library-internal modal resolves it through `injectModal()`.
 5. **Eject** — `node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>` copies the
    reference skin into the app, imports rewritten to public API.
+
+`rg-*` and `--rg-*` are the library's namespace. Every one you write in an app stylesheet must be a hook
+the library already ships, overridden — minting `.rg-card` or `--rg-surface` reads as library API and
+collides the day the library ships that name. App-owned classes and tokens take an app prefix
+(`.shop-card`, `--shop-surface`).
+
+### Structural classes
+
+The opt-in half of the shipped styling: rules `regira_modules/style.css` provides for **your** markup to
+wear, rather than hooks you restyle. Put them on your own elements; they need no `theme.scss` rule.
+
+| Class                   | Rule                                                                                                                       | Put it on                                                             |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `entity-list`           | zeroes the child `.row` gutter margins + `min-width: 0` on the cells, so `text-truncate` clips instead of widening the row | the element wrapping an overview's header row and its item rows       |
+| `entity-list--scroll-x` | adds `overflow-x: auto`                                                                                                    | a single list whose row genuinely cannot fit                          |
+| `italic-muted`          | `opacity: .6; font-style: italic`                                                                                          | placeholder/inherited text; `NullableLabel`'s "no label set" fallback |
+
+`.entity-list` sets no `overflow` on purpose — don't add one. `overflow-x: auto` next to a `visible`
+`overflow-y` computes to `auto` on **both** axes, so the list becomes a scroll container that clips
+absolutely-positioned descendants (an inline-edit row's autocomplete panel) and breaks `position: sticky`
+inside it. `entity-list--scroll-x` is the per-list opt-in for the rare row that cannot fit.
 
 ## Notes
 

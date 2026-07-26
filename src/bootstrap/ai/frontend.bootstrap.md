@@ -188,8 +188,11 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
 
 1. Confirm the target is a Vue 3 SPA (otherwise use the back-end `get_bootstrap_guide`).
 2. Choose the entity slices the app needs (one slice per entity).
-3. Add `regira_modules` + the known-good dependency set (`entities.setup` → Install). For a new app,
-   start from the Vite `vue-ts` template (`npm create vue@latest`).
+3. **Hand-author `package.json`** from the known-good dependency set (`entities.setup` → Install) and run
+   one `npm install`. Do **not** run `npm create vue@latest` — it prompts interactively and cannot be
+   driven headless, and its output then blocks step 5: `scaffold.mjs --shell` refuses to overwrite the
+   generated `index.html` without `--force`, and that file has no `#modals` teleport host — so every
+   modal, `FormModalButton` and `ConfirmButton` silently opens nothing.
 4. Orient with `get_package_card("regira_modules.vue.entities")`, then read the core sections of
    `entities.instructions` and `entities.setup` (via MCP `get_package`). Troubleshooting/lookup tables are
    symptom-driven — fetch a heading when you hit the symptom, not up front. For exact signatures prefer the
@@ -199,8 +202,10 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
    `app-config.ts` (full source: `entities.shell.template`); then set up the toolchain per `entities.setup` → Install.
 6. Scaffold each entity slice with `node node_modules/regira_modules/_template/scaffold.mjs <Entity>`
    (add `--no-auth` for a no-auth app), then customize the `(c)` files; consult `entities.namespaces` / `entities.signatures` for exact
-   imports/signatures and `entities.patterns` for recipes. For entities that own files/pictures, scaffold the
-   shared offline file slice once with `scaffold.mjs --attachments` and wire it into each (a tab + 3 lines).
+   imports/signatures and `entities.patterns` for recipes. Re-running the scaffold over an existing slice
+   needs `--overwrite-slice` (`--force` deliberately excludes slices). For entities that own files/pictures,
+   scaffold the shared offline file slice once with `scaffold.mjs --attachments` and wire it into each
+   (a tab + the model/service/`setup.ts` edits).
 7. Verify with `npm run build` (`vue-tsc -b`), then **drive the app in a browser** — a green build proves
    compilation only. Walk the runtime checklist in `entities.instructions` (save twice, filter + reopen,
    empty/new-row paths) and check the main views at a mobile viewport before calling anything responsive.

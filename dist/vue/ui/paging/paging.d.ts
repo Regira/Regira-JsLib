@@ -59,6 +59,8 @@ export type PagingOut = {
     firstPage: ComputedRef<number>;
     lastPage: ComputedRef<number>;
     pages: ComputedRef<Array<number>>;
+    /** the effective button budget — half of `maxPages` below the sm breakpoint */
+    visibleMaxPages: ComputedRef<number>;
     handleChangePage(newPage: number): void;
 };
 export default function usePaging({ pagingInfo, count, maxPages, emit }: PagingIn): PagingOut;

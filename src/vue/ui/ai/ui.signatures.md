@@ -20,7 +20,7 @@ loadingPlugin.install(app, options?: { img?: string; Loading?: LoadingComponent;
 // loadingPlugin's Loading swaps the indicator app-wide — incl. inside LoadingContainer/LoadingButton, which resolve it via injectLoading()
 pagingPlugin.install(app, { defaultPageSize?: number; Paging?: PagingComponent })
 modalPlugin.install(app, { Modal?: ModalComponent }) // provides the app-wide modal — swaps EVERY modal, incl. the ones inside library components
-screenPlugin.install(app)
+screenPlugin.install(app, { sizes?: Record<string, number> }) // sizes overrides the SCREEN_SIZES breakpoints (known keys only)
 ```
 
 Components are imported locally by default. When `registerComponentsGlobally` is on (set via
@@ -51,7 +51,8 @@ export interface FeedbackOut {
     status: Ref<FeedbackStatus>
     message: Ref<string>
     error: Ref<FeedbackError | undefined>
-    pending(msg: string): void
+    isPending: ComputedRef<boolean> // busy flag = status === FeedbackStatus.pending; gate buttons on this
+    pending(msg: string): void // every setter REQUIRES a message — there is no no-arg form
     success(msg: string): void
     fail(msg: string, ex?: FeedbackError): void
     reset(): void
@@ -95,6 +96,7 @@ export function usePaging(input: { pagingInfo: Ref<IPagingInfo>; count: Ref<numb
     firstPage: ComputedRef<number>
     lastPage: ComputedRef<number>
     pages: ComputedRef<Array<number>>
+    visibleMaxPages: ComputedRef<number> // effective button budget — half of maxPages below the sm breakpoint
     handleChangePage(newPage: number): void
 }
 ```
@@ -225,6 +227,8 @@ export interface IScreen {
     updateSize(newSize: IScreenSize): void
     isSize(size: string): boolean
 }
+// module-level shared instance; it owns the debounced resize/orientationchange subscription, so it is
+// reactive with or without screenPlugin (the plugin only exposes the same instance as $screen)
 export function useScreen(): { size: Ref<number[]>; screen: IScreen }
 ```
 
@@ -264,7 +268,11 @@ import {
 // ConfirmButton contract (ConfirmButtonProps/Emits/Slots + confirmButtonDefaults):
 //   props: { icon?: string; buttonLabel?: string; modalTitle?: string; modalType?: ModalType }
 //   emits: confirm | cancel | open | close ; slots: button-content, modal, default (confirm-modal body)
-// DateInput contract (DateInputProps/Emits): { modelValue?: string | Date; culture?: string }   (v-model)
+// DateInput contract (DateInputProps/Emits): { modelValue?: string | Date; culture?: string; readonly?: boolean } (v-model;
+//   `readonly` also refuses the emit — a native picker cannot write through it)
+// NullableCheckBox contract (NullableCheckBoxProps/Emits): { modelValue?: boolean | string | number } (v-model:
+//   true → false → undefined, rendered indeterminate). It has NO `label` prop — pair it with `NullableLabel`
+//   ({ label?: string }, falls back to its default slot) or a plain <label for>.
 // DescriptionInput contract (DescriptionInputProps): { label?: string; readonly?: boolean }   (v-model: string)
 // FileDropZone contract (FileDropZoneEmits/Slots): emits "drop-files" (files: Array<Blob>) ; default slot scoped { isDropping }
 // FormButtonsRow contract (FormButtonsRowProps/Emits/Slots): { item?: unknown; readonly?: boolean; feedback?: FeedbackOut; showDelete?: boolean; labels?: { save?: string; cancel?: string; delete?: string; restore?: string }; modalTitle?: string } (reads item.isArchived — truthy, 0/1 ok — to gate Restore, item.$title for the delete prompt; feedback busy-gates Save/Delete/Restore against double-submits; labels/modalTitle override the English defaults for i18n) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")

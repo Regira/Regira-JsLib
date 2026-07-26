@@ -10,12 +10,16 @@
             <FormModalButton v-else v-model="item" @save="$emit('save', $event)" @remove="$emit('remove', $event)" />
         </div>
 
-        <!-- TODO: your columns — mirror List.vue's headers 1:1, keep the row inside the viewport (flexible
-             `col text-truncate`, drop secondary columns with d-none d-md-block/d-lg-block, few col-auto cells).
-             Relation columns: `scaffold.mjs <Entity> --rel <Related>` generates each one below as the related
-             entity's FormModalButton + a pooled label. Plain text is the exception — see entities.patterns.md
-             → Resolving relations with fromPool. -->
         <div class="col text-truncate">{{ item.$title }}</div>
+        <!-- TODO: mirror List.vue's header slots 1:1 — same classes, same order, `text-truncate` on every
+             text cell. A relation cell is the related entity's FormModalButton + its pooled label
+             (`scaffold.mjs --rel <Related>` already wrote one above per relation); plain text is the
+             exception — see entities.patterns.md → Resolving relations with fromPool.
+        <div class="col d-none d-md-block text-truncate">{{ item.code }}</div>
+        <div class="col d-none d-lg-block text-truncate">{{ item.status }}</div>
+        <div class="col d-none d-xl-block text-truncate">{{ item.reference }}</div>
+        -->
+        <div class="col-auto d-none d-lg-block text-truncate">{{ formatDate(item.created) }}</div>
 
         <div class="col-auto">
             <ConfirmButton icon="delete" :modal-type="ModalType.danger" @confirm="$emit('request-remove', item)">
@@ -28,6 +32,7 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router"
 import { ModalType, ConfirmButton, Icon } from "regira_modules/vue/ui"
+import { formatDate } from "regira_modules/vue/formatters"
 import type { SaveResult } from "regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"

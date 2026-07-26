@@ -1,5 +1,6 @@
 import type { IEntity } from "./IEntity";
 import type { IPagingInfo } from "./PagingInfo";
+import type { ISearchObject } from "./ISearchObject";
 import type { ISortByInfo } from "./SortByInfo";
 export type DetailsResult<T> = {
     item: T;
@@ -31,7 +32,8 @@ export type DeleteResult<T> = {
     duration?: number;
 };
 export interface IEntityService<T extends IEntity = IEntity> {
-    details(id: number | string): Promise<T | undefined>;
+    /** `so` carries extra query params — notably `{ archived: ArchivedFilter.included }` to resolve an archived row */
+    details(id: number | string, so?: ISearchObject): Promise<T | undefined>;
     list(so?: object): Promise<Array<T>>;
     search(so?: object): Promise<SearchResult<T>>;
     searchUnion(searchObjects: Array<object>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>;

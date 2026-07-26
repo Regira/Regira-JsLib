@@ -58,8 +58,14 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         return id
     }
 
-    public async details(id: string | number): Promise<T | undefined> {
-        const response = await this.axios.get<DetailsResult<T>>(`${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${id}`)
+    /**
+     * `GET /{id}`. The server 404s on an archived row, so pass `{ archived: ArchivedFilter.included }`
+     * to resolve one (the only way to open it in a form and restore it).
+     */
+    public async details(id: string | number, so?: ISearchObject): Promise<T | undefined> {
+        const url = `${this.requireUrl(this.config.detailsUrl, "detailsUrl")}/${id}`
+        const queryString = createQueryString(cleanQueryParams({ ...(so || {}) })).toString()
+        const response = await this.axios.get<DetailsResult<T>>(queryString ? `${url}?${queryString}` : url)
         if (response?.status == 200) {
             const {
                 data: { item },
@@ -140,10 +146,8 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         if (!queryParams.pageSize && queryParams.pageSize !== 0) {
             queryParams.pageSize = this.defaultPageSize
         }
-        // hide archived items by default
-        if (!("isArchived" in queryParams) || (queryParams as { isArchived?: boolean }).isArchived == null) {
-            queryParams["isArchived"] = false
-        }
+        // `archived` is passed through as-is. Left unset it is omitted from the URL and the server hides
+        // archived rows, so forcing `excluded` here would only override a deliberate server-side default.
 
         const queryString = createQueryString(cleanQueryParams(queryParams, this.defaultPageSize))
         const fetchUrl = `${api}?${queryString}`

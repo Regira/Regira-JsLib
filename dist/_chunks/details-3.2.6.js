@@ -1,79 +1,80 @@
-import { a as e } from "./feedback-3.2.6.js";
-import { Fragment as t, computed as n, createElementBlock as r, createElementVNode as i, createVNode as a, defineComponent as o, normalizeClass as s, onMounted as c, openBlock as l, ref as u, renderList as d, resolveComponent as f, toDisplayString as p, watch as m } from "vue";
-import { useRouter as h } from "vue-router";
+import { t as e } from "./ISearchObject-3.2.6.js";
+import { a as t } from "./feedback-3.2.6.js";
+import { Fragment as n, computed as r, createElementBlock as i, createElementVNode as a, createVNode as o, defineComponent as s, normalizeClass as c, onMounted as l, openBlock as u, ref as d, renderList as f, resolveComponent as p, toDisplayString as m, watch as h } from "vue";
+import { useRouter as g } from "vue-router";
 //#region src/vue/entities/details/details.ts
-function g(t, r = e()) {
-	let i = h(), a = n(() => i.currentRoute.value.params.id), o = n(() => a.value === "new"), s = u(void 0), l = u(!1);
-	function d() {
+function _(n, i = t()) {
+	let a = g(), o = r(() => a.currentRoute.value.params.id), s = r(() => o.value === "new"), c = d(void 0), u = d(!1);
+	function f() {
 		function e(e) {
 			if (!e) return !1;
 			let t = e.indexOf("?");
-			return t > -1 && (e = e.substring(0, t)), i.options.routes.some((t) => t.path == e && t.name?.toString().includes("Overview"));
+			return t > -1 && (e = e.substring(0, t)), a.options.routes.some((t) => t.path == e && t.name?.toString().includes("Overview"));
 		}
 		function t() {
-			let e = i.currentRoute.value;
-			return i.options.routes.find((t) => t.name == e.name?.toString().replace(/Form|Fiche/, "Overview"));
+			let e = a.currentRoute.value;
+			return a.options.routes.find((t) => t.name == e.name?.toString().replace(/Form|Fiche/, "Overview"));
 		}
-		let n = i.options.history.state.back?.toString();
+		let n = a.options.history.state.back?.toString();
 		return e(n) ? n : t();
 	}
-	let f = d(), p = n(() => !!i.currentRoute.value.name?.toString().includes("Form")), g = n(() => !!i.currentRoute.value.name?.toString().includes("Fiche")), _ = n(() => i.options.routes.flatMap((e) => [e, ...e.children || []]).some((e) => e.name == i.currentRoute.value.name?.toString().replace("Form", "Fiche")));
-	async function v() {
-		if (o.value) {
-			s.value = await t.newEntity({});
+	let p = f(), m = r(() => !!a.currentRoute.value.name?.toString().includes("Form")), _ = r(() => !!a.currentRoute.value.name?.toString().includes("Fiche")), v = r(() => a.options.routes.flatMap((e) => [e, ...e.children || []]).some((e) => e.name == a.currentRoute.value.name?.toString().replace("Form", "Fiche")));
+	async function y() {
+		if (s.value) {
+			c.value = await n.newEntity({});
 			return;
 		}
-		l.value = !0;
+		u.value = !0;
 		try {
-			s.value = await t.details(a.value);
+			c.value = await n.details(o.value, { archived: e.included });
 		} catch (e) {
-			console.error(`Fetching details failed for #${a.value}`, {
-				id: a.value,
+			console.error(`Fetching details failed for #${o.value}`, {
+				id: o.value,
 				ex: e
-			}), r.fail(`Fetching item #${a.value} failed`, e.response.status == 403 ? "Not allowed" : e.response.status == 404 ? "Not found" : e.response.data);
+			}), i.fail(`Fetching item #${o.value} failed`, e.response.status == 403 ? "Not allowed" : e.response.status == 404 ? "Not found" : e.response.data);
 		} finally {
-			l.value = !1;
+			u.value = !1;
 		}
 	}
-	return m(i.currentRoute, async (e, t) => {
-		e.name === t.name && t.params.id != "new" && e.params.id !== t.params.id && await v();
-	}), c(v), {
-		item: s,
-		routeId: a,
-		isNew: o,
-		overviewUrl: f,
-		isForm: p,
-		isFiche: g,
-		hasFiche: _,
-		isLoading: l,
-		feedback: r,
-		load: v
+	return h(a.currentRoute, async (e, t) => {
+		e.name === t.name && t.params.id != "new" && e.params.id !== t.params.id && await y();
+	}), l(y), {
+		item: c,
+		routeId: o,
+		isNew: s,
+		overviewUrl: p,
+		isForm: m,
+		isFiche: _,
+		hasFiche: v,
+		isLoading: u,
+		feedback: i,
+		load: y
 	};
 }
 //#endregion
 //#region src/vue/entities/details/DetailsSummary.vue?vue&type=script&setup=true&lang.ts
-var _ = { class: "details-summary" }, v = {
+var v = { class: "details-summary" }, y = {
 	key: 0,
 	class: "col"
-}, y = { class: "fw-bold" }, b = { class: "col fw-bold" }, x = { class: "col-12" }, S = { class: "col fw-bold" }, C = { class: "col" }, w = /* @__PURE__ */ o({
+}, b = { class: "fw-bold" }, x = { class: "col fw-bold" }, S = { class: "col-12" }, C = { class: "col fw-bold" }, w = { class: "col" }, T = /* @__PURE__ */ s({
 	__name: "DetailsSummary",
 	props: { modelValue: {} },
 	setup(e) {
-		let o = e, c = n(() => o.modelValue ?? {});
-		return (e, n) => {
-			let o = f("DetailsSummary", !0);
-			return l(), r("div", _, [(l(!0), r(t, null, d(c.value, (e, n, c) => (l(), r("div", {
-				class: s(["row", { "bg-light": c % 2 == 0 }]),
-				key: n
-			}, [Array.isArray(e) ? (l(), r("div", v, [i("span", y, p(n), 1), (l(!0), r(t, null, d(e, (e, n) => (l(), r(t, { key: n }, [i("div", null, "(" + p(n + 1) + ".)", 1), a(o, {
+		let t = e, s = r(() => t.modelValue ?? {});
+		return (e, t) => {
+			let r = p("DetailsSummary", !0);
+			return u(), i("div", v, [(u(!0), i(n, null, f(s.value, (e, t, s) => (u(), i("div", {
+				class: c(["row", { "bg-light": s % 2 == 0 }]),
+				key: t
+			}, [Array.isArray(e) ? (u(), i("div", y, [a("span", b, m(t), 1), (u(!0), i(n, null, f(e, (e, t) => (u(), i(n, { key: t }, [a("div", null, "(" + m(t + 1) + ".)", 1), o(r, {
 				modelValue: e,
 				class: "ms-5"
-			}, null, 8, ["modelValue"])], 64))), 128))])) : typeof e == "object" ? (l(), r(t, { key: 1 }, [i("div", b, p(n), 1), i("div", x, [a(o, {
+			}, null, 8, ["modelValue"])], 64))), 128))])) : typeof e == "object" ? (u(), i(n, { key: 1 }, [a("div", x, m(t), 1), a("div", S, [o(r, {
 				modelValue: e,
 				class: "ms-5"
-			}, null, 8, ["modelValue"])])], 64)) : (l(), r(t, { key: 2 }, [i("div", S, p(n), 1), i("div", C, p(e), 1)], 64))], 2))), 128))]);
+			}, null, 8, ["modelValue"])])], 64)) : (u(), i(n, { key: 2 }, [a("div", C, m(t), 1), a("div", w, m(e), 1)], 64))], 2))), 128))]);
 		};
 	}
 });
 //#endregion
-export { g as n, w as t };
+export { _ as n, T as t };

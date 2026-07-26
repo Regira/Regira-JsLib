@@ -1,13 +1,5 @@
 import type { App } from "vue"
-import useScreen, { SCREEN_SIZES, getWindowSize } from "./screen"
-
-function debounce<A extends unknown[]>(fn: (...args: A) => void, wait: number): (...args: A) => void {
-    let timer: ReturnType<typeof setTimeout> | undefined
-    return (...args: A) => {
-        if (timer) clearTimeout(timer)
-        timer = setTimeout(() => fn(...args), wait)
-    }
-}
+import useScreen, { SCREEN_SIZES } from "./screen"
 
 export default {
     install: (app: App<Element>, { sizes }: { sizes?: Record<string, number> } = {}) => {
@@ -18,11 +10,9 @@ export default {
                 }
             }
         }
+        // useScreen owns the (single, debounced) resize/orientationchange subscription — the plugin only
+        // exposes the shared instance as $screen / inject("screen")
         const { screen } = useScreen()
-
-        const debouncedUpdateSize = debounce(() => screen.updateSize(getWindowSize()), 250)
-        window.addEventListener("resize", debouncedUpdateSize)
-        window.addEventListener("orientationchange", debouncedUpdateSize)
 
         app.config.globalProperties.$screen = screen
         app.provide("screen", screen)

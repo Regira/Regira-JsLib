@@ -1,4 +1,4 @@
-import { type Ref } from "vue";
+import { type ComputedRef, type Ref } from "vue";
 export declare enum FeedbackStatus {
     none = "",
     pending = "Pending",
@@ -13,6 +13,8 @@ export interface FeedbackOut {
     status: Ref<FeedbackStatus>;
     message: Ref<string>;
     error: Ref<FeedbackError | undefined>;
+    /** busy flag — `status === FeedbackStatus.pending`, so a view can disable its buttons without re-deriving it */
+    isPending: ComputedRef<boolean>;
     pending(msg: string): void;
     success(msg: string): void;
     fail(msg: string, ex?: FeedbackError): void;

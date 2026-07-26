@@ -40,7 +40,7 @@ installing the plugins — see the **Global registration** column.
 | `loadingPlugin`  | the image `Loading` renders + the app-wide indicator for `injectLoading()`      | `{ img, Loading?, LoadingButton?, LoadingContainer? }`               | `Loading`, `LoadingButton`, `LoadingContainer` |
 | `pagingPlugin`   | the `Paging` default page size                                                  | `{ defaultPageSize?, Paging? }`                                      | `Paging`                                       |
 | `modalPlugin`    | the app-wide modal — provides it for `injectModal()`                            | `{ Modal?: ModalComponent }`                                         | `MyModal`                                      |
-| `screenPlugin`   | `$screen` (`IScreen`) — reactive breakpoints                                    | —                                                                    | —                                              |
+| `screenPlugin`   | exposes the shared `useScreen()` instance as `$screen` / `inject("screen")`     | `{ sizes? }` — override `SCREEN_SIZES` breakpoints                   | —                                              |
 
 `loadingPlugin`'s `img` brands the indicator; skip the plugin (or leave the image out) and `Loading`
 renders a built-in Bootstrap spinner instead, so the loading state stays visible either way. Its
@@ -90,8 +90,13 @@ sites keep the library `Icon` (re-map glyphs via `icons`/`source`, restyle via `
 
 ## Composables
 
-- `useFeedback({ autoHideDelay? })` → `FeedbackOut` (`status`, `message`, `error`, `pending/success/fail/reset`).
-- `useScreen()` → `{ size, screen }` where `screen` exposes `isSmall`…`isExtraExtraLarge`, `layout`, `isSize`.
+- `useFeedback({ autoHideDelay? })` → `FeedbackOut` (`status`, `message`, `error`, `isPending`,
+  `pending/success/fail/reset`). `isPending` is the busy flag to disable buttons against double-submits;
+  every setter requires a message.
+- `useScreen()` → `{ size, screen }` where `screen` exposes `isSmall`…`isExtraExtraLarge`, `layout`,
+  `isSize`. It is a **module-level shared instance** that owns a single debounced
+  `resize`/`orientationchange` subscription, so it tracks the viewport with or without `screenPlugin`
+  installed. Every caller gets that same instance — `updateSize()` moves the breakpoints app-wide.
 - `useAutocomplete(props, { emit })` → search/select state for building a custom autocomplete (the
   `Autocomplete` component already wraps it).
 - `usePaging({ pagingInfo, count, maxPages, emit })` → page window/routes/change handling for a custom

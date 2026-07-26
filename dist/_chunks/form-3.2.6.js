@@ -3,18 +3,19 @@ import { useVModelField as n } from "../vue/vue-helper.js";
 import { t as r } from "./IconButton-3.2.6.js";
 import { isNewEntity as i } from "../vue/entities/abstractions/IEntity.js";
 import "./abstractions-3.2.6.js";
-import { a } from "./feedback-3.2.6.js";
-import { Fragment as o, computed as s, createElementBlock as c, createElementVNode as l, createVNode as u, defineComponent as d, getCurrentInstance as f, guardReactiveProps as p, mergeModels as m, mergeProps as h, normalizeClass as g, normalizeProps as _, onMounted as v, openBlock as y, ref as b, renderList as x, renderSlot as S, toRaw as C, unref as w, useModel as T, watch as E } from "vue";
-import { useRouter as D } from "vue-router";
+import { t as a } from "./ISearchObject-3.2.6.js";
+import { a as o } from "./feedback-3.2.6.js";
+import { Fragment as s, computed as c, createElementBlock as l, createElementVNode as u, createVNode as d, defineComponent as f, getCurrentInstance as p, guardReactiveProps as m, mergeModels as h, mergeProps as g, normalizeClass as _, normalizeProps as v, onMounted as y, openBlock as b, ref as x, renderList as S, renderSlot as C, toRaw as w, unref as T, useModel as E, watch as D } from "vue";
+import { useRouter as O } from "vue-router";
 //#region src/vue/entities/form/form.ts
-var O = /* @__PURE__ */ function(e) {
+var k = /* @__PURE__ */ function(e) {
 	return e.pending = "Pending", e.saved = "Saved", e.removed = "Removed", e.error = "Error", e;
-}({}), k = {
+}({}), A = {
 	readonly: !1,
 	isPopup: !1
 };
-function A({ entityService: t, props: n, emit: r, feedback: i = a() }) {
-	let { readonly: o, isPopup: s } = n, c = b(n.modelValue), l = b();
+function j({ entityService: t, props: n, emit: r, feedback: i = o() }) {
+	let { readonly: a, isPopup: s } = n, c = x(n.modelValue), l = x();
 	function u() {
 		r("cancel", {
 			canceled: c.value,
@@ -22,9 +23,9 @@ function A({ entityService: t, props: n, emit: r, feedback: i = a() }) {
 		}), c.value = t.toEntity(e(l.value));
 	}
 	function d() {
-		if (o) throw i.fail("Readonly"), Error("Readonly");
+		if (a) throw i.fail("Readonly"), Error("Readonly");
 	}
-	let f = D();
+	let f = O();
 	async function p() {
 		d(), r("changeState", "Pending");
 		try {
@@ -91,9 +92,9 @@ function A({ entityService: t, props: n, emit: r, feedback: i = a() }) {
 			r("changeState", "Saved");
 		}
 	}
-	return E(() => n.modelValue, () => {
+	return D(() => n.modelValue, () => {
 		c.value = n.modelValue, l.value = t.toEntity(e(c.value));
-	}), v(() => {
+	}), y(() => {
 		l.value = t.toEntity(e(c.value));
 	}), {
 		item: c,
@@ -107,59 +108,59 @@ function A({ entityService: t, props: n, emit: r, feedback: i = a() }) {
 }
 //#endregion
 //#region src/vue/entities/form/modal.ts
-var j = {
+var M = {
 	closeOnSave: !1,
 	closeOnDelete: !0
 };
-function M({ entityService: t, model: n, itemDefaults: r, closeOnSave: a, closeOnCancel: o, closeOnDelete: s, emit: c, feedback: l }) {
-	let u = b(!1), d = b(), p = f();
-	function m(e) {
-		d.value = e;
+function N({ entityService: t, model: n, itemDefaults: r, closeOnSave: o, closeOnCancel: s, closeOnDelete: c, emit: l, feedback: u }) {
+	let d = x(!1), f = x(), m = p();
+	function h(e) {
+		f.value = e;
 	}
-	function h() {
-		c("close", d.value), u.value = !1;
+	function g() {
+		l("close", f.value), d.value = !1;
 	}
-	async function g() {
-		let a = n.value;
+	async function _() {
+		let o = n.value;
 		try {
-			let n = typeof r == "function" ? {} : e(w(r) || {});
-			a ??= await t.newEntity(n), a?.$id || (a = t.toEntity(a || n)), t != null && !i(a.$id) && (a = await t.details(a.$id) || a), typeof r == "function" && (a = await r(a)), d.value = a, u.value = !0, c("open", d.value, m);
+			let n = typeof r == "function" ? {} : e(T(r) || {});
+			o ??= await t.newEntity(n), o?.$id || (o = t.toEntity(o || n)), t != null && !i(o.$id) && (o = await t.details(o.$id, { archived: a.included }) || o), typeof r == "function" && (o = await r(o)), f.value = o, d.value = !0, l("open", f.value, h);
 		} catch (e) {
 			console.error("Fetching details failed", {
-				id: a?.$id,
+				id: o?.$id,
 				ex: e,
-				app: p
-			}), l ||= p?.appContext.config.globalProperties.$feedback, l.fail(`Fetching ${a?.$title || "item #" + a?.$id} failed`, e.response.status == 403 ? "Not allowed" : e.response?.data);
+				app: m
+			}), u ||= m?.appContext.config.globalProperties.$feedback, u.fail(`Fetching ${o?.$title || "item #" + o?.$id} failed`, e.response.status == 403 ? "Not allowed" : e.response?.data);
 		}
 	}
-	function _(e) {
-		o && (c("cancel", e), h());
+	function v(e) {
+		s && (l("cancel", e), g());
 	}
-	function v({ saved: e, isNew: t }) {
-		c("save", {
+	function y({ saved: e, isNew: t }) {
+		l("save", {
 			saved: e,
 			isNew: t
-		}), c("update:modelValue", e), a && h();
+		}), l("update:modelValue", e), o && g();
 	}
-	function y() {
-		c("remove", d.value), s && h();
+	function b() {
+		l("remove", f.value), c && g();
 	}
 	return {
-		item: d,
-		isOpen: u,
-		feedback: l,
-		close: h,
-		open: g,
-		handleSave: v,
-		handleRemove: y,
-		handleCancel: _
+		item: f,
+		isOpen: d,
+		feedback: u,
+		close: g,
+		open: _,
+		handleSave: y,
+		handleRemove: b,
+		handleCancel: v
 	};
 }
-var N = M;
+var P = N;
 //#endregion
 //#region src/vue/entities/form/listInput.ts
-function P({ props: e, emit: r }) {
-	let i = n(e, r), a = b({ id: 0 }), o = (e) => {
+function F({ props: e, emit: r }) {
+	let i = n(e, r), a = x({ id: 0 }), o = (e) => {
 		r("sort", e);
 	};
 	function s({ saved: e, isNew: n }) {
@@ -172,7 +173,7 @@ function P({ props: e, emit: r }) {
 		handleSave: s
 	};
 }
-function F({ props: e, emit: t }) {
+function I({ props: e, emit: t }) {
 	let r = n(e, t);
 	function i() {
 		t("save", {
@@ -191,8 +192,8 @@ function F({ props: e, emit: t }) {
 }
 //#endregion
 //#region src/vue/entities/form/ownedCollections.ts
-function I({ props: e, emit: r }) {
-	let i = n(e, r), a = () => ({ id: 0 }), o = b();
+function L({ props: e, emit: r }) {
+	let i = n(e, r), a = () => ({ id: 0 }), o = x();
 	async function s() {
 		o.value = a();
 	}
@@ -202,7 +203,7 @@ function I({ props: e, emit: r }) {
 	function l({ saved: e, isNew: n }) {
 		n && (e.id = Math.min(t(i.value, (e) => e.id) ?? 0, 0) - 1, i.value = i.value.concat([e]), s());
 	}
-	return E(() => e.modelValue, () => i.value = e.modelValue || []), v(async () => {
+	return D(() => e.modelValue, () => i.value = e.modelValue || []), y(async () => {
 		i.value = e.modelValue || [], await s();
 	}), {
 		items: i,
@@ -214,10 +215,10 @@ function I({ props: e, emit: r }) {
 }
 //#endregion
 //#region src/vue/entities/form/ownedModal.ts
-function L(t, { props: n, emit: r }) {
-	let i = b(n.modelValue || { id: 0 }), a = b(!1);
+function R(t, { props: n, emit: r }) {
+	let i = x(n.modelValue || { id: 0 }), a = x(!1);
 	function o() {
-		let r = n.modelValue || {}, o = e(w(n.itemDefaults || {}));
+		let r = n.modelValue || {}, o = e(T(n.itemDefaults || {}));
 		i.value = Object.assign(new t(), {
 			...r,
 			...o
@@ -242,9 +243,9 @@ function L(t, { props: n, emit: r }) {
 }
 //#endregion
 //#region src/vue/entities/form/InputSelectorInline.vue?vue&type=script&setup=true&lang.ts
-var R = { class: "input-selector-inline row align-items-center" }, z = { class: "col-auto mb-2" }, B = /* @__PURE__ */ d({
+var z = { class: "input-selector-inline row align-items-center" }, B = { class: "col-auto mb-2" }, V = /* @__PURE__ */ f({
 	__name: "InputSelectorInline",
-	props: /*@__PURE__*/ m({
+	props: /*@__PURE__*/ h({
 		rowKey: { type: Function },
 		excludeKey: { type: Function },
 		isNew: { type: Function }
@@ -252,41 +253,41 @@ var R = { class: "input-selector-inline row align-items-center" }, z = { class: 
 		modelValue: {},
 		modelModifiers: {}
 	}),
-	emits: /*@__PURE__*/ m(["remove", "add"], ["update:modelValue"]),
+	emits: /*@__PURE__*/ h(["remove", "add"], ["update:modelValue"]),
 	setup(e, { emit: t }) {
-		let n = T(e, "modelValue"), i = e, a = t, d = s(() => (n.value ?? []).map((e) => i.excludeKey?.(e)).filter((e) => e != null)), f = 0, m = /* @__PURE__ */ new WeakMap();
-		function v(e) {
+		let n = E(e, "modelValue"), i = e, a = t, o = c(() => (n.value ?? []).map((e) => i.excludeKey?.(e)).filter((e) => e != null)), f = 0, p = /* @__PURE__ */ new WeakMap();
+		function h(e) {
 			let t = i.rowKey?.(e);
 			if (t != null) return t;
-			let n = C(e);
-			return m.has(n) || m.set(n, `rg-isi-${++f}`), m.get(n);
+			let n = w(e);
+			return p.has(n) || p.set(n, `rg-isi-${++f}`), p.get(n);
 		}
-		let b = /* @__PURE__ */ new WeakSet();
-		function w(e) {
+		let y = /* @__PURE__ */ new WeakSet();
+		function x(e) {
 			return typeof e.id == "number" && e.id > 0;
 		}
-		function E(e) {
-			return i.isNew ? i.isNew(e) : b.has(C(e)) && !w(e);
+		function T(e) {
+			return i.isNew ? i.isNew(e) : y.has(w(e)) && !x(e);
 		}
 		function D(e) {
-			E(e) ? n.value = (n.value ?? []).filter((t) => C(t) !== C(e)) : e._deleted = !e._deleted, a("remove", e);
+			T(e) ? n.value = (n.value ?? []).filter((t) => w(t) !== w(e)) : e._deleted = !e._deleted, a("remove", e);
 		}
 		function O(e) {
-			b.add(C(e)), n.value = [...n.value ?? [], e], a("add", e);
+			y.add(w(e)), n.value = [...n.value ?? [], e], a("add", e);
 		}
-		return (e, t) => (y(), c("div", R, [(y(!0), c(o, null, x(n.value ?? [], (t) => (y(), c("div", {
-			key: v(t),
+		return (e, t) => (b(), l("div", z, [(b(!0), l(s, null, S(n.value ?? [], (t) => (b(), l("div", {
+			key: h(t),
 			class: "col-auto mb-2 pe-0"
-		}, [l("div", { class: g(["form-control p-0 d-inline-flex align-items-center", { "is-deleted": t._deleted }]) }, [S(e.$slots, "chip", h({ ref_for: !0 }, { row: t })), u(r, {
+		}, [u("div", { class: _(["form-control p-0 d-inline-flex align-items-center", { "is-deleted": t._deleted }]) }, [C(e.$slots, "chip", g({ ref_for: !0 }, { row: t })), d(r, {
 			icon: "delete",
 			class: "btn-outline-danger border-0",
 			title: t._deleted ? "restore" : "remove",
 			onClick: (e) => D(t)
-		}, null, 8, ["title", "onClick"])], 2)]))), 128)), l("div", z, [S(e.$slots, "selector", _(p({
+		}, null, 8, ["title", "onClick"])], 2)]))), 128)), u("div", B, [C(e.$slots, "selector", v(m({
 			add: O,
-			exclude: d.value
+			exclude: o.value
 		})))])]));
 	}
 });
 //#endregion
-export { F as a, O as c, P as i, k as l, L as n, j as o, I as r, N as s, B as t, A as u };
+export { I as a, k as c, F as i, A as l, R as n, M as o, L as r, P as s, V as t, j as u };

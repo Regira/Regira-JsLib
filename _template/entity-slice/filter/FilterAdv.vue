@@ -12,10 +12,15 @@
         </div>
 
         <!-- keywords (free-text q) -->
-        <input v-model.lazy.trim="searchObject.q" class="form-control mb-2" :placeholder="$t('keywords')" />
+        <input v-model.lazy.trim="searchObject.q" class="form-control mb-2" :placeholder="$t('keywords')" @change="handleUpdate" />
 
-        <!-- TODO: inputs for your SearchObject filter fields (placeholder `title` — keep in sync with SearchObject.ts), e.g. -->
-        <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" />
+        <!-- TODO: one input per SearchObject filter field (placeholder `title` — keep in sync with SearchObject.ts).
+             Native <input> → @change="handleUpdate". A custom component (InputSelector, NullableCheckBox,
+             DateInput) emits Vue events only → @select="handleUpdate" / @update:modelValue="handleUpdate",
+             or the results and the count go stale. e.g.:
+                 <BarInputSelector v-model="bar" v-model:idValue="searchObject.barId" @select="handleUpdate" />
+                 <NullableCheckBox v-model="searchObject.isActive" @update:modelValue="handleUpdate" /> -->
+        <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" @change="handleUpdate" />
     </div>
 </template>
 
@@ -29,5 +34,6 @@ const emit = defineEmits<Emits & { "update:modelValue": (v: SearchObject) => tru
 defineProps<{ resultCount?: number }>()
 
 const searchObject = defineModel<SearchObject>({ required: true })
-const { handleReset, filterIsActive } = useFilter({ searchObject, emit, Constructor: SearchObject })
+// handleUpdate = sync the model + re-run the search; bind it on EVERY input above.
+const { handleReset, handleUpdate, filterIsActive } = useFilter({ searchObject, emit, Constructor: SearchObject })
 </script>

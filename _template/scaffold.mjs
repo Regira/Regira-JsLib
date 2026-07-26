@@ -18,7 +18,9 @@
 //   --rel <Entity>      generate an overview column for a to-one relation: the related entity's
 //                       FormModalButton + a label resolved through its pool (never the raw nested DTO, which
 //                       has no $title, nor item.rel.title, which goes stale). Repeatable. The related slice
-//                       must already be scaffolded — the column imports from its barrel. A differently-named FK
+//                       must already be scaffolded — the column imports from its barrel, and its folder is
+//                       looked up from the scaffolded slices (so a related slice with its own --plural, e.g.
+//                       Person --plural people, still resolves). A differently-named FK
 //                       takes an optional trailing `--as <field>`: `--rel Employee --as assignedToEmployee`
 //                       binds assignedToEmployee(Id) instead of the default employee(Id), still the Employee slice.
 //   --dir <path>        target base folder for a slice (default: src/entities) or an ejected skin (default: src/components/ui)
@@ -36,7 +38,7 @@
 //                       imports only public regira_modules/... API, so behavior keeps flowing from the library
 //   --attachments       scaffold the shared entity-attachments slice (offline add/rename/remove + drop zone,
 //                       committed on the parent's save); then wire it into each file-owning entity (3 lines + a tab)
-//   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
+//   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI, the auth-only files + config.json keys)
 //   --force             overwrite files that already exist (--shell / --ui / --attachments only — never an
 //                       entity slice; slices hold hand-edited (c) files and need the explicit flag below)
 //   --overwrite-slice   overwrite an existing entity slice (or owned sub-slice), customized (c) files
@@ -216,16 +218,49 @@ for (let i = 0; i < argv.length; i++) {
     }
 }
 
+// The owned-collection JSON key — the back-end navigation's camelCase key, defaulting to the camelCase plural
+// of the child class. Derived once: the generated prepareItem filter and the sub-slice scaffolder below must
+// agree on it, or the filter would clear a field the DTO does not have.
+const ownedField = ({ child, field }) => field ?? lowerFirst(pluralize(child))
+
 // The import alias mirrors the target folder: `--dir src/modules` must emit "@/modules/...", not the
 // default "@/entities/...", or the generated slice cannot resolve its imports.
 const aliasRoot = baseDir.replace(/\\/g, "/").replace(/^\.?\/?src\//, "").replace(/\/+$/, "")
-const relations = rels.map((r) => ({
-    name: r.name,
-    field: r.field ?? lowerFirst(r.name),   // FK binding — `--as` overrides it for a differently-named to-one
-    folder: lowerFirst(kebab(pluralize(r.name))),
-    key: r.field ?? lowerFirst(r.name),     // header i18n key — distinct per role when `--as` renames it
-    alias: `@/${aliasRoot}/${lowerFirst(kebab(pluralize(r.name)))}`,
-}))
+// A --rel's slice folder is looked UP, not re-derived: the related slice may have been scaffolded with its own
+// --plural (`Person --plural people` lives in "people"), and re-deriving it emits imports from a folder that
+// does not exist. Every generated config.ts carries `key: "<PascalCase class>"`, so the folder holding that
+// class is discoverable by scanning <baseDir>/*/config/config.ts. The derived plural stays the fallback for a
+// relation that has not been scaffolded yet (the run warns about it below).
+const baseDirAbs = resolve(process.cwd(), baseDir)
+function findSliceFolder(className) {
+    let entries
+    try {
+        entries = readdirSync(baseDirAbs, { withFileTypes: true })
+    } catch {
+        return undefined // no base dir yet — nothing to resolve against
+    }
+    for (const entry of entries) {
+        if (!entry.isDirectory()) continue
+        const cfg = join(baseDirAbs, entry.name, "config", "config.ts")
+        if (!existsSync(cfg)) continue
+        try {
+            if (new RegExp(`\\bkey:\\s*["']${className}["']`).test(readFileSync(cfg, "utf8"))) return entry.name
+        } catch {
+            // an unreadable slice config is not fatal — keep scanning, then fall back to the derived plural
+        }
+    }
+    return undefined
+}
+const relations = rels.map((r) => {
+    const folder = findSliceFolder(r.name) ?? lowerFirst(kebab(pluralize(r.name)))
+    return {
+        name: r.name,
+        field: r.field ?? lowerFirst(r.name), // FK binding — `--as` overrides it for a differently-named to-one
+        folder,
+        key: r.field ?? lowerFirst(r.name), // header i18n key — distinct per role when `--as` renames it
+        alias: `@/${aliasRoot}/${folder}`,
+    }
+})
 // The per-ENTITY blocks (imports, store consts, model imports) de-dupe by class name, so two --rel to the
 // SAME entity (--rel Employee --as assignedTo --rel Employee --as reportedBy) never emit a duplicate identifier.
 const relEntities = [...new Map(relations.map((r) => [r.name, r])).values()]
@@ -240,19 +275,22 @@ const insertAfter = (text, anchor, addition) => {
     const at = eol < 0 ? text.length : eol
     return text.slice(0, at) + "\n" + addition + text.slice(at)
 }
+// Relation columns are revealed progressively, widest breakpoint last: every column carrying a .btn costs
+// ~4.5rem it cannot shrink below, so revealing them all at md is what overflows a narrow viewport.
+const relationBreakpoint = (i) => ["d-none d-md-block", "d-none d-lg-block", "d-none d-xl-block"][Math.min(i, 2)]
 const relationBlocks = {
     // overview/ListItem.vue
     cells: relations
         // both the button and the label take the pooled instance — a raw nested DTO has no $title, and an
         // edit made through the button's own modal must relabel this cell without a reload
-        .map((r) => `        <div class="col d-none d-md-block text-truncate">\n            <${r.name}Button :model-value="get${r.name}(item.${r.field})" /> {{ get${r.name}(item.${r.field})?.$title }}\n        </div>`)
+        .map((r, i) => `        <div class="col ${relationBreakpoint(i)} text-truncate">\n            <${r.name}Button :model-value="get${r.name}(item.${r.field})" /> {{ get${r.name}(item.${r.field})?.$title }}\n        </div>`)
         .join("\n"),
     imports: relEntities
         .map((r) => `import { FormModalButton as ${r.name}Button, useEntityStore as use${r.name}Store } from "${r.alias}"`)
         .join("\n"),
     stores: relEntities.map((r) => `const { fromPool: get${r.name} } = use${r.name}Store()`).join("\n"),
     // overview/List.vue — headers mirror the cells 1:1
-    headers: relations.map((r) => `            <div class="col d-none d-md-block">{{ $t("${r.key}") }}</div>`).join("\n"),
+    headers: relations.map((r, i) => `            <div class="col ${relationBreakpoint(i)}">{{ $t("${r.key}") }}</div>`).join("\n"),
     // data/Entity.ts — the FK and the nested relation, so the generated column type-checks as scaffolded.
     // Barrels export the model as `Entity`, hence the alias.
     modelImports: relEntities.map((r) => `import { type Entity as ${r.name} } from "${r.alias}"`).join("\n"),
@@ -283,6 +321,27 @@ function applyRelations(relPath, text) {
         default:
             return text
     }
+}
+
+// data/EntityService.ts ships a TODO marker for the owned-collection filter — its source is the entities
+// template doc, where it has to read as a worked example. `--owns` knows the real lines, so write them here;
+// with nothing owned the marker is dead weight in a file the user is told to leave alone, so drop it.
+const OWNED_FILTER_TODO = /^[^\S\r\n]*\/\/ TODO \(owned collections only\):.*\r?\n/m
+function applyOwnedCollections(relPath, text) {
+    if (relPath.replace(/\\/g, "/") !== "data/EntityService.ts") return text
+    const marker = text.match(OWNED_FILTER_TODO)
+    if (!marker) {
+        console.error(
+            '✗ data/EntityService.ts no longer carries the "// TODO (owned collections only):" line this scaffolder rewrites — regenerate _template/entity-slice from the ai docs, or update the anchor in scaffold.mjs.'
+        )
+        process.exit(1)
+    }
+    const indent = marker[0].match(/^[^\S\r\n]*/)[0]
+    // one filter line per owned collection, in the order the flags were given
+    return text.replace(
+        OWNED_FILTER_TODO,
+        owns.map((o) => `${indent}item.${ownedField(o)} = item.${ownedField(o)}?.filter((x) => !x._deleted) || []\n`).join("")
+    )
 }
 
 const sliceExists = existsSync(destRoot)
@@ -317,12 +376,16 @@ function copyDir(from, to, rootFrom = from) {
             let content = subst(readFileSync(src, "utf8"))
             if (noAuth) content = stripAuth(content)
             content = applyRelations(relative(rootFrom, src), content)
+            content = applyOwnedCollections(relative(rootFrom, src), content)
             writeFileSync(dst, content)
         }
     }
 }
 
-if (!sliceExists || overwriteSlice) {
+// whether THIS run (re)generated the parent slice's own files — the owned-collection wiring hints below
+// differ, since an existing slice keeps the EntityService it already has
+const sliceGenerated = !sliceExists || overwriteSlice
+if (sliceGenerated) {
     if (sliceExists) {
         console.log(`! ${destRoot} exists — --overwrite-slice: replacing it, customized (c) files included.`)
         // a clean replace, not an overlay — files from an older template generation must not linger
@@ -340,8 +403,13 @@ if (!sliceExists || overwriteSlice) {
         const relDir = join(baseDir, r.folder)
         console.log(
             existsSync(resolve(process.cwd(), relDir))
-                ? `  Relation column for ${r.name}: reads item.${r.field} (baseQueryParams.includes "${r.name}" — must match the API's [Flags] enum, or the cell stays blank); add the "${r.key}" translation key.`
+                ? `  Relation column for ${r.name}: reads item.${r.field}, loaded by the baseQueryParams.includes ["All"] this run wrote into config.ts; add the "${r.key}" translation key.`
                 : `  ! Relation column for ${r.name} imports from ${relDir}, which does not exist yet — scaffold that slice or vue-tsc will fail.`
+        )
+    }
+    if (relations.length) {
+        console.log(
+            `  Narrow baseQueryParams.includes only to members of the API's NAMED [Flags] includes enum — and that enum must itself declare an All member, or the scaffolded ["All"] 400s ("The value 'All' is not valid").`
         )
     }
 } else {
@@ -362,7 +430,7 @@ function scaffoldOwned(childName, fieldName) {
         console.error(`✗ ${ownedSrcRoot} not found — regira_modules is missing the owned-slice template.`)
         return
     }
-    const childFolder = lowerFirst(pluralize(childName.toLowerCase())) // OrderLine → orderlines (folder / route / import path — lowercase)
+    const childFolder = kebab(pluralize(childName)) // OrderLine → order-lines (folder / import path — kebab-case, like every other derived path)
     // The DTO field must match the back-end navigation's camelCase JSON key — that follows the C# property
     // name, not the child class name. Default: camelCase plural of the class; pass --as when they differ.
     const childField = fieldName ?? lowerFirst(pluralize(childName)) // OrderLine → orderLines
@@ -377,25 +445,38 @@ function scaffoldOwned(childName, fieldName) {
     }
     // __children__ → the camelCase field (the JSON key), NOT the folder; __parent__ → camelCase parent singular
     // (so a `ShoppingList` child FK is `shoppingListId`, matching the server). Folder/import paths use childFolder.
+    // __childrenSlug__ → the same field kebab-cased, for markup identifiers (CSS classes): every class name in
+    // the templates is kebab-case, so a camelCase one (.shoppingListItems-editor) sticks out as a typo.
     const childSubst = (s) =>
         s
             .replace(/__Children__/g, ChildrenPascal)
             .replace(/__Child__/g, childName)
+            .replace(/__childrenSlug__/g, kebab(childField))
             .replace(/__children__/g, childField)
             .replace(/__Parent__/g, name)
             .replace(/__parent__/g, camelSingular)
+    // Printed BEFORE the folder exists: once it does, correcting the key needs --overwrite-slice, so a hint
+    // that only appears in the wiring list below is a hint you can no longer act on cheaply.
+    if (fieldName == null) {
+        console.log(`! Owned ${childName}: defaulting its JSON key to "${childField}" — it must match the back-end navigation's camelCase key, which follows the C# property name, not the class name.`)
+        console.log(`  If they differ, stop here and re-run with --owns ${childName} --as <fieldName> (changing it afterwards needs --overwrite-slice).`)
+    }
     mkdirSync(childDest, { recursive: true })
     for (const entry of readdirSync(ownedSrcRoot, { withFileTypes: true })) {
         if (entry.isDirectory()) continue // owned-slice is flat
         writeFileSync(resolve(childDest, entry.name), childSubst(readFileSync(join(ownedSrcRoot, entry.name), "utf8")))
     }
     const p = (f) => join(baseDir, plural, f)
+    const filterLine = `item.${childField} = item.${childField}?.filter((x) => !x._deleted) || []`
     console.log(`✓ Owned collection ${childName} → ${join(baseDir, plural, childFolder)} (editable table)`)
-    console.log(`  Wire it into the ${name} slice (the editor is generated; these three lines connect it):`)
+    console.log(`  Wire it into the ${name} slice (the editor is generated; these ${sliceGenerated ? "two" : "three"} lines connect it):`)
     console.log(`    1. ${p("data/Entity.ts")}         field   ${childField}?: Array<${childName}>   // import { type Entity as ${childName} } from "../${childFolder}"`)
-    console.log(`       ⚠ the field name must match the back-end navigation's JSON key (camelCase), not the child class name — pass --as <fieldName> if they differ`)
     console.log(`    2. ${p("details/Form.vue")}       render  <${childName}Overview v-model="item.${childField}" />   // import { ${childName}Overview } from "../${childFolder}"`)
-    console.log(`    3. ${p("data/EntityService.ts")}  prepareItem   item.${childField} = item.${childField}?.filter((x) => !x._deleted) || []`)
+    console.log(
+        sliceGenerated
+            ? `    ✓ ${p("data/EntityService.ts")}  prepareItem   ${filterLine}   // already written by this run — it type-checks as soon as step 1 declares the field`
+            : `    3. ${p("data/EntityService.ts")}  prepareItem   ${filterLine}   // add it yourself: the existing service was left untouched`
+    )
     console.log(`    back-end: e.Related(x => x.${ChildrenPascal}) on ${name} (owned child — no For<>()/controller/budget slot).`)
 }
 
@@ -408,6 +489,8 @@ function scaffoldShell() {
     }
     // auth-only files: omitted entirely on --no-auth
     const AUTH_ONLY = new Set(["src/infrastructure/user-plugin.ts", "src/shims.d.ts", "src/views/AccountView.vue"])
+    // ...and the one file whose auth-only bits are DATA, out of reach of applyShellVariant's comment markers
+    const AUTH_CONFIG_FILE = "public/config.json"
     const written = []
     const skipped = []
 
@@ -426,7 +509,9 @@ function scaffoldShell() {
                 continue
             }
             mkdirSync(dirname(dest), { recursive: true })
-            writeFileSync(dest, applyShellVariant(readFileSync(abs, "utf8"), noAuth))
+            let content = applyShellVariant(readFileSync(abs, "utf8"), noAuth)
+            if (noAuth && rel === AUTH_CONFIG_FILE) content = stripAuthConfigKeys(content, rel)
+            writeFileSync(dest, content)
             written.push(rel)
         }
     }
@@ -473,6 +558,44 @@ function scaffoldAttachments() {
     console.log(`    4. setup.ts               register new EntityService(useAxios(), config)   // import { useAxios } from "regira_modules/vue/http" — the file-owning service requires an AxiosWithFilesInstance; the default sp.get<AxiosInstance>("axios") registration will not compile`)
     console.log(`    5. public/data/translations.json  the shell template ships "files" and "addNewFile(s)" (literal key, parentheses included) in English — add the other languages from config.json → langs; apps scaffolded before these keys existed must add both`)
     console.log(`    back-end: register the owner's files (WithAttachments + HasAttachments<>); the service ctor takes an AxiosWithFilesInstance.`)
+}
+
+// public/config.json is DATA, not code: applyShellVariant is comment-marker driven and JSON has no comment
+// syntax, so there is nowhere to hang a @auth:only marker and the auth-only keys would ride along into an app
+// that deliberately has no auth. Nothing reads them there (main.ts touches them inside the @auth block this
+// run deletes), but shipping them is confusing output. Dropped by key below.
+//
+// Edited as TEXT, not re-stringified: the config is hand-formatted (inline api/navigation objects inside a
+// 4-space file) and JSON.stringify would reflow all of it. The edit is then re-parsed and compared against the
+// object it should have produced, so anything the text surgery got wrong fails loudly instead of shipping.
+function stripAuthConfigKeys(json, file) {
+    const AUTH_CONFIG_KEYS = ["clientApp", "loginUrl"]
+    let parsed
+    try {
+        parsed = JSON.parse(json)
+    } catch (err) {
+        console.error(`✗ ${file} is not valid JSON (${err.message}) — cannot strip its auth-only keys.`)
+        process.exit(1)
+    }
+    const present = AUTH_CONFIG_KEYS.filter((key) => key in parsed)
+    if (!present.length) return json
+    const expected = { ...parsed }
+    for (const key of present) delete expected[key]
+    const stripped = json
+        .replace(new RegExp(`^[^\\S\\r\\n]*"(?:${present.join("|")})"\\s*:.*\\r?\\n`, "gm"), "")
+        .replace(/,(\s*[}\]])/g, "$1") // dropping what happened to be the LAST key leaves a dangling comma
+    let after
+    try {
+        after = JSON.parse(stripped)
+    } catch (err) {
+        console.error(`✗ dropping ${present.join(" + ")} left ${file} unparseable (${err.message}) — fix the strip in scaffold.mjs.`)
+        process.exit(1)
+    }
+    if (JSON.stringify(after) !== JSON.stringify(expected)) {
+        console.error(`✗ dropping ${present.join(" + ")} from ${file} changed more than those keys — fix the strip in scaffold.mjs.`)
+        process.exit(1)
+    }
+    return stripped
 }
 
 // Resolve the auth/no-auth variant: keep one tag's marked lines/blocks, drop the other's.
@@ -534,7 +657,7 @@ Modes & shared flags:
   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard, layout, views)
   --ui <Component>    copy a UI-kit component's reference skin for free restyling (--ui list lists them)
   --attachments       scaffold the shared entity-attachments slice, then wire it into each file-owning entity
-  --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI + the auth-only files)
+  --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI, the auth-only files + config.json keys)
   --force             overwrite files that already exist (--shell / --ui / --attachments only — never a slice)
   --overwrite-slice   overwrite an existing entity slice or owned sub-slice, customized (c) files included
   -h, --help          show this reference and exit

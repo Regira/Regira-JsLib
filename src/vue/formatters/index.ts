@@ -24,21 +24,36 @@ function _formatDateTime(date?: Date, mask?: string) {
         dd: padZero(date.getDate()),
         M: date.getMonth() + 1,
         MM: padZero(date.getMonth() + 1),
-        yy: padZero(date.getFullYear()),
+        yy: padZero(date.getFullYear() % 100), // the last two digits — padZero on the 4-digit year is a no-op
         yyyy: padZero(date.getFullYear(), 4),
+        // hours are 24-hour by long-standing contract; H/HH are aliases so the conventional spelling works too
         h: date.getHours(),
         hh: padZero(date.getHours()),
+        H: date.getHours(),
+        HH: padZero(date.getHours()),
         m: date.getMinutes(),
         mm: padZero(date.getMinutes()),
+        // milliseconds, zero-padded to the token length
         n: date.getMilliseconds(),
+        nn: padZero(date.getMilliseconds()),
+        nnn: padZero(date.getMilliseconds(), 3),
+        nnnn: padZero(date.getMilliseconds(), 4),
     }
 
-    return mask.replace(/d{1,2}|M{1,2}|yy(?:yy)?|h{1,2}|m{1,2}|n{1,4}/g, (matched) => map[matched]?.toString() ?? "")
+    return mask.replace(/d{1,2}|M{1,2}|yy(?:yy)?|H{1,2}|h{1,2}|m{1,2}|n{1,4}/g, (matched) => map[matched]?.toString() ?? "")
 }
 
+/**
+ * Formats a date with a token MASK — not a culture. `formatDate`/`formatShortDate` are the culture-taking
+ * pair; passing a locale tag here silently token-substitutes it (`"en-GB"` → `"e<ms>-GB"`, the `n` being
+ * the date's milliseconds).
+ * @param date the date to format — null/invalid yields `""`
+ * @param mask tokens: `d`/`dd`, `M`/`MM`, `yy`/`yyyy`, `h`/`hh` (24-hour, aliases `H`/`HH`), `m`/`mm`,
+ * `n`…`nnnn` (milliseconds). Every other character is emitted verbatim.
+ */
 export const formatDateTime = (date?: Date, mask: string = "dd-MM-yyyy") => (date ? _formatDateTime(date, mask) : "")
 export const dateInputString = (date?: Date) => formatDateTime(date, "yyyy-MM-dd")
-export const formatTime = (date?: Date) => formatDateTime(date, "HH:mm")
+export const formatTime = (date?: Date) => formatDateTime(date, "hh:mm")
 
 export const formatDate = (date?: Date | string, culture?: string) => {
     if (date == null) {

@@ -3,6 +3,7 @@ import { useRouter, type RouteRecordRaw } from "vue-router"
 import { useFeedback, type FeedbackOut } from "../../ui/feedback"
 import type { IEntity } from "../abstractions/IEntity"
 import type { IEntityService } from "../abstractions/IEntityService"
+import { ArchivedFilter } from "../abstractions/ISearchObject"
 
 export type DetailsOut<T extends IEntity> = {
     item: Ref<T | undefined>
@@ -67,7 +68,9 @@ export function useDetails<T extends IEntity>(entityService: IEntityService<T>, 
         }
         isLoading.value = true
         try {
-            item.value = await entityService.details(routeId.value)
+            // archived-inclusive: the server 404s an archived row, and the form is the only surface that can
+            // restore one. Row security (tenant/owner filters) is unaffected — this widens by the archived flag alone.
+            item.value = await entityService.details(routeId.value, { archived: ArchivedFilter.included })
         } catch (ex: any) {
             console.error(`Fetching details failed for #${routeId.value}`, { id: routeId.value, ex })
             feedback.fail(

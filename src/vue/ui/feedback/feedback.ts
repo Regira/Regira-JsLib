@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue"
+import { computed, ref, type ComputedRef, type Ref } from "vue"
 
 export enum FeedbackStatus {
     none = "",
@@ -15,6 +15,8 @@ export interface FeedbackOut {
     status: Ref<FeedbackStatus>
     message: Ref<string>
     error: Ref<FeedbackError | undefined>
+    /** busy flag — `status === FeedbackStatus.pending`, so a view can disable its buttons without re-deriving it */
+    isPending: ComputedRef<boolean>
 
     pending(msg: string): void
     success(msg: string): void
@@ -45,6 +47,7 @@ export function useFeedback({ autoHideDelay = 1500 }: FeedbackIn = {}): Feedback
     const status = ref<FeedbackStatus>(FeedbackStatus.none)
     const message = ref<string>("")
     const error = ref<FeedbackError | undefined>(undefined)
+    const isPending = computed(() => status.value === FeedbackStatus.pending)
 
     let timeout: any
 
@@ -85,6 +88,7 @@ export function useFeedback({ autoHideDelay = 1500 }: FeedbackIn = {}): Feedback
         status,
         message,
         error,
+        isPending,
 
         pending,
         success,

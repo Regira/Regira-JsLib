@@ -14,6 +14,10 @@ export class EntityService extends EntityServiceBase<Entity> {
         return super.prepareItem(item)
     }
 
+    // Keep this IDEMPOTENT — it runs inside computeds (fromPool, FormModalButton.modalTitle). Return an
+    // existing instance untouched, and guard any extra date conversion you add:
+    //   if (typeof (e as any).publishedOn === "string") e.publishedOn = new Date((e as any).publishedOn)
+    // An unconditional `new Date(x)` throws "Maximum recursive updates exceeded" against a LIBRARY component.
     override toEntity(item: object): Entity {
         return item instanceof Entity ? item : Object.assign(this.createInstance(Entity as new () => Entity), item || {})
     }

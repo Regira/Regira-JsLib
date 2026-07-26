@@ -49,6 +49,8 @@ Peer deps: `vue`, `vue-router`, `pinia`, `axios`, `date-fns`.
 > the API origin (add CORS), or align the Vite proxy prefix with the server route prefix. See
 > [The URL contract](#the-url-contract--four-owners-one-request).
 
+### Known-good dependency set
+
 Skip `npm create vue` — it prompts interactively and can't be driven headless. Hand-author `package.json`
 from the **known-good dependency set** below (copy it as-is, one `npm install`; do not resolve majors one at
 a time); `scaffold.mjs --shell` then writes the rest of the toolchain (`index.html`, `vite.config.ts`,
@@ -73,6 +75,8 @@ a time); `scaffold.mjs --shell` then writes the rest of the toolchain (`index.ht
 > `vue-router@4` (a common older default) fails `npm install` with `ERESOLVE`, and each individual fix just
 > pulls in the next major (`vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`). The block above is
 > that cascade already resolved. Optional extras that pair with it: `vitest 4`, `prettier 3`.
+
+### Import specifiers & the optional demo alias
 
 > **The snippets below use the demo's `@/regira_modules` alias.** In a plain npm install, drop the `@/`
 > prefix on the library specifier (write `regira_modules/vue/http`, not `@/regira_modules/vue/http`); the
@@ -114,6 +118,8 @@ export default defineConfig({
 })
 ```
 
+#### tsconfig
+
 ```jsonc
 // tsconfig.app.json
 // Use `paths` WITHOUT `baseUrl` — `vue-tsc -b` (npm run build) errors on baseUrl (TS5101).
@@ -131,8 +137,15 @@ export default defineConfig({
 > objects + a value type instead of `enum`. `@vue/tsconfig` (0.9) ships `tsconfig.json` / `.dom.json` /
 > `.lib.json` but **no `tsconfig.node.json`** — point `tsconfig.node.json` at the base
 > `@vue/tsconfig/tsconfig.json` (a stale reference to the missing file errors with TS6053). Install `@types/node`
-> as a devDependency so `vue-tsc -b` type-checks `vite.config.ts` (it imports `node:url`); the
-> `npm create vue@latest` scaffold includes it.
+> as a devDependency so `vue-tsc -b` type-checks `vite.config.ts` (it imports `node:url`).
+
+> ⚠️ **`verbatimModuleSyntax` (prescribed by both scaffolded tsconfigs) forbids `export default <a type>`.**
+> A module that ends `interface Foo { … }` + `export default Foo` fails with
+> `TS1284: An export default must reference a value`. Write `export type { Foo as default }` and import it
+> as `import type Foo from "./foo"`. Classes are values, so the entity models are unaffected — this bites
+> type-only modules (search-object shapes, DTOs, prop contracts).
+
+#### `index.html` & the `#modals` host
 
 ```html
 <!-- index.html — styles come from the npm bootstrap/bootstrap-icons imports in main.ts (see Styling) -->
@@ -410,6 +423,8 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 > **around** the slice — the `src/entities/` aggregator ([Add entities](#add-entities)), `components/` and
 > `infrastructure/` ([App shell](#app-shell--components-infrastructure--styling)), the [Router](#router),
 > and [Runtime config](#runtime-config--publicconfigjson) — is the project template.
+
+### Slice conventions
 
 > **Cross-slice imports use the barrel's generic names.** It re-exports the model as `Entity` and the relation
 > picker as `InputSelector` (never the entity's class name); from a sibling slice import
@@ -727,6 +742,8 @@ fetch("/config.json")
         await whenAppReady()
     })
 ```
+
+### Plugin install order & required IoC registration
 
 > **Install order matters:** the `$services` / `$configs` / `$icons` globals must exist before any entity
 > plugin installs, so install Pinia, `appPlugin`, `servicesPlugin` (axios + `PoolCache`; it also creates the

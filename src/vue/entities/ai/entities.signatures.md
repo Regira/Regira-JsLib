@@ -53,7 +53,7 @@ export abstract class EntityBase implements IEntity {
 ```ts
 import type { IEntityService } from "regira_modules/vue/entities"
 export interface IEntityService<T extends IEntity = IEntity> {
-    details(id: number | string): Promise<T | undefined>
+    details(id: number | string, so?: ISearchObject): Promise<T | undefined> // `{ archived: ArchivedFilter.included }` resolves an archived row
     list(so?: object): Promise<Array<T>>
     search(so?: object): Promise<SearchResult<T>>
     searchUnion(searchObjects: Array<object>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>
@@ -85,7 +85,7 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     protected config: IConfig
     defaultPageSize: number
     constructor(axios: AxiosInstance, config: IConfig)
-    details(id: string | number): Promise<T | undefined>
+    details(id: string | number, so?: ISearchObject): Promise<T | undefined> // `so` becomes the query string on `GET /{id}`
     list(so?: ISearchObject & IPagingInfo): Promise<Array<T>>
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>
     searchUnion(searchObjects: Array<ISearchObject>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>
@@ -102,6 +102,21 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
 }
 ```
 
+⚠️ **`toEntity` must be idempotent.** `fromPool` and the library's `FormModalButton.modalTitle` call it from
+inside a `computed`, so an unconditional conversion (`item.startsOn = new Date(item.startsOn)`) mutates the
+computed's own reactive dependency and Vue aborts with `Maximum recursive updates exceeded` — reported
+against the **library** component, which sends you looking in the wrong file. Return an existing instance
+untouched, and guard every extra date/field conversion:
+
+```ts
+override toEntity(item: object): Entity {
+    if (item instanceof Entity) return item
+    const entity = Object.assign(this.createInstance(Entity as new () => Entity), item || {})
+    if (entity.startsOn && !(entity.startsOn instanceof Date)) entity.startsOn = new Date(entity.startsOn)
+    return entity
+}
+```
+
 ```ts
 import { JSONService } from "regira_modules/vue/entities"
 // In-memory variant: fetches the full list once, then runs all CRUD client-side over a shared cache keyed by `key`.
@@ -111,7 +126,7 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
     get cachedItems(): Array<T>
     set cachedItems(value: Array<T>)
     fetchJSONItems(): Promise<Array<T>>
-    details(id: string | number): Promise<T | undefined>
+    details(id: string | number): Promise<T | undefined> // client-side lookup — takes no search object (static JSON has no archived rows)
     list(so?: ISearchObject & IPagingInfo): Promise<T[]>
     search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>
     save(item: T): Promise<{ saved: T; isNew: boolean }>
@@ -126,15 +141,25 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
 ## 3. Search, paging, sort
 
 ```ts
-import { SearchObjectBase, DefaultSearchObject } from "regira_modules/vue/entities"
+import { SearchObjectBase, DefaultSearchObject, ArchivedFilter } from "regira_modules/vue/entities"
 export interface ISearchObject extends Record<string, any> {
-    q?: string
-} // q = free-text search
+    q?: string // free-text search
+    archived?: ArchivedFilter // omitted when unset → the server hides archived rows
+}
+export enum ArchivedFilter {
+    excluded = "excluded", // archived rows invisible
+    only = "only", // archived rows only — the recycle bin
+    included = "included", // live + archived
+}
 export abstract class SearchObjectBase implements ISearchObject {
     q?: string
 }
 export class DefaultSearchObject extends SearchObjectBase {}
 ```
+
+> **`archived` (search object) ≠ `isArchived` (entity).** `archived` selects which rows a read returns;
+> `isArchived` is the row's own flag that `DELETE` sets and `useForm.handleRestore` clears. Declare
+> `archived?: ArchivedFilter` on your `SearchObject` only when the UI exposes archived rows.
 
 > **Paging is not on the search object.** `SearchObjectBase` carries only `q` (+ your filter fields).
 > `pageSize` / `page` live on `IPagingInfo` and are merged in by the overview composables (or passed
@@ -179,7 +204,7 @@ export interface IConfig extends Record<string, any> {
     isComplex?: boolean
     routePrefix: string // URL path segment
     baseQueryParams?: Record<string, unknown> // merged into every list/search request
-    initialQuery?: Record<string, unknown>
+    initialQuery?: Record<string, unknown> // seeds the generated nav link's route query — nothing else reads it
     overviewTitle?: string
     detailsTitle?: string
     description?: string
@@ -197,6 +222,10 @@ export enum NavTypes {
     navbar = "Navbar",
 }
 ```
+
+⚠️ **`initialQuery` has exactly one consumer:** `createNavItem` copies it into the generated dashboard/navbar
+link's route query. It is therefore **lost on refresh and on a deep link** — anything that must hold for every
+request (`sortBy`, `includes`, a mandatory filter) belongs in `baseQueryParams`.
 
 ```ts
 import { EntityDescriptor } from "regira_modules/vue/entities/config"
@@ -332,6 +361,9 @@ export type DetailsOut<T> = {
 }
 ```
 
+> `useDetails` (and `useModal`) load with `archived: ArchivedFilter.included`, so a soft-deleted row opens
+> in the form with its Restore button instead of 404-ing. Row security is unaffected.
+
 ```ts
 import { useForm, formDefaults, FormStates } from "regira_modules/vue/entities"
 export interface FormProps<T> {
@@ -362,7 +394,7 @@ export interface FormOut<T> {
     handleCancel(): void
     handleSubmit(): Promise<void>
     handleRemove(): Promise<void> // ⚠ takes NO args — removes item.value
-    handleRestore(): Promise<void> // unarchive: sets isArchived=false then saves
+    handleRestore(): Promise<void> // unarchive: sets the entity's isArchived=false then saves (write path needs no query param)
 }
 ```
 
@@ -426,7 +458,15 @@ export interface FilterOut {
     handleReset(): void
 }
 export function useFilter<SO extends ISearchObject = DefaultSearchObject>({ searchObject, emit, Constructor }: FilterIn<SO>): FilterOut
+// handleUpdate = emit update:modelValue + filter (the one to bind on inputs); handleFilter = filter only.
 ```
+
+⚠️ **`useFilter` refreshes nothing on its own — bind `handleUpdate` on every filter input.** A native
+`<input>` takes `@change="handleUpdate"`; a custom component (`InputSelector`, `NullableCheckBox`,
+`DateInput`) emits Vue custom events only, so it needs `@select="handleUpdate"` /
+`@update:modelValue="handleUpdate"`. Miss it and the results **and** the result count keep showing the
+previous search while the control displays the new value. Do **not** substitute a deep `watch` on the search
+object — that refetches on every keystroke.
 
 **Feedback** — the overview / details / form composables each return `feedback: FeedbackOut`
 (from `regira_modules/vue/ui`). Its surface (use these method names — they are not auto-completed elsewhere):
@@ -437,7 +477,8 @@ export interface FeedbackOut {
     status: Ref<FeedbackStatus> // "" | "Pending" | "Success" | "Failed"
     message: Ref<string>
     error: Ref<string | Record<string, string> | undefined>
-    pending(msg: string): void
+    isPending: ComputedRef<boolean> // busy flag — gate submit buttons on it
+    pending(msg: string): void // every setter REQUIRES a message
     success(msg: string): void
     fail(msg: string, ex?: string | Record<string, string>): void
     reset(): void
@@ -445,6 +486,9 @@ export interface FeedbackOut {
 ```
 
 Owned child collections (`import { ... } from "regira_modules/vue/entities"`):
+
+⚠️ The `T extends IEntity & { id: number }` constraint means an **owned child model must still extend
+`EntityBase`** (`$id` / `$title`) even though it has no service, no config and no store of its own.
 
 ```ts
 export function useOwnedCollection<T extends IEntity & { id: number }>({

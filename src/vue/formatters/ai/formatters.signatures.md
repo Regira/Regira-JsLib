@@ -25,12 +25,18 @@ import {
 ## Dates & times
 
 ```ts
+// mask tokens: d/dd, M/MM, yy/yyyy, h/hh (24-hour; H/HH are aliases), m/mm, n…nnnn (ms).
+// Any other character passes through verbatim.
 export declare const formatDateTime: (date?: Date, mask?: string) => string // default mask "dd-MM-yyyy"
 export declare const dateInputString: (date?: Date) => string // "yyyy-MM-dd"
-export declare const formatTime: (date?: Date) => string // wraps formatDateTime(date, "HH:mm")
+export declare const formatTime: (date?: Date) => string // wraps formatDateTime(date, "hh:mm")
 export declare const formatDate: (date?: Date | string, culture?: string) => string
 export declare const formatShortDate: (date?: Date | string, culture?: string) => string
 ```
+
+⚠️ **`formatDateTime`/`formatTime` take a MASK; `formatDate`/`formatShortDate` take a CULTURE.** A locale tag
+handed to `formatDateTime` is treated as a mask and token-substituted, not rejected — `"en-GB"` renders
+`"e<ms>-GB"`, `<ms>` being the date's milliseconds (`n` is the millisecond token).
 
 ## Numbers, currency, percentage
 

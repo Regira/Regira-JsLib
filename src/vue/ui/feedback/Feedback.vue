@@ -33,9 +33,9 @@ const emit = defineEmits<FeedbackEmits>()
 const props = withDefaults(defineProps<FeedbackProps>(), { ...feedbackDefaults })
 defineSlots<FeedbackSlots>()
 
-const { status, message, error, reset } = props.feedback
+// isPending is the composable's own busy flag (also public API for views); the other two stay local
+const { status, message, error, isPending, reset } = props.feedback
 
-const isPending = computed(() => status.value === FeedbackStatus.pending)
 const isSuccess = computed(() => status.value === FeedbackStatus.success)
 const isFailed = computed(() => status.value === FeedbackStatus.failed)
 

@@ -2,6 +2,7 @@
     "account": { "en": "Account" },
     "addNewFile(s)": { "en": "Add new file(s)" },
     "changePassword": { "en": "Change password" },
+    "created": { "en": "Created" },
     "deleteItem": { "en": "Delete" },
     "files": { "en": "Files" },
     "filtersAreApplied": { "en": "Filters are applied" },

@@ -284,31 +284,21 @@ customize guide for the full ladder.
 //     --bs-pagination-active-border-color: var(--rg-accent);
 // }
 
+// The page's own vertical rhythm — without it the first slice control (the inline filter's .input-group)
+// sits flush against the header. .form-toolbar's `position: sticky; top: 0` below assumes this gap exists.
+.page > main {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
 // App-level conventions the entity slices use:
 .striped > *:nth-child(even) {
     background-color: var(--bs-secondary-bg, #e9ecef);
 }
 
-// Overview lists should not need to scroll horizontally: Bootstrap's .row carries negative gutter margins
-// that bleed past a parent without matching padding, and a flex child's default min-width:auto refuses to
-// shrink below its content — so a long title pushes the row wider than the viewport instead of truncating.
-// Both are neutralised below. `auto`, not `hidden`: when a row genuinely cannot fit (an unbreakable token, a
-// very narrow viewport) the list scrolls within itself, rather than clipping content out of reach or dragging
-// the whole page sideways.
-.entity-list {
-    overflow-x: auto;
-
-    > .row {
-        margin-left: 0;
-        margin-right: 0;
-    }
-
-    // text-truncate only clips once the cell is allowed to be narrower than its text
-    [class^="col"],
-    [class*=" col"] {
-        min-width: 0;
-    }
-}
+// `.entity-list` containment (zeroed .row gutter margins + min-width:0 on the cells, so text-truncate can
+// clip and the row never drags the page sideways) ships in regira_modules/style.css — do NOT redeclare it.
+// It sets no `overflow`, by design. Opt a single list into sideways scrolling with .entity-list--scroll-x.
 
 // The app-owned wrapper around FormButtonsRow. Deliberately NOT `.form-buttons` — that class is the
 // library component's own root, and a rule on it would apply to both the wrapper and the component
@@ -322,6 +312,11 @@ customize guide for the full ladder.
     background-color: var(--bs-body-bg, #fff);
 }
 ```
+
+⚠️ **Never zero the container padding to "fix" horizontal overflow** —
+`@media (max-width: 576px) { .page > .container-fluid { padding: 0 } }` makes it worse, not better: that
+padding is exactly what cancels Bootstrap's negative `.row` margins, so removing it turns a 0px page
+overflow into ~12px. Overflow comes from a row that cannot shrink; fix it in the row's columns.
 
 ## `src/App.vue`
 
@@ -401,6 +396,7 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
     "account": { "en": "Account" },
     "addNewFile(s)": { "en": "Add new file(s)" },
     "changePassword": { "en": "Change password" },
+    "created": { "en": "Created" },
     "deleteItem": { "en": "Delete" },
     "files": { "en": "Files" },
     "filtersAreApplied": { "en": "Filters are applied" },

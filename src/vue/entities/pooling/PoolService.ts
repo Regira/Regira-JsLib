@@ -1,5 +1,5 @@
 import type { Ref } from "vue"
-import type { IEntity, IEntityService, IPagingInfo, SearchResult } from "../abstractions"
+import type { IEntity, IEntityService, IPagingInfo, ISearchObject, SearchResult } from "../abstractions"
 import type { IPoolCache } from "./PoolCache"
 
 export interface IPoolService<T extends IEntity> extends IEntityService<T> {
@@ -14,8 +14,8 @@ export class PoolService<T extends IEntity> implements IPoolService<T> {
         private type: string
     ) {}
 
-    async details(id: string | number): Promise<T | undefined> {
-        const item = await this.service.details(id)
+    async details(id: string | number, so?: ISearchObject): Promise<T | undefined> {
+        const item = await this.service.details(id, so)
         if (item == null) {
             return undefined
         }

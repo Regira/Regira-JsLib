@@ -9,6 +9,12 @@ brief requires; at every layer the functionality is preserved by construction (b
 look doesn't fit — before writing a new component. Write a new component only when no built-in covers
 the functionality.
 
+⚠️ **`rg-*` and `--rg-*` are the library's namespace — never define your own.** Every `rg-` class and
+custom property in an app stylesheet must be a **hook the library already ships** (listed in L0/L1 below),
+overridden. Minting `.rg-card`, `.rg-badge`, `--rg-surface` and the like reads as library API and silently
+collides the day the library adds that name. App-owned classes and tokens take an **app** prefix
+(`.shop-card`, `--shop-surface`).
+
 ## The five layers
 
 | #   | Layer                   | You change                         | Mechanism                                                                                                                  |
@@ -31,16 +37,16 @@ import "@/assets/theme.scss" // the app's theme — always give the app one, eve
 
 Library tokens (shipped in `regira_modules/style.css`, all overridable):
 
-| Token                      | Default                      | Used by                                             |
-| -------------------------- | ---------------------------- | --------------------------------------------------- |
-| `--rg-accent`              | `var(--bs-primary, #0d6efd)` | free accent slot for app css                        |
-| `--rg-accent-bg`           | `rgba(0, 0, 255, 0.1)`       | `.rg-accent-bg` — the normal-type modal header tint |
-| `--rg-deleted-bg`          | `rgba(220, 53, 69, 0.25)`    | `.is-deleted` (pending-delete chips/rows)           |
-| `--rg-backdrop`            | `rgba(0, 0, 0, 0.5)`         | modal mask                                          |
-| `--rg-modal-z`             | `9998`                       | modal mask z-index                                  |
-| `--rg-dropdown-z`          | `99999`                      | autocomplete results z-index                        |
-| `--rg-dropdown-max-height` | `13rem`                      | autocomplete results                                |
-| `--rg-dragging-opacity`    | `0.6`                        | `.is-dragging`                                      |
+| Token                      | Default                      | Used by                                                                                                         |
+| -------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `--rg-accent`              | `var(--bs-primary, #0d6efd)` | the library's accent token — **override** it to re-accent the app; it is not a spare slot to invent siblings of |
+| `--rg-accent-bg`           | `rgba(0, 0, 255, 0.1)`       | `.rg-accent-bg` — the normal-type modal header tint                                                             |
+| `--rg-deleted-bg`          | `rgba(220, 53, 69, 0.25)`    | `.is-deleted` (pending-delete chips/rows)                                                                       |
+| `--rg-backdrop`            | `rgba(0, 0, 0, 0.5)`         | modal mask                                                                                                      |
+| `--rg-modal-z`             | `9998`                       | modal mask z-index                                                                                              |
+| `--rg-dropdown-z`          | `99999`                      | autocomplete results z-index                                                                                    |
+| `--rg-dropdown-max-height` | `13rem`                      | autocomplete results                                                                                            |
+| `--rg-dragging-opacity`    | `0.6`                        | `.is-dragging`                                                                                                  |
 
 **The Bootstrap nuance an agent must not get wrong:** apps import _precompiled_ Bootstrap 5.3, whose
 component styles read **component-level** vars baked at compile time (`.btn-primary { --bs-btn-bg: #0d6efd }`).
@@ -95,6 +101,21 @@ them in `theme.scss` — no `::v-deep`, no `!important` needed.
 - Adding a class to a component's **root** needs no prop — Vue class fallthrough:
   `<Paging class="my-pager" …>`. `Autocomplete` additionally takes `resultClass` / `itemsClass` /
   `itemClass` for its detached dropdown parts.
+
+**Structural classes** are the other half of the shipped surface: rules in `regira_modules/style.css`
+your markup **opts into**, rather than hooks you restyle. Put them on your own elements; keep them out
+of `theme.scss`.
+
+| Class                   | Rule                                                                                                                       | Put it on                                                             |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `entity-list`           | zeroes the child `.row` gutter margins + `min-width: 0` on the cells, so `text-truncate` clips instead of widening the row | the element wrapping an overview's header row and its item rows       |
+| `entity-list--scroll-x` | adds `overflow-x: auto`                                                                                                    | one list whose row genuinely cannot fit — see the ⚠️ below            |
+| `italic-muted`          | `opacity: .6; font-style: italic`                                                                                          | placeholder/inherited text; `NullableLabel`'s "no label set" fallback |
+
+⚠️ **Never put `overflow-x` on `.entity-list` yourself.** With a `visible` `overflow-y` it computes to
+`auto` on **both** axes, turning the list into a scroll container that clips absolutely-positioned
+descendants (an inline-edit row's autocomplete panel) and breaks `position: sticky` inside it. The
+library rule omits it deliberately; `entity-list--scroll-x` is the per-list opt-in.
 
 ## L2 — Recompose with slots
 

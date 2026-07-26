@@ -22,10 +22,16 @@ There are no granular subpaths — everything lives under `regira_modules/vue/fo
 - **`formatDate(date?, culture?)`** — locale-driven via `toLocaleDateString(culture)`.
 - **`formatShortDate(date?, culture?)`** — fixed `dd/MM` (or `MM/dd` when `culture` contains `"US"`), via
   date-fns `format`. Both accept a `Date` or an ISO `string`; `null`/`undefined` → `""`.
-- **`formatDateTime(date?, mask?)`** — custom mask, default `"dd-MM-yyyy"`. Tokens: `d/dd`, `M/MM`,
-  `yy/yyyy`, `h/hh` (hours), `m/mm` (minutes), `n` (ms).
+- **`formatDateTime(date?, mask?)`** — custom **mask**, default `"dd-MM-yyyy"`. Tokens: `d/dd`, `M/MM`,
+  `yy/yyyy`, `h/hh` (hours, 24-hour — `H/HH` are aliases), `m/mm` (minutes), `n`…`nnnn` (ms). Every other
+  character is emitted verbatim.
 - **`dateInputString(date?)`** — `yyyy-MM-dd`, for `<input type="date">`.
-- **`formatTime(date?)`** — wraps `formatDateTime(date, "HH:mm")` (see Gotchas).
+- **`formatTime(date?)`** — wraps `formatDateTime(date, "hh:mm")`.
+
+⚠️ **Mask or culture — the two families are not interchangeable.** `formatDateTime` / `formatTime` take a
+token **mask**; `formatDate` / `formatShortDate` take a **culture**. Passing a locale tag as a mask
+silently token-substitutes it instead of failing: `formatDateTime(d, "en-GB")` → `"e<ms>-GB"`, where
+`<ms>` is the date's milliseconds (`n` is the millisecond token).
 
 ## Numbers, currency, percentage
 
@@ -51,9 +57,6 @@ All number helpers return `""` for `null`/`undefined`.
 
 ## Gotchas
 
-- **`formatTime` mask mismatch.** It passes `"HH:mm"`, but `formatDateTime` only maps lowercase `h`/`hh` for
-  hours — `HH` is left literal, so output is `HH:42`, not `09:42`. Use `formatDateTime(date, "hh:mm")` for a
-  real time string.
 - **`formatPercentage` auto-scales.** Any `value > 1` is divided by 100. Pass fractions (`0.25`) unless your
   source is already whole percentages.
 - **`formatBankaccount` is BE-specific.** Non-`BE` or non-16-char input returns `""`, not the original.

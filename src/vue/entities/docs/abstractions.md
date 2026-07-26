@@ -29,6 +29,12 @@ Every model extends `EntityBase` and implements:
 ```ts
 interface ISearchObject extends Record<string, any> {
     q?: string
+    archived?: ArchivedFilter
+}
+enum ArchivedFilter {
+    excluded = "excluded",
+    only = "only",
+    included = "included",
 }
 abstract class SearchObjectBase implements ISearchObject {
     q?: string
@@ -39,6 +45,10 @@ class DefaultSearchObject extends SearchObjectBase {}
 `q` is the free-text search term. Add your own filter fields by extending `SearchObjectBase`. Every
 property becomes a query parameter (arrays → repeated keys); keys starting with `$` are stripped before
 the request, so use them for client-only values.
+
+`archived` selects the visibility of archived (soft-deleted) rows and is omitted when unset, leaving the
+server's default in charge. It is distinct from the entity's own `isArchived` property, which is the flag
+`DELETE` sets and a restore clears.
 
 ## Paging & sorting
 

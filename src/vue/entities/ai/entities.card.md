@@ -8,6 +8,8 @@
 > heading isn't enough.
 > Back-end counterpart: `get_package_card("Regira.Entities")`.
 
+## Build tier & scaffold
+
 - **Default = the full reference scaffold, whatever the app type.** `scaffold.mjs --shell` once
   (`--no-auth` variant exists), `scaffold.mjs <Entity>` per entity; you edit only the eight `(c)` files.
   Pick a lighter tier only on an explicit user ask.
@@ -17,6 +19,9 @@
   modals (`DefaultModal` / `FormModalButton`), paging (`Paging`), loading (`LoadingContainer`), relation
   pickers (`Autocomplete` / `InputSelector`), owned/join chips (`InputSelectorInline` + `_deleted`),
   file attachments (`entity-attachments` + `FileDropZone`), debug (`<Debug>`), breakpoints (`useScreen`).
+
+## Page vs modal
+
 - **The entity's own create/edit form is a PAGE, not a modal.** Scaffold `isComplex: true` (the default):
   the overview's row-edit and "new" actions navigate to the **Details page**. Reserve the modal form
   (`isComplex: false`, `FormModalButton`) for a **very basic** entity — a handful of scalar fields, no
@@ -25,12 +30,23 @@
   shows a related row opens that row's form in a modal (quick-edit), whatever that entity's own `isComplex`;
   a bare text label is the exception. This is distinct from the rule above: it edits a _neighbour_, not the
   page's own record.
+
+## Styling
+
 - **Restyle freely — and space what you add.** The default styling is deliberately plain and tight;
   improving it is expected. Group fields in `FormSection` and give every component deliberate spacing
   (`mb-2`/`mb-3`, margins) — a dropped-in component with none reads as unfinished. Preserve the wiring
   (composables, events, `_deleted` marking, modal teleport); overriding Bootstrap's `!important` utilities
   (a scaffold's tight `py-1`, etc.) needs `!important` back. Improve the look via CSS after the library css,
   by wrapping components, or by swapping the app-wide modal via `modalPlugin`.
+- **Styling has one canonical guide — read it before writing any CSS:**
+  `get_package("regira_modules.vue.ui", section: "ui.customize")` (theme tokens → `rg-*`/`is-*` class hooks
+  → slots → contract-typed replacement → `scaffold.mjs --ui` eject). ⚠️ **`rg-*` is the _library's_ class
+  namespace** — style those hooks, never mint your own `rg-*` class, or your app collides with the next
+  library release. App classes get an app prefix.
+
+## Slice anatomy & typing
+
 - **Model/view lockstep.** The scaffolded `(c)` views bind a placeholder `title` — when you change
   `data/Entity.ts` or `filter/SearchObject.ts`, update `Form.vue` / `FilterAdv.vue` / `List(Item).vue`
   in the same pass, or `vue-tsc` breaks on the stale bindings.
@@ -43,6 +59,9 @@
   `import { type Entity as MyNamedEntity } from "@/entities/my-named-entities"`. Inside a slice, import its
   **own** model as the default (`import type Entity from "./data/Entity"`) — `import { type Entity }` from the
   data module grabs the `const` value binding and fails `TS2749`.
+
+## Relations & owned collections
+
 - **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
   inside the parent form with **`InputSelectorInline`**: chips mark _persisted_ removals `_deleted`
   (visible, tinted, undoable until save), a `prepareItem` override drops them so `Related()` deletes by
@@ -56,6 +75,9 @@
   `FilterAdv` and paging) — never build a search box, picker grid or browse modal next to it. When adding
   to a collection, pass `:filter-defaults="{ exclude: currentIds }"` so already-added rows leave the
   picker. A checkbox group is only for serviceless enum sets.
+
+## Signatures, auth & i18n
+
 - **Day-one signatures — verify, never extrapolate** (`.d.ts` / `entities.signatures`): `new
 PagingInfo(pageSize?, page?)` — positional args, not an options object; `service.search(so?)` — paging
   travels _inside_ the search object; `Tab.create("form", { title: translate("form"), icon })` — tab
@@ -64,6 +86,9 @@ PagingInfo(pageSize?, page?)` — positional args, not an options object; `servi
   (`setLangCode(auth.culture.split("-")[0])`), so an app translated in one language silently degrades to
   raw keys after login when the user's culture differs. Provide translations for every `langs` entry and
   wire `LangSelector` in the header.
+
+## Paging, feedback & pooling
+
 - **Counted paging comes from `/search`:** `useSearchView` + `useRouteOverview` → `{ items, count }` —
   on simple and complex entities alike; `list()` has no count. `pageSize: 0` returns all rows capped by
   the server's `MaxPageSize`. In `IConfig`, set **only** `searchUrl` (`api + "/search"`) — every other
@@ -83,6 +108,9 @@ dto)` also rehydrates but yields a **detached copy that goes stale** — use it 
 - **`InputSelector` has two v-models** — `v-model` (the entity it displays) and `v-model:idValue` (the FK
   it saves). Bind only `idValue` and a populated form renders the control blank; it resolves the id on
   mount and emits `update:modelValue` into nothing. Dev builds warn.
+
+## The URL & includes contract
+
 - **The URL contract has four owners** — `config.json → api` (axios base), `IConfig.api` (relative
   resource), the Vite dev proxy, the server route prefix. Align them once or every call 404s; and
   `config.json → clientApp` must equal the API's JWT audience or every call 401s.
@@ -92,11 +120,17 @@ dto)` also rehydrates but yields a **detached copy that goes stale** — use it 
   from the back-end's Details eager-load, not from `includes`.
 - **Never spread a model** — `{ ...item }` drops the `$id` prototype getter and `PUT`s to `/undefined`;
   mutate the instance. Overview refs are lazy: guard with `items ?? []`.
+
+## Verify
+
 - **Verify at runtime, not just `npm run build`.** Drive each slice once against the live API: save the
   same record **twice** (the classic m2m re-sync 500), toggle a flag, apply + reopen a filter, delete a
   referenced row. `vue-tsc` proves none of this.
 - **`<Debug :modelValue="…" />` while developing** — self-gates on `$isDebug` (`?debug=1`), inert in
   production; curate the payload (resolved relations, paging state).
+
+## Blueprints
+
 - **Building a common domain feature? Check the blueprints** — `get_package("regira_modules.vue.entities", section: "blueprints")`
   has the SPA counterparts of the back-end blueprints: labels editor, tenant switcher, family tree view,
   polymorphic (TPH) entity.

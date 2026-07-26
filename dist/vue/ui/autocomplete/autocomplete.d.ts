@@ -8,8 +8,11 @@ type IResultStyle = StyleValue & {
     visibility: string;
     top?: string;
     left?: string;
+    right?: string;
     transform?: string;
-    width: string;
+    width?: string;
+    minWidth?: string;
+    maxWidth?: string;
 };
 export interface AutocompleteEmits<T = any, TKey = IDefaultKey | T> {
     (e: "update:modelValue", args: T | undefined): void;

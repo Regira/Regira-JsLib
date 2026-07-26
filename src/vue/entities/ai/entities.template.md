@@ -5,13 +5,18 @@ placeholders below (the files marked `// TODO`). The placeholder entity is **`Fo
 route prefix `foos`) — rename it to your entity throughout.
 
 `scaffold.mjs <Entity>` derives the folder, client route and `api` path as the **kebab-case plural** of the
-class name (`InterventionType` → `intervention-types`), matching the conventional `[Route(...)]`. Two flags
-generate what would otherwise be hand-written and are worth passing up front:
+class name (`InterventionType` → `intervention-types`), matching the conventional `[Route(...)]`. The first two
+flags generate what would otherwise be hand-written and are worth passing up front:
 
-| Flag              | Generates                                                                                                                                                                                                                                                                                            |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--api <path>`    | a resource path that differs from the folder name (`--api relationship-types`)                                                                                                                                                                                                                       |
-| `--rel <Related>` | an overview column for a to-one relation — the related entity's `FormModalButton` + a `fromPool` label, plus the FK and nested field on the model. Repeatable; the related slice must exist first. A differently-named FK takes a trailing `--as <field>` (`--rel Employee --as assignedToEmployee`) |
+| Flag                | Generates                                                                                                                                                                                                                                                                                            |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--api <path>`      | a resource path that differs from the folder name (`--api relationship-types`)                                                                                                                                                                                                                       |
+| `--rel <Related>`   | an overview column for a to-one relation — the related entity's `FormModalButton` + a `fromPool` label, plus the FK and nested field on the model. Repeatable; the related slice must exist first. A differently-named FK takes a trailing `--as <field>` (`--rel Employee --as assignedToEmployee`) |
+| `--owns <Child>`    | an editable owned-collection sub-slice (`useOwnedCollection`, `_deleted`-marked rows) for a back-end `e.Related(...)` child. Repeatable; also works on an existing slice. Trailing `--as <field>` sets the JSON key                                                                                  |
+| `--overwrite-slice` | **re-scaffolds a slice that already exists**, customized `(c)` files included. `--force` deliberately does **not** apply to slices, so without this flag a re-run aborts with `already exists`                                                                                                       |
+
+⚠️ `--overwrite-slice` is destructive: it replaces your filled-in `(c)` files. To add an owned sub-slice to an
+existing slice, pass `--owns <Child>` alone — only the sub-slice is generated.
 
 > **Indicative, not prescriptive.** The templates fix the _functional wiring_ (service ↔ store ↔ composable ↔
 > `IConfig`, DI, routing) so a scaffolded slice is green out of the box — the **markup, columns, layout, and
@@ -196,7 +201,7 @@ export default config
 > import it as the module default).
 
 ```ts
-import { SearchObjectBase } from "@/regira_modules/vue/entities"
+import { SearchObjectBase, ArchivedFilter } from "@/regira_modules/vue/entities"
 
 export class EntitySearchObject extends SearchObjectBase {
     // `q` (free-text) is inherited from SearchObjectBase. Add your filters:
@@ -205,13 +210,19 @@ export class EntitySearchObject extends SearchObjectBase {
 
     minCreated?: Date
     maxCreated?: Date
-    isArchived?: boolean // set true to include archived rows (hidden by default)
+    archived?: ArchivedFilter // `only` = recycle bin, `included` = live + archived; leave unset to hide archived rows
 }
 
 export default EntitySearchObject
 ```
 
 ## `filter/FilterAdv.vue` (c)
+
+⚠️ **Every input must be wired to `handleUpdate`.** A native `<input>` takes `@change="handleUpdate"`; a
+custom component (`InputSelector`, `NullableCheckBox`, `DateInput`) emits Vue events only, so it needs an
+explicit `@select="handleUpdate"` / `@update:modelValue="handleUpdate"` — otherwise picking a value leaves
+both the result list and the count showing the previous search. Never deep-`watch` the search object as a
+substitute: it refetches on every keystroke.
 
 ```vue
 <template>
@@ -228,10 +239,15 @@ export default EntitySearchObject
         </div>
 
         <!-- keywords (free-text q) -->
-        <input v-model.lazy.trim="searchObject.q" class="form-control mb-2" :placeholder="$t('keywords')" />
+        <input v-model.lazy.trim="searchObject.q" class="form-control mb-2" :placeholder="$t('keywords')" @change="handleUpdate" />
 
-        <!-- TODO: inputs for your SearchObject filter fields (placeholder `title` — keep in sync with SearchObject.ts), e.g. -->
-        <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" />
+        <!-- TODO: one input per SearchObject filter field (placeholder `title` — keep in sync with SearchObject.ts).
+             Native <input> → @change="handleUpdate". A custom component (InputSelector, NullableCheckBox,
+             DateInput) emits Vue events only → @select="handleUpdate" / @update:modelValue="handleUpdate",
+             or the results and the count go stale. e.g.:
+                 <BarInputSelector v-model="bar" v-model:idValue="searchObject.barId" @select="handleUpdate" />
+                 <NullableCheckBox v-model="searchObject.isActive" @update:modelValue="handleUpdate" /> -->
+        <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" @change="handleUpdate" />
     </div>
 </template>
 
@@ -245,24 +261,61 @@ const emit = defineEmits<Emits & { "update:modelValue": (v: SearchObject) => tru
 defineProps<{ resultCount?: number }>()
 
 const searchObject = defineModel<SearchObject>({ required: true })
-const { handleReset, filterIsActive } = useFilter({ searchObject, emit, Constructor: SearchObject })
+// handleUpdate = sync the model + re-run the search; bind it on EVERY input above.
+const { handleReset, handleUpdate, filterIsActive } = useFilter({ searchObject, emit, Constructor: SearchObject })
 </script>
 ```
 
 ## `overview/List.vue` (c)
 
+**The column budget.** The overview earns its keep by showing the most important **other** fields next to
+`$title` — but the row must fit the viewport at every breakpoint, so the budget is fixed and small. Fill the
+slots in order; delete the ones you don't use. Headers here and cells in `ListItem.vue` must carry
+**identical** classes, or the columns stop lining up.
+
+| Slot                             | Classes                      | Shown from |
+| -------------------------------- | ---------------------------- | ---------- |
+| edit affordance                  | `col-auto`                   | always     |
+| primary label (`$title`)         | `col text-truncate`          | always     |
+| 2nd field / 1st `--rel` relation | `col d-none d-md-block`      | ≥ md       |
+| 3rd field / 2nd relation         | `col d-none d-lg-block`      | ≥ lg       |
+| 4th field / 3rd relation         | `col d-none d-xl-block`      | ≥ xl       |
+| `created`                        | `col-auto d-none d-lg-block` | ≥ lg       |
+| delete                           | `col-auto`                   | always     |
+
+⚠️ **Never put a fixed `width` on a `.row` child.** Bootstrap gives `.row > *` `flex-shrink: 0` and
+`.75rem` horizontal padding under `box-sizing: border-box`, so `style="width: 3rem"` leaves a **24px**
+content box while a library `ConfirmButton` / `IconButton` renders a 42px `.btn` — and neither shrinks, so
+the row pushes the page sideways. A cell holding one `.btn` needs **≥ 4.5rem**; for action cells just use
+bare `col-auto` and let it size to its content.
+
 ```vue
 <template>
     <div class="entity-list">
         <div class="row fw-bold border-bottom pb-2">
-            <!-- TODO: your column headers — must mirror ListItem.vue 1:1. Design the row to fit the viewport
-                 so it doesn't have to scroll sideways. Use flexible `col` (+ text-truncate on the cell) for
-                 text, drop secondary columns on small screens with d-none d-md-block / d-lg-block, and reserve
-                 fixed-width col-auto for a couple of narrow cells only (they don't shrink). e.g.:
-                     <div class="col d-none d-md-block fw-bold">{{ $t("code") }}</div>
-                     <div class="col-auto d-none d-lg-block fw-bold" style="width: 9rem">{{ $t("created") }}</div>
-                 See entities.patterns.md → Overview list layout (avoiding horizontal scroll). -->
+            <div class="col-auto">
+                <!-- header spacer: carries the SAME classes as ListItem.vue's edit affordance, so the columns
+                     line up — a `.btn`'s transparent 1px border and line-height are part of that width, and
+                     dropping them misaligns the header by ~2px. Inert markup on purpose (`.disabled` = no
+                     pointer events) — a disabled FormModalButton here would mount a useModal + a <Teleport> per list. -->
+                <span v-if="config.isComplex" class="btn btn-link p-1 disabled"><Icon name="edit" /></span>
+                <button v-else type="button" class="btn btn-default" disabled><Icon :name="config.key" /></button>
+            </div>
             <div class="col">{{ $t("name") }}</div>
+            <!-- TODO: the 1–3 most important OTHER fields, in this reveal order (`scaffold.mjs --rel <Related>`
+                 already wrote a header above for each relation). Uncomment what you use, rename the keys and
+                 add them to translations.json, delete the rest — no fourth slot, and never a width.
+            <div class="col d-none d-md-block">{{ $t("code") }}</div>
+            <div class="col d-none d-lg-block">{{ $t("status") }}</div>
+            <div class="col d-none d-xl-block">{{ $t("owner") }}</div>
+            -->
+            <div class="col-auto d-none d-lg-block">{{ $t("created") }}</div>
+            <div class="col-auto">
+                <!-- mirrors ListItem's ConfirmButton (`btn` + Icon): the `.btn` box is what makes this
+                     header cell the same width as the row's, so the trailing edges line up. `disabled`
+                     on a span is inert without being focusable. -->
+                <span class="btn disabled text-muted"><Icon name="delete" /></span>
+            </div>
         </div>
         <ListItem
             v-for="(item, i) in items"
@@ -279,7 +332,9 @@ const { handleReset, filterIsActive } = useFilter({ searchObject, emit, Construc
 
 <script setup lang="ts">
 import { computed } from "vue"
+import { Icon } from "@/regira_modules/vue/ui"
 import type { OverviewEmits } from "@/regira_modules/vue/entities"
+import config from "../config/config"
 import type Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 import ListItem from "./ListItem.vue"
@@ -311,12 +366,16 @@ const items = computed<Array<Entity>>({
             <FormModalButton v-else v-model="item" @save="$emit('save', $event)" @remove="$emit('remove', $event)" />
         </div>
 
-        <!-- TODO: your columns — mirror List.vue's headers 1:1, keep the row inside the viewport (flexible
-             `col text-truncate`, drop secondary columns with d-none d-md-block/d-lg-block, few col-auto cells).
-             Relation columns: `scaffold.mjs <Entity> --rel <Related>` generates each one below as the related
-             entity's FormModalButton + a pooled label. Plain text is the exception — see entities.patterns.md
-             → Resolving relations with fromPool. -->
         <div class="col text-truncate">{{ item.$title }}</div>
+        <!-- TODO: mirror List.vue's header slots 1:1 — same classes, same order, `text-truncate` on every
+             text cell. A relation cell is the related entity's FormModalButton + its pooled label
+             (`scaffold.mjs --rel <Related>` already wrote one above per relation); plain text is the
+             exception — see entities.patterns.md → Resolving relations with fromPool.
+        <div class="col d-none d-md-block text-truncate">{{ item.code }}</div>
+        <div class="col d-none d-lg-block text-truncate">{{ item.status }}</div>
+        <div class="col d-none d-xl-block text-truncate">{{ item.reference }}</div>
+        -->
+        <div class="col-auto d-none d-lg-block text-truncate">{{ formatDate(item.created) }}</div>
 
         <div class="col-auto">
             <ConfirmButton icon="delete" :modal-type="ModalType.danger" @confirm="$emit('request-remove', item)">
@@ -329,6 +388,7 @@ const items = computed<Array<Entity>>({
 <script setup lang="ts">
 import { RouterLink } from "vue-router"
 import { ModalType, ConfirmButton, Icon } from "@/regira_modules/vue/ui"
+import { formatDate } from "@/regira_modules/vue/formatters"
 import type { SaveResult } from "@/regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
@@ -354,8 +414,10 @@ const item = defineModel<Entity>({ required: true })
     <!-- Built-ins are the slice defaults — hand-rolling feedback/buttons/tabs/debug/owned-row editors is a deviation (see entities.card). -->
     <form @submit.prevent="handleSubmit">
         <!-- Action bar: save/delete buttons, the back-to-overview link (a page form must offer the way back), feedback. -->
+        <!-- order-*: on md+ the overview / pop-out link moves to the END of the row (order-md-3) and the
+             feedback fills the middle — without them both land mid-row, next to the save buttons. -->
         <div class="row form-toolbar align-items-center mb-3">
-            <div class="col-auto">
+            <div class="col col-md-auto order-1">
                 <FormButtonsRow
                     :item="item"
                     :readonly="readonly"
@@ -366,7 +428,7 @@ const item = defineModel<Entity>({ required: true })
                     @restore="handleRestore"
                 />
             </div>
-            <div class="col-auto">
+            <div class="col-auto order-2 order-md-3">
                 <!-- In a modal (isPopup) there is no overview to return to — offer a pop-out to the full page instead. -->
                 <RouterLink
                     v-if="isPopup"
@@ -382,7 +444,7 @@ const item = defineModel<Entity>({ required: true })
                 </RouterLink>
             </div>
             <!-- useForm drives `feedback` (Saving… → Saved / 400 field-map); render it here or the save shows nothing. -->
-            <div class="col"><Feedback :feedback="feedback" /></div>
+            <div class="col-md order-3 order-md-2"><Feedback :feedback="feedback" /></div>
         </div>
 
         <!-- Heavier form? Wrap sections in <TabContainer :tabs="tabs" :active="initialTab" :use-route-nav="!isPopup">
@@ -492,6 +554,10 @@ export class EntityService extends EntityServiceBase<Entity> {
         return super.prepareItem(item)
     }
 
+    // Keep this IDEMPOTENT — it runs inside computeds (fromPool, FormModalButton.modalTitle). Return an
+    // existing instance untouched, and guard any extra date conversion you add:
+    //   if (typeof (e as any).publishedOn === "string") e.publishedOn = new Date((e as any).publishedOn)
+    // An unconditional `new Date(x)` throws "Maximum recursive updates exceeded" against a LIBRARY component.
     override toEntity(item: object): Entity {
         return item instanceof Entity ? item : Object.assign(this.createInstance(Entity as new () => Entity), item || {})
     }

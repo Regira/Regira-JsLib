@@ -7,7 +7,7 @@ A service is the HTTP layer for one entity.
 The contract every view programs against:
 
 ```ts
-details(id): Promise<T | undefined>
+details(id, so?): Promise<T | undefined>
 list(so?): Promise<Array<T>>
 search(so?): Promise<SearchResult<T>>
 searchUnion(searchObjects, extra?): Promise<SearchResult<T>>
@@ -59,7 +59,7 @@ you, so the method return types are _not_ these envelopes (see the note under th
 
 | Method             | HTTP   | URL                                           | HTTP body          |
 | ------------------ | ------ | --------------------------------------------- | ------------------ |
-| `details(id)`      | GET    | `{detailsUrl}/{id}`                           | `{ item }`         |
+| `details(id, so)`  | GET    | `{detailsUrl}/{id}?{query}`                   | `{ item }`         |
 | `list(so)`         | GET    | `{listUrl}?{query}`                           | `{ items }`        |
 | `search(so)`       | GET    | `{searchUrl}?{query}`                         | `{ items, count }` |
 | `searchUnion(sos)` | POST   | `{searchUrl}?{query}` (body = search objects) | `{ items, count }` |
@@ -79,8 +79,20 @@ returns `{ saved, isNew }`.
 ### Automatic query parameters
 
 For `list`/`search`, the service merges `config.baseQueryParams` with the search object, then defaults
-`pageSize` to `config.defaultPageSize`, defaults `isArchived` to `false` (hiding archived rows), omits
-`page` when ≤ 1, strips `$`-prefixed keys, and serializes arrays as repeated keys.
+`pageSize` to `config.defaultPageSize`, omits `page` when ≤ 1, strips `$`-prefixed keys, and serializes
+arrays as repeated keys.
+
+### Archived rows
+
+`DELETE /{id}` soft-deletes an archivable entity — the row survives with its `isArchived` flag set. The
+search object's `archived` field (`ArchivedFilter`) selects what a read returns: unset omits the parameter
+and the server hides archived rows (in lists, counts and included collections), `only` gives the recycle
+bin, `included` gives both.
+
+`GET /{id}` 404s on an archived row, so `details` takes an optional search object for the query string:
+`service.details(id, { archived: ArchivedFilter.included })`. `useDetails` and `useModal` already do this,
+which is what lets an archived row reach the form's Restore button. Restoring is a plain save — the write
+path resolves archived rows server-side — so keep `isArchived` on the entity and its input DTO.
 
 ## Resolution & pooling
 

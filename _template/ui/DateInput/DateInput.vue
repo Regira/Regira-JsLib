@@ -3,6 +3,7 @@
         type="date"
         class="rg-date-input form-control"
         :value="dateValue"
+        :readonly="readonly"
         @change="handleChange"
         :lang="culture"
         :class="{ 'is-invalid': dateValue && !isValidDate }"
@@ -21,6 +22,10 @@ const props = defineProps<DateInputProps>()
 const isValidDate = computed(() => isValid(new Date(props.modelValue || "")))
 const dateValue = computed(() => (isValidDate.value ? dateInputString(new Date(props.modelValue!)) : props.modelValue))
 const handleChange = (e: any) => {
+    // `readonly` does not stop every browser's native date picker from writing a value — refuse the emit too
+    if (props.readonly) {
+        return
+    }
     const date = new Date(e.target.value)
     if (!e.target.value || isValid(date)) {
         emit("update:modelValue", date || e.target.value)

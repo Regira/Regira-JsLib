@@ -84,30 +84,31 @@ var w = { class: "rg-pending bg-light text-info" }, T = /* @__PURE__ */ p({
 	enableErrorPopup: !1
 };
 function W({ autoHideDelay: e = 1500 } = {}) {
-	let t = _(""), n = _(""), r = _(void 0), i;
-	function a() {
-		e > 0 && (clearTimeout(i), i = setTimeout(o, e));
+	let t = _(""), n = _(""), r = _(void 0), i = o(() => t.value === "Pending"), a;
+	function s() {
+		e > 0 && (clearTimeout(a), a = setTimeout(c, e));
 	}
-	function o() {
+	function c() {
 		t.value = "", n.value = "", r.value = void 0;
 	}
-	function s(e) {
+	function l(e) {
 		t.value = "Pending", n.value = e, r.value = void 0;
 	}
-	function c(i) {
-		t.value = "Success", n.value = i, r.value = void 0, e && a();
+	function u(i) {
+		t.value = "Success", n.value = i, r.value = void 0, e && s();
 	}
-	function l(e, i) {
+	function d(e, i) {
 		t.value = "Failed", n.value = e, typeof i == "string" ? n.value = `${n.value}: ${i.split("\n")[0]}` : r.value = i?.message || i;
 	}
 	return {
 		status: t,
 		message: n,
 		error: r,
-		pending: s,
-		success: c,
-		fail: l,
-		reset: o
+		isPending: i,
+		pending: l,
+		success: u,
+		fail: d,
+		reset: c
 	};
 }
 //#endregion
@@ -124,19 +125,19 @@ var G = {
 	}, { ...U }),
 	emits: ["close"],
 	setup(e, { emit: t }) {
-		let n = t, { status: i, message: a, error: s, reset: u } = e.feedback, d = o(() => i.value === H.pending), p = o(() => i.value === H.success), m = o(() => i.value === H.failed), _ = (e) => {
+		let n = t, { status: i, message: a, error: s, isPending: u, reset: d } = e.feedback, p = o(() => i.value === H.success), m = o(() => i.value === H.failed), _ = (e) => {
 			e.stopPropagation(), n("close", {
 				status: i.value,
 				error: s.value
-			}), u();
+			}), d();
 		};
-		return (t, n) => d.value || p.value || m.value ? (g(), l("div", G, [
+		return (t, n) => S(u) || p.value || m.value ? (g(), l("div", G, [
 			e.hideCloseButton ? c("", !0) : y(t.$slots, "close-button", { key: 0 }, () => [f(r, {
 				icon: "close",
 				class: h(["rg-feedback__close-button btn btn-sm position-absolute end-0 p-1", { "text-light": m.value }]),
 				onClick: _
 			}, null, 8, ["class"])]),
-			d.value ? y(t.$slots, "pending", { key: 1 }, () => [f(T, {
+			S(u) ? y(t.$slots, "pending", { key: 1 }, () => [f(T, {
 				msg: S(a),
 				class: "rg-feedback__pending px-2 py-1 border h-100"
 			}, null, 8, ["msg"])]) : c("", !0),

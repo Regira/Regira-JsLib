@@ -17,8 +17,14 @@ type ScreenOut = {
     size: Ref<number[]>
     screen: IScreen
 }
+/**
+ * The viewport as [width, height]. Guarded, so the module works outside a DOM (SSR, a Node script importing
+ * the UI barrel) instead of throwing on `window`: without one it reports [0, 0], the smallest breakpoint —
+ * the same mobile-first assumption the CSS starts from. The real size lands on the client, where the first
+ * `useScreen()` reads it and the resize listener keeps it current.
+ */
 export function getWindowSize(): IScreenSize {
-    return [window.innerWidth, window.innerHeight]
+    return typeof window === "undefined" ? [0, 0] : [window.innerWidth, window.innerHeight]
 }
 
 export const SCREEN_SIZES = {
@@ -30,7 +36,25 @@ export const SCREEN_SIZES = {
     xxl: 1400,
 } as Record<string, number>
 
+function debounce<A extends unknown[]>(fn: (...args: A) => void, wait: number): (...args: A) => void {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    return (...args: A) => {
+        if (timer) clearTimeout(timer)
+        timer = setTimeout(() => fn(...args), wait)
+    }
+}
+
+// The window size is global state, so every consumer (the screen plugin, usePaging, an app component) shares
+// ONE reactive instance — a per-call ref would only ever update for whoever owns the resize listener, and the
+// rest would keep reporting the size the page happened to load at. Created (and subscribed) lazily, so
+// importing this module stays side-effect free; both the size it starts at and the subscription are guarded,
+// so CALLING useScreen() where there is no window is safe too (it reports getWindowSize()'s [0, 0] fallback).
+let instance: ScreenOut | undefined
+
 export function useScreen(): ScreenOut {
+    if (instance) {
+        return instance
+    }
     const size: Ref<IScreenSize> = ref(getWindowSize())
     const screen: IScreen = {
         get size() {
@@ -63,10 +87,15 @@ export function useScreen(): ScreenOut {
         updateSize: (newSize = getWindowSize()) => (size.value = newSize),
     }
 
-    return {
-        size,
-        screen,
+    instance = { size, screen }
+
+    if (typeof window !== "undefined") {
+        const updateSize = debounce(() => screen.updateSize(getWindowSize()), 250)
+        window.addEventListener("resize", updateSize)
+        window.addEventListener("orientationchange", updateSize)
     }
+
+    return instance
 }
 
 export default useScreen

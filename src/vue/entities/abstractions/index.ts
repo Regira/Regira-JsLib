@@ -1,7 +1,7 @@
 export { type IEntity, isNewEntity } from "./IEntity"
 export type { IEntityService, DetailsResult, ListResult, SaveResult, SavedResult, SearchResult, DeleteResult } from "./IEntityService"
 export { type IConfig, NavTypes } from "./IConfig"
-export type { ISearchObject } from "./ISearchObject"
+export { type ISearchObject, ArchivedFilter } from "./ISearchObject"
 export { type IPagingInfo, PagingInfo, DEFAULT_PAGESIZE } from "./PagingInfo"
 export { type ISortByInfo, SortByInfo } from "./SortByInfo"
 export { default as EntityServiceBase } from "./EntityServiceBase"
