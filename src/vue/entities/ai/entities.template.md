@@ -131,7 +131,7 @@ src/entities/foos/               # one entity slice — copy this folder set for
 ## `data/Entity.ts` (c)
 
 ```ts
-import { EntityBase } from "@/regira_modules/vue/entities"
+import { EntityBase } from "regira_modules/vue/entities"
 
 export class Foo extends EntityBase {
     id: number = 0
@@ -163,7 +163,7 @@ export default Foo
 ## `config/config.ts` (c)
 
 ```ts
-import type { IConfig } from "@/regira_modules/vue/entities"
+import type { IConfig } from "regira_modules/vue/entities"
 import Entity from "../data/Entity"
 
 // Relative to the axios baseURL, and must equal the server's [Route(...)] exactly — repeating the base here
@@ -201,7 +201,7 @@ export default config
 > import it as the module default).
 
 ```ts
-import { SearchObjectBase, ArchivedFilter } from "@/regira_modules/vue/entities"
+import { SearchObjectBase, ArchivedFilter } from "regira_modules/vue/entities"
 
 export class EntitySearchObject extends SearchObjectBase {
     // `q` (free-text) is inherited from SearchObjectBase. Add your filters:
@@ -252,8 +252,8 @@ substitute: it refetches on every keystroke.
 </template>
 
 <script setup lang="ts">
-import { IconButton } from "@/regira_modules/vue/ui"
-import { useFilter, type FilterEmits } from "@/regira_modules/vue/entities"
+import { IconButton } from "regira_modules/vue/ui"
+import { useFilter, type FilterEmits } from "regira_modules/vue/entities"
 import SearchObject from "./SearchObject"
 
 interface Emits extends /* @vue-ignore */ FilterEmits<SearchObject> {}
@@ -332,8 +332,8 @@ bare `col-auto` and let it size to its content.
 
 <script setup lang="ts">
 import { computed } from "vue"
-import { Icon } from "@/regira_modules/vue/ui"
-import type { OverviewEmits } from "@/regira_modules/vue/entities"
+import { Icon } from "regira_modules/vue/ui"
+import type { OverviewEmits } from "regira_modules/vue/entities"
 import config from "../config/config"
 import type Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -387,9 +387,9 @@ const items = computed<Array<Entity>>({
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router"
-import { ModalType, ConfirmButton, Icon } from "@/regira_modules/vue/ui"
-import { formatDate } from "@/regira_modules/vue/formatters"
-import type { SaveResult } from "@/regira_modules/vue/entities"
+import { ModalType, ConfirmButton, Icon } from "regira_modules/vue/ui"
+import { formatDate } from "regira_modules/vue/formatters"
+import type { SaveResult } from "regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import FormModalButton from "../details/FormModalButton.vue"
@@ -470,9 +470,9 @@ const item = defineModel<Entity>({ required: true })
 
 <script setup lang="ts">
 import { RouterLink, type RouteRecordRaw } from "vue-router"
-import { Feedback, FormButtonsRow, FormSection, FormLabel, Icon } from "@/regira_modules/vue/ui"
-import { Debug } from "@/regira_modules/vue/debug"
-import { useForm, type FormEmits, formDefaults } from "@/regira_modules/vue/entities"
+import { Feedback, FormButtonsRow, FormSection, FormLabel, Icon } from "regira_modules/vue/ui"
+import { Debug } from "regira_modules/vue/debug"
+import { useForm, type FormEmits, formDefaults } from "regira_modules/vue/entities"
 import config from "../config/config"
 import Entity from "../data/Entity"
 import useEntityStore from "../data/store"
@@ -512,8 +512,8 @@ const { item, feedback, handleCancel, handleSubmit, handleRemove, handleRestore 
 
 <script setup lang="ts">
 import { computed } from "vue"
-import { IconButton } from "@/regira_modules/vue/ui"
-import type { OverviewEmits } from "@/regira_modules/vue/entities"
+import { IconButton } from "regira_modules/vue/ui"
+import type { OverviewEmits } from "regira_modules/vue/entities"
 import type Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 
@@ -539,7 +539,7 @@ function handleSelect(item?: Entity) {
 
 ```ts
 import type { AxiosInstance } from "axios"
-import { EntityServiceBase, type IConfig } from "@/regira_modules/vue/entities"
+import { EntityServiceBase, type IConfig } from "regira_modules/vue/entities"
 import Entity from "./Entity"
 
 export class EntityService extends EntityServiceBase<Entity> {
@@ -570,8 +570,8 @@ export default EntityService
 
 ```ts
 import { defineStore } from "pinia"
-import { get } from "@/regira_modules/vue/ioc"
-import { createStore, type IEntityService } from "@/regira_modules/vue/entities"
+import { get } from "regira_modules/vue/ioc"
+import { createStore, type IEntityService } from "regira_modules/vue/entities"
 import Entity from "./Entity"
 
 export const useEntityStore = defineStore(Entity.name, () => {
@@ -605,9 +605,9 @@ export default useEntityStore
 
 <script setup lang="ts">
 import { RouterView, useRouter } from "vue-router"
-import { LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
-import { useDetails } from "@/regira_modules/vue/entities/details"
-import { FormStates } from "@/regira_modules/vue/entities/form"
+import { LoadingContainer, Feedback } from "regira_modules/vue/ui"
+import { useDetails } from "regira_modules/vue/entities/details"
+import { FormStates } from "regira_modules/vue/entities/form"
 import config from "../config/config"
 import useEntityStore from "../data/store"
 
@@ -656,9 +656,9 @@ export { default as plugin } from "./setup"
 import type { AxiosInstance } from "axios"
 import type { App } from "vue"
 import type { RouteRecordRaw } from "vue-router"
-import type { IServiceProvider } from "@/regira_modules/vue/ioc"
-import type { IIconProvider } from "@/regira_modules/vue/ui/icons"
-import { DetailsSummary } from "@/regira_modules/vue/entities"
+import type { IServiceProvider } from "regira_modules/vue/ioc"
+import type { IIconProvider } from "regira_modules/vue/ui/icons"
+import { DetailsSummary } from "regira_modules/vue/entities"
 import config from "./config/config"
 import { Entity } from "./data/Entity"
 import Overview from "./overview/Overview.vue"

@@ -1,7 +1,6 @@
 # Regira JsLib Lang — Examples
 
-Verify signatures in [lang.signatures.md](lang.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify signatures in [lang.signatures.md](lang.signatures.md).
 
 ## Install the plugin (startup)
 
@@ -9,7 +8,7 @@ Call once on `app`. `messages` is a dictionary or an async loader; `defaultLang`
 initial and the fallback language:
 
 ```ts
-import { plugin as langPlugin, useLang } from "@/regira_modules/vue/lang"
+import { plugin as langPlugin, useLang } from "regira_modules/vue/lang"
 
 // messages can be a loaded dictionary…
 const translations = await fetch(`${baseUrl}/data/translations.json`).then((r) => r.json())
@@ -37,7 +36,7 @@ entity field):
 `useLang()` returns the shared singleton state — switch language anywhere:
 
 ```ts
-import { useLang } from "@/regira_modules/vue/lang"
+import { useLang } from "regira_modules/vue/lang"
 
 const { langCode, translate, translateMessage, setLangCode } = useLang()
 setLangCode("nl") // ignores empty values
@@ -52,7 +51,7 @@ A language selector binds straight to `langCode` / `setLangCode`:
     <li :class="{ 'fw-bold': langCode == 'nl' }" @click="setLangCode('nl')">NL</li>
 </template>
 <script setup lang="ts">
-import { useLang } from "@/regira_modules/vue/lang"
+import { useLang } from "regira_modules/vue/lang"
 const { langCode, setLangCode } = useLang()
 </script>
 ```

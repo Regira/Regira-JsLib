@@ -37,10 +37,6 @@ import {
 } from "regira_modules/vue/entities"
 ```
 
-> **Alias convention:** the demo apps vendor the package and alias it, so their imports read
-> `@/regira_modules/vue/entities`. In a clean npm install the specifier is `regira_modules/vue/entities`.
-> Both resolve to the same module.
-
 The two non-entities modules the entities layer depends on for wiring:
 
 ```ts

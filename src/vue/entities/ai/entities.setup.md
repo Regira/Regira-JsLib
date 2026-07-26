@@ -76,15 +76,14 @@ a time); `scaffold.mjs --shell` then writes the rest of the toolchain (`index.ht
 > pulls in the next major (`vue-router 5` → `vite 8` → `typescript 6` / `vue-tsc 3`). The block above is
 > that cascade already resolved. Optional extras that pair with it: `vitest 4`, `prettier 3`.
 
-### Import specifiers & the optional demo alias
+### Import specifiers
 
-> **The snippets below use the demo's `@/regira_modules` alias.** In a plain npm install, drop the `@/`
-> prefix on the library specifier (write `regira_modules/vue/http`, not `@/regira_modules/vue/http`); the
-> `@/...` app alias for your own `src/` files still applies. See [entities.namespaces.md](entities.namespaces.md).
+> Library code imports from `regira_modules/...` (`regira_modules/vue/http`, …); `@/...` is your own
+> app alias for `src/`. Full specifier list: [entities.namespaces.md](entities.namespaces.md).
 
-> **Alias (optional — demo vendoring only).** The sample apps vendor `dist/` and alias it, so their
-> imports read `@/regira_modules/vue/entities`. You only need this if you vendor `dist/` yourself. To do
-> so, add it in **both** places (order matters — the more specific alias first):
+> **Optional — only if you vendor `dist/` yourself.** Vendoring lets you alias the package, so imports
+> read `@/regira_modules/vue/entities` instead. Add it in **both** places (order matters — the more
+> specific alias first):
 >
 > ```ts
 > // vite.config.ts → resolve.alias
@@ -669,20 +668,20 @@ Fetch config first, create the shared axios, then install plugins in this order.
 import { createApp } from "vue"
 import { createPinia } from "pinia"
 import type { RouteRecordRaw } from "vue-router"
-import { initAxios } from "@/regira_modules/vue/http"
-import { plugin as servicesPlugin, type IServiceProvider } from "@/regira_modules/vue/ioc"
-import { plugin as appPlugin, AppStatus, whenAppReady } from "@/regira_modules/vue/app"
-import { plugin as langPlugin, useLang } from "@/regira_modules/vue/lang"
-import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "@/regira_modules/vue/ui"
-import { focus, grow, clickOutside } from "@/regira_modules/vue/directives"
+import { initAxios } from "regira_modules/vue/http"
+import { plugin as servicesPlugin, type IServiceProvider } from "regira_modules/vue/ioc"
+import { plugin as appPlugin, AppStatus, whenAppReady } from "regira_modules/vue/app"
+import { plugin as langPlugin, useLang } from "regira_modules/vue/lang"
+import { iconPlugin, screenPlugin, loadingPlugin, feedbackPlugin } from "regira_modules/vue/ui"
+import { focus, grow, clickOutside } from "regira_modules/vue/directives"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap-icons/font/bootstrap-icons.css"
-import "@/regira_modules/style.css" // library component styles (modal backdrop, autocomplete dropdown) + --rg-* theme tokens
+import "regira_modules/style.css" // library component styles (modal backdrop, autocomplete dropdown) + --rg-* theme tokens
 import "@/assets/theme.scss" // the app theme — after bootstrap + regira styles so its overrides win
-import { plugin as authPlugin, LocalStorageTokenManager } from "@/regira_modules/vue/auth"
-import { preloaderPlugin, defaultPoolCache, PoolCache } from "@/regira_modules/vue/entities"
-import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
-import dateExtensions from "@/regira_modules/extensions/date-extensions"
+import { plugin as authPlugin, LocalStorageTokenManager } from "regira_modules/vue/auth"
+import { preloaderPlugin, defaultPoolCache, PoolCache } from "regira_modules/vue/entities"
+import { plugin as debugPlugin } from "regira_modules/vue/debug"
+import dateExtensions from "regira_modules/extensions/date-extensions"
 import entityPlugins from "@/entities"
 import { routerFactory } from "@/router"
 import App from "@/App.vue"
@@ -785,9 +784,9 @@ app.use(userPlugin)
 <script setup lang="ts">
 import { computed } from "vue"
 import { RouterView } from "vue-router"
-import { Feedback, LoadingContainer } from "@/regira_modules/vue/ui"
-import { LoginModal, LoginForm, useAuthStore } from "@/regira_modules/vue/auth"
-import { AppStatus } from "@/regira_modules/vue/app"
+import { Feedback, LoadingContainer } from "regira_modules/vue/ui"
+import { LoginModal, LoginForm, useAuthStore } from "regira_modules/vue/auth"
+import { AppStatus } from "regira_modules/vue/app"
 
 const authStore = useAuthStore()
 const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
@@ -815,9 +814,9 @@ The full template wraps the same gates in Header / Main / Footer chrome and tele
 ```vue
 <script setup lang="ts">
 import { computed } from "vue"
-import { Feedback, LoadingContainer } from "@/regira_modules/vue/ui"
-import { LoginModal, LoginForm, useAuthStore } from "@/regira_modules/vue/auth"
-import { AppStatus } from "@/regira_modules/vue/app"
+import { Feedback, LoadingContainer } from "regira_modules/vue/ui"
+import { LoginModal, LoginForm, useAuthStore } from "regira_modules/vue/auth"
+import { AppStatus } from "regira_modules/vue/app"
 import TheHeader from "@/components/layout/TheHeader.vue"
 import TheFooter from "@/components/layout/TheFooter.vue"
 import Main from "@/components/layout/Main.vue"
@@ -946,8 +945,8 @@ disabled), make these four changes:
     ```vue
     <script setup lang="ts">
     import { RouterView } from "vue-router"
-    import { Feedback, LoadingContainer } from "@/regira_modules/vue/ui"
-    import { AppStatus } from "@/regira_modules/vue/app"
+    import { Feedback, LoadingContainer } from "regira_modules/vue/ui"
+    import { AppStatus } from "regira_modules/vue/app"
     </script>
 
     <template>
@@ -1049,7 +1048,7 @@ the library importers:
 ```ts
 // src/components/entity-navigation/functions.ts
 import { computed, getCurrentInstance } from "vue"
-import { type IConfig, importDashboard, importNavbar, buildNavigationTree } from "@/regira_modules/vue/entities"
+import { type IConfig, importDashboard, importNavbar, buildNavigationTree } from "regira_modules/vue/entities"
 import { useConfig } from "@/app-config"
 
 export function useNavigation() {
@@ -1098,8 +1097,8 @@ export default Permissions
 ```ts
 // src/infrastructure/user-plugin.ts
 import { type App, watch } from "vue"
-import { useAuthStore } from "@/regira_modules/vue/auth"
-import { useLang } from "@/regira_modules/vue/lang"
+import { useAuthStore } from "regira_modules/vue/auth"
+import { useLang } from "regira_modules/vue/lang"
 import Permissions from "@/infrastructure/permissions"
 
 export const plugin = {

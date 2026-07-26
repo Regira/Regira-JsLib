@@ -1,7 +1,6 @@
 # Regira JsLib IO — Examples
 
-Verify signatures in [io.signatures.md](io.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install. Both helpers are browser-only — instantiate them
+Verify signatures in [io.signatures.md](io.signatures.md). Both helpers are browser-only — instantiate them
 per use.
 
 ## Pick files and read JSON
@@ -9,7 +8,7 @@ per use.
 `browse` opens a hidden file picker and resolves with the chosen `File[]`:
 
 ```ts
-import { FileHelper } from "@/regira_modules/io"
+import { FileHelper } from "regira_modules/io"
 
 const fh = new FileHelper()
 const [file] = await fh.browse({ accept: "application/json", multiple: false })
@@ -23,7 +22,7 @@ if (file) {
 `saveAs` normalises the input (File, Blob, URL, or base64) and triggers a browser download:
 
 ```ts
-import { FileHelper } from "@/regira_modules/io"
+import { FileHelper } from "regira_modules/io"
 
 const fh = new FileHelper()
 await fh.saveAs(blob) // uses the blob's own name/type
@@ -36,7 +35,7 @@ await fh.writeJson(report, "report.json").then((b) => fh.saveAs(b))
 `HTMLImageElement`; turn it back into a `Blob` with `getBlob`:
 
 ```ts
-import { ImageHelper } from "@/regira_modules/io"
+import { ImageHelper } from "regira_modules/io"
 
 const ih = new ImageHelper()
 const [picked] = await ih.browse({ accept: "image/*", multiple: false })

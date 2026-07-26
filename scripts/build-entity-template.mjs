@@ -8,7 +8,8 @@
 //   - src/vue/entities/ai/entities.examples.md  → the longer boilerplate (UnitType slice, Part 1)
 //
 // Transforms applied to every file:
-//   - `@/regira_modules/…`  →  `regira_modules/…`   (demo-app alias → published npm specifier)
+//   - `@/regira_modules/…`  →  `regira_modules/…`   (safety net: the docs use the published npm
+//     specifier, so this normally matches nothing — it only catches a stray vendoring alias)
 // Plus, for the two entity-named files only, the placeholder tokens used by _template/scaffold.mjs:
 //   - Foo → __Entity__   foos → __entities__   foo → __entity__
 

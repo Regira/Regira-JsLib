@@ -1,13 +1,12 @@
 # Regira JsLib UI — Examples
 
-Verify props/signatures in [ui.signatures.md](ui.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify props/signatures in [ui.signatures.md](ui.signatures.md).
 
 ## Install plugins (startup)
 
 ```ts
-import { iconPlugin, feedbackPlugin, loadingPlugin, pagingPlugin, screenPlugin } from "@/regira_modules/vue/ui"
-import "@/regira_modules/style.css" // component styles (modal backdrop, autocomplete dropdown)
+import { iconPlugin, feedbackPlugin, loadingPlugin, pagingPlugin, screenPlugin } from "regira_modules/vue/ui"
+import "regira_modules/style.css" // component styles (modal backdrop, autocomplete dropdown)
 
 app.use(screenPlugin)
 app.use(feedbackPlugin)
@@ -16,14 +15,14 @@ app.use(loadingPlugin, { img: "/loading.svg" })
 app.use(pagingPlugin, { defaultPageSize: 10 })
 ```
 
-Plugins only configure; components are imported where used — e.g. `import { DefaultModal, Icon } from "@/regira_modules/vue/ui"`.
+Plugins only configure; components are imported where used — e.g. `import { DefaultModal, Icon } from "regira_modules/vue/ui"`.
 
 ## Overview building blocks
 
 ```vue
 <script setup lang="ts">
-import { Paging, LoadingContainer, Feedback } from "@/regira_modules/vue/ui"
-import { useSearchView, useRouteOverview } from "@/regira_modules/vue/entities"
+import { Paging, LoadingContainer, Feedback } from "regira_modules/vue/ui"
+import { useSearchView, useRouteOverview } from "regira_modules/vue/entities"
 import config from "../config/config"
 const { service } = useEntityStore()
 const { pagingInfo, items, itemsCount, isLoading, feedback, searchHandler } = useSearchView({
@@ -47,7 +46,7 @@ const { updateOverviewRoute } = useRouteOverview({ searchObject, pagingInfo, han
 ```vue
 <script setup lang="ts">
 import { computed } from "vue"
-import { TabContainer, Tab, useScreen } from "@/regira_modules/vue/ui"
+import { TabContainer, Tab, useScreen } from "regira_modules/vue/ui"
 const { screen } = useScreen()
 const tabs = computed(() =>
     [
@@ -89,7 +88,7 @@ const tabs = computed(() => [
 app.config.globalProperties.$feedback.success("Saved")
 
 // or a local instance
-import { useFeedback } from "@/regira_modules/vue/ui"
+import { useFeedback } from "regira_modules/vue/ui"
 const feedback = useFeedback({ autoHideDelay: 3000 })
 feedback.fail("Could not save", { title: "required" })
 ```
@@ -99,8 +98,8 @@ feedback.fail("Could not save", { title: "required" })
 ```vue
 <script setup lang="ts">
 import { ref } from "vue"
-import { DefaultModal, ModalType } from "@/regira_modules/vue/ui/modal"
-import "@/regira_modules/vue/ui/modal/style.scss"
+import { DefaultModal, ModalType } from "regira_modules/vue/ui/modal"
+import "regira_modules/vue/ui/modal/style.scss"
 const isVisible = ref(false)
 </script>
 <template>
@@ -121,7 +120,7 @@ const isVisible = ref(false)
 
 ```vue
 <script setup lang="ts">
-import { BsIcon, IconButton } from "@/regira_modules/vue/ui"
+import { BsIcon, IconButton } from "regira_modules/vue/ui"
 </script>
 <template>
     <BsIcon name="bi bi-box-seam" size="lg" />
@@ -133,8 +132,8 @@ import { BsIcon, IconButton } from "@/regira_modules/vue/ui"
 
 ```vue
 <script setup lang="ts">
-import { Autocomplete } from "@/regira_modules/vue/ui"
-import { get } from "@/regira_modules/vue/ioc"
+import { Autocomplete } from "regira_modules/vue/ui"
+import { get } from "regira_modules/vue/ioc"
 const service = get<IEntityService<Product>>("Product")!
 </script>
 <template>
@@ -156,7 +155,7 @@ const service = get<IEntityService<Product>>("Product")!
 
 ```vue
 <script setup lang="ts">
-import { DateInput } from "@/regira_modules/vue/ui"
+import { DateInput } from "regira_modules/vue/ui"
 </script>
 <template>
     <DateInput v-model="item.publishedOn" culture="nl-BE" />

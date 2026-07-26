@@ -1,7 +1,6 @@
 # Regira JsLib Online — Examples
 
-Verify signatures in [online.signatures.md](online.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify signatures in [online.signatures.md](online.signatures.md).
 
 ## Install the plugin (startup)
 
@@ -9,7 +8,7 @@ Add it to `app` once in `main.ts`. The plugin seeds one reactive `isOnline` ref 
 `navigator.onLine` and keeps it live via the window `online`/`offline` events:
 
 ```ts
-import { plugin as isOnlinePlugin } from "@/regira_modules/vue/online"
+import { plugin as isOnlinePlugin } from "regira_modules/vue/online"
 
 app.use(isOnlinePlugin)
 ```
@@ -61,7 +60,7 @@ Use the composable when you just need a one-off seed of the current value (it re
 `navigator.onLine` but does not stay in sync — see the gotchas in the instructions):
 
 ```ts
-import { useOnlineChecker } from "@/regira_modules/vue/online"
+import { useOnlineChecker } from "regira_modules/vue/online"
 
 const { isOnline } = useOnlineChecker()
 if (!isOnline.value) {

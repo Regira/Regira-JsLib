@@ -32,7 +32,7 @@ registered in a small IoC container keyed by `Entity.name` and resolved with `ge
 
 Starting a new app? A running app wires `main.ts`, `App.vue`, the router, the plugin install order
 (with or without authentication), the required-vs-optional plugin set, an entity slice per model, and an
-app-level entity aggregator; the `@/regira_modules` alias is optional.
+app-level entity aggregator.
 
 Pick a **build tier** first — the lean tier (the data layer + the library's `EntityOverview` / `EntityForm`)
 or the full per-entity scaffold. Every tier keeps the [UI kit](../ui/README.md) à la carte — paging,

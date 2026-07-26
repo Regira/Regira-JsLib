@@ -4,8 +4,8 @@ Verbatim TypeScript signatures for the front-end CRUD client (`regira_modules/vu
 
 > **AI rule:** Do not guess a signature, generic parameter, or option name — look it up here first.
 > Every block shows the `import` specifier above it. The barrel `regira_modules/vue/entities`
-> re-exports everything below; the deeper specifiers (`/abstractions`, `/overview`, `/form`, …) are
-> also published for granular imports. Demos alias the package as `@/regira_modules` — see
+> re-exports everything below; the deeper specifiers (`/abstractions`, `/details`, `/form`) are
+> also published for granular imports. Full specifier list:
 > [entities.namespaces.md](entities.namespaces.md).
 
 ## Table of contents
@@ -228,7 +228,7 @@ link's route query. It is therefore **lost on refresh and on a deep link** — a
 request (`sortBy`, `includes`, a mandatory filter) belongs in `baseQueryParams`.
 
 ```ts
-import { EntityDescriptor } from "regira_modules/vue/entities/config"
+import { EntityDescriptor } from "regira_modules/vue/entities"
 type IEntityControls = { Overview?: any; Details?: any; Form?: any; Fiche?: any }
 export interface IEntityDescriptor<T extends IEntity = IEntity> extends IEntityControls {
     Entity: { name: string; new (): T }

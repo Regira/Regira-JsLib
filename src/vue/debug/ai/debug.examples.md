@@ -1,7 +1,6 @@
 # Regira JsLib Debug — Examples
 
-Verify signatures in [debug.signatures.md](debug.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify signatures in [debug.signatures.md](debug.signatures.md).
 
 ## Install the plugin (startup)
 
@@ -9,7 +8,7 @@ Install after vue-router (the `$isDebug` getter reads the current route). Pass `
 loaded config:
 
 ```ts
-import { plugin as debugPlugin } from "@/regira_modules/vue/debug"
+import { plugin as debugPlugin } from "regira_modules/vue/debug"
 
 app.use(debugPlugin, { isDebug: config.isDebug }) // isDebug defaults to false
 ```
@@ -23,7 +22,7 @@ renders nothing unless `$isDebug` is true):
 
 ```vue
 <script setup lang="ts">
-import { Debug } from "@/regira_modules/vue/debug"
+import { Debug } from "regira_modules/vue/debug"
 </script>
 <template>
     <section>
@@ -66,7 +65,7 @@ Use the `$isDebug` getter to show extra markup, and `$setDebug(false)` to switch
 
 ```vue
 <script setup lang="ts">
-import { IconButton } from "@/regira_modules/vue/ui"
+import { IconButton } from "regira_modules/vue/ui"
 </script>
 <template>
     <div v-if="$isDebug" class="debug">

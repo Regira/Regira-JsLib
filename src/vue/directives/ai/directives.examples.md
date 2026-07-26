@@ -1,7 +1,6 @@
 # Regira JsLib Directives — Examples
 
-Verify signatures in [directives.signatures.md](directives.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify signatures in [directives.signatures.md](directives.signatures.md).
 
 ## Register the plugins (startup)
 
@@ -9,7 +8,7 @@ The barrel exports are **plugins** (objects with `install`), so register them wi
 `app.directive`. Each one wires up its template directive (`v-focus`, `v-grow`, `v-click-outside`):
 
 ```ts
-import { focus, grow, clickOutside } from "@/regira_modules/vue/directives"
+import { focus, grow, clickOutside } from "regira_modules/vue/directives"
 
 // global directives
 app.use(focus)

@@ -1,7 +1,6 @@
 # Regira JsLib Extensions — Examples
 
-Verify signatures in [extensions.signatures.md](extensions.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install. Nothing is patched on import — each extension is
+Verify signatures in [extensions.signatures.md](extensions.signatures.md). Nothing is patched on import — each extension is
 applied only when you call its `use()` enabler.
 
 ## Serialize dates without timezone shift (startup)
@@ -10,7 +9,7 @@ Every Regira demo app does exactly this in `main.ts` so `JSON.stringify(date)` e
 value the back-end expects (instead of the native UTC conversion):
 
 ```ts
-import dateSerializer from "@/regira_modules/extensions/date-extensions"
+import dateSerializer from "regira_modules/extensions/date-extensions"
 dateSerializer.use() // overrides Date.prototype.toJSON
 ```
 
@@ -20,7 +19,7 @@ The barrel default bundles convenience enablers — call them once, early, befor
 new prototype members:
 
 ```ts
-import extensions from "@/regira_modules/extensions"
+import extensions from "regira_modules/extensions"
 extensions.useArrayExtensions() // Array.prototype gains orderBy/groupBy/sum/…
 extensions.useDateExtensions() // Date.prototype.toJSON (local time)
 extensions.usePromiseExtensions() // Promise.debounce / Promise.enqueue

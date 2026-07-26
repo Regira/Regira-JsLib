@@ -1,7 +1,6 @@
 # Regira JsLib Formatters — Examples
 
-Verify signatures in [formatters.signatures.md](formatters.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify signatures in [formatters.signatures.md](formatters.signatures.md).
 
 ## Format dates and currency in a template
 
@@ -15,7 +14,7 @@ is the app's current culture, passed as the `culture` argument:
 </template>
 
 <script setup lang="ts">
-import { formatCurrency, formatDate } from "@/regira_modules/vue/formatters"
+import { formatCurrency, formatDate } from "regira_modules/vue/formatters"
 </script>
 ```
 
@@ -32,7 +31,7 @@ on hover:
 </template>
 
 <script setup lang="ts">
-import { formatDate, formatShortDate } from "@/regira_modules/vue/formatters"
+import { formatDate, formatShortDate } from "regira_modules/vue/formatters"
 </script>
 ```
 
@@ -41,7 +40,7 @@ import { formatDate, formatShortDate } from "@/regira_modules/vue/formatters"
 `formatDateTime` takes a custom mask. With `"yyyyMMdd"` it yields a per-day version stamp for static asset URLs:
 
 ```ts
-import { formatDateTime } from "@/regira_modules/vue/formatters"
+import { formatDateTime } from "regira_modules/vue/formatters"
 
 const v = formatDateTime(new Date(), "yyyyMMdd")
 const config = await fetch(`${appConfig.baseUrl}/config.json?v=${v}`).then((r) => r.json())
@@ -52,7 +51,7 @@ const config = await fetch(`${appConfig.baseUrl}/config.json?v=${v}`).then((r) =
 `getInitials` takes the first letter of each word, uppercased — handy for avatar placeholders:
 
 ```ts
-import { getInitials } from "@/regira_modules/vue/formatters"
+import { getInitials } from "regira_modules/vue/formatters"
 
 getInitials("Ada Lovelace") // => "AL"
 ```

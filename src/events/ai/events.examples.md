@@ -1,7 +1,6 @@
 # Regira JsLib Events — Examples
 
-Verify signatures in [events.signatures.md](events.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify signatures in [events.signatures.md](events.signatures.md).
 
 ## Make an object an emitter
 
@@ -9,7 +8,7 @@ Verify signatures in [events.signatures.md](events.signatures.md). Imports use t
 **prototype** so every instance is an emitter (this is exactly what the identity manager does):
 
 ```ts
-import { EventHandler } from "@/regira_modules/events"
+import { EventHandler } from "regira_modules/events"
 
 class IdentityManager {
     async login(email: string, password: string) {
@@ -53,7 +52,7 @@ mgr.on("login logoff", (e) => console.log("auth changed:", e.type))
 `data` keys are copied onto the event, and `trigger` is async — it returns the listeners' results:
 
 ```ts
-import { Event } from "@/regira_modules/events"
+import { Event } from "regira_modules/events"
 
 mgr.on("login", (e) => `welcome ${e.email}`) // e.email comes from the data below
 

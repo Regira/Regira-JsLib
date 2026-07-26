@@ -1,7 +1,6 @@
 # Regira JsLib App — Examples
 
-Verify signatures in [app.signatures.md](app.signatures.md). Imports use the demo alias
-`@/regira_modules`; drop `@/` for a plain npm install.
+Verify signatures in [app.signatures.md](app.signatures.md).
 
 ## Install the plugin (startup)
 
@@ -11,7 +10,7 @@ plugin reads `useAppStore` (from `main.ts`):
 ```ts
 import { createApp } from "vue"
 import { createPinia } from "pinia"
-import { AppStatus, plugin as appPlugin, whenAppReady } from "@/regira_modules/vue/app"
+import { AppStatus, plugin as appPlugin, whenAppReady } from "regira_modules/vue/app"
 
 const app = createApp(App)
 app.use(createPinia())
@@ -46,7 +45,7 @@ await whenAppReady()
 
 ```ts
 import { onMounted } from "vue"
-import { whenAppReady } from "@/regira_modules/vue/app"
+import { whenAppReady } from "regira_modules/vue/app"
 
 onMounted(async () => {
     await whenAppReady()
@@ -60,7 +59,7 @@ onMounted(async () => {
 sidebar component):
 
 ```ts
-import { onAppReady } from "@/regira_modules/vue/app"
+import { onAppReady } from "regira_modules/vue/app"
 
 onAppReady(async () => {
     await load()
@@ -74,7 +73,7 @@ Use `useAppStore()` for `isReady` / `culture`, or the `$appStatus` global in tem
 ```vue
 <script setup lang="ts">
 import { watchEffect } from "vue"
-import { AppStatus, useAppStore } from "@/regira_modules/vue/app"
+import { AppStatus, useAppStore } from "regira_modules/vue/app"
 
 const appStore = useAppStore()
 watchEffect(() => {
