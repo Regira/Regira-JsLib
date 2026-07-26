@@ -488,7 +488,13 @@ function scaffoldShell() {
         process.exit(1)
     }
     // auth-only files: omitted entirely on --no-auth
-    const AUTH_ONLY = new Set(["src/infrastructure/user-plugin.ts", "src/shims.d.ts", "src/views/AccountView.vue"])
+    const AUTH_ONLY = new Set([
+        "src/infrastructure/user-plugin.ts",
+        "src/shims.d.ts",
+        "src/views/AccountView.vue",
+        "src/views/ResetPasswordView.vue",
+        "src/components/users/ForgotPasswordForm.vue",
+    ])
     // ...and the one file whose auth-only bits are DATA, out of reach of applyShellVariant's comment markers
     const AUTH_CONFIG_FILE = "public/config.json"
     const written = []
@@ -524,6 +530,9 @@ function scaffoldShell() {
     }
     console.log("  Next: ensure package.json has the known-good dependency set (entities.setup.md → Install),")
     console.log("  then scaffold entities and register them in src/entities/index.ts.")
+    console.log("  The layout/navigation components are default implementations, not a prescribed design — restyle them,")
+    console.log("  or replace any of them with your own as long as the functionality stays available")
+    console.log("  (entities.shell.template.md → Default implementations, not requirements).")
 }
 
 // ---------------------------------------------------- attachments slice impl

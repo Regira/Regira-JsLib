@@ -249,7 +249,12 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 > - **A non-grid UX is still the slice.** A category-tree filter, an active/inactive toggle, or a storefront
 >   card list is normal customization of `Filter.vue` / `List.vue` / `ListItem.vue`.
 > - **The look is yours — the behaviour isn't.** The scaffold fixes the _wiring_, not the _design_: freely
->   restructure the markup, columns, and layout and restyle the views. But a few behaviours live in the
+>   restructure the markup, columns, and layout and restyle the views. The **app-owned shell components**
+>   (`layout/`, `entity-navigation/`, the views) go further — they are _default implementations_ you may
+>   **replace outright** with your own design, keeping the capabilities in
+>   [_Functionality contract_](#functionality-contract--what-a-custom-design-must-keep) available
+>   ([entities.shell.template.md](entities.shell.template.md) → _Default implementations, not requirements_).
+>   But a few behaviours live in the
 >   components, not their CSS — navbar dropdowns (a Vue toggle, not Bootstrap JS), dashboard route-tiles, the
 >   library `FormButtonsRow`, `_deleted` marking for rendered join/owned child rows (kept until save), and modal teleport into `#modals`.
 >   Restyle the markup; keep the behaviour, or reuse the component. Per-file checklists:
@@ -260,6 +265,36 @@ The lean tier pairs the same data layer with `EntityOverview` / `EntityForm`
 > (dates/currency), and `treelist` (hierarchies) à la carte — no plugins or slice required. Hand-rolling
 > those primitives is a deviation to declare, not part of going lean
 > ([entities.setup.md → UI building blocks without the scaffold](entities.setup.md#ui-building-blocks-without-the-scaffold)).
+
+### Functionality contract — what a custom design must keep
+
+The scaffolded components are **default implementations**, free to replace with your own design
+([shell](entities.shell.template.md#default-implementations-not-requirements) ·
+[slice](entities.template.md)). What a replacement may **not** quietly drop is the _functionality_ —
+these capabilities stay available however you render them:
+
+| Capability                         | Must remain available                                                                                                                                                          | Default implementation                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| **Every entity manageable**        | browse/search, create, open/edit and delete each entity the app exposes, reached from navigation **or an equivalent affordance** (a tile, a launcher, an in-context link)      | `Dashboard` / `NavBar` + each slice's `Overview`                                     |
+| **Navigation from the config map** | new slices appear on their own — nav built from `useNavigation()` (`$configs` + `config.json → navigation`), not a hand-written link list                                      | `useNavigation()` + `importDashboard` / `importNavbar`                               |
+| **Scalable lists**                 | paging, a total count, and filter/search on any list that can outgrow a page — server-side, never a full fetch sliced in the client                                            | `useSearchView` + `Paging` + `ResultSummary` + `Filter` / `FilterAdv`                |
+| **Create / edit**                  | a deep-linkable Details **page** per `config.isComplex: true`; the modal form only for a very basic entity                                                                     | `Details` route · `FormModalButton`                                                  |
+| **Confirmed delete**               | deletes ask first; removing a persisted owned/join row marks `_deleted` (tinted, undoable until save) instead of splicing it                                                   | `ConfirmButton` · `InputSelectorInline` / `useListItemInput`                         |
+| **Related records navigable**      | every displayed relation offers a way to open that record — a bare text label is the exception, not the default                                                                | the related slice's `FormModalButton` beside its pooled label (`--rel` generates it) |
+| **Relation picking scales**        | pick one row out of thousands by server-side search, with create-on-the-spot and browse — never a load-every-row dropdown                                                      | `InputSelector` (autocomplete + `FormModalButton` + browse modal)                    |
+| **Pooling stays intact**           | displayed relations resolve through the owning slice's `fromPool`, so editing a record anywhere relabels it everywhere; views use the pooled store service                     | `createStore` / `PoolCache`                                                          |
+| **Feedback & loading**             | every save, error and busy state is visible — a `useForm` feedback object that nothing renders shows the user nothing                                                          | `<Feedback>` · `LoadingContainer`                                                    |
+| **Auth (when requested)**          | the **full** account surface — sign in, forgot password, reset password, change password, sign out — and the login prompt shown to anonymous users instead of an unusable page | `vue/auth` (`auth.instructions` → _Account UI_)                                      |
+| **Attachments**                    | upload, download and remove files on entities that own them                                                                                                                    | the `entity-attachments` slice + `FileDropZone`                                      |
+| **i18n (when multilanguage)**      | a visible language selector, and translations for every `langs` entry                                                                                                          | `LangSelector` (`vue/lang`)                                                          |
+| **Error routes**                   | 401 / 403 / 404 land on real views                                                                                                                                             | the shell's error views                                                              |
+| **Responsive**                     | the main views stay usable at a mobile viewport                                                                                                                                | Bootstrap grid + `useScreen`                                                         |
+
+**Unless the user asks otherwise.** This is the contract for the functionality you were asked to build,
+not a mandate to build more: if the user wants a read-only view, no delete, a single-entity app, or drops
+a capability outright, build what they asked. What this rules out is losing a capability **by accident** —
+as a side effect of redesigning the component that used to provide it. Declare deviations; don't leave
+them silent.
 
 ### Choosing a service base
 

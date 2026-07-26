@@ -1,25 +1,56 @@
 # Regira JsLib — App Shell Template (scaffold)
 
 The **one-time app shell** that hosts your entity slices: bootstrap (`main.ts`, `App.vue`), runtime config,
-router, the config-driven **dashboard + navbar**, layout chrome, error views, and infrastructure. It ships as
+router, the config-driven **dashboard + navbar**, layout chrome, the account/password-recovery UI (auth
+builds), error views, and infrastructure. It ships as
 a **copy-on-disk template** in the package — scaffold it once per app, then scaffold entity slices into it
 with [entities.template.md](entities.template.md).
 
-> **Indicative, not prescriptive.** The generated shell is a working baseline — freely **restructure the
-> layout and redesign/restyle the dashboard, navbar, header/footer, and views**. Load-bearing is the _wiring_
-> (plugin install order in `main.ts`, the config-driven `useNavigation`, the router / `app-config` contract)
-> **and a few behaviours that live in the shell components, not their CSS**. Restyle the markup, but keep the
-> behaviour — or reuse the component:
->
-> - **Navbar dropdowns are a self-contained Vue toggle** (`NavBar.vue`: an `openId` ref + `v-click-outside`),
->   not Bootstrap's JS — the shell imports Bootstrap **CSS only** (see [Bootstrap](#bootstrap) below). If you
->   re-author them with `data-bs-toggle="dropdown"` you must also `import "bootstrap/dist/js/bootstrap.bundle.min.js"`;
->   the CSS alone never opens a dropdown. Simplest: keep `NavBar.vue` and restyle around it.
-> - **Dashboard entries are route links/tiles** — keep `text-decoration-none` and the tile/card class, or the
->   nav collapses to bare underlined `<a>`s.
-> - **Modals teleport into `#modals`** — keep that host `<div>` in `index.html`, or every popup silently fails
->   to mount. `--shell` won't overwrite an existing `index.html` without `--force`, so verify the host is
->   present after scaffolding.
+## Default implementations, not requirements
+
+Every component the shell generates — `Dashboard`, `NavBar`, `NavSearch`, `TheHeader`, `TheFooter`, `Main`,
+`HomeView`, the error views — is **one working implementation** of a piece of functionality, written into
+your app as **app-owned source**. Designing your own is expected, not a deviation: **replace any of them
+outright** with a component of your own — a sidebar instead of a navbar, a landing page instead of a tile
+grid, a command palette instead of the search box — and restructure/restyle the layout freely. Reach for
+the generated ones as the **fallback when no stronger design is called for**: a working baseline, never a
+ceiling. Load-bearing is the _wiring_ (plugin install order in `main.ts`, the config-driven
+`useNavigation`, the router / `app-config` contract) and the functionality below — not the markup.
+
+**What any redesign must keep available** — the shell's share of the
+[functionality contract](entities.instructions.md) → _Functionality contract_ (that table also covers the
+slice-level capabilities: relation buttons, pooling, paging, confirmed delete):
+
+- **Every entity reachable _and_ manageable, driven by the config map** — render `useNavigation()`'s trees
+  (`$configs` + `config.json → navigation`) in whatever chrome you design: a sidebar, a launcher, a search
+  palette, in-context links. A hand-written link list forfeits the config-driven shell — newly scaffolded
+  slices then stop appearing on their own.
+- **The search entry**, whenever `config.json → navigation.search` names an entity — any control that routes
+  to that overview with `q` qualifies.
+- **Feedback + loading around the router view** (`Feedback`, `LoadingContainer` in `App.vue`) — where every
+  save, error and busy state surfaces.
+- **The full account surface** on auth builds — sign in, forgot password, reset password, change password,
+  sign out — plus the login modal shown to anonymous users on protected routes rather than a dashboard they
+  can't act on. The generated shell wires all five (`App.vue` login + recovery modals,
+  `components/users/ForgotPasswordForm`, `views/ResetPasswordView` on `/reset-password`, `AccountView`
+  change-password, header sign-out); a redesign keeps every one of them reachable
+  (see the auth module's `auth.instructions` → _Account UI_).
+- **The 401 / 403 / 404 views** on their routes.
+- **A visible language selector** when the app is multilanguage (`LangSelector`, `vue/lang`).
+
+**And the behaviours that live in the shell components, not their CSS** — reuse the component, or
+re-implement the behaviour in your own:
+
+- **Navbar dropdowns are a self-contained Vue toggle** (`NavBar.vue`: an `openId` ref + `v-click-outside`),
+  not Bootstrap's JS — the shell imports Bootstrap **CSS only** (see [Bootstrap](#bootstrap) below). If you
+  re-author them with `data-bs-toggle="dropdown"` you must also `import "bootstrap/dist/js/bootstrap.bundle.min.js"`;
+  the CSS alone never opens a dropdown. Simplest: keep `NavBar.vue` and restyle around it.
+- **Nav/dashboard entries are `router-link`s to `{ name: routeName, query: initialQuery }`** — keep the
+  `initialQuery` (an entry can carry a preset filter), and when you render a link as a tile/card keep
+  `text-decoration-none`, or the nav collapses to bare underlined `<a>`s.
+- **Modals teleport into `#modals`** — keep that host `<div>` in `index.html`, or every popup silently fails
+  to mount. `--shell` won't overwrite an existing `index.html` without `--force`, so verify the host is
+  present after scaffolding.
 
 ## How to use
 
@@ -38,7 +69,7 @@ already exists** (pass `--force` to overwrite — e.g. to replace the `npm creat
 
 > **`--no-auth`** strips the auth wiring (lines tagged `@auth:only` / blocks between `@auth:block-start` and
 > `@auth:block-end`) and omits the auth-only files (`infrastructure/user-plugin.ts`, `shims.d.ts`,
-> `views/AccountView.vue`). The default
+> `views/AccountView.vue`, `views/ResetPasswordView.vue`, `components/users/ForgotPasswordForm.vue`). The default
 > build strips the inverse `@noauth:*` markers. Both variants build green. See
 > [entities.setup.md → Running without authentication](entities.setup.md#running-without-authentication).
 
@@ -322,9 +353,10 @@ overflow into ~12px. Overflow comes from a row that cannot shrink; fix it in the
 
 ```vue
 <script setup lang="ts">
-import { computed } from "vue" // @auth:only
+import { computed, ref, watch } from "vue" // @auth:only
 import { Feedback, LoadingContainer } from "regira_modules/vue/ui"
-import { LoginModal, LoginForm, useAuthStore } from "regira_modules/vue/auth" // @auth:only
+import { LoginModal, LoginForm, ForgotPasswordModal, useAuthStore } from "regira_modules/vue/auth" // @auth:only
+import ForgotPasswordForm from "@/components/users/ForgotPasswordForm.vue" // @auth:only
 import { AppStatus } from "regira_modules/vue/app"
 import TheHeader from "@/components/layout/TheHeader.vue"
 import TheFooter from "@/components/layout/TheFooter.vue"
@@ -335,6 +367,20 @@ const authStore = useAuthStore()
 // isRequired is route-driven (auth enabled + no allowAnonymous meta), so on any protected route — home
 // included — an unauthenticated visitor gets the sign-in modal immediately, before any 401.
 const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
+
+// LoginForm's "Forgot password?" button only EMITS — without this it does nothing. Swap the login modal
+// for the recovery one (never both at once) and swap back when the user returns to sign-in.
+const forgotUsername = ref<string>()
+const showForgot = ref(false)
+function handleForgotPassword(username?: string) {
+    forgotUsername.value = username
+    showForgot.value = true
+}
+// Clear the recovery step whenever the login gate closes — the v-if alone only HIDES it, so leaving to an
+// anonymous route (or signing in elsewhere) and coming back would reopen recovery instead of sign-in.
+watch(showLogin, (gateOpen) => {
+    if (!gateOpen) showForgot.value = false
+})
 // @auth:block-end
 </script>
 
@@ -359,7 +405,16 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
         <!-- @auth:block-start -->
         <Teleport to="#loginModal">
             <!-- v-if (not :is-visible): unmounting removes mask + dialog atomically — no stranded overlay -->
-            <LoginModal v-if="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
+            <LoginModal v-if="showLogin && !showForgot" :title="$t('signIn')">
+                <LoginForm @forgot-password="handleForgotPassword" />
+            </LoginModal>
+            <!-- the library ships the recovery MODAL, not the form — slot in the app's own (users/).
+                 `showLogin &&` matters: without it, authenticating by another path (token refresh, a sign-in
+                 in a second tab) leaves this modal stranded over an authenticated app.
+                 @close falls through to the modal's header X, which would otherwise be a dead button. -->
+            <ForgotPasswordModal v-if="showLogin && showForgot" :username="forgotUsername" @close="showForgot = false" v-slot="{ username }">
+                <ForgotPasswordForm :username="username" @login="showForgot = false" />
+            </ForgotPasswordModal>
         </Teleport>
         <!-- @auth:block-end -->
     </div>
@@ -395,11 +450,14 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 {
     "account": { "en": "Account" },
     "addNewFile(s)": { "en": "Add new file(s)" },
+    "backToSignIn": { "en": "Back to sign in" },
     "changePassword": { "en": "Change password" },
+    "chooseNewPassword": { "en": "Choose a new password" },
     "created": { "en": "Created" },
     "deleteItem": { "en": "Delete" },
     "files": { "en": "Files" },
     "filtersAreApplied": { "en": "Filters are applied" },
+    "invalidResetLink": { "en": "This recovery link is invalid or incomplete. Request a new one from the sign-in screen." },
     "keywords": { "en": "Keywords" },
     "main": { "en": "Main" },
     "name": { "en": "Name" },
@@ -407,9 +465,14 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
     "noResults": { "en": "No results" },
     "overview": { "en": "Overview" },
     "popOut": { "en": "Open in new tab" },
+    "recoveryMailFailed": { "en": "Sending the recovery link failed. Please try again." },
+    "recoveryMailSent": { "en": "If that account exists, a recovery link is on its way." },
+    "resetPassword": { "en": "Reset password" },
     "results": { "en": "results" },
+    "sendRecoveryLink": { "en": "Send recovery link" },
     "signIn": { "en": "Sign in" },
-    "signOut": { "en": "Sign out" }
+    "signOut": { "en": "Sign out" },
+    "username": { "en": "Username" }
 }
 ```
 
@@ -463,6 +526,7 @@ export default function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
 import type { RouteRecordRaw } from "vue-router"
 import HomeView from "@/views/HomeView.vue"
 import AccountView from "@/views/AccountView.vue" // @auth:only
+import ResetPasswordView from "@/views/ResetPasswordView.vue" // @auth:only
 import NotFound from "@/views/NotFound.vue"
 import Forbidden from "@/views/Forbidden.vue"
 import Unauthorized from "@/views/Unauthorized.vue"
@@ -473,6 +537,8 @@ const routes: Array<RouteRecordRaw> = [
     { path: "/", name: "home", component: HomeView }, // @auth:only
     { path: "/", name: "home", component: HomeView, meta: { allowAnonymous: true } }, // @noauth:only
     { path: "/account", name: "account", component: AccountView }, // @auth:only
+    // the recovery mail links here — allowAnonymous, or the visitor who forgot their password can't reach it // @auth:only
+    { path: "/reset-password", name: "resetPassword", component: ResetPasswordView, meta: { allowAnonymous: true } }, // @auth:only
     { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
     { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
     { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
@@ -730,6 +796,56 @@ const year = new Date().getFullYear()
 
 ---
 
+# Account UI (auth-only)
+
+The password-recovery flow the library does **not** ship as a ready component: `vue/auth` exports
+`ForgotPasswordModal` (chrome + a scoped default slot) and the `useForgotPasswordForm` composable, but no
+`ForgotPasswordForm` — the form is app-owned, so it lands here. `App.vue` slots it into the modal; the
+reset half is `views/ResetPasswordView.vue` on the `/reset-password` route.
+
+## `src/components/users/ForgotPasswordForm.vue`
+
+```vue
+<script setup lang="ts">
+import { useRouter } from "vue-router"
+import { useForgotPasswordForm, type ForgotPasswordFormProps, type ForgotPasswordFormEmits } from "regira_modules/vue/auth"
+import { useLang } from "regira_modules/vue/lang"
+import { useConfig } from "@/app-config"
+
+const emit = defineEmits<ForgotPasswordFormEmits>()
+const props = defineProps<ForgotPasswordFormProps>()
+
+const router = useRouter()
+const { title } = useConfig()
+// The API mails `siteUrl` with "?token=…" appended, so it must be the ABSOLUTE url of the reset PAGE.
+// Passing location.origin (a tempting shortcut) lands the recovery link on the dashboard, where nothing
+// reads the token. router.resolve keeps it correct under a non-root Vite base.
+const siteUrl = new URL(router.resolve({ name: "resetPassword" }).href, location.origin).href
+const siteName = useLang().translateMessage(title)
+const { username, isLoading, isFormValid, isSuccess, handleSubmit } = useForgotPasswordForm(props, emit, { siteUrl, siteName })
+</script>
+
+<template>
+    <form @submit.prevent="handleSubmit">
+        <!-- deliberately the same answer whether or not the account exists — do not leak which usernames are real -->
+        <div v-if="isSuccess" class="alert alert-success">{{ $t("recoveryMailSent") }}</div>
+        <div v-if="isSuccess === false" class="alert alert-danger">{{ $t("recoveryMailFailed") }}</div>
+        <div v-if="!isSuccess" class="mb-3">
+            <label class="form-label">{{ $t("username") }}</label>
+            <input v-model.trim="username" type="text" class="form-control" autocomplete="username" :disabled="isLoading" v-focus />
+        </div>
+        <div class="d-flex gap-2">
+            <button v-if="!isSuccess" type="submit" class="btn btn-primary" :disabled="isLoading || !isFormValid">
+                {{ $t("sendRecoveryLink") }}
+            </button>
+            <button type="button" class="btn btn-link" @click="emit('login', username)">{{ $t("backToSignIn") }}</button>
+        </div>
+    </form>
+</template>
+```
+
+---
+
 # Views
 
 ## `src/views/HomeView.vue`
@@ -772,6 +888,51 @@ const accountName = computed(() => getAccountName())
                     <!-- username feeds the hidden password-manager field -->
                     <ChangePasswordForm :username="accountName" />
                 </FormSection>
+            </div>
+        </div>
+    </section>
+</template>
+```
+
+## `src/views/ResetPasswordView.vue`
+
+Auth-only (omitted on `--no-auth`): the landing page for the recovery mail's link, on `/reset-password`.
+Anonymous by design — the visitor cannot sign in yet.
+
+```vue
+<script setup lang="ts">
+import { computed } from "vue"
+import { useRoute, useRouter } from "vue-router"
+import { ResetPasswordForm } from "regira_modules/vue/auth"
+import { FormSection } from "regira_modules/vue/ui"
+
+const route = useRoute()
+const router = useRouter()
+
+// ?token=… from the recovery link. A repeated param (?token=a&token=b) parses as an array — anything but
+// a single string counts as no token, so a malformed link shows the notice instead of reaching the form.
+const token = computed(() => (typeof route.query.token === "string" ? route.query.token : undefined))
+// the API base64-encodes { Token, Username } into the link — decode the username for the hidden
+// password-manager field so the browser can file the new password under the right account
+const username = computed<string | undefined>(() => {
+    try {
+        return JSON.parse(atob(token.value!))?.Username
+    } catch {
+        return undefined // malformed/absent token: the form still works, just without the association
+    }
+})
+</script>
+
+<template>
+    <section>
+        <h1 class="my-4">{{ $t("resetPassword") }}</h1>
+        <div class="row">
+            <div class="col-md-8 col-lg-6">
+                <FormSection v-if="token" :title="$t('chooseNewPassword')">
+                    <!-- @login fires from the success message's "Sign in" button: home is protected, so the login modal pops there -->
+                    <ResetPasswordForm :token="token" :username="username" @login="router.push({ name: 'home' })" />
+                </FormSection>
+                <p v-else class="text-danger">{{ $t("invalidResetLink") }}</p>
             </div>
         </div>
     </section>

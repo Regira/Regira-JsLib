@@ -126,6 +126,14 @@ components and composables exist for all of it — use them instead of hand-roll
 | Change password (signed-in user)        | `ChangePasswordForm`                                | `useChangePasswordForm` |
 | Sign out                                | `LogoutForm` (or `store.logout()` in a header menu) | —                       |
 
+- **The entities app shell wires all five out of the box** (`scaffold.mjs --shell`, auth variant): login +
+  recovery modals in `App.vue`, an app-owned `components/users/ForgotPasswordForm.vue` (the library ships
+  `ForgotPasswordModal` and `useForgotPasswordForm`, but **no** `ForgotPasswordForm` — the form is yours),
+  `views/ResetPasswordView.vue` on an `allowAnonymous` `/reset-password` route, and `AccountView` for
+  change-password. Building the shell yourself? Reproduce all of it.
+- **`siteUrl` is the reset PAGE, not the site root.** The API mails `siteUrl` with `?token=…` appended, so
+  `location.origin` alone puts the recovery link on the dashboard, where nothing reads the token — send
+  `${location.origin}/reset-password` (or `router.resolve({ name: "resetPassword" })`).
 - **Show the login form on time.** Gate the main content and pop the login modal immediately for
   anonymous users — never render a dashboard an anonymous user can't do anything with:
 

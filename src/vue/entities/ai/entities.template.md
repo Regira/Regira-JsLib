@@ -20,7 +20,15 @@ existing slice, pass `--owns <Child>` alone — only the sub-slice is generated.
 
 > **Indicative, not prescriptive.** The templates fix the _functional wiring_ (service ↔ store ↔ composable ↔
 > `IConfig`, DI, routing) so a scaffolded slice is green out of the box — the **markup, columns, layout, and
-> styling are yours to restructure and restyle freely**. Preserve the composable/service contract, the `(c)`
+> styling are yours to restructure and restyle freely**, and the generated views may be **replaced with
+> components of your own design**. What a replacement keeps is the _functionality_, enumerated in
+> [entities.instructions.md](entities.instructions.md) → _Functionality contract_ — for a slice, chiefly:
+> server-side paging + a total count + filtering on the overview, a create/edit affordance per
+> `config.isComplex`, a **confirmed** delete, a way to **open every displayed related record** (not a bare
+> text label), a server-searched relation picker rather than a load-everything dropdown, and relation labels
+> resolved through `fromPool` so they stay reactive.
+>
+> Preserve the composable/service contract, the `(c)`
 > fill-ins, and these **slice behaviours that live in the components, not their CSS** — restyle the markup, but
 > keep the behaviour or reuse the component:
 >

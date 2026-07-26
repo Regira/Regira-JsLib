@@ -158,15 +158,30 @@ generic views (`EntityOverview` / `EntityForm`) rather than re-implementing them
 the **per-entity slice / project structure** (`entities.setup` → _Project structure_), and **Bootstrap 5**
 styling (`entities.setup` → _Bootstrap — main.ts_). The scaffolded templates are **indicative of
 functionality, not appearance** — their default styling is deliberately plain, and **improving it is
-encouraged and expected**: the customization ladder in `regira_modules.vue.ui` → `ui.customize` (theme
+encouraged and expected**; the app-owned shell components go one step further and may be **replaced
+outright** by your own design, not merely restyled. The customization ladder in `regira_modules.vue.ui` → `ui.customize` (theme
 tokens → `rg-*` css hooks → slots → contract-typed replacement → `scaffold.mjs --ui` eject) covers every
 level; what you preserve is the contract (composables, props/emits/slots, DI, plugin order, routing,
 `_deleted` marking, `rg-*`/`is-*` hooks), not the look.
 
 ## App-quality defaults (apply unless the user opts out)
 
-- **Prefer the provided components.** Reach for a built-in and restyle/wrap/eject it before writing a
-  new component (pager, spinner, toast, modal, tab strip, confirm button, autocomplete, account form).
+- **Prefer the provided components — for the UI kit.** Reach for a library built-in and
+  restyle/wrap/eject it before writing a new one (pager, spinner, toast, modal, tab strip, confirm
+  button, autocomplete, account form): their behaviour lives in the `use*` composables, so a rewrite
+  re-earns it from scratch.
+- **The app shell is yours to design.** The scaffolded shell components (`layout/`, `entity-navigation/`,
+  the views) are app-owned **default implementations of a functionality**, not a prescribed look — replace
+  any of them outright with your own design whenever the app calls for it (`entities.shell.template` →
+  _Default implementations, not requirements_). Use the generated ones as-is when no stronger design is
+  called for.
+- **Keep the functionality when you replace a component.** A custom design may not silently drop what the
+  component it replaced provided — every entity manageable, server-side paging + count + filtering,
+  confirmed delete, related records openable from where they're shown, pooled (reactive) relation labels,
+  visible feedback/loading, the **full** account surface when auth is requested (sign in, forgot, reset,
+  change password, sign out), a language selector when multilanguage. Checklist:
+  `entities.instructions` → _Functionality contract_. If the **user** asks for less, build what they asked
+  — the rule is against losing a capability by accident, not against a smaller scope.
 - **Responsive layout, always** — unless the user explicitly requests otherwise. Bootstrap grid with
   breakpoint variants, `d-none d-md-inline` button labels, `d-none d-md-block` to drop list columns on
   small screens, `$screen` for JS-side switches (`entities.patterns` → _Overview list layout_).

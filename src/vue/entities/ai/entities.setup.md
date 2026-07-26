@@ -357,14 +357,14 @@ src/
   router/
     index.ts                     # re-export routerFactory
     router.ts                    # routerFactory(entityRoutes)
-    routes.ts                    # static routes (home, account/auth, error pages)
-  views/                         # HomeView / NotFound / Forbidden / Unauthorized / AccountView (auth builds)
+    routes.ts                    # static routes (home, account/auth, password reset, error pages)
+  views/                         # HomeView / NotFound / Forbidden / Unauthorized · AccountView + ResetPasswordView (auth builds)
   components/                    # shared UI shell — see App shell
     entity-navigation/           #   Dashboard / NavBar / NavSearch (built from $configs) + useNavigation()
       index.ts  functions.ts
     input/        index.ts       #   (+) app-specific inputs (common FormButtonsRow/DescriptionInput ship in vue/ui)
     layout/                      #   TheHeader / TheFooter / Main · AppModal / LangSelector / Offline (+)
-    users/                       #   (+) account + auth UI (auth-on)
+    users/                       #   ForgotPasswordForm (auth-on) · (+) the rest of the account UI
   infrastructure/                # small app-wide plugins/helpers — see App shell (keep it basic)
     permissions.ts               #   permission constants
     user-plugin.ts               #   $isAdmin + persists chosen language
@@ -630,10 +630,11 @@ export default function routerFactory(entityRoutes: Array<RouteRecordRaw>) {
 ```
 
 ```ts
-// src/router/routes.ts — home, account, and the error pages (login is the App.vue modal, not a route)
+// src/router/routes.ts — home, account, password reset, and the error pages (login is the App.vue modal, not a route)
 import type { RouteRecordRaw } from "vue-router"
 import HomeView from "@/views/HomeView.vue"
 import AccountView from "@/views/AccountView.vue"
+import ResetPasswordView from "@/views/ResetPasswordView.vue"
 import NotFound from "@/views/NotFound.vue"
 import Forbidden from "@/views/Forbidden.vue"
 import Unauthorized from "@/views/Unauthorized.vue"
@@ -641,6 +642,8 @@ import Unauthorized from "@/views/Unauthorized.vue"
 const routes: Array<RouteRecordRaw> = [
     { path: "/", name: "home", component: HomeView },
     { path: "/account", name: "account", component: AccountView },
+    // the recovery mail links here — allowAnonymous, or the visitor who forgot their password can't reach it
+    { path: "/reset-password", name: "resetPassword", component: ResetPasswordView, meta: { allowAnonymous: true } },
     { path: "/401", name: "unauthorized", component: Unauthorized, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
     { path: "/403", name: "forbidden", component: Forbidden, props: (to) => ({ url: to.query.url }) },
     { path: "/404", name: "notFound", component: NotFound, props: (to) => ({ url: to.query.url }), meta: { allowAnonymous: true } },
@@ -782,14 +785,27 @@ app.use(userPlugin)
 
 ```vue
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref, watch } from "vue"
 import { RouterView } from "vue-router"
 import { Feedback, LoadingContainer } from "regira_modules/vue/ui"
-import { LoginModal, LoginForm, useAuthStore } from "regira_modules/vue/auth"
+import { LoginModal, LoginForm, ForgotPasswordModal, useAuthStore } from "regira_modules/vue/auth"
+import ForgotPasswordForm from "@/components/users/ForgotPasswordForm.vue"
 import { AppStatus } from "regira_modules/vue/app"
 
 const authStore = useAuthStore()
 const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
+
+// LoginForm's "Forgot password?" button only EMITS — unhandled, it is a dead button
+const forgotUsername = ref<string>()
+const showForgot = ref(false)
+function handleForgotPassword(username?: string) {
+    forgotUsername.value = username
+    showForgot.value = true
+}
+// the v-if below only HIDES the recovery step; clear it too, or returning to a protected route reopens it
+watch(showLogin, (gateOpen) => {
+    if (!gateOpen) showForgot.value = false
+})
 </script>
 
 <template>
@@ -800,9 +816,13 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
 
     <!-- v-if, not :is-visible — unmounting removes mask + dialog atomically; a bound-but-mounted
          modal can strand its leave-transition and leave an invisible click-swallowing mask -->
-    <LoginModal v-if="showLogin" :title="$t('signIn')">
-        <LoginForm />
+    <LoginModal v-if="showLogin && !showForgot" :title="$t('signIn')">
+        <LoginForm @forgot-password="handleForgotPassword" />
     </LoginModal>
+    <!-- `showLogin &&` keeps the recovery modal from stranding over an app authenticated by another path -->
+    <ForgotPasswordModal v-if="showLogin && showForgot" :username="forgotUsername" @close="showForgot = false" v-slot="{ username }">
+        <ForgotPasswordForm :username="username" @login="showForgot = false" />
+    </ForgotPasswordModal>
 </template>
 ```
 
@@ -813,9 +833,10 @@ The full template wraps the same gates in Header / Main / Footer chrome and tele
 
 ```vue
 <script setup lang="ts">
-import { computed } from "vue"
+import { computed, ref, watch } from "vue"
 import { Feedback, LoadingContainer } from "regira_modules/vue/ui"
-import { LoginModal, LoginForm, useAuthStore } from "regira_modules/vue/auth"
+import { LoginModal, LoginForm, ForgotPasswordModal, useAuthStore } from "regira_modules/vue/auth"
+import ForgotPasswordForm from "@/components/users/ForgotPasswordForm.vue"
 import { AppStatus } from "regira_modules/vue/app"
 import TheHeader from "@/components/layout/TheHeader.vue"
 import TheFooter from "@/components/layout/TheFooter.vue"
@@ -823,6 +844,16 @@ import Main from "@/components/layout/Main.vue"
 
 const authStore = useAuthStore()
 const showLogin = computed(() => authStore.isRequired && !authStore.isAuthenticated)
+
+const forgotUsername = ref<string>()
+const showForgot = ref(false)
+function handleForgotPassword(username?: string) {
+    forgotUsername.value = username
+    showForgot.value = true
+}
+watch(showLogin, (gateOpen) => {
+    if (!gateOpen) showForgot.value = false
+})
 </script>
 
 <template>
@@ -842,7 +873,12 @@ const showLogin = computed(() => authStore.isRequired && !authStore.isAuthentica
         <footer class="container-fluid bg-light"><TheFooter /></footer>
 
         <Teleport to="#loginModal">
-            <LoginModal v-if="showLogin" :title="$t('signIn')"><LoginForm /></LoginModal>
+            <LoginModal v-if="showLogin && !showForgot" :title="$t('signIn')">
+                <LoginForm @forgot-password="handleForgotPassword" />
+            </LoginModal>
+            <ForgotPasswordModal v-if="showLogin && showForgot" :username="forgotUsername" @close="showForgot = false" v-slot="{ username }">
+                <ForgotPasswordForm :username="username" @login="showForgot = false" />
+            </ForgotPasswordModal>
         </Teleport>
     </div>
 </template>
@@ -939,8 +975,10 @@ disabled), make these four changes:
     await whenAppReady()
     ```
 
-3. **`App.vue` — drop the auth UI.** Remove `LoginModal`, `LoginForm`, `useAuthStore`, and the `$auth`
-   reference; gate the loading container on app status alone:
+3. **`App.vue` — drop the auth UI.** Remove `LoginModal`, `LoginForm`, `ForgotPasswordModal`, the
+   `ForgotPasswordForm` import and its `showForgot`/`forgotUsername` state, `useAuthStore`, and the `$auth`
+   reference; gate the loading container on app status alone. Drop `ResetPasswordView` and its
+   `/reset-password` route from `router/routes.ts` too — password recovery goes with the auth plugin:
 
     ```vue
     <script setup lang="ts">
@@ -997,11 +1035,22 @@ Full source for every generated file is in [entities.shell.template.md](entities
 sections below explain what it produces. The shell reads from the collected `$configs` and the runtime
 config, so data/logic stays in the entity slices and composables.
 
+> **These components are default implementations, not a prescribed design.** They land as app-owned
+> source: replace `Dashboard` / `NavBar` / `NavSearch` / `TheHeader` / `TheFooter` / `Main` / the views
+> outright with components of your own whenever the app calls for it — keep the _functionality_
+> (navigation built from `useNavigation()` over the config map, the search entry, feedback + loading, the
+> account surface, the error routes), not the markup. Take the generated ones as-is when no stronger
+> design is called for. Checklist:
+> [entities.shell.template.md](entities.shell.template.md) → _Default implementations, not requirements_.
+
 The baseline is intentionally lean; add the rest of the chrome on demand from the module guides — the
 **`AppModal`** wrapper ([ui.examples.md](../../ui/ai/ui.examples.md) → Modal), a **`LangSelector`**
 ([lang.examples.md](../../lang/ai/lang.examples.md) → language selector), an **`Offline`** banner
-([online.examples.md](../../online/ai/online.examples.md) → Offline banner component), and the fuller
-**`users/`** account UI — login, change password, admin list ([auth.examples.md](../../auth/ai/auth.examples.md)).
+([online.examples.md](../../online/ai/online.examples.md) → Offline banner component), and the rest of the
+**`users/`** account UI — an admin user list, a `LogoutForm` ([auth.examples.md](../../auth/ai/auth.examples.md)).
+The password surface is already wired by `--shell` on auth builds: sign in, forgot
+(`users/ForgotPasswordForm.vue` plus the `App.vue` modal), reset (`views/ResetPasswordView.vue`),
+change (`AccountView`) and sign out (the header).
 
 ### Add entities
 
@@ -1036,7 +1085,7 @@ in [entities.patterns.md — Entity selector / relation picker](entities.pattern
 | `entity-navigation/` | `Dashboard`, `NavBar`, `NavSearch` + `useNavigation()`                                  | built from the collected `$configs` via `importDashboard` / `importNavbar` / `buildNavigationTree` (see [entities.patterns.md — Navigation from the config map](entities.patterns.md#navigation-from-the-config-map)); `public/config.json → navigation` lists which groups/entities to show |
 | `input/`             | app-specific form inputs                                                                | the common `FormButtonsRow` (Save / Cancel / Delete / Restore row) and `DescriptionInput` ship in `vue/ui` — import them per-form                                                                                                                                                            |
 | `layout/`            | `TheHeader`, `TheFooter`, `Main`, `AppModal` (modal wrapper), `LangSelector`, `Offline` | the chrome around `<RouterView>`; `--shell` scaffolds `TheHeader` / `TheFooter` / `Main` — add `AppModal` ([ui](../../ui/ai/ui.examples.md)), `LangSelector` ([lang](../../lang/ai/lang.examples.md)), `Offline` ([online](../../online/ai/online.examples.md)) on demand                    |
-| `users/`             | account + auth UI (login, change password, admin list)                                  | add on demand when auth is enabled ([auth](../../auth/ai/auth.examples.md)); omit on the [no-auth path](#running-without-authentication)                                                                                                                                                     |
+| `users/`             | account + auth UI                                                                       | `--shell` scaffolds `ForgotPasswordForm.vue` (auth builds); add the admin user list / `LogoutForm` on demand ([auth](../../auth/ai/auth.examples.md)); omit the folder on the [no-auth path](#running-without-authentication)                                                                |
 
 Give each folder an `index.ts` barrel; keep the components thin and presentational — data/logic stays in
 the entity slices and composables.
@@ -1159,9 +1208,10 @@ defineProps<{ url?: string }>()
 </template>
 ```
 
-`Forbidden.vue` / `Unauthorized.vue` follow the same shape (a heading + the offending `url`). `AccountView`
-(auth builds only) is the signed-in user's account page — it hosts `ChangePasswordForm` from
-`regira_modules/vue/auth`; the full source is in
+`Forbidden.vue` / `Unauthorized.vue` follow the same shape (a heading + the offending `url`). Auth builds
+add two more: `AccountView` (the signed-in user's account page, hosting `ChangePasswordForm`) and
+`ResetPasswordView` (the recovery mail's landing page on `/reset-password`, hosting `ResetPasswordForm` —
+`allowAnonymous`, since the visitor cannot sign in yet). Full source for both is in
 [entities.shell.template.md](entities.shell.template.md).
 
 ### Styling — Bootstrap 5

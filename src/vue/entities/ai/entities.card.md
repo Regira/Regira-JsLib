@@ -13,6 +13,12 @@
 - **Default = the full reference scaffold, whatever the app type.** `scaffold.mjs --shell` once
   (`--no-auth` variant exists), `scaffold.mjs <Entity>` per entity; you edit only the eight `(c)` files.
   Pick a lighter tier only on an explicit user ask.
+- **The scaffolded views are default implementations — replace them with your own design freely, but keep
+  the functionality.** Custom shell/slice components are expected, not a deviation; what may not be lost is
+  the capability the replaced component provided (every entity manageable, paging + count + filter,
+  confirmed delete, related records openable, pooled labels, feedback, the full account surface when auth
+  is requested). The checklist:
+  `get_package("regira_modules.vue.entities", section: "entities.instructions")` → Functionality contract.
 - **The provided components, composables and patterns _are_ the product — they are how you ship a scalable,
   production-ready app with little code.** Reach for a built-in and restyle/wrap it; hand-rolling one is a
   deviation to declare: feedback (`useFeedback` + `<Feedback>`), tabs (`TabContainer` + `Tab.create`),

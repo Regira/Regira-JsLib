@@ -9,6 +9,15 @@ brief requires; at every layer the functionality is preserved by construction (b
 look doesn't fit — before writing a new component. Write a new component only when no built-in covers
 the functionality.
 
+**Scope of rule zero: the library's UI built-ins** — this guide's subject, whose behaviour (keyboard
+selection, debounce, paging math, focus/Esc handling) lives in the `use*` composables, so a from-scratch
+rewrite re-earns it the hard way. It does **not** govern the **scaffolded app-owned shell** —
+`layout/`, `entity-navigation/`, the views — which are _default implementations_ you may replace outright
+with your own design, as long as the functionality stays available (see the entities module's
+[shell template](../../entities/ai/entities.shell.template.md) → _Default implementations, not
+requirements_, and [entities.instructions.md](../../entities/ai/entities.instructions.md) →
+_Functionality contract_ for the capability checklist a replacement must satisfy).
+
 ⚠️ **`rg-*` and `--rg-*` are the library's namespace — never define your own.** Every `rg-` class and
 custom property in an app stylesheet must be a **hook the library already ships** (listed in L0/L1 below),
 overridden. Minting `.rg-card`, `.rg-badge`, `--rg-surface` and the like reads as library API and silently
