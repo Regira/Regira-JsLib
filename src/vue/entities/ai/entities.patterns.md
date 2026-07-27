@@ -545,7 +545,7 @@ Parent form binds it to the array: `<OrderLineOverview v-model="item.orderLines"
 > saved with its parent. Pooling still governs any **other entity a row displays** (a line's product, a
 > policy's department): resolve those through that slice's `fromPool` so an edit anywhere relabels them here.
 > Since `fromPool` runs the parent's `toEntity`, a pooled parent already carries lifted children. A child that
-> needs its own pool is not owned — see *Owned vs first-class child* below.
+> needs its own pool is not owned — see _Owned vs first-class child_ below.
 
 > ⚠️ **The field name must equal the back-end navigation's JSON key** — camelCase (`orderLines` for
 > `Order.OrderLines`), never derived from the child class name or the lowercase folder. A mismatch fails
@@ -963,7 +963,7 @@ scaffolded `overview/Overview.vue` and `details/Details.vue` re-run their load o
 ⚠️ **The rule generalises: anything that fetches on mount must also react to login.** A dashboard, report or
 home-page widget you write yourself mounts while the login modal is still open, short-circuits on
 `!isAuthenticated`, and nothing re-triggers it — a blank panel, no console error, no failed request. Use the
-hook below, or a watch, which also covers mounting *after* login:
+hook below, or a watch, which also covers mounting _after_ login:
 
 ```ts
 const authStore = useAuthStore()

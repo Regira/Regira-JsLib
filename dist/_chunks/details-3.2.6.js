@@ -20,7 +20,7 @@ function _(n, i = t()) {
 	}
 	let p = f(), m = r(() => !!a.currentRoute.value.name?.toString().includes("Form")), _ = r(() => !!a.currentRoute.value.name?.toString().includes("Fiche")), v = r(() => a.options.routes.flatMap((e) => [e, ...e.children || []]).some((e) => e.name == a.currentRoute.value.name?.toString().replace("Form", "Fiche")));
 	async function y() {
-		if (s.value) {
+		if (i.reset(), s.value) {
 			c.value = await n.newEntity({});
 			return;
 		}
@@ -31,7 +31,7 @@ function _(n, i = t()) {
 			console.error(`Fetching details failed for #${o.value}`, {
 				id: o.value,
 				ex: e
-			}), i.fail(`Fetching item #${o.value} failed`, e.response.status == 403 ? "Not allowed" : e.response.status == 404 ? "Not found" : e.response.data);
+			}), i.fail(`Fetching item #${o.value} failed`, e.response?.status == 403 ? "Not allowed" : e.response?.status == 404 ? "Not found" : e.response?.data || e.message);
 		} finally {
 			u.value = !1;
 		}

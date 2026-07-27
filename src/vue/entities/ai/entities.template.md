@@ -281,19 +281,19 @@ const { handleReset, handleUpdate, filterIsActive } = useFilter({ searchObject, 
 slots in order; delete the ones you don't use. Headers here and cells in `ListItem.vue` must carry
 **identical** classes, or the columns stop lining up.
 
-| Slot                             | Classes                      | Shown from |
-| -------------------------------- | ---------------------------- | ---------- |
-| edit affordance                  | `col-auto`                   | always     |
-| primary label (`$title`)         | `col text-truncate`          | always     |
-| 2nd field / 1st `--rel` relation | `col d-none d-md-block`      | ≥ md       |
-| 3rd field / 2nd relation         | `col d-none d-lg-block`      | ≥ lg       |
-| 4th field / 3rd relation         | `col d-none d-xl-block`      | ≥ xl       |
-| `created`                        | `col-2 d-none d-lg-block`    | ≥ lg       |
-| delete                           | `col-auto`                   | always     |
+| Slot                             | Classes                   | Shown from |
+| -------------------------------- | ------------------------- | ---------- |
+| edit affordance                  | `col-auto`                | always     |
+| primary label (`$title`)         | `col text-truncate`       | always     |
+| 2nd field / 1st `--rel` relation | `col d-none d-md-block`   | ≥ md       |
+| 3rd field / 2nd relation         | `col d-none d-lg-block`   | ≥ lg       |
+| 4th field / 3rd relation         | `col d-none d-xl-block`   | ≥ xl       |
+| `created`                        | `col-2 d-none d-lg-block` | ≥ lg       |
+| delete                           | `col-auto`                | always     |
 
 ⚠️ **`col-auto` sizes to its own content, so identical classes are not enough.** A header cell reading
 "Created" and a row cell reading "27/07/2026" sit **23px** apart, and every column after them shifts — by a
-different amount on every row. Use `col-auto` only where header and row render the *same* box: the two action
+different amount on every row. Use `col-auto` only where header and row render the _same_ box: the two action
 cells. Every data column takes a flexible `col` or a fixed grid width (`col-2`, `col-3`, …).
 
 ⚠️ **Never put a fixed `width` on a `.row` child.** Bootstrap gives `.row > *` `flex-shrink: 0` and
