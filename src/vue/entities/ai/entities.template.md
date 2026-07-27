@@ -288,14 +288,18 @@ slots in order; delete the ones you don't use. Headers here and cells in `ListIt
 | 2nd field / 1st `--rel` relation | `col d-none d-md-block`      | ≥ md       |
 | 3rd field / 2nd relation         | `col d-none d-lg-block`      | ≥ lg       |
 | 4th field / 3rd relation         | `col d-none d-xl-block`      | ≥ xl       |
-| `created`                        | `col-auto d-none d-lg-block` | ≥ lg       |
+| `created`                        | `col-2 d-none d-lg-block`    | ≥ lg       |
 | delete                           | `col-auto`                   | always     |
+
+⚠️ **`col-auto` sizes to its own content, so identical classes are not enough.** A header cell reading
+"Created" and a row cell reading "27/07/2026" sit **23px** apart, and every column after them shifts — by a
+different amount on every row. Use `col-auto` only where header and row render the *same* box: the two action
+cells. Every data column takes a flexible `col` or a fixed grid width (`col-2`, `col-3`, …).
 
 ⚠️ **Never put a fixed `width` on a `.row` child.** Bootstrap gives `.row > *` `flex-shrink: 0` and
 `.75rem` horizontal padding under `box-sizing: border-box`, so `style="width: 3rem"` leaves a **24px**
 content box while a library `ConfirmButton` / `IconButton` renders a 42px `.btn` — and neither shrinks, so
-the row pushes the page sideways. A cell holding one `.btn` needs **≥ 4.5rem**; for action cells just use
-bare `col-auto` and let it size to its content.
+the row pushes the page sideways. A cell holding one `.btn` needs **≥ 4.5rem**.
 
 ```vue
 <template>
@@ -312,12 +316,12 @@ bare `col-auto` and let it size to its content.
             <div class="col">{{ $t("name") }}</div>
             <!-- TODO: the 1–3 most important OTHER fields, in this reveal order (`scaffold.mjs --rel <Related>`
                  already wrote a header above for each relation). Uncomment what you use, rename the keys and
-                 add them to translations.json, delete the rest — no fourth slot, and never a width.
+                 add them to translations.json, delete the rest — no fourth slot, and never an inline `width`.
             <div class="col d-none d-md-block">{{ $t("code") }}</div>
             <div class="col d-none d-lg-block">{{ $t("status") }}</div>
             <div class="col d-none d-xl-block">{{ $t("owner") }}</div>
             -->
-            <div class="col-auto d-none d-lg-block">{{ $t("created") }}</div>
+            <div class="col-2 d-none d-lg-block">{{ $t("created") }}</div>
             <div class="col-auto">
                 <!-- mirrors ListItem's ConfirmButton (`btn` + Icon): the `.btn` box is what makes this
                      header cell the same width as the row's, so the trailing edges line up. `disabled`
@@ -383,7 +387,7 @@ const items = computed<Array<Entity>>({
         <div class="col d-none d-lg-block text-truncate">{{ item.status }}</div>
         <div class="col d-none d-xl-block text-truncate">{{ item.reference }}</div>
         -->
-        <div class="col-auto d-none d-lg-block text-truncate">{{ formatDate(item.created) }}</div>
+        <div class="col-2 d-none d-lg-block text-truncate">{{ formatDate(item.created) }}</div>
 
         <div class="col-auto">
             <ConfirmButton icon="delete" :modal-type="ModalType.danger" @confirm="$emit('request-remove', item)">

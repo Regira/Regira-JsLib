@@ -12,12 +12,12 @@
             <div class="col">{{ $t("name") }}</div>
             <!-- TODO: the 1–3 most important OTHER fields, in this reveal order (`scaffold.mjs --rel <Related>`
                  already wrote a header above for each relation). Uncomment what you use, rename the keys and
-                 add them to translations.json, delete the rest — no fourth slot, and never a width.
+                 add them to translations.json, delete the rest — no fourth slot, and never an inline `width`.
             <div class="col d-none d-md-block">{{ $t("code") }}</div>
             <div class="col d-none d-lg-block">{{ $t("status") }}</div>
             <div class="col d-none d-xl-block">{{ $t("owner") }}</div>
             -->
-            <div class="col-auto d-none d-lg-block">{{ $t("created") }}</div>
+            <div class="col-2 d-none d-lg-block">{{ $t("created") }}</div>
             <div class="col-auto">
                 <!-- mirrors ListItem's ConfirmButton (`btn` + Icon): the `.btn` box is what makes this
                      header cell the same width as the row's, so the trailing edges line up. `disabled`

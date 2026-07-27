@@ -19,7 +19,7 @@
         <div class="col d-none d-lg-block text-truncate">{{ item.status }}</div>
         <div class="col d-none d-xl-block text-truncate">{{ item.reference }}</div>
         -->
-        <div class="col-auto d-none d-lg-block text-truncate">{{ formatDate(item.created) }}</div>
+        <div class="col-2 d-none d-lg-block text-truncate">{{ formatDate(item.created) }}</div>
 
         <div class="col-auto">
             <ConfirmButton icon="delete" :modal-type="ModalType.danger" @confirm="$emit('request-remove', item)">

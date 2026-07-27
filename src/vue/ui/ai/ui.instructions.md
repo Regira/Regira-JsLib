@@ -91,8 +91,8 @@ sites keep the library `Icon` (re-map glyphs via `icons`/`source`, restyle via `
 ## Composables
 
 - `useFeedback({ autoHideDelay? })` → `FeedbackOut` (`status`, `message`, `error`, `isPending`,
-  `pending/success/fail/reset`). `isPending` is the busy flag to disable buttons against double-submits;
-  every setter requires a message.
+  `pending(msg)` / `success(msg)` / `fail(msg, err?)` / `reset()`). `isPending` is the busy flag to disable
+  buttons against double-submits; the message argument is **required** — `pending()` does not compile.
 - `useScreen()` → `{ size, screen }` where `screen` exposes `isSmall`…`isExtraExtraLarge`, `layout`,
   `isSize`. It is a **module-level shared instance** that owns a single debounced
   `resize`/`orientationchange` subscription, so it tracks the viewport with or without `screenPlugin`

@@ -459,7 +459,7 @@ function scaffoldOwned(childName, fieldName) {
     // that only appears in the wiring list below is a hint you can no longer act on cheaply.
     if (fieldName == null) {
         console.log(`! Owned ${childName}: defaulting its JSON key to "${childField}" — it must match the back-end navigation's camelCase key, which follows the C# property name, not the class name.`)
-        console.log(`  If they differ, stop here and re-run with --owns ${childName} --as <fieldName> (changing it afterwards needs --overwrite-slice).`)
+        console.log(`  If they differ, stop here and re-run with --owns ${childName} --as <fieldName> — correcting it later needs --overwrite-slice, which REPLACES the 8 (c) files you authored by then.`)
     }
     mkdirSync(childDest, { recursive: true })
     for (const entry of readdirSync(ownedSrcRoot, { withFileTypes: true })) {

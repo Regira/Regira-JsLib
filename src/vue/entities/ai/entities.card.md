@@ -69,12 +69,19 @@
 ## Relations & owned collections
 
 - **Editable child/join collections are owned, not independent.** Back-end `e.Related()` ⇒ edit the rows
-  inside the parent form with **`InputSelectorInline`**: chips mark _persisted_ removals `_deleted`
+  inside the parent form — **`InputSelectorInline`** chips when a row only points at another entity (a
+  join/link row), a table driven by **`useOwnedCollection`** when it carries its own fields (an order line, a
+  per-year policy). Either way removals of _persisted_ rows are marked `_deleted`
   (visible, tinted, undoable until save), a `prepareItem` override drops them so `Related()` deletes by
   omission — never flush per-row `DELETE`s. A row _added this session_ is removed outright — nothing to
   undo. The multi-`Selector` **hard-removes** and cannot deliver this UX. New rows
   mint negative temp ids, so children can be added before the parent's first save. The chip slot shows the
   related row's `FormModalButton` + pooled label (see the card's related-entity rule), not bare text.
+  ⚠️ **`useOwnedCollection` hands the view raw rows**: only the root item passes through `toEntity`, and its
+  add-row is a literal `{ id: 0 }`, never a model instance — class getters read `undefined` and defaults are
+  absent. Lift the collection in the **owning** service's `toEntity` (one override, every read path); the
+  add-row is minted by the composable and reaches no `toEntity`, so seed it on **every** reset — `handleSave`
+  re-mints `{ id: 0 }` after each append. Keep per-row computations in plain functions either way.
 - **Relation picks go through the entity `InputSelector`** (server-side search + pooled cache — scales
   past one page). It already composes **create + autocomplete + browse**: a `FormModalButton` (create on
   the spot), an `Autocomplete` (type a known name) and a `SelectorModalButton` (browse modal with the full
@@ -88,6 +95,11 @@
 PagingInfo(pageSize?, page?)` — positional args, not an options object; `service.search(so?)` — paging
   travels _inside_ the search object; `Tab.create("form", { title: translate("form"), icon })` — tab
   titles render untranslated.
+- **Anything that fetches on mount must also react to login.** A view mounted while the login modal is still
+  open short-circuits on `!isAuthenticated` and nothing retries it — a blank panel with no error and no failed
+  request. The scaffolded `Overview`/`Details` carry an `authStore.$onAction(… "login" …)` hook for this; a
+  view you write needs its own (a `watch` on `isAuthenticated` with `immediate: true` also covers
+  mount-after-login).
 - **Login can switch the language.** The scaffolded `main.ts` applies the JWT culture claim
   (`setLangCode(auth.culture.split("-")[0])`), so an app translated in one language silently degrades to
   raw keys after login when the user's culture differs. Provide translations for every `langs` entry and

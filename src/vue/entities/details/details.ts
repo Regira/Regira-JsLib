@@ -62,6 +62,10 @@ export function useDetails<T extends IEntity>(entityService: IEntityService<T>, 
     )
 
     async function setItem() {
+        // A load starts from a clean slate: a details page typically fails once while anonymous (deep link,
+        // token still being restored) and is retried after login, and without this the retry succeeds behind
+        // the previous failure's banner — a correctly loaded page showing an error.
+        feedback.reset()
         if (isNew.value) {
             item.value = await entityService.newEntity({})
             return
@@ -73,9 +77,11 @@ export function useDetails<T extends IEntity>(entityService: IEntityService<T>, 
             item.value = await entityService.details(routeId.value, { archived: ArchivedFilter.included })
         } catch (ex: any) {
             console.error(`Fetching details failed for #${routeId.value}`, { id: routeId.value, ex })
+            // Optional chaining: a network/CORS failure carries no response, and reading through it here
+            // throws out of the catch block — replacing the message with an unhandled rejection.
             feedback.fail(
                 `Fetching item #${routeId.value} failed`,
-                ex.response.status == 403 ? "Not allowed" : ex.response.status == 404 ? "Not found" : ex.response.data
+                ex.response?.status == 403 ? "Not allowed" : ex.response?.status == 404 ? "Not found" : ex.response?.data || ex.message
             )
         } finally {
             isLoading.value = false

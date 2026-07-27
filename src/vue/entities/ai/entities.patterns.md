@@ -501,6 +501,52 @@ const { items, newItem, handleSave } = useOwnedCollection<OrderLine>({ props, em
 
 Parent form binds it to the array: `<OrderLineOverview v-model="item.orderLines" />`.
 
+> ⚠️ **The rows are raw objects, not model instances.** `items` comes straight off `props.modelValue` and only
+> the **root** item passes through `toEntity`, so a stored child arrives as the plain JSON the API sent; and
+> `newItem` is minted as a literal `{ id: 0 }`, never `new Child()`. Class getters read `undefined` and field
+> defaults are absent — the scaffolded editor only works because it binds plain scalars.
+>
+> **Lift the collection in the parent service's `toEntity`** — the one hook every read path already goes
+> through (`details`/`list`/`search` all call it, and so does `fromPool`), so one override covers the whole
+> slice:
+>
+> ```ts
+> // data/EntityService.ts — the owning entity's service
+> override toEntity(item: object): Entity {
+>     const entity = item instanceof Entity ? item : Object.assign(this.createInstance(Entity), item || {})
+>     // OrderLine.create is the child's named constructor (scaffolded with the owned slice); map to a NEW
+>     // array — the incoming one belongs to the caller's payload
+>     entity.orderLines = entity.orderLines?.map((row) => OrderLine.create(row))
+>     return entity
+> }
+> ```
+>
+> Two details: guard for absence (`?.`) because `toEntity` also runs for `newEntity({})`, where the collection
+> is missing; and call the factory from an arrow rather than passing it to `map` bare, so `map`'s index
+> argument can never land on a second parameter.
+>
+> ⚠️ **That covers the stored rows, not the add-row.** `newItem` never passes through any `toEntity` — it is
+> minted by the composable — so if it needs defaults or a real prototype, seed it after **both** mount and
+> every add, because `handleSave` calls `resetNewItem()` on each successful append and puts a bare
+> `{ id: 0 }` back:
+>
+> ```ts
+> watch(newItem, (row) => row && !(row instanceof OrderLine) && (newItem.value = OrderLine.create(row)))
+> ```
+>
+> Or skip `newItem` altogether, as the demo apps do: add through the child's `FormModalButton` with
+> `defaultValues`, and `handleSave` appends the result.
+>
+> Either way, keep per-row computations in **plain functions** (`lineTotal(row)`) rather than model getters:
+> that stays correct whichever shape a row happens to have.
+>
+> Lifting in `toEntity` is not the `Object.assign` snapshot the pooling rule warns about: an owned row has no
+> pool to go stale against — no `.For<>()`, no service, no store, so nothing is keyed by its type — and it is
+> saved with its parent. Pooling still governs any **other entity a row displays** (a line's product, a
+> policy's department): resolve those through that slice's `fromPool` so an edit anywhere relabels them here.
+> Since `fromPool` runs the parent's `toEntity`, a pooled parent already carries lifted children. A child that
+> needs its own pool is not owned — see *Owned vs first-class child* below.
+
 > ⚠️ **The field name must equal the back-end navigation's JSON key** — camelCase (`orderLines` for
 > `Order.OrderLines`), never derived from the child class name or the lowercase folder. A mismatch fails
 > **silently**: no type error, no runtime error — the collection just never round-trips and nothing
@@ -666,7 +712,7 @@ protected override prepareItem(item: Owner): Owner {
 ## Form validation & error handling
 
 `useForm` returns the `feedback: FeedbackOut` it drives (`status`/`message`/`error` refs +
-`pending`/`success`/`fail`/`reset`). `handleSubmit` already calls `pending("Saving…")` → `success("Saved")`,
+`pending(msg)`/`success(msg)`/`fail(msg, err?)`/`reset()`). `handleSubmit` already calls `pending("Saving…")` → `success("Saved")`,
 or on failure `fail(...)` **and re-throws** — so wrap the call. The failure mapping is fixed:
 
 | HTTP status | `feedback.message` | `feedback.error`                                                 |
@@ -912,8 +958,19 @@ pooling has already seen.
 ## Auth reload hooks (login-driven refresh)
 
 In an auth-enabled app, data requested before the user logs in fails or comes back empty, so the
-scaffolded `overview/Overview.vue` and `details/Details.vue` re-run their load on login. Slices
-scaffolded with `--no-auth` have these hooks stripped — and because `load` is destructured from
+scaffolded `overview/Overview.vue` and `details/Details.vue` re-run their load on login.
+
+⚠️ **The rule generalises: anything that fetches on mount must also react to login.** A dashboard, report or
+home-page widget you write yourself mounts while the login modal is still open, short-circuits on
+`!isAuthenticated`, and nothing re-triggers it — a blank panel, no console error, no failed request. Use the
+hook below, or a watch, which also covers mounting *after* login:
+
+```ts
+const authStore = useAuthStore()
+watch(() => authStore.isAuthenticated, load, { immediate: true })
+```
+
+Slices scaffolded with `--no-auth` have these hooks stripped — and because `load` is destructured from
 `useDetails` **only** to feed the Details hook, `--no-auth` also drops `load` from that destructure
 (Overview's `searchHandler` stays: `useRouteOverview` uses it regardless). Re-add both the hook and its
 binding when the app enables the auth plugin later:
