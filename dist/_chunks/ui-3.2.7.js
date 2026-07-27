@@ -1,15 +1,15 @@
 import { isEmail as e, isIP as t, isPhone as n } from "../utilities/string-utility.js";
 import { debounceToPromise as r } from "../utilities/promise-utility.js";
-import { n as i, t as a } from "./clipboard-utility-3.2.6.js";
+import { n as i, t as a } from "./clipboard-utility-3.2.7.js";
 import { useEventListener as o, useVModelField as s } from "../vue/vue-helper.js";
-import { a as c, n as l } from "./modal-3.2.6.js";
-import { t as u } from "./Icon-3.2.6.js";
-import { t as d } from "./IconButton-3.2.6.js";
-import { n as f } from "./ioc-3.2.6.js";
-import { t as p } from "./_plugin-vue_export-helper-3.2.6.js";
-import { r as m } from "./feedback-3.2.6.js";
+import { a as c, n as l } from "./modal-3.2.7.js";
+import { t as u } from "./Icon-3.2.7.js";
+import { t as d } from "./IconButton-3.2.7.js";
+import { n as f } from "./ioc-3.2.7.js";
+import { t as p } from "./_plugin-vue_export-helper-3.2.7.js";
+import { r as m } from "./feedback-3.2.7.js";
 import { dateInputString as h } from "../vue/formatters/index.js";
-import "./icons-3.2.6.js";
+import "./icons-3.2.7.js";
 import { Fragment as g, Teleport as _, computed as v, createBlock as y, createCommentVNode as b, createElementBlock as x, createElementVNode as S, createTextVNode as C, createVNode as w, defineComponent as T, getCurrentInstance as E, inject as D, isRef as ee, mergeDefaults as O, mergeModels as k, mergeProps as te, normalizeClass as A, normalizeStyle as j, onMounted as ne, onUnmounted as re, openBlock as M, ref as N, renderList as P, renderSlot as F, resolveComponent as I, resolveDirective as L, resolveDynamicComponent as R, toDisplayString as z, toRefs as ie, unref as B, useModel as ae, vModelText as oe, vShow as se, watch as V, watchEffect as ce, withCtx as H, withDirectives as U, withKeys as W, withModifiers as G } from "vue";
 import { useRouter as le } from "vue-router";
 import { isValid as ue } from "date-fns";
@@ -481,7 +481,7 @@ var me = { class: "loading list-group-item" }, he = ["onClick"], ge = { key: 0 }
 	emits: ["update:modelValue", "change"],
 	setup(e, { emit: t }) {
 		let n = t, r = e, i = N(null), a = N(((e) => {
-			if (e != null) return typeof e == "string" ? e === "true" ? !0 : e === "false" ? !1 : void 0 : new Boolean(e).valueOf();
+			if (e != null) return typeof e == "string" ? e === "true" || e !== "false" && void 0 : new Boolean(e).valueOf();
 		})(r.modelValue)), o = v({
 			get() {
 				return a.value;
@@ -491,7 +491,7 @@ var me = { class: "loading list-group-item" }, he = ["onClick"], ge = { key: 0 }
 			}
 		}), s = v(() => ({ opacity: o.value == null ? .5 : 1 }));
 		function c() {
-			o.value = o.value == null ? !0 : o.value ? !1 : void 0;
+			o.value = o.value == null || !o.value && void 0;
 		}
 		return ce(() => i.value && (i.value.indeterminate = o.value === void 0)), (e, t) => (M(), x("input", {
 			type: "checkbox",

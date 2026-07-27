@@ -1,14 +1,14 @@
-import { S as e } from "../../_chunks/array-utility-3.2.6.js";
+import { S as e } from "../../_chunks/array-utility-3.2.7.js";
 import { debounceToPromise as t } from "../../utilities/promise-utility.js";
-import { t as n } from "../../_chunks/treelist-3.2.6.js";
-import { o as r } from "../../_chunks/ioc-3.2.6.js";
+import { t as n } from "../../_chunks/treelist-3.2.7.js";
+import { o as r } from "../../_chunks/ioc-3.2.7.js";
 import { isNewEntity as i } from "./abstractions/IEntity.js";
-import { a, c as o, d as s, i as c, l, n as u, o as d, r as f, s as p, t as m, u as h } from "../../_chunks/abstractions-3.2.6.js";
-import { t as g } from "../../_chunks/ISearchObject-3.2.6.js";
-import { a as ee } from "../../_chunks/feedback-3.2.6.js";
-import { n as te, t as ne } from "../../_chunks/details-3.2.6.js";
-import { a as re, c as ie, i as ae, l as oe, n as se, o as ce, r as le, s as _, t as v, u as y } from "../../_chunks/form-3.2.6.js";
-import "../../_chunks/ui-3.2.6.js";
+import { a, c as o, d as s, i as c, l, n as u, o as d, r as f, s as p, t as m, u as h } from "../../_chunks/abstractions-3.2.7.js";
+import { t as g } from "../../_chunks/ISearchObject-3.2.7.js";
+import { a as ee } from "../../_chunks/feedback-3.2.7.js";
+import { n as te, t as ne } from "../../_chunks/details-3.2.7.js";
+import { a as re, c as ie, i as ae, l as oe, n as se, o as ce, r as le, s as _, t as v, u as y } from "../../_chunks/form-3.2.7.js";
+import "../../_chunks/ui-3.2.7.js";
 import { Fragment as ue, computed as b, createCommentVNode as de, createElementBlock as x, createElementVNode as S, defineComponent as C, mergeDefaults as fe, onMounted as w, openBlock as T, ref as E, renderList as pe, renderSlot as D, toDisplayString as O, toRaw as me, unref as k, watch as he, withModifiers as ge } from "vue";
 import { useRouter as _e } from "vue-router";
 //#region src/vue/entities/config/EntityDescriptor.ts
@@ -631,7 +631,7 @@ function Le(e, t) {
 function Re(e) {
 	let t = E(), r = E(), i = e?.equals || Le, a = b(() => t.value?.filter((e) => r.value?.some((t) => i(e.value, t))) || []), o = b(() => a.value.flatMap((e) => e.getAncestors())), s = b(() => a.value.flatMap((e) => e.getOffspring())), c = b(() => [...new Set(a.value.flatMap((e) => e.getAncestors()).concat(a.value).concat(a.value.flatMap((e) => e.getOffspring())))]);
 	function l(e, i, a) {
-		r.value = e, t.value = new n().init(i.map((e) => me(e)), a), t.value.filter((e) => e.parent == null ? !1 : e.parent.getOffspring().some((t) => t != e && t.value == e.value)).forEach((e) => t.value.remove(e));
+		r.value = e, t.value = new n().init(i.map((e) => me(e)), a), t.value.filter((e) => e.parent != null && e.parent.getOffspring().some((t) => t != e && t.value == e.value)).forEach((e) => t.value.remove(e));
 	}
 	return {
 		tree: t,

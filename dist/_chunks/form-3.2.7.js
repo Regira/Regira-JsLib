@@ -1,10 +1,10 @@
-import { F as e, _ as t } from "./array-utility-3.2.6.js";
+import { F as e, _ as t } from "./array-utility-3.2.7.js";
 import { useVModelField as n } from "../vue/vue-helper.js";
-import { t as r } from "./IconButton-3.2.6.js";
+import { t as r } from "./IconButton-3.2.7.js";
 import { isNewEntity as i } from "../vue/entities/abstractions/IEntity.js";
-import "./abstractions-3.2.6.js";
-import { t as a } from "./ISearchObject-3.2.6.js";
-import { a as o } from "./feedback-3.2.6.js";
+import "./abstractions-3.2.7.js";
+import { t as a } from "./ISearchObject-3.2.7.js";
+import { a as o } from "./feedback-3.2.7.js";
 import { Fragment as s, computed as c, createElementBlock as l, createElementVNode as u, createVNode as d, defineComponent as f, getCurrentInstance as p, guardReactiveProps as m, mergeModels as h, mergeProps as g, normalizeClass as _, normalizeProps as v, onMounted as y, openBlock as b, ref as x, renderList as S, renderSlot as C, toRaw as w, unref as T, useModel as E, watch as D } from "vue";
 import { useRouter as O } from "vue-router";
 //#region src/vue/entities/form/form.ts
@@ -201,7 +201,11 @@ function L({ props: e, emit: r }) {
 		r("sort", e);
 	};
 	function l({ saved: e, isNew: n }) {
-		n && (e.id = Math.min(t(i.value, (e) => e.id) ?? 0, 0) - 1, i.value = i.value.concat([e]), s());
+		if (n) {
+			e.id = Math.min(t(i.value, (e) => e.id) ?? 0, 0) - 1;
+			let n = i.value.concat([e]);
+			i.value = n, s();
+		}
 	}
 	return D(() => e.modelValue, () => i.value = e.modelValue || []), y(async () => {
 		i.value = e.modelValue || [], await s();

@@ -17,7 +17,7 @@ declare const __VLS_export: <T extends {
     slots: InputSelectorInlineSlots<T>;
     emit: InputSelectorInlineEmits<T> & ((event: "update:modelValue", value: T[] | undefined) => void);
 }>) => import("vue").VNode & {
-    __ctx?: Awaited<typeof __VLS_setup>;
+    __ctx?: NonNullable<Awaited<typeof __VLS_setup>>;
 };
 declare const _default: typeof __VLS_export;
 export default _default;

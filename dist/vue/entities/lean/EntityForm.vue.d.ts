@@ -12,7 +12,7 @@ declare const __VLS_export: <T extends IEntity>(__VLS_props: NonNullable<Awaited
     slots: LeanFormSlots<T>;
     emit: LeanFormEmits<T>;
 }>) => import("vue").VNode & {
-    __ctx?: Awaited<typeof __VLS_setup>;
+    __ctx?: NonNullable<Awaited<typeof __VLS_setup>>;
 };
 declare const _default: typeof __VLS_export;
 export default _default;

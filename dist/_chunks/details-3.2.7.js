@@ -1,5 +1,5 @@
-import { t as e } from "./ISearchObject-3.2.6.js";
-import { a as t } from "./feedback-3.2.6.js";
+import { t as e } from "./ISearchObject-3.2.7.js";
+import { a as t } from "./feedback-3.2.7.js";
 import { Fragment as n, computed as r, createElementBlock as i, createElementVNode as a, createVNode as o, defineComponent as s, normalizeClass as c, onMounted as l, openBlock as u, ref as d, renderList as f, resolveComponent as p, toDisplayString as m, watch as h } from "vue";
 import { useRouter as g } from "vue-router";
 //#region src/vue/entities/details/details.ts

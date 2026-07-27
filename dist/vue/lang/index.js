@@ -57,7 +57,8 @@ function v() {
 var y = { install(e, t) {
 	let n = a(!1), { fallbackLangCode: r, translate: i, translateMessage: o, setLangCode: s, replaceMessages: c } = v();
 	s(t.defaultLang ?? "en"), r.value = t.defaultLang ?? "en", typeof t.messages == "function" ? l(async () => {
-		c(await t.messages()), n.value = !0;
+		let e = await t.messages();
+		c(e), n.value = !0;
 	}) : (c(t.messages), n.value = !0), e.config.globalProperties.$t = (e, t) => n.value ? i(e, t) : "", e.config.globalProperties.$tm = (e, t) => o(e, t);
 } }, b = { class: "rg-lang-selector list-inline d-inline mb-0" }, x = ["onClick"], S = /* @__PURE__ */ n({
 	__name: "LangSelector",

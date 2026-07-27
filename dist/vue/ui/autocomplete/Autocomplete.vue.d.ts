@@ -27,7 +27,7 @@ declare const __VLS_export: <T>(__VLS_props: NonNullable<Awaited<typeof __VLS_se
     slots: AutocompleteSlots<T>;
     emit: AutocompleteEmits<T, (string | number) | T>;
 }>) => import("vue").VNode & {
-    __ctx?: Awaited<typeof __VLS_setup>;
+    __ctx?: NonNullable<Awaited<typeof __VLS_setup>>;
 };
 type __VLS_PrettifyLocal<T> = (T extends any ? {
     [K in keyof T]: T[K];

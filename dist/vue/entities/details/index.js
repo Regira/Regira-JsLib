@@ -1,2 +1,2 @@
-import { n as e, t } from "../../../_chunks/details-3.2.6.js";
+import { n as e, t } from "../../../_chunks/details-3.2.7.js";
 export { t as DetailsSummary, e as default, e as useDetails };
