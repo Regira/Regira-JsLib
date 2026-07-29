@@ -74,7 +74,7 @@ also exports `daysDiff`.
 ## HTTP & URLs (`httpUtility`)
 
 `toQueryString(obj, includeNulls?)` (nested objects → `key[child]`, arrays → repeated keys; nulls dropped
-unless `includeNulls`), `getQueryStringParams`, `isLocalHost`, `getHttpsUrl`/`forceHttps`. The source file
+unless `includeNulls`; a `Date` → ISO-8601 with the local offset, an **invalid** `Date` → key omitted), `getQueryStringParams`, `isLocalHost`, `getHttpsUrl`/`forceHttps`. The source file
 also exports `isHttps`, `tryCreateValidURL`, and `toAbsoluteUrl`. For the app's actual request layer use
 [`regira_modules/vue/http`](../../vue/http/ai/http.instructions.md) instead.
 

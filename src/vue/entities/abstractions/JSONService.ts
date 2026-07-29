@@ -6,6 +6,7 @@ import EntityServiceBase from "./EntityServiceBase"
 import type { SearchResult } from "./IEntityService"
 import type { ISearchObject } from "./ISearchObject"
 import type { IPagingInfo } from "./PagingInfo"
+import type { ISortByInfo } from "./SortByInfo"
 
 const cache = new Map<string, any>()
 
@@ -39,13 +40,15 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
         }
         return undefined
     }
-    public override async list(so?: ISearchObject & IPagingInfo): Promise<T[]> {
+    /** `sortBy` is accepted for signature parity with the base but ignored: ordering here is the JSON document's own. */
+    public override async list(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<T[]> {
         const searchObject = this.processSearchObject(so)
         const items = query(await this.fetchJSONItems(), searchObject as unknown as Partial<T>)
         const pageSize = typeof so?.pageSize === "undefined" ? this.config.defaultPageSize : so.pageSize
         return pageSize || 0 > 0 ? page(items, pageSize, Math.max(so?.page || 0, 1) - 1) : items
     }
-    public override async search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>> {
+    /** `sortBy` is accepted for signature parity with the base but ignored (see `list`). */
+    public override async search(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<SearchResult<T>> {
         const searchObject = this.processSearchObject(so)
         const count = query(await this.fetchJSONItems(), searchObject as unknown as Partial<T>).length
         return {

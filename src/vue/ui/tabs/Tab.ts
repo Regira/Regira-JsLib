@@ -22,7 +22,13 @@ export class Tab implements ITab {
         this.isVisible = isVisible
     }
 
-    static create(title: string, values?: object) {
-        return Object.assign(new Tab(title), values || {})
+    /**
+     * `Tab.create("form", { title: translate("form"), icon })`. The first argument is the **key** — the value
+     * that ends up in the route hash and must therefore stay stable — and it doubles as the title only until
+     * `values.title` overrides it. It is named `key` because that is what survives: a `title` passed in
+     * `values` replaces the label, never the key.
+     */
+    static create(key: string, values?: object) {
+        return Object.assign(new Tab(key), values || {})
     }
 }

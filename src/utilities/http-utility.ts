@@ -1,3 +1,4 @@
+import { stringifyDate } from "./datetime-utility"
 import { redirect as htmlRedirect } from "./html-utility"
 import { trim } from "./string-utility"
 
@@ -59,17 +60,26 @@ export const toAbsoluteUrl = (relative: string, baseUrl?: string) => {
 }
 
 export const toQueryString = (obj: Record<string, unknown>, includeNulls = false) => {
-    const getUriComponent = (key: string, value: unknown) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
+    // A Date is stringified with stringifyDate (local wall clock + offset, matching request bodies): the
+    // default coercion emits "Wed Jul 29 2026 07:00:00 GMT+0200 (…)", which a DateTime model binder 400s on.
+    // It must also be caught before the object branch below, which would otherwise walk its (empty) own
+    // properties and drop the value silently. An INVALID Date yields undefined and the pair is omitted —
+    // "?from=" binds to default on the server, i.e. a wrong result set that looks like a successful filter.
+    const serializeValue = (value: unknown): string | undefined => (value instanceof Date ? stringifyDate(value) : String(value))
+    const toPair = (key: string, value: unknown): string[] => {
+        const serialized = serializeValue(value)
+        return serialized === undefined ? [] : [`${encodeURIComponent(key)}=${encodeURIComponent(serialized)}`]
+    }
     const serialize = (obj: Record<string, unknown>, prefix?: string): string[] => {
         return Object.entries(obj)
             .filter((e) => includeNulls || e[1] != null)
             .flatMap(([key, value]) => {
                 const fullKey = prefix ? `${prefix}[${key}]` : key
                 return Array.isArray(value)
-                    ? value.map((v) => getUriComponent(fullKey, v)) // array
-                    : typeof value === "object" && value !== null
+                    ? value.flatMap((v) => toPair(fullKey, v)) // array
+                    : typeof value === "object" && value !== null && !(value instanceof Date)
                       ? serialize(value as Record<string, unknown>, fullKey) // object
-                      : [getUriComponent(fullKey, value)] // normal key-value
+                      : toPair(fullKey, value) // normal key-value
             })
     }
     return serialize(obj).join("&")

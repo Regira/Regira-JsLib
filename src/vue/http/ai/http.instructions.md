@@ -45,6 +45,13 @@ Both are attached to the instance _and_ exported as functions:
 `createQueryString(obj)` → `URLSearchParams`, appending **array values as repeated keys**
 (`includes=A&includes=B`). The entities service uses it to build list/search URLs.
 
+⚠️ **A `Date` serializes as ISO-8601 with the local offset** (`2026-07-29T07:00:00.000+02:00`) — the same
+wall-clock convention `dateExtensions.use()` gives request bodies, and what ASP.NET Core's `DateTime` binder
+expects. This has to happen here: a body goes through `JSON.stringify` (so `Date.prototype.toJSON` applies),
+a query string never does, so the default coercion would emit `"Wed Jul 29 2026 07:00:00 GMT+0200 (…)"` and
+the request would 400 at model binding. An **invalid** `Date` omits its key rather than sending `?from=`,
+which the server would bind to `default`.
+
 ## Gotchas
 
 - **Init before use.** `useAxios()` throws when uninitialized — its error text mistakenly says

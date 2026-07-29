@@ -192,29 +192,35 @@ function I({ props: e, emit: t }) {
 }
 //#endregion
 //#region src/vue/entities/form/ownedCollections.ts
-function L({ props: e, emit: r }) {
-	let i = n(e, r), a = () => ({ id: 0 }), o = x();
-	async function s() {
-		o.value = a();
+function L({ props: e, emit: r, createRow: i }) {
+	let a = n(e, r), o = c({
+		get: () => a.value ?? [],
+		set: (e) => a.value = e
+	}), s = () => {
+		let e = i?.() ?? {};
+		return e.id = 0, e;
+	}, l = x();
+	async function u() {
+		l.value = s();
 	}
-	let c = (e) => {
+	let d = (e) => {
 		r("sort", e);
 	};
-	function l({ saved: e, isNew: n }) {
+	function f({ saved: e, isNew: n }) {
 		if (n) {
-			e.id = Math.min(t(i.value, (e) => e.id) ?? 0, 0) - 1;
-			let n = i.value.concat([e]);
-			i.value = n, s();
+			e.id = Math.min(t(o.value, (e) => e.id) ?? 0, 0) - 1;
+			let n = o.value.concat([e]);
+			o.value = n, u();
 		}
 	}
-	return D(() => e.modelValue, () => i.value = e.modelValue || []), y(async () => {
-		i.value = e.modelValue || [], await s();
+	return D(() => e.modelValue, () => o.value = e.modelValue || []), y(async () => {
+		o.value = e.modelValue || [], await u();
 	}), {
-		items: i,
-		newItem: o,
-		resetNewItem: s,
-		handleSort: c,
-		handleSave: l
+		items: o,
+		newItem: l,
+		resetNewItem: u,
+		handleSort: d,
+		handleSave: f
 	};
 }
 //#endregion

@@ -1,7 +1,7 @@
 import { EntityBase } from "regira_modules/vue/entities"
 
 export class __Entity__ extends EntityBase {
-    id: number = 0
+    id: number = 0 // Guid/string-keyed API entity → `id: string = ""`; the rest of the entity slice is key-generic (owned child rows stay int)
     title = "" // placeholder label — rename/remove it here AND in the (c) views that bind it (Form, List/ListItem, SelectorList)
     // TODO: your fields — initialize non-optional ones (strictPropertyInitialization); optional ones get `?`, e.g.
     // code?: string

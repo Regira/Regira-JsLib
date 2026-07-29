@@ -11,7 +11,7 @@
 | `useAxios()`                             | Get that singleton anywhere (throws if not yet initialized).                                               |
 | `getFile(url, …)`                        | Download a `Blob`; resolves filename/type from response headers.                                           |
 | `upload(url, files, options?)`           | `multipart/form-data` upload (field name defaults to `file`).                                              |
-| `createQueryString(obj)`                 | Build `URLSearchParams`; arrays become repeated keys.                                                      |
+| `createQueryString(obj)`                 | Build `URLSearchParams`; arrays → repeated keys, `Date` → ISO-8601 + local offset (invalid → omitted).     |
 | `AxiosWithFilesInstance`                 | The augmented axios type (plain axios + `getFile`/`upload`).                                               |
 
 ## How it fits

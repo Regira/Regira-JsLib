@@ -171,7 +171,7 @@ export declare const getHttpsUrl: (url: string) => string
 export declare const forceHttps: (currentUrl: string) => void
 export declare function tryCreateValidURL(input: string): string // file only
 export declare const toAbsoluteUrl: (relative: string, baseUrl?: string) => string // file only
-export declare const toQueryString: (obj: Record<string, unknown>, includeNulls?: boolean) => string
+export declare const toQueryString: (obj: Record<string, unknown>, includeNulls?: boolean) => string // Date → ISO-8601 + local offset; invalid Date → key omitted
 export declare const getQueryStringParams: (url?: string) => { [k: string]: string }
 ```
 

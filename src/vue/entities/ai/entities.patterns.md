@@ -481,8 +481,11 @@ import OrderLine from "./Entity" // the child row model — a plain EntityBase w
 
 const props = defineProps<{ modelValue?: Array<OrderLine> }>()
 const emit = defineEmits<{ "update:modelValue": [Array<OrderLine>] }>()
-// items: writable computed over the collection · newItem: a blank row · handleSave: appends newItem with a negative temp id
-const { items, newItem, handleSave } = useOwnedCollection<OrderLine>({ props, emit })
+// items: writable computed over the collection (never undefined — [] until the parent has one)
+// newItem: the add-row · handleSave: appends it with a negative temp id and mints the next one
+// createRow: mints the add-row from the model, so its field defaults and getters are present — the add-row
+//            never passes through toEntity, so without this it is a bare { id: 0 } and defaults are missing
+const { items, newItem, handleSave } = useOwnedCollection<OrderLine>({ props, emit, createRow: () => new OrderLine() })
 </script>
 
 <template>
@@ -1080,8 +1083,9 @@ export class Article extends EntityBase {
 > `number`, but Regira APIs accept them **by name** in the query string — pass the enum member name(s),
 > e.g. `includes: ["Categories"]`, not the numeric value. The valid names are the enum members in the
 > OpenAPI schema (what the back-end `EntityIncludes` defines); verify them against your API rather than
-> guessing (an unknown include name returns `400`) — when unsure, `includes: ["All"]` is the safe
-> catch-all that eager-loads every relation. Keep a small `const` map on the client for these
+> guessing (an unknown include name returns `400`) — `includes: ["All"]` is the catch-all, and a **last
+> resort**: it eager-loads every gated collection onto every list row, so name the one flag you need.
+> (`All` also has to be declared by that enum, or it 400s like any other unknown name.) Keep a small `const` map on the client for these
 > instead of the generated numeric type. (Run the generator via `npx openapi-typescript` to avoid TS
 > peer-dep conflicts; see the tsconfig note in [entities.setup.md](entities.setup.md#install).)
 

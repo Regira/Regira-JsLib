@@ -74,12 +74,21 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         }
         throw response
     }
-    public async list(so?: ISearchObject & IPagingInfo): Promise<Array<T>> {
+    /**
+     * `GET {listUrl}` — uncounted rows. Paging and sorting ride **this argument**, flat, not the
+     * `SearchObject` class: `list({ ...so, pageSize: 0, sortBy: ["TitleDesc"] })`. `ISearchObject` extends
+     * `Record<string, any>`, so any other key reaches the query string too (arrays as repeated keys).
+     */
+    public async list(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<Array<T>> {
         const { items } = await this.fetchItems<ListResult<T>>(this.requireUrl(this.config.listUrl, "listUrl"), so)
 
         return items.map((item) => this.processItem(item)!)
     }
-    public async search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>> {
+    /**
+     * `GET {searchUrl}` — rows **plus `count`**, on simple and complex entities alike. Paging and sorting
+     * ride this argument, flat: `search({ ...so, pageSize: 25, page: 2, sortBy: ["Created"] })`.
+     */
+    public async search(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<SearchResult<T>> {
         const { items, count } = await this.fetchItems<SearchResult<T>>(this.requireUrl(this.config.searchUrl, "searchUrl"), so)
 
         return {
@@ -125,7 +134,14 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     async insert(item: T) {
         const url = this.requireUrl(this.config.saveUrl, "saveUrl")
         const prepared = this.prepareItem(item)
-        const response = await this.axios.post<SavedResult<T>>(url, prepared)
+        // The server mints the key, so an unsaved sentinel is dropped from the payload rather than posted.
+        // `id = 0` is harmless on an int key, but a string/Guid model must initialize `id` to `""`
+        // (strictPropertyInitialization), and `""` fails the server's `Guid?` binder with
+        // "The JSON value could not be converted to System.Nullable`1[System.Guid]" — a 400 on every
+        // create from the SPA. Copied, not deleted in place: the model keeps its own `id` if the post fails.
+        const keyed = prepared as T & { id?: number | string }
+        const payload = "id" in keyed && isNewEntity(keyed.id) ? (({ id, ...rest }) => rest)(keyed) : prepared
+        const response = await this.axios.post<SavedResult<T>>(url, payload)
         if (response instanceof AxiosError) {
             throw response
         }
@@ -137,7 +153,10 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
         return this.processItem(saved)
     }
 
-    protected async fetchItems<TResult extends { items: Array<T> }>(api: string, so?: ISearchObject & IPagingInfo): Promise<TResult> {
+    protected async fetchItems<TResult extends { items: Array<T> }>(
+        api: string,
+        so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>
+    ): Promise<TResult> {
         const queryParams = {
             ...(this.config.baseQueryParams || {}),
             ...(so || {}),

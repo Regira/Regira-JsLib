@@ -54,9 +54,10 @@ const config: IConfig = {
     key: "Vehicle",
 
     routePrefix: "vehicles",
-    baseQueryParams: {
-        includes: ["Brand", "VehicleType"],
-    },
+    // Empty even though the list renders `brand` and `vehicleType` (§10): a to-one shown on every row belongs
+    // in the API's unconditional `e.Includes(...)`. Name a flag here only for a gated COLLECTION the list needs
+    // — `labels` lives on the form, whose data comes from the Details eager-load.
+    baseQueryParams: {},
 
     overviewTitle: "vehicles",
     detailsTitle: "vehicle",

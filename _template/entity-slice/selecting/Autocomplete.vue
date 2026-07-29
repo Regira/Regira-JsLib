@@ -26,7 +26,7 @@ import useEntityStore from "../data/store"
 
 const emit = defineEmits<{
     (e: "update:modelValue", args?: Entity): void
-    (e: "update:idValue", args?: number): void
+    (e: "update:idValue", args?: number | string): void
     (e: "select", args?: Entity): void
 }>()
 const props = withDefaults(

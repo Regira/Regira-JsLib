@@ -270,10 +270,13 @@ const products = new ProductService(initAxios({ api: "/api" }), config)
 const { items, count } = await products.search({ q: "blue", pageSize: 10 })
 ```
 
-Add `baseQueryParams: { includes: "All" }` to the config when the API gates nested collections behind
-`?includes=` — **complex API entities only** (`For<…, TSortBy, TIncludes>`, not the front-end `isComplex` page/modal flag; `Details` eager-loads them, `List`/`Search` omit them by default).
-A **simple** entity binds no `?includes=`, so a relation needed on its list rows must be eager-loaded
-unconditionally on the back-end (`e.Includes(...)`); `baseQueryParams` can't add it.
+`baseQueryParams` ships **empty**. Add `{ includes: ["Lines"] }` — naming the flag, not `"All"` — only when
+the API gates a nested **collection** behind `?includes=`, and only on a **complex API entity**
+(`For<…, TSortBy, TIncludes>`, not the front-end `isComplex` page/modal flag; `Details` eager-loads every
+registered include anyway, `List`/`Search` omit the gated ones by default). Two things it is _not_ for: a
+**simple** entity binds no `?includes=` at all, and a **to-one relation shown on every list row** belongs in
+the API's unconditional `e.Includes(...)` — asking for it per request just pulls every gated collection along.
+The search object overrides these per call, and `includes: []` suppresses them for one request.
 
 ### UI building blocks without the scaffold
 

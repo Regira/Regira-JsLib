@@ -1,9 +1,18 @@
+import { n as e } from "./datetime-utility-3.2.7.js";
 //#region src/vue/http/query.ts
-function e(e) {
-	let t = new URLSearchParams();
-	return Object.entries(e || {}).forEach(([e, n]) => {
-		Array.isArray(n) ? n.forEach((n) => t.append(e, n)) : t.append(e, n);
-	}), t;
+var t = (t) => t instanceof Date ? e(t) : String(t);
+function n(e) {
+	let n = new URLSearchParams();
+	return Object.entries(e || {}).forEach(([e, r]) => {
+		if (Array.isArray(r)) r.forEach((r) => {
+			let i = t(r);
+			i !== void 0 && n.append(e, i);
+		});
+		else {
+			let i = t(r);
+			i !== void 0 && n.append(e, i);
+		}
+	}), n;
 }
 //#endregion
-export { e as t };
+export { n as t };

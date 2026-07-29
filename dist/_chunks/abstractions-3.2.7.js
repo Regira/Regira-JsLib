@@ -92,15 +92,15 @@ var f = class {
 		return this.processItem(i);
 	}
 	async insert(e) {
-		let t = this.requireUrl(this.config.saveUrl, "saveUrl"), n = this.prepareItem(e), r = await this.axios.post(t, n);
-		if (r instanceof a) throw r;
-		let { item: i } = r.data;
-		return "id" in i && Object.defineProperty(e, "id", {
-			value: i.id,
+		let t = this.requireUrl(this.config.saveUrl, "saveUrl"), n = this.prepareItem(e), r = n, o = "id" in r && i(r.id) ? (({ id: e, ...t }) => t)(r) : n, s = await this.axios.post(t, o);
+		if (s instanceof a) throw s;
+		let { item: c } = s.data;
+		return "id" in c && Object.defineProperty(e, "id", {
+			value: c.id,
 			writable: !0,
 			configurable: !0,
 			enumerable: !0
-		}), this.processItem(i);
+		}), this.processItem(c);
 	}
 	async fetchItems(e, t) {
 		let n = {

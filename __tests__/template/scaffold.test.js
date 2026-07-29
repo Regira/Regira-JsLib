@@ -118,20 +118,27 @@ describe("scaffold.mjs --rel", () => {
 
 describe("scaffold.mjs stdout", () => {
     test("the includes hint matches the includes the run actually wrote", () => {
-        // regression: the CLI kept telling the user to set baseQueryParams.includes "<Rel>" long after the
-        // generated config.ts switched to ["All"] — the tool contradicted its own output
+        // regression: the CLI must never promise an includes value it did not write. It used to advertise
+        // baseQueryParams.includes "<Rel>" while writing ["All"]; a --rel run now writes NO includes at all
+        // (a to-one shown on every row belongs in the API's unconditional e.Includes), so the hint has to
+        // point at the back-end instead of at a client flag.
         const out = run("Booking", "--rel", "Person", "--no-auth")
         const config = readFileSync(app("src", "entities", "bookings", "config", "config.ts"), "utf8")
 
-        expect(config).toContain('includes: ["All"]')
-        expect(out).toContain('includes ["All"]')
+        expect(config).toContain("baseQueryParams: {}")
+        expect(config).not.toContain('includes: ["All"]')
+        expect(out).toContain("baseQueryParams is left {}")
+        expect(out).toContain("e.Includes")
+        expect(out).not.toContain('includes ["All"]')
         expect(out).not.toContain('includes "Person"')
     })
 
-    test("warns that a NAMED includes enum must itself declare an All member", () => {
+    test("still warns that an includes member the API's NAMED [Flags] enum does not declare 400s", () => {
+        // the ["All"] default is gone, but a consumer who adds includes by hand still needs the 400 rule
         const out = run("Reservation", "--rel", "Person", "--no-auth")
 
-        expect(out).toContain("All member")
+        expect(out).toContain("NAMED [Flags]")
+        expect(out).toContain("400s")
     })
 
     test("lists the (c) files to customize, all of which exist", () => {

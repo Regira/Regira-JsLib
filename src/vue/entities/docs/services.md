@@ -74,13 +74,18 @@ you, so the method return types are _not_ these envelopes (see the note under th
 
 `save(item)` inserts when `$id` is an unsaved sentinel — `null`/`undefined`/`"new"`/`""` or a non-positive
 number (`0`, or a negative temp id) via the exported `isNewEntity($id)` predicate — otherwise updates, and
-returns `{ saved, isNew }`.
+returns `{ saved, isNew }`. An insert **omits an unsaved `id`** from the payload, since the server mints it:
+`0` is harmless on an int key, but a string/Guid model must initialize `id` to `""` and `""` cannot bind to a
+`Guid?`. The model keeps its own `id` if the request fails.
 
 ### Automatic query parameters
 
-For `list`/`search`, the service merges `config.baseQueryParams` with the search object, then defaults
-`pageSize` to `config.defaultPageSize`, omits `page` when ≤ 1, strips `$`-prefixed keys, and serializes
-arrays as repeated keys.
+For `list`/`search`, the service merges `config.baseQueryParams` with the search object — **the search object
+wins per key**, so a request overrides a config default and `includes: []` suppresses one — then defaults
+`pageSize` to `config.defaultPageSize`, omits `page` when ≤ 1, strips `$`-prefixed keys, serializes arrays as
+repeated keys, and serializes a `Date` as ISO-8601 with the local offset (an invalid one omits its key).
+Paging and sorting ride the call argument (`ISearchObject & IPagingInfo & Partial<ISortByInfo>`), not the
+`SearchObject` class.
 
 ### Archived rows
 

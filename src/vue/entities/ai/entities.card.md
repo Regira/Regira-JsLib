@@ -77,11 +77,14 @@
   undo. The multi-`Selector` **hard-removes** and cannot deliver this UX. New rows
   mint negative temp ids, so children can be added before the parent's first save. The chip slot shows the
   related row's `FormModalButton` + pooled label (see the card's related-entity rule), not bare text.
-  ⚠️ **`useOwnedCollection` hands the view raw rows**: only the root item passes through `toEntity`, and its
-  add-row is a literal `{ id: 0 }`, never a model instance — class getters read `undefined` and defaults are
-  absent. Lift the collection in the **owning** service's `toEntity` (one override, every read path); the
-  add-row is minted by the composable and reaches no `toEntity`, so seed it on **every** reset — `handleSave`
-  re-mints `{ id: 0 }` after each append. Keep per-row computations in plain functions either way.
+  ⚠️ **`useOwnedCollection` hands the view raw rows**: only the root item passes through `toEntity`, so lift
+  the collection in the **owning** service's `toEntity` (one override, every read path). Its add-row reaches no
+  `toEntity` at all — pass **`createRow`** and it is minted from your model instead of a bare `{ id: 0 }`:
+  `useOwnedCollection<OrderLine>({ props, emit, createRow: () => new OrderLine() })`. Without it, class field
+  defaults are absent and getters read `undefined` (a blank enum dropdown on the add row is this bug), and you
+  are back to re-seeding on **every** reset because `handleSave` re-mints the row after each append.
+  `items` is never `undefined` — it reads as `[]` before the parent's collection exists. Keep per-row
+  computations in plain functions either way.
 - **Relation picks go through the entity `InputSelector`** (server-side search + pooled cache — scales
   past one page). It already composes **create + autocomplete + browse**: a `FormModalButton` (create on
   the spot), an `Autocomplete` (type a known name) and a `SelectorModalButton` (browse modal with the full
@@ -91,10 +94,21 @@
 
 ## Signatures, auth & i18n
 
-- **Day-one signatures — verify, never extrapolate** (`.d.ts` / `entities.signatures`): `new
-PagingInfo(pageSize?, page?)` — positional args, not an options object; `service.search(so?)` — paging
-  travels _inside_ the search object; `Tab.create("form", { title: translate("form"), icon })` — tab
-  titles render untranslated.
+- **Day-one signatures — verify, never extrapolate.** One call answers any of these:
+  `get_type("regira_modules.vue.ui", "useFeedback")` — cheaper than finding and reading the `.d.ts`.
+    - `useFeedback()` **returns the feedback object itself** — `const feedback = useFeedback()`, then bind
+      `<Feedback :feedback="feedback" />`. Not `const { feedback } = …`: that is `useForm()`'s shape, and the
+      asymmetry is the trap. Members: `pending(msg)` / `success(msg)` / `fail(msg, ex?)` / `reset()` — **the
+      message is required**, `pending()` does not compile — plus an `isPending` computed. There is no `loading()`.
+    - `service.search(so?)` / `list(so?)` — **paging and sorting ride the argument, flat**, not your
+      `SearchObject` class: `search({ ...so, pageSize: 0, sortBy: ["TitleDesc"] })`. Assigning `so.pageSize = 25`
+      to a scaffolded `SearchObject` instance does not type-check; the param is
+      `ISearchObject & IPagingInfo & Partial<ISortByInfo>`, and `ISearchObject extends Record<string, any>`, so
+      any other key you add reaches the query string too (arrays as repeated keys). `new PagingInfo(pageSize?,
+page?)` is positional, and is for the overview composable's `pagingInfo` ref — **not** for `search()`.
+    - `Tab.create("form", { title: translate("form"), icon })` — the first argument is the **key** (it lands in
+      the route hash, so keep it stable); it also seeds the title, which `values.title` then overrides. Tab
+      titles render untranslated unless you pass one.
 - **Anything that fetches on mount must also react to login.** A view mounted while the login modal is still
   open short-circuits on `!isAuthenticated` and nothing retries it — a blank panel with no error and no failed
   request. The scaffolded `Overview`/`Details` carry an `authStore.$onAction(… "login" …)` hook for this; a
@@ -132,10 +146,14 @@ dto)` also rehydrates but yields a **detached copy that goes stale** — use it 
 - **The URL contract has four owners** — `config.json → api` (axios base), `IConfig.api` (relative
   resource), the Vite dev proxy, the server route prefix. Align them once or every call 404s; and
   `config.json → clientApp` must equal the API's JWT audience or every call 401s.
-- **List rows get relations via `baseQueryParams: { includes: [...] }`** — **complex API entities**
-  (`For<…, TSortBy, TIncludes>`, not the front-end `isComplex` page/modal flag); a **simple** entity ignores
-  `?includes=`, so eager-load the relation on the back-end (`e.Includes(...)`). A detail form's children come
-  from the back-end's Details eager-load, not from `includes`.
+- **`baseQueryParams.includes` is for flag-gated _collections_ on a complex API entity** — complex meaning
+  `For<…, TSortBy, TIncludes>` on the server, not the front-end `isComplex` page/modal flag. A **simple**
+  entity ignores `?includes=` entirely, and a detail form's children come from the back-end's Details
+  eager-load, never from `includes`. **Which side owns which:** a to-one relation shown on every list row
+  belongs in the API's unconditional `e.Includes((q, _) => q.Include(…))` — set `baseQueryParams` only for a
+  collection the API keeps behind a flag. `--rel` therefore scaffolds `baseQueryParams: {}`; adding
+  `includes: ["All"]` to a slice whose relations are already eager-loaded server-side just pulls every
+  collection onto every row. The search object overrides these per request, and `includes: []` suppresses them.
 - **Never spread a model** — `{ ...item }` drops the `$id` prototype getter and `PUT`s to `/undefined`;
   mutate the instance. Overview refs are lazy: guard with `items ?? []`.
 

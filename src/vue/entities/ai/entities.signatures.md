@@ -86,14 +86,14 @@ export abstract class EntityServiceBase<T extends IEntity> implements IEntitySer
     defaultPageSize: number
     constructor(axios: AxiosInstance, config: IConfig)
     details(id: string | number, so?: ISearchObject): Promise<T | undefined> // `so` becomes the query string on `GET /{id}`
-    list(so?: ISearchObject & IPagingInfo): Promise<Array<T>>
-    search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>
+    list(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<Array<T>>
+    search(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<SearchResult<T>>
     searchUnion(searchObjects: Array<ISearchObject>, extra?: IPagingInfo | ISortByInfo): Promise<SearchResult<T>>
     save(item: T): Promise<SaveResult<T>>
     remove(item: T): Promise<void>
     update(item: T): Promise<T | undefined>
     insert(item: T): Promise<T | undefined>
-    protected fetchItems<TResult extends { items: Array<T> }>(api: string, so?: ISearchObject & IPagingInfo): Promise<TResult>
+    protected fetchItems<TResult extends { items: Array<T> }>(api: string, so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<TResult>
     protected processItem(item: T | undefined): T | undefined // hydrates `created`/`lastModified` strings to Date
     protected prepareItem(item: T): T // strips top-level properties whose key starts with "_" (does not recurse)
     protected createInstance<T>(type: { new (): T }): T
@@ -127,8 +127,8 @@ export abstract class JSONService<T extends IEntity> extends EntityServiceBase<T
     set cachedItems(value: Array<T>)
     fetchJSONItems(): Promise<Array<T>>
     details(id: string | number): Promise<T | undefined> // client-side lookup — takes no search object (static JSON has no archived rows)
-    list(so?: ISearchObject & IPagingInfo): Promise<T[]>
-    search(so?: ISearchObject & IPagingInfo): Promise<SearchResult<T>>
+    list(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<T[]>
+    search(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>): Promise<SearchResult<T>>
     save(item: T): Promise<{ saved: T; isNew: boolean }>
     remove(item: T): Promise<void>
     processSearchObject(so?: ISearchObject): ISearchObject
@@ -161,10 +161,21 @@ export class DefaultSearchObject extends SearchObjectBase {}
 > `isArchived` is the row's own flag that `DELETE` sets and `useForm.handleRestore` clears. Declare
 > `archived?: ArchivedFilter` on your `SearchObject` only when the UI exposes archived rows.
 
-> **Paging is not on the search object.** `SearchObjectBase` carries only `q` (+ your filter fields).
-> `pageSize` / `page` live on `IPagingInfo` and are merged in by the overview composables (or passed
-> inline to `service.search(so)` / `service.list(so)`, whose param is `ISearchObject & IPagingInfo`) —
-> do **not** add `pageSize` to your `SearchObject`.
+> ⚠️ **Paging and sorting are not members of your `SearchObject` — they ride the call argument.**
+> `SearchObjectBase` carries only `q` (+ your filter fields), so `so.pageSize = 25` / `so.sortBy = [...]` on a
+> scaffolded instance does **not** type-check (`TS2339`), and neither belongs on the class. `pageSize`/`page`
+> come from `IPagingInfo`, `sortBy` from `ISortByInfo`, and the call parameter is their intersection:
+> `search(so?: ISearchObject & IPagingInfo & Partial<ISortByInfo>)`. The overview composables merge them for
+> you; a view you write passes them inline:
+>
+> ```ts
+> const { items, count } = await service.search({ ...searchObject.value, pageSize: 0, sortBy: ["StartDesc"] })
+> ```
+>
+> `ISearchObject extends Record<string, any>`, so an API-specific key that is on neither interface reaches the
+> query string just as well — no cast needed (`{ ...so, tenantId: 3 }`). Arrays serialize as repeated keys,
+> which is why `sortBy` accepts an array. `new PagingInfo(pageSize?, page?)` is for the overview composable's
+> `pagingInfo` ref, **not** for `search()` — there is no nested `{ paging: … }` shape.
 
 ```ts
 import { PagingInfo, DEFAULT_PAGESIZE } from "regira_modules/vue/entities"
@@ -494,8 +505,9 @@ Owned child collections (`import { ... } from "regira_modules/vue/entities"`):
 export function useOwnedCollection<T extends IEntity & { id: number }>({
     props,
     emit,
+    createRow, // () => T — mints the add-row from your model; without it the row is a bare { id: 0 }
 }: Input<T>): {
-    items: WritableComputedRef<T[]>
+    items: WritableComputedRef<T[]> // reads as [] while the parent's collection is unset — never undefined
     newItem: Ref<T | undefined>
     resetNewItem: () => Promise<void>
     handleSort: (e: any) => void

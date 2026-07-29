@@ -82,7 +82,7 @@ composable, or drop the Details route.
 import { EntityBase } from "regira_modules/vue/entities"
 
 export class UnitType extends EntityBase {
-    id: number = 0
+    id: number = 0 // a Guid/string-keyed API entity declares `id: string = ""`; the rest of the entity slice is key-generic (owned child rows stay int)
     code?: string
     title = ""
     description?: string
@@ -121,9 +121,7 @@ const config: IConfig = {
     isComplex: false,
 
     routePrefix: "unit-types",
-    baseQueryParams: {
-        includes: [],
-    },
+    baseQueryParams: {}, // a simple entity binds no ?includes= at all
     initialQuery: {},
 
     overviewTitle: "unitTypes",
@@ -979,7 +977,7 @@ import useEntityStore from "../data/store"
 
 const emit = defineEmits<{
     (e: "update:modelValue", args?: Entity): void
-    (e: "update:idValue", args?: number): void
+    (e: "update:idValue", args?: number | string): void
     (e: "select", args?: Entity): void
 }>()
 const props = withDefaults(
@@ -1162,11 +1160,11 @@ import InputSelector from "./InputSelector.vue"
 
 const emit = defineEmits<{
     (e: "update:modelValue", args: Array<Entity>): void
-    (e: "update:idsValue", args: Array<number>): void
+    (e: "update:idsValue", args: Array<number | string>): void
 }>()
 const props = defineProps<{
     modelValue?: Array<Entity>
-    idsValue?: Array<number>
+    idsValue?: Array<number | string>
 }>()
 
 const { fromPool, list } = useEntityStore()
@@ -1227,7 +1225,7 @@ import type Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 
 const selectedItem = defineModel<Entity>()
-const selectedId = defineModel<number>("idValue")
+const selectedId = defineModel<number | string>("idValue")
 watch(selectedId, () => (selectedItem.value = items.value.find((x) => x.id == selectedId.value)))
 
 const { fromCache } = useEntityStore()

@@ -142,7 +142,7 @@ src/entities/foos/               # one entity slice — copy this folder set for
 import { EntityBase } from "regira_modules/vue/entities"
 
 export class Foo extends EntityBase {
-    id: number = 0
+    id: number = 0 // Guid/string-keyed API entity → `id: string = ""`; the rest of the entity slice is key-generic (owned child rows stay int)
     title = "" // placeholder label — rename/remove it here AND in the (c) views that bind it (Form, List/ListItem, SelectorList)
     // TODO: your fields — initialize non-optional ones (strictPropertyInitialization); optional ones get `?`, e.g.
     // code?: string
@@ -185,7 +185,7 @@ const config: IConfig = {
     //                  fields, no relations/tabs — that is fine to edit in a modal (FormModalButton). See entities.card → page vs modal.
 
     routePrefix: "foos", // TODO: URL path segment
-    baseQueryParams: { includes: [] }, // TODO: e.g. { includes: ["Bar"] } — List/Search return no nested data unless the client sends ?includes=; mirror the API's [Flags] enum
+    baseQueryParams: {}, // add includes ONLY for a COLLECTION the API gates behind its named [Flags] enum, e.g. { includes: ["Lines"] }; a to-one shown on every row belongs in the API's unconditional e.Includes instead
     initialQuery: {},
 
     overviewTitle: "foos", // camelCase i18n keys (multi-word → e.g. shoppingLists / shoppingList) — add matching entries to public/data/translations.json, or the nav renders the raw key
@@ -216,7 +216,7 @@ export class EntitySearchObject extends SearchObjectBase {
     title?: string // TODO: your filter fields — placeholder; rename/remove it here AND in FilterAdv.vue
     // barId?: number | Array<number>     // arrays serialize as repeated query keys
 
-    minCreated?: Date
+    minCreated?: Date // `Date` is fine here — the query-string builder emits ISO-8601 with the local offset
     maxCreated?: Date
     archived?: ArchivedFilter // `only` = recycle bin, `included` = live + archived; leave unset to hide archived rows
 }

@@ -8,8 +8,10 @@ import __Child__ from "./Entity"
 
 const props = defineProps<{ modelValue?: Array<__Child__>; readonly?: boolean }>()
 const emit = defineEmits<{ "update:modelValue": [Array<__Child__>] }>()
-// items: writable computed over the collection · newItem: a blank row · handleSave: appends newItem with a negative temp id
-const { items, newItem, handleSave } = useOwnedCollection<__Child__>({ props, emit })
+// items: writable computed over the collection (never undefined — [] until the parent has one)
+// newItem: the add-row, minted by createRow so the model's field defaults and getters are present
+// handleSave: appends newItem with a negative temp id, then mints the next add-row
+const { items, newItem, handleSave } = useOwnedCollection<__Child__>({ props, emit, createRow: () => new __Child__() })
 </script>
 
 <template>

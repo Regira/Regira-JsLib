@@ -13,7 +13,7 @@ import type Entity from "../data/Entity"
 import useEntityStore from "../data/store"
 
 const selectedItem = defineModel<Entity>()
-const selectedId = defineModel<number>("idValue")
+const selectedId = defineModel<number | string>("idValue")
 watch(selectedId, () => (selectedItem.value = items.value.find((x) => x.id == selectedId.value)))
 
 const { fromCache } = useEntityStore()

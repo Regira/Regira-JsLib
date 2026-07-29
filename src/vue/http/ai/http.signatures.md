@@ -36,7 +36,7 @@ export function upload(url: string, files: Array<Blob>, options?: UploadOptions)
 ## Query string
 
 ```ts
-export function createQueryString(o: object): URLSearchParams // array values → repeated keys
+export function createQueryString(o: object): URLSearchParams // array values → repeated keys; Date → ISO-8601 + local offset; invalid Date → key omitted
 ```
 
 ## See also

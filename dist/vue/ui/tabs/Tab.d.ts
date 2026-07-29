@@ -14,5 +14,11 @@ export declare class Tab implements ITab {
     isDisabled: boolean;
     isVisible: boolean | (() => boolean);
     constructor(title: string, key?: string, isDefault?: boolean, isDisabled?: boolean, isVisible?: boolean);
-    static create(title: string, values?: object): Tab & object;
+    /**
+     * `Tab.create("form", { title: translate("form"), icon })`. The first argument is the **key** — the value
+     * that ends up in the route hash and must therefore stay stable — and it doubles as the title only until
+     * `values.title` overrides it. It is named `key` because that is what survives: a `title` passed in
+     * `values` replaces the label, never the key.
+     */
+    static create(key: string, values?: object): Tab & object;
 }

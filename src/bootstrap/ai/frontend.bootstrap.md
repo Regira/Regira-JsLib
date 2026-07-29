@@ -60,23 +60,28 @@ only `Form.vue` and `FilterAdv.vue` change per entity.
 The Regira MCP server (`https://mcp.regira.com/mcp`) has full knowledge of every front-end module,
 including ones not yet installed locally. Use it to discover and read guides on demand:
 
-| Tool                                                       | Purpose                                                                                              |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `list_packages` (filter `vue` / `frontend`)                | Browse the front-end module catalog.                                                                 |
-| `recommend_packages` / `search_packages`                   | First-pass / keyword package discovery.                                                              |
-| `get_package_card`                                         | **Orient first** — the must-know card (e.g. `regira_modules.vue.entities`); often enough on its own. |
-| `get_package_toc`                                          | List a package's documentation sections.                                                             |
-| `get_section_toc`                                          | List a section's headings before loading content.                                                    |
-| `get_package` (`section=`, `heading=`, `maxChars`, `page`) | Read the actual guidance, scoped.                                                                    |
-| `get_example` (`section=`)                                 | Pull only matching examples.                                                                         |
-| `list_types` / `get_type`                                  | Inspect the public API surface from the committed `.d.ts` map.                                       |
+| Tool                                                       | Purpose                                                                                                                                                                                       |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list_packages` (filter `vue` / `frontend`)                | Browse the front-end module catalog.                                                                                                                                                          |
+| `recommend_packages` / `search_packages`                   | First-pass / keyword package discovery.                                                                                                                                                       |
+| `get_package_card`                                         | **Orient first** — the must-know card (e.g. `regira_modules.vue.entities`); often enough on its own.                                                                                          |
+| `get_package_toc`                                          | List a package's documentation sections.                                                                                                                                                      |
+| `get_section_toc`                                          | List a section's headings before loading content.                                                                                                                                             |
+| `get_package` (`section=`, `heading=`, `maxChars`, `page`) | Read the actual guidance, scoped.                                                                                                                                                             |
+| `get_example` (`section=`)                                 | Pull only matching examples.                                                                                                                                                                  |
+| `list_types` / `get_type`                                  | **One symbol, one call** — exact signature from the `.d.ts` map, e.g. `get_type("regira_modules.vue.ui", "useFeedback")`. Composables and component prop types are indexed, not just classes. |
 
 Context economy: orient with `get_package_card` first; read only your tier's primary guides in full; for
-everything else prefer `get_section_toc` + heading-scoped `get_package` and `get_example(pattern=…)` over
-whole-section reads. Once `regira_modules` is installed, the committed `dist/**/*.d.ts` files are the
-cheapest authoritative signature source — read those before pulling a signatures section. When you
+everything else prefer `get_section_toc` + heading-scoped `get_package` (several headings in one call,
+comma-separated) and `get_example(pattern=…)` over whole-section reads. When you
 **delegate reference-mining to a sub-agent**, ask it for distilled patterns + the 3–4 files worth cloning —
 never a verbatim dump of every file (that alone can cost 100k+ tokens for little gain).
+
+**Checking one signature: use `get_type`.** `get_type("regira_modules.vue.ui", "useFeedback")` returns the
+declaration in a single call. Reach for the committed `dist/**/*.d.ts` when you want to _browse_ a module's
+surface — locating the right file first costs several shell round-trips, which is enough friction that
+guessing starts to look cheaper than verifying. It never is: `useFeedback`, `ConfirmButton` and
+`NullableCheckBox` are the three most-misremembered shapes in this library.
 
 ## Pre-flight checklist
 
@@ -120,8 +125,12 @@ Loading a whole reference section is the exception, not the on-ramp.
    authentication**, the npm install (no alias needed), the **full project structure** (per-entity folder
    set incl. `selecting/`, plus `components/`, `infrastructure/`, `config.json` + `app-config.ts`), and
    **Bootstrap 5** styling.
-3. `section="entities.namespaces"` (exact import specifiers) + `section="entities.signatures"` (exact
-   signatures) — consult while coding. **Never guess** a front-end import or signature.
+3. `section="entities.namespaces"` (exact import specifiers) + `section="entities.signatures"` (entity-side
+   signatures) + `regira_modules.vue.ui` → `section="ui.signatures"` (the **kit's** components and
+   composables — `useFeedback`, `ConfirmButton`, `NullableCheckBox`, `Tab`, the inputs) — consult while
+   coding. `ui.signatures` is not optional reading: the kit is what a hand-written view calls, and its member
+   arities are the most commonly extrapolated-and-wrong shapes in the library. **Never guess** a front-end
+   import or signature; `get_type` settles a single one in one call.
 4. `section="entities.examples"` (simple + standard slices) / `section="entities.advanced.example"`
    (complex slice), then `section="entities.patterns"` (child collections, trees, JSON lookups, typing
    the client from OpenAPI, custom endpoints) — load on demand.
@@ -210,8 +219,8 @@ level; what you preserve is the contract (composables, props/emits/slots, DI, pl
    modal, `FormModalButton` and `ConfirmButton` silently opens nothing.
 4. Orient with `get_package_card("regira_modules.vue.entities")`, then read the core sections of
    `entities.instructions` and `entities.setup` (via MCP `get_package`). Troubleshooting/lookup tables are
-   symptom-driven — fetch a heading when you hit the symptom, not up front. For exact signatures prefer the
-   installed `dist/**/*.d.ts` or `entities.signatures` by heading over whole-section reads.
+   symptom-driven — fetch a heading when you hit the symptom, not up front. For one exact signature call
+   `get_type`; for a set of them read `entities.signatures` / `ui.signatures` by heading rather than whole.
 5. Scaffold the app shell — `node node_modules/regira_modules/_template/scaffold.mjs --shell` (`--no-auth`
    for a no-auth app) writes `main.ts`, `App.vue`, router, dashboard/navbar, layout, views, `config.json` +
    `app-config.ts` (full source: `entities.shell.template`); then set up the toolchain per `entities.setup` → Install.

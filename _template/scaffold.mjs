@@ -295,20 +295,18 @@ const relationBlocks = {
     // Barrels export the model as `Entity`, hence the alias.
     modelImports: relEntities.map((r) => `import { type Entity as ${r.name} } from "${r.alias}"`).join("\n"),
     fields: relations
-        .map((r) => `    ${r.field}Id?: number\n    ${r.field}?: ${r.name} // populated only when the request asks for it: baseQueryParams.includes`)
+        .map((r) => `    ${r.field}Id?: number\n    ${r.field}?: ${r.name} // populated only when the API eager-loads it — e.Includes(...), not a client includes flag`)
         .join("\n"),
 }
 function applyRelations(relPath, text) {
     if (!relations.length) return text
+    // config/config.ts is deliberately NOT rewritten: `baseQueryParams` ships empty from the template, which
+    // is right for a --rel run too. A to-one relation shown on every list row belongs in the API's
+    // unconditional e.Includes(...) (the back-end guidance), a SIMPLE registration binds no ?includes= at all
+    // so anything written here would be inert, and ["All"] on a complex entity drags every gated collection
+    // onto every row. Blank fails visibly — an empty label, and the console hint names the fix — rather than
+    // silently over-fetching. Keeping one shape for both paths is what stops the tool contradicting itself.
     switch (relPath.replace(/\\/g, "/")) {
-        case "config/config.ts":
-            // Without the includes the API returns no nested relation and every generated column renders blank.
-            // "All" is the safe universal default: the generic EntityIncludes enum accepts only Default/All, so
-            // emitting a relation name here would 400 at runtime ("The value '<Rel>' is not valid").
-            return text.replace(
-                /\{ includes: \[\] \}[^\r\n]*/,
-                '{ includes: ["All"] }, // "All" loads every nested relation; an entity that exposes a named [Flags] includes enum can replace it with specific member names, e.g. ["Bar"]'
-            )
         case "overview/ListItem.vue":
             text = insertAfter(text, `<div class="col text-truncate">{{ item.$title }}</div>`, relationBlocks.cells)
             text = insertAfter(text, `import FormModalButton from "../details/FormModalButton.vue"`, relationBlocks.imports)
@@ -403,13 +401,13 @@ if (sliceGenerated) {
         const relDir = join(baseDir, r.folder)
         console.log(
             existsSync(resolve(process.cwd(), relDir))
-                ? `  Relation column for ${r.name}: reads item.${r.field}, loaded by the baseQueryParams.includes ["All"] this run wrote into config.ts; add the "${r.key}" translation key.`
+                ? `  Relation column for ${r.name}: reads item.${r.field} — the API must eager-load it, unconditionally via e.Includes((q, _) => q.Include(x => x.${r.name})) for a to-one shown on every row; add the "${r.key}" translation key.`
                 : `  ! Relation column for ${r.name} imports from ${relDir}, which does not exist yet — scaffold that slice or vue-tsc will fail.`
         )
     }
     if (relations.length) {
         console.log(
-            `  Narrow baseQueryParams.includes only to members of the API's NAMED [Flags] includes enum — and that enum must itself declare an All member, or the scaffolded ["All"] 400s ("The value 'All' is not valid").`
+            `  baseQueryParams is left {} — a relation column blank at runtime means the API is not eager-loading it. Only add includes for a gated COLLECTION, and only member names of the API's NAMED [Flags] enum (an unnamed EntityIncludes accepts just Default/All, and a name it doesn't declare 400s: "The value '<Rel>' is not valid").`
         )
     }
 } else {

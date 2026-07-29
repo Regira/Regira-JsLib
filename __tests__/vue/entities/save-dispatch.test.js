@@ -52,6 +52,28 @@ function makeService() {
   return { service, calls };
 }
 
+// A string/Guid-keyed model. strictPropertyInitialization forces an initializer, and "" is the only sensible
+// one — so the payload used to carry id: "" and the server answered 400 ("The JSON value could not be
+// converted to System.Nullable`1[System.Guid]") on every create from the SPA.
+class GuidModel {
+  constructor(id = "") {
+    this.id = id;
+    this.name = "x";
+  }
+  get $id() {
+    return this.id || "new";
+  }
+  get $title() {
+    return this.name;
+  }
+}
+
+class GuidService extends EntityServiceBase {
+  toEntity(item) {
+    return Object.assign(new GuidModel(), item);
+  }
+}
+
 describe("EntityServiceBase.save dispatch", () => {
   test("inserts a fresh model whose $id is a bare 0 (POST, no id in URL)", async () => {
     const { service, calls } = makeService();
@@ -72,5 +94,59 @@ describe("EntityServiceBase.save dispatch", () => {
     const { isNew } = await service.save(new Model(5));
     expect(isNew).toBe(false);
     expect(calls).toEqual([{ method: "PUT", url: "/api/models/5" }]);
+  });
+});
+
+describe("EntityServiceBase.insert payload key", () => {
+  function makeGuidService() {
+    const calls = [];
+    const axios = {
+      post: async (url, body) => (calls.push({ url, body: { ...body } }), { data: { item: { ...body, id: "7f3c-real-guid" } } }),
+      put: async (url, body) => (calls.push({ url, body: { ...body } }), { data: { item: body } }),
+      get: async () => ({ data: { item: null } }),
+      delete: async () => ({ data: {} }),
+    };
+    return { service: new GuidService(axios, { key: "test", api: "/api/models" }), calls };
+  }
+
+  test("omits an unsaved string key so the server can mint one", async () => {
+    const { service, calls } = makeGuidService();
+
+    await service.save(new GuidModel(""));
+
+    expect("id" in calls[0].body).toBe(false);
+    expect(calls[0].body.name).toBe("x");
+  });
+
+  test("omits an unsaved int key too (0 means unsaved)", async () => {
+    const bodies = [];
+    const axios = {
+      post: async (url, body) => (bodies.push({ ...body }), { data: { item: { ...body, id: 42 } } }),
+      get: async () => ({ data: { item: null } }),
+    };
+    const service = new TestService(axios, { key: "test", api: "/api/models" });
+
+    await service.save(new Model(0));
+
+    expect("id" in bodies[0]).toBe(false);
+  });
+
+  test("keeps a real key on the payload", async () => {
+    const { service, calls } = makeGuidService();
+
+    await service.insert(new GuidModel("already-minted"));
+
+    expect(calls[0].body.id).toBe("already-minted");
+  });
+
+  test("leaves the model's own id intact — the payload is a copy", async () => {
+    const { service } = makeGuidService();
+    const item = new GuidModel("");
+
+    await service.insert(item);
+
+    // insert() assigns the server-minted key; what matters is that dropping it from the payload never
+    // deleted the property off the caller's model (a failed POST would otherwise leave it undefined).
+    expect(item.id).toBe("7f3c-real-guid");
   });
 });
