@@ -7,8 +7,11 @@ export class __Entity__ extends EntityBase {
     // code?: string
     // barId?: number
     // bar?: Bar                          // a related entity — import another slice's model ALIASED:
-    //                                    //   import { type Entity as Bar } from "@/entities/bars"
+    //                                    //   import type { Entity as Bar } from "@/entities/bars"
     //                                    //   (barrels export the model as `Entity`; `{ Bar }` is the TS2305 trap)
+    //                                    // `import type`, not `import { type … }`: the inline form survives to
+    //                                    // runtime and two slices referencing each other then cycle through
+    //                                    // store.ts's Entity.name — dev-server only, build stays green
     // status?: Status                    // mirror a C# enum as a const object + union type, never a TS `enum`
     //                                    // (erasableSyntaxOnly rejects enums — see entities.setup.md → Tooling)
 
@@ -23,5 +26,5 @@ export class __Entity__ extends EntityBase {
     }
 }
 
-export const Entity = __Entity__ // the barrel name other slices import — `import { type Entity as __Entity__ } from "@/entities/__entities__"`, never `{ __Entity__ }`
+export const Entity = __Entity__ // the barrel name other slices import — `import type { Entity as __Entity__ } from "@/entities/__entities__"`, never `{ __Entity__ }`
 export default __Entity__

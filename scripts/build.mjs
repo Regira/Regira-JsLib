@@ -31,4 +31,10 @@ for (const [src, dest] of scssFiles) {
 // Step 4: Regenerate the ejectable UI skins (_template/ui) from the component source
 execSync("node scripts/build-ui-template.mjs", { stdio: "inherit", cwd: root })
 
+// Step 5: Regenerate the scaffolder's templates (_template/entity-slice, app-shell, entity-attachments) from
+// the AI docs that are their source of truth. Without this the two halves drift silently: a fix authored in
+// entities.examples.md or entities.shell.template.md builds green and ships the old file, so every scaffolded
+// app keeps the bug while the documentation says it is fixed.
+execSync("node scripts/build-entity-template.mjs", { stdio: "inherit", cwd: root })
+
 

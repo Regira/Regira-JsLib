@@ -31,11 +31,15 @@ export function useOverviewCore<T extends IEntity, SO extends ISearchObject = IS
         }
         return undefined
     }
-    async function applyRemove(item: T): Promise<void> {
+    // Returns whether the row is gone, so a caller can guard handleRemove the way applySave's result already
+    // lets it guard handleSave. A delete the server refused (409 while the row is referenced, 403) used to
+    // leave the failure message up AND drop the row from the list until the next fetch.
+    async function applyRemove(item: T): Promise<boolean> {
         isLoading.value = true
         try {
             feedback.reset()
             await service.remove(item)
+            return true
         } catch (ex) {
             console.error("removing failed", { ex, item })
             const error = ex as OverviewError
@@ -43,6 +47,7 @@ export function useOverviewCore<T extends IEntity, SO extends ISearchObject = IS
         } finally {
             isLoading.value = false
         }
+        return false
     }
     function handleSave({ saved, isNew }: SaveResult<T>) {
         if (items.value == null) {

@@ -148,8 +148,11 @@ export class Foo extends EntityBase {
     // code?: string
     // barId?: number
     // bar?: Bar                          // a related entity — import another slice's model ALIASED:
-    //                                    //   import { type Entity as Bar } from "@/entities/bars"
+    //                                    //   import type { Entity as Bar } from "@/entities/bars"
     //                                    //   (barrels export the model as `Entity`; `{ Bar }` is the TS2305 trap)
+    //                                    // `import type`, not `import { type … }`: the inline form survives to
+    //                                    // runtime and two slices referencing each other then cycle through
+    //                                    // store.ts's Entity.name — dev-server only, build stays green
     // status?: Status                    // mirror a C# enum as a const object + union type, never a TS `enum`
     //                                    // (erasableSyntaxOnly rejects enums — see entities.setup.md → Tooling)
 
@@ -164,7 +167,7 @@ export class Foo extends EntityBase {
     }
 }
 
-export const Entity = Foo // the barrel name other slices import — `import { type Entity as Foo } from "@/entities/foos"`, never `{ Foo }`
+export const Entity = Foo // the barrel name other slices import — `import type { Entity as Foo } from "@/entities/foos"`, never `{ Foo }`
 export default Foo
 ```
 
@@ -186,7 +189,7 @@ const config: IConfig = {
 
     routePrefix: "foos", // TODO: URL path segment
     baseQueryParams: {}, // add includes ONLY for a COLLECTION the API gates behind its named [Flags] enum, e.g. { includes: ["Lines"] }; a to-one shown on every row belongs in the API's unconditional e.Includes instead
-    initialQuery: {},
+    initialQuery: {}, // route query for the GENERATED nav link ONLY — lost on refresh/deep-link. A default sortBy or includes belongs in baseQueryParams
 
     overviewTitle: "foos", // camelCase i18n keys (multi-word → e.g. shoppingLists / shoppingList) — add matching entries to public/data/translations.json, or the nav renders the raw key
     detailsTitle: "foo",
@@ -214,7 +217,13 @@ import { SearchObjectBase, ArchivedFilter } from "regira_modules/vue/entities"
 export class EntitySearchObject extends SearchObjectBase {
     // `q` (free-text) is inherited from SearchObjectBase. Add your filters:
     title?: string // TODO: your filter fields — placeholder; rename/remove it here AND in FilterAdv.vue
-    // barId?: number | Array<number>     // arrays serialize as repeated query keys
+    // barId?: number                     // an FK filter bound to an <InputSelector> must be a SCALAR — the
+    //                                    // control speaks one id (`idValue?: number | string`), so widening it
+    //                                    // to an array is 9 TS2322s in FilterAdv.vue
+    // tagId?: number | Array<number>     // arrays serialize as repeated query keys — for filters you populate
+    //                                    // from code or a multi-select, not from an InputSelector. The API
+    //                                    // accepts both (its ICollection<TKey> binds one value or many), so
+    //                                    // widening later is a UI-only change
 
     minCreated?: Date // `Date` is fine here — the query-string builder emits ISO-8601 with the local offset
     maxCreated?: Date
@@ -561,8 +570,10 @@ export class EntityService extends EntityServiceBase<Entity> {
 
     // Owned child collections use the `_deleted` mark (never splice): removed rows are filtered out here so
     // the server deletes them by omission. Add one filter line per owned collection; `super` strips root `_`-fields.
+    // ⚠️ No `|| []` — the back-end contract is null = untouched, [] = delete every row. `?.filter(...)` keeps
+    // undefined for a collection this form never loaded, and still yields [] when the user removed the last row.
     protected override prepareItem(item: Entity): Entity {
-        // TODO (owned collections only): item.children = item.children?.filter((x) => !x._deleted) || []
+        // TODO (owned collections only): item.children = item.children?.filter((x) => !x._deleted)
         return super.prepareItem(item)
     }
 
@@ -590,6 +601,11 @@ export const useEntityStore = defineStore(Entity.name, () => {
     const service = get<IEntityService<Entity>>(Entity.name)!
     return createStore<Entity>(service, Entity.name) // pooled, reactive shared cache
 })
+// The store's `service` is the generic IEntityService surface, NOT your EntityService subclass — a custom
+// endpoint you added there is not on it (casting the pooled handler is a TS2352). Reach the real one:
+//   import { get } from "regira_modules/vue/ioc"
+//   const service = get<EntityService>(Entity.name)!
+// Use the pooled store for ordinary CRUD so views share the reactive cache; use the raw service for the rest.
 
 export default useEntityStore
 ```

@@ -8,6 +8,11 @@ export declare enum FeedbackStatus {
 export type FeedbackIn = {
     autoHideDelay?: number;
 };
+/**
+ * What went wrong, as the API reports it: a field-error map (`{ title: "Required" }` — the 400 body an
+ * `EntityInputException`'s `InputErrors` produces) or a plain string. NOT an `Error` — log the exception
+ * yourself and pass `ex.response?.data?.errors`.
+ */
 export type FeedbackError = string | Record<string, string>;
 export interface FeedbackOut {
     status: Ref<FeedbackStatus>;
@@ -17,7 +22,8 @@ export interface FeedbackOut {
     isPending: ComputedRef<boolean>;
     pending(msg: string): void;
     success(msg: string): void;
-    fail(msg: string, ex?: FeedbackError): void;
+    /** `errors` is a FIELD-ERROR MAP or a string, never an `Error` — see {@link FeedbackError}. */
+    fail(msg: string, errors?: FeedbackError): void;
     reset(): void;
 }
 type FeedbackStatusOrError = {

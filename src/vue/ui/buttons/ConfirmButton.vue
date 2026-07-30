@@ -51,4 +51,8 @@ function handleClose() {
     emit("close")
     showModal.value = false
 }
+
+// Lets any affordance raise the same confirmation — a swipe gesture, a context menu, a keyboard shortcut —
+// so a destructive action behind a gesture reuses this dialog instead of reimplementing it.
+defineExpose({ open: handleOpen, close: handleClose })
 </script>

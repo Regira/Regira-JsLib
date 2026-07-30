@@ -20,6 +20,7 @@
     "recoveryMailSent": { "en": "If that account exists, a recovery link is on its way." },
     "resetPassword": { "en": "Reset password" },
     "results": { "en": "results" },
+    "search": { "en": "Search" },
     "sendRecoveryLink": { "en": "Send recovery link" },
     "signIn": { "en": "Sign in" },
     "signOut": { "en": "Sign out" },

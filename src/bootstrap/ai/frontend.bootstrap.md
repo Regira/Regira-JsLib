@@ -80,8 +80,14 @@ never a verbatim dump of every file (that alone can cost 100k+ tokens for little
 **Checking one signature: use `get_type`.** `get_type("regira_modules.vue.ui", "useFeedback")` returns the
 declaration in a single call. Reach for the committed `dist/**/*.d.ts` when you want to _browse_ a module's
 surface — locating the right file first costs several shell round-trips, which is enough friction that
-guessing starts to look cheaper than verifying. It never is: `useFeedback`, `ConfirmButton` and
-`NullableCheckBox` are the three most-misremembered shapes in this library.
+guessing starts to look cheaper than verifying. It never is: `useFeedback`, `useOwnedCollection` and
+`useDetails` are the three most-misremembered shapes in this library.
+
+**Components answer to the same call, under a different name.** A `.vue` build emits an anonymous default
+export, so a component is never indexed — its authored contract is, as `<Component>Props` / `<Component>Emits`
+/ `<Component>Slots`. `get_type("regira_modules.vue.ui", "ConfirmButton")` resolves to those types for you and
+says which of the three exist; for slots, events and defaults that the prop type cannot carry, the source of
+truth is `get_package("regira_modules.vue.ui", section: "ui.signatures")`.
 
 ## Pre-flight checklist
 

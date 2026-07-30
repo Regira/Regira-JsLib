@@ -430,8 +430,12 @@ src/entities/<name>/             # one entity slice — copy this folder set for
 
 > **Cross-slice imports use the barrel's generic names.** It re-exports the model as `Entity` and the relation
 > picker as `InputSelector` (never the entity's class name); from a sibling slice import
-> `{ Entity as Employee, InputSelector as EmployeeInputSelector } from "@/entities/employees"` — importing by
-> the class name is the `TS2305 "has no exported member"` trap.
+> `import type { Entity as Employee } from "@/entities/employees"` for the model and
+> `import { InputSelector as EmployeeInputSelector } from "@/entities/employees"` for the component —
+> importing by the class name is the `TS2305 "has no exported member"` trap. Keep the model import in the
+> **erased** `import type { … }` form: the inline `import { type … }` survives to runtime under
+> `verbatimModuleSyntax`, and two slices that reference each other then form a barrel cycle that only the dev
+> server reports (`Cannot access 'Entity' before initialization`; `vue-tsc` and `npm run build` stay green).
 
 > **Title-agnostic, archive-agnostic by default.** The display boilerplate (overview rows, selectors)
 > renders `item.$title` — the accessor every `Entity` implements — so point `$title` at your label field in

@@ -140,7 +140,10 @@ async function handleRequestSave(item: Entity) {
     }
 }
 async function handleRequestRemove(item: Entity) {
-    await applyRemove(item)
-    handleRemove(item)
+    // Guard on the result, exactly like save: a delete the server refused (409 while the row is still
+    // referenced) would otherwise show the failure AND remove the row until the next fetch.
+    if (await applyRemove(item)) {
+        handleRemove(item)
+    }
 }
 </script>

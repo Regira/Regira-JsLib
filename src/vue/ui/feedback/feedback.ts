@@ -10,6 +10,11 @@ export enum FeedbackStatus {
 export type FeedbackIn = {
     autoHideDelay?: number
 }
+/**
+ * What went wrong, as the API reports it: a field-error map (`{ title: "Required" }` — the 400 body an
+ * `EntityInputException`'s `InputErrors` produces) or a plain string. NOT an `Error` — log the exception
+ * yourself and pass `ex.response?.data?.errors`.
+ */
 export type FeedbackError = string | Record<string, string>
 export interface FeedbackOut {
     status: Ref<FeedbackStatus>
@@ -20,7 +25,8 @@ export interface FeedbackOut {
 
     pending(msg: string): void
     success(msg: string): void
-    fail(msg: string, ex?: FeedbackError): void
+    /** `errors` is a FIELD-ERROR MAP or a string, never an `Error` — see {@link FeedbackError}. */
+    fail(msg: string, errors?: FeedbackError): void
     reset(): void
 }
 type FeedbackStatusOrError = { status: FeedbackStatus; error?: FeedbackError }
@@ -74,13 +80,15 @@ export function useFeedback({ autoHideDelay = 1500 }: FeedbackIn = {}): Feedback
         error.value = undefined
         autoHideDelay && fadeOut()
     }
-    function fail(msg: string, ex: FeedbackError) {
+    function fail(msg: string, errors: FeedbackError) {
         status.value = FeedbackStatus.failed
         message.value = msg
-        if (typeof ex === "string") {
-            message.value = `${message.value}: ${ex.split("\n")[0]}`
+        if (typeof errors === "string") {
+            message.value = `${message.value}: ${errors.split("\n")[0]}`
         } else {
-            error.value = ex?.message || ex
+            // `message` first: a caller who passes an exception object instead of the field map gets its text
+            // rather than a blank panel.
+            error.value = errors?.message || errors
         }
     }
 

@@ -694,8 +694,11 @@ async function handleRequestSave(item: Entity) {
     }
 }
 async function handleRequestRemove(item: Entity) {
-    await applyRemove(item)
-    handleRemove(item)
+    // Guard on the result, exactly like save: a delete the server refused (409 while the row is still
+    // referenced) would otherwise show the failure AND remove the row until the next fetch.
+    if (await applyRemove(item)) {
+        handleRemove(item)
+    }
 }
 </script>
 ```
@@ -1692,7 +1695,7 @@ do not rewrite them:
 
 ```ts
 import { EntityBase } from "regira_modules/vue/entities"
-import { type Entity as UnitType } from "@/entities/unit-types"
+import type { Entity as UnitType } from "@/entities/unit-types"
 import type ProductComponent from "../product-components/Entity"
 import type ProductFacet from "../product-facets/Entity"
 import type ProductSupplier from "../product-suppliers/Entity"
@@ -1796,8 +1799,10 @@ export class EntityService extends EntityServiceBase<Entity> {
     protected override prepareItem(item: Entity): Entity {
         // related (owned) collections — drop rows the user removed (marked `_deleted` by useOwnedCollection)
         // so the server deletes them. Repeat per child collection, e.g.:
-        // item.components = item.components?.filter((x) => !x._deleted) || []
-        return item
+        // item.components = item.components?.filter((x) => !x._deleted)
+        // ⚠️ never `|| []` — null means "untouched" to the server, [] means "delete every row", and a
+        // collection this form never loaded is undefined.
+        return super.prepareItem(item) // strips the root `_`-prefixed fields
     }
 
     override toEntity(item: object): Entity {
@@ -2563,8 +2568,11 @@ async function handleRequestSave(item: Entity) {
     }
 }
 async function handleRequestRemove(item: Entity) {
-    await applyRemove(item)
-    handleRemove(item)
+    // Guard on the result, exactly like save: a delete the server refused (409 while the row is still
+    // referenced) would otherwise show the failure AND remove the row until the next fetch.
+    if (await applyRemove(item)) {
+        handleRemove(item)
+    }
 }
 </script>
 ```

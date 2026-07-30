@@ -379,7 +379,7 @@ export async function updateWithAttachments<T extends { id: number; attachments?
 
 ```ts
 // data/Entity.ts — the join field (import the model aliased)
-import { type Entity as EntityAttachment } from "../../entity-attachments"
+import type { Entity as EntityAttachment } from "../../entity-attachments"
 attachments?: Array<EntityAttachment>
 ```
 

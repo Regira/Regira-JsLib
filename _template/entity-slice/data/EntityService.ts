@@ -9,8 +9,10 @@ export class EntityService extends EntityServiceBase<Entity> {
 
     // Owned child collections use the `_deleted` mark (never splice): removed rows are filtered out here so
     // the server deletes them by omission. Add one filter line per owned collection; `super` strips root `_`-fields.
+    // ⚠️ No `|| []` — the back-end contract is null = untouched, [] = delete every row. `?.filter(...)` keeps
+    // undefined for a collection this form never loaded, and still yields [] when the user removed the last row.
     protected override prepareItem(item: Entity): Entity {
-        // TODO (owned collections only): item.children = item.children?.filter((x) => !x._deleted) || []
+        // TODO (owned collections only): item.children = item.children?.filter((x) => !x._deleted)
         return super.prepareItem(item)
     }
 

@@ -12,7 +12,7 @@ const config: IConfig = {
     routePrefix: "products", // URL path segment
     isComplex: true, // entity with child collections / heavier form
     baseQueryParams: { includes: ["Facets"] }, // merged into every list/search
-    initialQuery: { isRoot: true }, // optional default filter
+    initialQuery: { isRoot: true }, // route query for the GENERATED nav link only — not a request default
     overviewTitle: "products",
     detailsTitle: "product",
     description: "product.description",
@@ -56,8 +56,13 @@ Keep them aligned unless you have a reason not to.
 `baseQueryParams` is merged into **every** list/search request (e.g. server-side `includes`) — though only a
 **complex** API entity (`For<…, TSortBy, TIncludes>`) binds `?includes=` on List/Search; a **simple** entity
 ignores it (eager-load the relation on the back-end instead), while Details always eager-loads.
-`initialQuery` seeds the overview's starting filter. Both are plain objects; arrays serialize as
-repeated query keys, and keys starting with `$` are stripped before the request.
+Arrays serialize as repeated query keys, and keys starting with `$` are stripped before the request.
+
+`initialQuery` is a different thing despite the neighbouring name: it has exactly one consumer, `createNavItem`,
+which copies it into the **route query of the generated dashboard/navbar link**. Nothing reads it on the request
+path, so it applies only when the user arrives by clicking that link — it is lost on refresh, on a deep link,
+on back-navigation and on any `router.push`. Anything that must hold for every request (a default `sortBy`,
+`includes`, a mandatory filter) belongs in `baseQueryParams`, or in the server-side default.
 
 ## `EntityDescriptor` (alternative API)
 

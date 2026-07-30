@@ -3,6 +3,27 @@
 Verbatim TypeScript signatures for `regira_modules/vue/ui`. Do not guess — look up here first. For any
 component prop not listed, use the MCP source map (`get_type` on `regira_modules.vue.ui`).
 
+**Where each export lives** — headings group by _category_, so searching for a component name finds nothing.
+Look the name up here, then fetch its heading, e.g.
+`get_package("regira_modules.vue.ui", section: "ui.signatures", heading: "Buttons & input components")`:
+
+| Heading                      | Exports                                                                                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Plugins`                    | `feedbackPlugin`, `iconPlugin`, `loadingPlugin`, `pagingPlugin`, `modalPlugin`, `screenPlugin`                                                                                                                           |
+| `Feedback`                   | `useFeedback`, `Feedback`, `FeedbackStatus`, `FeedbackError`, `FeedbackOut`                                                                                                                                              |
+| `Paging`                     | `Paging`, `usePaging`, `ButtonType`, `ResultSummary`                                                                                                                                                                     |
+| `Loading`                    | `Loading`, `LoadingButton`, `LoadingContainer`, `injectLoading`                                                                                                                                                          |
+| `Modal`                      | `DefaultModal`, `ModalType`, `injectModal`                                                                                                                                                                               |
+| `Tabs`                       | `TabContainer`, `TabNavigation`, `Tab`, `ITab`                                                                                                                                                                           |
+| `Icons`                      | `Icon`, `BsIcon`, `FaIcon`, `IconButton`, `loadIcons`                                                                                                                                                                    |
+| `Screen`                     | `useScreen`, `SCREEN_SIZES`, `IScreen`                                                                                                                                                                                   |
+| `Autocomplete`               | `Autocomplete`, `useAutocomplete`                                                                                                                                                                                        |
+| `Buttons & input components` | `ConfirmButton`, `DateInput`, `DescriptionInput`, `FormButtonsRow`, `NullableCheckBox`, `NullableLabel`, `FileDropZone`, `Anchor`, `FormLabel`, `FormSection`, `CopyToClipboardButton`, `GMap`, `GMapLink`, `GMapButton` |
+
+The table indexes **components, composables and plugins**. Their contract types (`XxxProps` / `XxxEmits` /
+`XxxSlots`) and defaults (`xxxDefaults`) live under the same heading as the thing they belong to — or ask
+`get_type("regira_modules.vue.ui", "ConfirmButton")`, which resolves a component name straight to them.
+
 **Contract convention.** Every skinnable component exports its contract from the barrel:
 `XxxProps` / `XxxEmits` / `XxxSlots` (+ `xxxDefaults` where props have defaults), with behavior in an
 exported `useXxx` composable where one exists. A replacement skin declares
@@ -46,6 +67,8 @@ export enum FeedbackStatus {
     failed = "Failed",
 }
 export type FeedbackIn = { autoHideDelay?: number }
+// ⚠️ A FIELD-ERROR MAP ({ title: "Required" } — the 400 body an EntityInputException's InputErrors produces),
+// or a plain string. NOT an Error: log the exception yourself and pass error.response?.data?.errors.
 export type FeedbackError = string | Record<string, string>
 export interface FeedbackOut {
     status: Ref<FeedbackStatus>
@@ -54,7 +77,7 @@ export interface FeedbackOut {
     isPending: ComputedRef<boolean> // busy flag = status === FeedbackStatus.pending; gate buttons on this
     pending(msg: string): void // every setter REQUIRES a message — there is no no-arg form
     success(msg: string): void
-    fail(msg: string, ex?: FeedbackError): void
+    fail(msg: string, errors?: FeedbackError): void // second arg is the FIELD-ERROR MAP above, never an Error
     reset(): void
 }
 export function useFeedback({ autoHideDelay }?: FeedbackIn): FeedbackOut
@@ -268,11 +291,15 @@ import {
 // ConfirmButton contract (ConfirmButtonProps/Emits/Slots + confirmButtonDefaults):
 //   props: { icon?: string; buttonLabel?: string; modalTitle?: string; modalType?: ModalType }
 //   emits: confirm | cancel | open | close ; slots: button-content, modal, default (confirm-modal body)
+//   exposes: open() / close() — `open` is BOTH an emit (fired on click) and an exposed method. To raise the
+//   same confirmation from another affordance (a swipe, a context menu, a shortcut), keep the button in the
+//   tree and call it through a ref: <ConfirmButton ref="confirm" … /> + confirm.value?.open()
 // DateInput contract (DateInputProps/Emits): { modelValue?: string | Date; culture?: string; readonly?: boolean } (v-model;
 //   `readonly` also refuses the emit — a native picker cannot write through it)
 // NullableCheckBox contract (NullableCheckBoxProps/Emits): { modelValue?: boolean | string | number } (v-model:
 //   true → false → undefined, rendered indeterminate). It has NO `label` prop — pair it with `NullableLabel`
-//   ({ label?: string }, falls back to its default slot) or a plain <label for>.
+//   ({ label?: string }, falls back to its default slot) or a plain <label for>. In full:
+//     <NullableCheckBox v-model="so.isActive" id="isActive" /><NullableLabel for="isActive" label="Active" />
 // DescriptionInput contract (DescriptionInputProps): { label?: string; readonly?: boolean }   (v-model: string)
 // FileDropZone contract (FileDropZoneEmits/Slots): emits "drop-files" (files: Array<Blob>) ; default slot scoped { isDropping }
 // FormButtonsRow contract (FormButtonsRowProps/Emits/Slots): { item?: unknown; readonly?: boolean; feedback?: FeedbackOut; showDelete?: boolean; labels?: { save?: string; cancel?: string; delete?: string; restore?: string }; modalTitle?: string } (reads item.isArchived — truthy, 0/1 ok — to gate Restore, item.$title for the delete prompt; feedback busy-gates Save/Delete/Restore against double-submits; labels/modalTitle override the English defaults for i18n) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")

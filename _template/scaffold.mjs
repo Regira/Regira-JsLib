@@ -135,6 +135,27 @@ if (!name) {
     console.error("Usage: scaffold.mjs <Entity> [options] | --shell | --ui <Component> | --attachments   (run --help for all flags)")
     process.exit(1)
 }
+// The name becomes a class, so it must be PascalCase — the same rule --rel and --owns enforce.
+if (!/^[A-Z][A-Za-z0-9]*$/.test(name)) {
+    // Capitalize each word rather than stripping separators: the message is phrased as a runnable command,
+    // so a flattened "Shoppinglist" would be copied verbatim and produce the wrong class name.
+    const suggestion = name
+        .split(/[^A-Za-z0-9]+/)
+        .filter(Boolean)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join("")
+    console.error(`✗ <Entity> must be PascalCase (a class name) — received "${name}". Try: scaffold.mjs ${suggestion}`)
+    process.exit(1)
+}
+// A model class shadows a same-named DOM global inside every module that imports the slice barrel. It
+// type-checks and usually works (module scope wins), but the failures it does cause are baffling: `(e: Event)`
+// in a handler silently resolves to the entity, and `new Location()` reaches the DOM constructor and throws
+// "Illegal constructor". The back-end guides already warn about the equivalent entity↔namespace collision.
+const DOM_GLOBALS = ["Event", "Location", "Text", "Image", "Range", "Selection", "Notification", "Request", "Response", "Screen", "History", "Node", "Element", "Comment", "Document", "Option", "Attr"]
+if (DOM_GLOBALS.includes(name)) {
+    console.log(`! "${name}" is also a DOM global. The model class shadows window.${name} inside every module that imports this slice — a handler typed (e: ${name}) resolves to your entity, and new ${name}() can reach the DOM constructor and throw "Illegal constructor".`)
+    console.log(`  Prefer a suffixed class name (${name}Item, ${name}Record) and keep the resource, route and i18n keys as they are — renaming later needs --overwrite-slice, which REPLACES the 8 (c) files you authored by then.`)
+}
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1)
 const pluralize = (s) => (/(?:s|x|z|ch|sh)$/i.test(s) ? s + "es" : /[^aeiou]y$/i.test(s) ? s.slice(0, -1) + "ies" : s + "s")
 // Route/folder identifiers are kebab-case, matching the conventional controller route: InterventionType →
@@ -293,7 +314,11 @@ const relationBlocks = {
     headers: relations.map((r, i) => `            <div class="col ${relationBreakpoint(i)}">{{ $t("${r.key}") }}</div>`).join("\n"),
     // data/Entity.ts — the FK and the nested relation, so the generated column type-checks as scaffolded.
     // Barrels export the model as `Entity`, hence the alias.
-    modelImports: relEntities.map((r) => `import { type Entity as ${r.name} } from "${r.alias}"`).join("\n"),
+    // `import type { … }`, not the inline `import { type … }`: under verbatimModuleSyntax the inline modifier
+    // keeps the import STATEMENT at runtime, and --rel is exactly what produces mutually-referencing slices —
+    // whose barrels then cycle through store.ts reading Entity.name at module-evaluation time. The erased
+    // form costs nothing and cannot cycle. (The failure is dev-server-only; vue-tsc and the build stay green.)
+    modelImports: relEntities.map((r) => `import type { Entity as ${r.name} } from "${r.alias}"`).join("\n"),
     fields: relations
         .map((r) => `    ${r.field}Id?: number\n    ${r.field}?: ${r.name} // populated only when the API eager-loads it — e.Includes(...), not a client includes flag`)
         .join("\n"),
@@ -335,10 +360,13 @@ function applyOwnedCollections(relPath, text) {
         process.exit(1)
     }
     const indent = marker[0].match(/^[^\S\r\n]*/)[0]
-    // one filter line per owned collection, in the order the flags were given
+    // One filter line per owned collection, in the order the flags were given. No `|| []`: the back-end
+    // contract is null = untouched, [] = delete every row, so coalescing an unloaded collection to [] tells
+    // the server to delete all of its rows. `?.filter(...)` keeps undefined and still yields [] when the user
+    // removed the last row.
     return text.replace(
         OWNED_FILTER_TODO,
-        owns.map((o) => `${indent}item.${ownedField(o)} = item.${ownedField(o)}?.filter((x) => !x._deleted) || []\n`).join("")
+        owns.map((o) => `${indent}item.${ownedField(o)} = item.${ownedField(o)}?.filter((x) => !x._deleted)\n`).join("")
     )
 }
 
@@ -465,10 +493,10 @@ function scaffoldOwned(childName, fieldName) {
         writeFileSync(resolve(childDest, entry.name), childSubst(readFileSync(join(ownedSrcRoot, entry.name), "utf8")))
     }
     const p = (f) => join(baseDir, plural, f)
-    const filterLine = `item.${childField} = item.${childField}?.filter((x) => !x._deleted) || []`
+    const filterLine = `item.${childField} = item.${childField}?.filter((x) => !x._deleted)`
     console.log(`✓ Owned collection ${childName} → ${join(baseDir, plural, childFolder)} (editable table)`)
     console.log(`  Wire it into the ${name} slice (the editor is generated; these ${sliceGenerated ? "two" : "three"} lines connect it):`)
-    console.log(`    1. ${p("data/Entity.ts")}         field   ${childField}?: Array<${childName}>   // import { type Entity as ${childName} } from "../${childFolder}"`)
+    console.log(`    1. ${p("data/Entity.ts")}         field   ${childField}?: Array<${childName}>   // import type { Entity as ${childName} } from "../${childFolder}"`)
     console.log(`    2. ${p("details/Form.vue")}       render  <${childName}Overview v-model="item.${childField}" />   // import { ${childName}Overview } from "../${childFolder}"`)
     console.log(
         sliceGenerated
@@ -559,7 +587,7 @@ function scaffoldAttachments() {
     copyPlain(attRoot, dest)
     console.log(`✓ Scaffolded the attachments slice → ${join(baseDir, "entity-attachments")}`)
     console.log("  Wire it into each entity that owns files (3 lines + a tab + the service registration):")
-    console.log(`    1. data/Entity.ts         field    attachments?: Array<EntityAttachment>   // import { type Entity as EntityAttachment } from "../../entity-attachments"`)
+    console.log(`    1. data/Entity.ts         field    attachments?: Array<EntityAttachment>   // import type { Entity as EntityAttachment } from "../../entity-attachments"`)
     console.log(`    2. data/EntityService.ts  override insert/update via insertWithAttachments/updateWithAttachments; prepareItem drops _deleted attachments`)
     console.log(`    3. details/Form.vue       tab      <template #files><EntityAttachments v-model="item.attachments" /></template>   // import { Overview as EntityAttachments } from "../../entity-attachments"`)
     console.log(`    4. setup.ts               register new EntityService(useAxios(), config)   // import { useAxios } from "regira_modules/vue/http" — the file-owning service requires an AxiosWithFilesInstance; the default sp.get<AxiosInstance>("axios") registration will not compile`)

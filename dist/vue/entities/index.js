@@ -281,7 +281,7 @@ function U({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
 	async function u(t) {
 		s.value = !0;
 		try {
-			c.reset(), await e.remove(t);
+			return c.reset(), await e.remove(t), !0;
 		} catch (e) {
 			console.error("removing failed", {
 				ex: e,
@@ -292,6 +292,7 @@ function U({ service: e, searchObject: t, defaultPageSize: n = 10 }) {
 		} finally {
 			s.value = !1;
 		}
+		return !1;
 	}
 	function d({ saved: e, isNew: t }) {
 		if (o.value != null) if (t) o.value.push(e);

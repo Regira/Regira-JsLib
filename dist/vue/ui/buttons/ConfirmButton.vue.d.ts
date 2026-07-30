@@ -1,6 +1,11 @@
 import { type ConfirmButtonProps, type ConfirmButtonSlots } from "./confirm";
 type __VLS_Slots = ConfirmButtonSlots;
-declare const __VLS_base: import("vue").DefineComponent<ConfirmButtonProps, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
+declare function handleOpen(): void;
+declare function handleClose(): void;
+declare const __VLS_base: import("vue").DefineComponent<ConfirmButtonProps, {
+    open: typeof handleOpen;
+    close: typeof handleClose;
+}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {} & {
     cancel: () => any;
     close: () => any;
     confirm: () => any;

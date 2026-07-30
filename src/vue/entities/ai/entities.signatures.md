@@ -212,7 +212,9 @@ export interface IConfig extends Record<string, any> {
     name?: string
     key: string // drives route names: `${key}Overview`, `${key}Details`, `${key}Fiche`, `${key}Form`
     requires?: Array<string>
-    isComplex?: boolean
+    isComplex?: boolean // form on a Details PAGE (default true) vs a modal; also gates the FilterAdv toggle.
+    //                     >~6 fields, any relation or any collection → page. Distinct from the back-end
+    //                     simple/complex split, which is about For<> generic arity.
     routePrefix: string // URL path segment
     baseQueryParams?: Record<string, unknown> // merged into every list/search request
     initialQuery?: Record<string, unknown> // seeds the generated nav link's route query — nothing else reads it
@@ -281,8 +283,8 @@ export type OverviewCoreOut<T extends IEntity, SO extends ISearchObject = ISearc
     itemsCount: Ref<number | undefined>
     isLoading: Ref<boolean>
     feedback: FeedbackOut
-    applySave(item: T): Promise<SaveResult<T> | undefined>
-    applyRemove(item: T): Promise<void>
+    applySave(item: T): Promise<SaveResult<T> | undefined> // undefined = the save failed
+    applyRemove(item: T): Promise<boolean> // false = the server refused the delete (409, 403, …)
     handleSave({ saved, isNew }: SaveResult<T>): void
     handleRemove(item: T): void
     resetPage(): void
@@ -316,7 +318,15 @@ export function useOverviewCore<T extends IEntity, SO extends ISearchObject = IS
     searchObject,
     defaultPageSize,
 }: OverviewCoreIn<T, SO>): OverviewCoreOut<T, SO>
+```
 
+⚠️ **`applySave` and `applyRemove` both report failure through their return value, and both need guarding.**
+They catch the error and raise it through `feedback`, so a rejected write does not throw at the call site —
+the caller decides what happens to the list. Apply the result before mutating it:
+`if (await applyRemove(item)) handleRemove(item)`. Calling `handleRemove(item)` unconditionally leaves the
+failure message up and removes the row anyway, which is the shape a 409 on a still-referenced row takes.
+
+```ts
 export type RouteOverviewIn<SO extends ISearchObject = ISearchObject> = {
     pagingInfo: Ref<IPagingInfo>
     searchObject: Ref<SO>

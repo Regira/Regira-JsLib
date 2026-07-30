@@ -19,6 +19,17 @@ Each view is a thin Vue component that delegates to a composable.
 handler, defaultPageSize })` keeps those in sync with the URL query and re-searches on navigation,
 returning `updateOverviewRoute`. (`useOverviewCore` is the shared base.)
 
+`applySave` and `applyRemove` raise failures through `feedback` rather than throwing, and report them in
+their return value — `SaveResult<T> | undefined` and `boolean`. Guard the list mutation on it:
+
+```ts
+if (await applyRemove(item)) handleRemove(item)
+```
+
+Calling `handleRemove(item)` unconditionally removes the row even when the server refused the delete
+(a 409 while the row is still referenced), so the list and the failure message contradict each other
+until the next fetch.
+
 **`useSearchView` vs `useListView`** — a fetch-shape choice (every controller exposes `/search`): use
 `useSearchView` when you want counted paging + filters (`service.search()` → `{ items, count }`), and
 `useListView` when a plain list is enough (`service.list()` → `{ items }`).

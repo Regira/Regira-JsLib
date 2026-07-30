@@ -45,8 +45,14 @@ import { initAxios, useAxios, createQueryString } from "regira_modules/vue/http"
 ```
 
 > **Cross-slice import rule:** a slice barrel re-exports its model as the default **`Entity`**, not under the
-> class name. Import another slice's model aliased — `import { type Entity as Vehicle } from "@/entities/vehicles"`
-> — and its `config` / `EntityService` / `Selector` / `InputSelector` by those same generic export names.
+> class name. Import another slice's model aliased, with the fully erased form —
+> `import type { Entity as Vehicle } from "@/entities/vehicles"` — and its `config` / `EntityService` /
+> `Selector` / `InputSelector` by those same generic export names.
+>
+> ⚠️ **`import type { … }`, not `import { type … }`.** Under `verbatimModuleSyntax` the inline modifier keeps
+> the import statement at runtime, so two slices referencing each other's model make a barrel cycle that
+> `data/store.ts` trips by reading `Entity.name` during module evaluation. It fails only on the dev server —
+> `vue-tsc` and `npm run build` stay green.
 
 ---
 

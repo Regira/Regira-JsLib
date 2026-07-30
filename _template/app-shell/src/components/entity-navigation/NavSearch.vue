@@ -15,7 +15,13 @@ function handleSearch() {
 </script>
 <template>
     <form v-if="searchItemConfig" class="d-flex" @submit.prevent="handleSearch">
-        <input v-model.trim="q" type="search" class="form-control me-2" :placeholder="`Search ${searchItemConfig.overviewTitle}`" />
+        <!-- overviewTitle is an i18n KEY, not a label — interpolating it raw renders "Search products". -->
+        <input
+            v-model.trim="q"
+            type="search"
+            class="form-control me-2"
+            :placeholder="`${$t('search')} ${$t(searchItemConfig.overviewTitle || '')}`"
+        />
         <IconButton icon="search" class="btn-outline-primary" type="submit" />
     </form>
 </template>

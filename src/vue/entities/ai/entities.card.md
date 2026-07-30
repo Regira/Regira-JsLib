@@ -3,7 +3,9 @@
 > The must-know bullets before building a Vue 3 SPA on the Regira entities client. Drill into
 > `entities.instructions` (the spine), `entities.setup` (project + app shell), `entities.namespaces` /
 > `entities.signatures` (never guess an import or signature), and the examples/patterns sections for
-> detail. **Read economically:** this card + a heading-scoped `get_package` (its `section` + `heading`
+> detail. If your app has an **aggregate root** — one entity carrying attachments, owned collections and
+> siblings that reference it back — read `entities.advanced.example` early; it is one complete slice of
+> exactly that shape, and assembling the equivalent from four sections costs more than reading it. **Read economically:** this card + a heading-scoped `get_package` (its `section` + `heading`
 > params; find headings with `get_section_toc`) usually suffices — pull a whole section only when a
 > heading isn't enough.
 > Back-end counterpart: `get_package_card("Regira.Entities")`.
@@ -32,6 +34,9 @@
   the overview's row-edit and "new" actions navigate to the **Details page**. Reserve the modal form
   (`isComplex: false`, `FormModalButton`) for a **very basic** entity — a handful of scalar fields, no
   relations, no tabs. A modal per real entity does not scale (no deep-link, no tabs, cramped on mobile).
+  **When it is a coin flip, use the page.** Concretely: more than ~6 editable fields, _any_ relation, or
+  _any_ collection → page. Modal only for the flat lookup tables (a title, maybe a code and a colour).
+  `isComplex` also gates the advanced-filter toggle on the overview, so a modal entity gets no `FilterAdv`.
 - **A displayed _related_ entity defaults to its `FormModalButton`** — every chip, badge, or list cell that
   shows a related row opens that row's form in a modal (quick-edit), whatever that entity's own `isComplex`;
   a bare text label is the exception. This is distinct from the rule above: it edits a _neighbour_, not the
@@ -59,12 +64,19 @@
 - **A slice is:** model (`EntityBase`, override `$id`/`$title`) + `IConfig` + service
   (`EntityServiceBase<T>`, implement only `toEntity`) + pooled Pinia store (`createStore`) + thin views
   driven by `useSearchView` / `useDetails` / `useForm` / `useFilter`.
-- **Cross-slice model imports must alias `Entity`.** A slice barrel re-exports its model as the default
-  `Entity`, not under the class name — importing `{ MyNamedEntity }` is the `TS2305 "has no exported member"`
-  trap (the most common first error in a multi-entity app). Always
-  `import { type Entity as MyNamedEntity } from "@/entities/my-named-entities"`. Inside a slice, import its
-  **own** model as the default (`import type Entity from "./data/Entity"`) — `import { type Entity }` from the
-  data module grabs the `const` value binding and fails `TS2749`.
+- **Cross-slice model imports must alias `Entity`, with `import type`.** A slice barrel re-exports its model as
+  the default `Entity`, not under the class name — importing `{ MyNamedEntity }` is the
+  `TS2305 "has no exported member"` trap (the most common first error in a multi-entity app). Always
+  `import type { Entity as MyNamedEntity } from "@/entities/my-named-entities"`. Use the **fully erased**
+  `import type { … }` form rather than the inline `import { type … }`: under `verbatimModuleSyntax` (both
+  scaffolded tsconfigs enable it) the inline modifier keeps the import _statement_, so two slices that
+  reference each other's model form a runtime barrel cycle — and `data/store.ts` reads `Entity.name` at
+  module-evaluation time, so whichever barrel is entered second gets a half-initialised binding:
+  `ReferenceError: Cannot access 'Entity' before initialization`. ⚠️ The tell is that **`vue-tsc` and
+  `npm run build` are both green** (Rollup hoists it away) and only the dev server fails. Bidirectional slice
+  references are normal in a CRUD app, so prefer the erased form everywhere; it costs nothing.
+  Inside a slice, import its **own** model as the default (`import type Entity from "./data/Entity"`) —
+  `import { type Entity }` from the data module grabs the `const` value binding and fails `TS2749`.
 
 ## Relations & owned collections
 
@@ -98,15 +110,20 @@
   `get_type("regira_modules.vue.ui", "useFeedback")` — cheaper than finding and reading the `.d.ts`.
     - `useFeedback()` **returns the feedback object itself** — `const feedback = useFeedback()`, then bind
       `<Feedback :feedback="feedback" />`. Not `const { feedback } = …`: that is `useForm()`'s shape, and the
-      asymmetry is the trap. Members: `pending(msg)` / `success(msg)` / `fail(msg, ex?)` / `reset()` — **the
+      asymmetry is the trap. Members: `pending(msg)` / `success(msg)` / `fail(msg, errors?)` / `reset()` — **the
       message is required**, `pending()` does not compile — plus an `isPending` computed. There is no `loading()`.
+      ⚠️ `fail`'s second argument is a **field-error map** (`FeedbackError = string | Record<string, string>` —
+      the 400 response shape), **not an `Error`**: `feedback.fail("Saving failed", ex.response?.data?.errors)`,
+      and log the exception yourself. Passing the caught exception is the misremembering this warning exists for.
     - `service.search(so?)` / `list(so?)` — **paging and sorting ride the argument, flat**, not your
       `SearchObject` class: `search({ ...so, pageSize: 0, sortBy: ["TitleDesc"] })`. Assigning `so.pageSize = 25`
       to a scaffolded `SearchObject` instance does not type-check; the param is
       `ISearchObject & IPagingInfo & Partial<ISortByInfo>`, and `ISearchObject extends Record<string, any>`, so
       any other key you add reaches the query string too (arrays as repeated keys). `new PagingInfo(pageSize?,
 page?)` is positional, and is for the overview composable's `pagingInfo` ref — **not** for `search()`.
-    - `Tab.create("form", { title: translate("form"), icon })` — the first argument is the **key** (it lands in
+    - `Tab.create("form", { title: translate("form"), icon })` — with `const { translate } = useLang()` from
+      **`regira_modules/vue/lang`** (there is no `useTranslate`/`useLangTranslate`; every import specifier is in
+      `entities.namespaces`). The first argument is the **key** (it lands in
       the route hash, so keep it stable); it also seeds the title, which `values.title` then overrides. Tab
       titles render untranslated unless you pass one.
 - **Anything that fetches on mount must also react to login.** A view mounted while the login modal is still

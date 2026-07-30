@@ -13,7 +13,7 @@ const config: IConfig = {
 
     routePrefix: "__entities__", // TODO: URL path segment
     baseQueryParams: {}, // add includes ONLY for a COLLECTION the API gates behind its named [Flags] enum, e.g. { includes: ["Lines"] }; a to-one shown on every row belongs in the API's unconditional e.Includes instead
-    initialQuery: {},
+    initialQuery: {}, // route query for the GENERATED nav link ONLY — lost on refresh/deep-link. A default sortBy or includes belongs in baseQueryParams
 
     overviewTitle: "__entitiesKey__", // camelCase i18n keys (multi-word → e.g. shoppingLists / shoppingList) — add matching entries to public/data/translations.json, or the nav renders the raw key
     detailsTitle: "__entityKey__",

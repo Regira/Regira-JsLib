@@ -132,20 +132,20 @@ var G = {
 			}), d();
 		};
 		return (t, n) => S(u) || p.value || m.value ? (g(), l("div", G, [
-			e.hideCloseButton ? c("", !0) : y(t.$slots, "close-button", { key: 0 }, () => [f(r, {
+			e.hideCloseButton ? c("", !0) : y(t.$slots, "close-button", {}, () => [f(r, {
 				icon: "close",
 				class: h(["rg-feedback__close-button btn btn-sm position-absolute end-0 p-1", { "text-light": m.value }]),
 				onClick: _
-			}, null, 8, ["class"])]),
-			S(u) ? y(t.$slots, "pending", { key: 1 }, () => [f(T, {
+			}, null, 8, ["class"])], void 0, 0),
+			S(u) ? y(t.$slots, "pending", {}, () => [f(T, {
 				msg: S(a),
 				class: "rg-feedback__pending px-2 py-1 border h-100"
-			}, null, 8, ["msg"])]) : c("", !0),
-			p.value ? y(t.$slots, "success", { key: 2 }, () => [f(D, {
+			}, null, 8, ["msg"])], void 0, 1) : c("", !0),
+			p.value ? y(t.$slots, "success", {}, () => [f(D, {
 				msg: S(a),
 				class: "rg-feedback__success px-2 py-1 border h-100"
-			}, null, 8, ["msg"])]) : c("", !0),
-			m.value ? y(t.$slots, "error", { key: 3 }, () => [f(V, {
+			}, null, 8, ["msg"])], void 0, 2) : c("", !0),
+			m.value ? y(t.$slots, "error", {}, () => [f(V, {
 				msg: S(a),
 				error: S(s),
 				"enable-popup": e.enableErrorPopup,
@@ -154,7 +154,7 @@ var G = {
 				"msg",
 				"error",
 				"enable-popup"
-			])]) : c("", !0)
+			])], void 0, 3) : c("", !0)
 		])) : c("", !0);
 	}
 }), q = { install: (e, t) => {

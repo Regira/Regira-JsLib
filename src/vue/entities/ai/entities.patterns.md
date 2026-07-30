@@ -681,7 +681,7 @@ tab. The owner's service takes an `AxiosWithFilesInstance` (see [advanced exampl
 
 ```ts
 // data/Entity.ts
-import { type Entity as EntityAttachment } from "../../entity-attachments"
+import type { Entity as EntityAttachment } from "../../entity-attachments"
 attachments?: Array<EntityAttachment>
 ```
 
@@ -814,6 +814,10 @@ without it a refresh silently drops back to the first tab; with it the active ta
 ```
 
 ```ts
+import { computed } from "vue"
+import { useLang } from "regira_modules/vue/lang"
+import { Tab, useScreen } from "regira_modules/vue/ui"
+
 const { translate } = useLang()
 const { screen } = useScreen()
 const tabs = computed(() =>

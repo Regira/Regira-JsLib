@@ -46,6 +46,42 @@ function aliasImports(dir) {
     return [...specs]
 }
 
+/** run scaffold.mjs expecting a non-zero exit; returns its stderr */
+function runFailing(...args) {
+    try {
+        execFileSync(process.execPath, [scaffold, ...args], { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] })
+    } catch (ex) {
+        return `${ex.stdout || ""}${ex.stderr || ""}`
+    }
+    throw new Error(`expected scaffold.mjs ${args.join(" ")} to fail`)
+}
+
+describe("scaffold.mjs entity name", () => {
+    test("rejects a non-PascalCase entity name", () => {
+        // The name becomes a class; --rel and --owns already enforce this, while the root argument was
+        // accepted verbatim and emitted `export class product extends EntityBase`.
+        const err = runFailing("product", "--no-auth")
+
+        expect(err).toContain("must be PascalCase")
+        expect(err).toContain("Product")
+    })
+
+    test("warns when the entity name shadows a DOM global", () => {
+        // A model class named Location shadows window.Location inside every module importing the barrel:
+        // new Location() reaches the DOM constructor and throws "Illegal constructor".
+        const out = run("Location", "--no-auth")
+
+        expect(out).toContain("DOM global")
+        expect(out).toContain("LocationItem")
+    })
+
+    test("a normal entity name produces no collision warning", () => {
+        const out = run("Invoice", "--no-auth")
+
+        expect(out).not.toContain("DOM global")
+    })
+})
+
 describe("scaffold.mjs derived paths", () => {
     test("a slice folder is kebab-cased, from the derived plural", () => {
         run("ShoppingList", "--no-auth")
@@ -171,10 +207,22 @@ describe("scaffold.mjs owned collections", () => {
         run("PurchaseOrder", "--owns", "PurchaseOrderLine", "--owns", "PurchaseOrderNote", "--as", "notes", "--no-auth")
         const service = readFileSync(app("src", "entities", "purchase-orders", "data", "EntityService.ts"), "utf8")
 
-        expect(service).toContain("item.purchaseOrderLines = item.purchaseOrderLines?.filter((x) => !x._deleted) || []")
-        expect(service).toContain("item.notes = item.notes?.filter((x) => !x._deleted) || []") // --as renames the key
+        expect(service).toContain("item.purchaseOrderLines = item.purchaseOrderLines?.filter((x) => !x._deleted)")
+        expect(service).toContain("item.notes = item.notes?.filter((x) => !x._deleted)") // --as renames the key
         expect(service).not.toContain("TODO (owned collections only)")
         expect(service).toContain("return super.prepareItem(item)")
+    })
+
+    test("does not coalesce an unloaded owned collection to an empty array", () => {
+        // regression: `|| []` turned "this form never loaded the collection" (undefined) into "delete every
+        // row" — the back-end contract is null = untouched, [] = delete-all, and the failure is silent.
+        run("PurchaseOrder", "--owns", "PurchaseOrderLine", "--no-auth")
+        const filterLines = readFileSync(app("src", "entities", "purchase-orders", "data", "EntityService.ts"), "utf8")
+            .split("\n")
+            .filter((l) => !/^\s*\/\//.test(l) && l.includes("_deleted"))
+
+        expect(filterLines.length).toBeGreaterThan(0)
+        expect(filterLines.some((l) => l.includes("|| []"))).toBe(false)
     })
 
     test("strips the marker line entirely when nothing is owned", () => {

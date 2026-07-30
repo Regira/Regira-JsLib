@@ -75,7 +75,7 @@ front-end (those are back-end concepts). You wire entities purely in app code.
 | **Scaffold a new entity** (`scaffold.mjs <Entity>` copies the full slice; `--api <path>` when the server route differs from the folder, `--rel <Related>` per displayed to-one relation, `--owns <Child>` per owned collection, `--overwrite-slice` to re-scaffold an existing slice — `--force` does not cover slices; then fill the `(c)` files) | → [entities.template.md](entities.template.md)                                                                                                   |
 | **Scaffold file attachments** (`scaffold.mjs --attachments` copies the shared offline file/upload slice, once per app)                                                                                                                                                                                                                             | → [entities.attachments.template.md](entities.attachments.template.md)                                                                           |
 | **See a worked slice, simplest first** (a **simple** `UnitType`, then a **standard** `Product`)                                                                                                                                                                                                                                                    | → [entities.examples.md](entities.examples.md)                                                                                                   |
-| **See a complex slice** (attachments, many-to-many link, owned child collection, `Vehicle`)                                                                                                                                                                                                                                                        | → [entities.advanced.example.md](entities.advanced.example.md)                                                                                   |
+| **See a complex slice — an aggregate root with attachments, owned child collections, a many-to-many link and sibling entities that reference it back** (`Vehicle`). Read this whenever your entity is the centre of its domain, even if you have already solved those features individually: the value is the _shape_, not the feature list        | → [entities.advanced.example.md](entities.advanced.example.md)                                                                                   |
 | **Implement one feature** (child collections, trees, JSON lookups, union search, navigation, custom endpoints, OpenAPI typing)                                                                                                                                                                                                                     | → [entities.patterns.md](entities.patterns.md)                                                                                                   |
 | **Run without authentication**                                                                                                                                                                                                                                                                                                                     | → [entities.setup.md §Running without auth](entities.setup.md#running-without-authentication)                                                    |
 
@@ -208,6 +208,30 @@ on drag wants `Related()` to see `null`, not a stale array) without touching the
   (the preferred path for display; see
   [entities.patterns.md → Resolving relations with `fromPool`](entities.patterns.md#resolving-relations-with-frompool)).
   What you must **not** do is read `item.vehicle?.$title` off the **raw** relation.
+- ⚠️ **A nested COLLECTION needs lifting, and its dates are the part that bites.** `fromPool` answers the
+  to-one case; for `?includes=Sessions` there is no pooled parent to route through, so `event.sessions[]`
+  arrives as an array of plain JSON: no getters, no computed fields, and **every date is still a `string`**.
+  `a.startTime?.getTime()` therefore throws _"getTime is not a function"_ — and Vue swallows it into an
+  opaque `Unhandled error during execution of render function`, pointing nowhere near the cause. The scaffold
+  hides this because `--rel` routes list-row relations through `fromPool()`; it surfaces the moment a custom
+  view (an agenda, a timeline, a chart) touches a nested model directly. Give the child model a
+  `static create(values?)` that normalizes its dates and lifts its own relations, and call it from the
+  parent's `toEntity` — the same lifting the owned-collection recipe prescribes
+  ([entities.patterns.md](entities.patterns.md#owned-rows-with-scalar-fields--the-inline-table)):
+
+    ```ts
+    override toEntity(item: object): Entity {
+        const entity = item instanceof Entity ? item : Object.assign(this.createInstance(Entity as new () => Entity), item || {})
+        entity.sessions = entity.sessions?.map((x) => Session.create(x)) // dates → Date, getters restored
+        return entity
+    }
+    ```
+
+    Also expect **`[NotMapped]` fields to be `null` on nested rows**: a back-end processor runs only in its own
+    entity's read pipeline, so a count the child's own endpoint fills is absent when the child arrives nested.
+    Render `null` as "unknown", not as `0`. Back-end mappers behave the same way — an after-mapper populating a
+    `DisplayName` does not run on a nested projection, so compose such a label client-side from the fields the
+    API actually projects.
 
 ---
 
@@ -447,19 +471,20 @@ Keep every view thin: bind the refs the composables return.
 Run through this before writing any `Form.vue`; each row is a shipped composable/component, and
 hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](entities.patterns.md)):
 
-| The form has…                                                     | Reach for                                                                                                                                                                                                                                                             |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2+ related collections / many fields                              | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                                                                                                                                                       |
-| an editable child/join **relation** (rows link to another entity) | **`InputSelectorInline`** chips (`_deleted` mark + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls                                                                                                             |
-| editable owned rows with **scalar fields** (nothing to pick)      | an inline **table** via `useOwnedCollection` (add-row + `_deleted`) + the same `prepareItem` filter — [recipe](entities.patterns.md#owned-rows-with-scalar-fields--the-inline-table)                                                                                  |
-| **files / pictures** on the entity                                | the `entity-attachments` slice in a tab: `FileDropZone` drop, offline add/rename/remove (`_deleted`), flush on save via `useAxios().upload` — never `FileHelper.send` — [recipe](entities.patterns.md#attachments-files--offline-add--rename--remove-confirm-on-save) |
-| a related entity displayed anywhere                               | that entity's **`FormModalButton`** (chip/badge that opens its form in a modal) — a bare label is the exception, not the default                                                                                                                                      |
-| "add related entity" controls                                     | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows)                                                                                                                                                                          |
-| any save/remove path                                              | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                                                                                                                                                                 |
-| relation labels                                                   | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                                                                                                                                                       |
-| tricky state while developing                                     | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                                                                                                                                                           |
-| breakpoint-dependent layout                                       | CSS/flex first; `useScreen` when the structure itself changes (e.g. dropping a tab)                                                                                                                                                                                   |
-| any component you drop in                                         | **deliberate spacing** — wrap fields in `FormSection`, give each `mb-2`/`mb-3` + margins; scaffolded markup ships tight on purpose (overriding a Bootstrap `!important` utility needs `!important` back)                                                              |
+| The form has…                                                                                | Reach for                                                                                                                                                                                                                                                             |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2+ related collections / many fields                                                         | `TabContainer` + `Tab.create` tabs — not one long column or a fixed-width table                                                                                                                                                                                       |
+| an editable child/join **relation** (rows link to another entity)                            | **`InputSelectorInline`** chips (`_deleted` mark + `exclude`) + a `prepareItem` filter — never the hard-removing `Selector`, never per-row `DELETE` calls                                                                                                             |
+| editable owned rows with **scalar fields** (nothing to pick)                                 | an inline **table** via `useOwnedCollection` (add-row + `_deleted`) + the same `prepareItem` filter — [recipe](entities.patterns.md#owned-rows-with-scalar-fields--the-inline-table)                                                                                  |
+| rows carrying **both** — a relation **and** scalars (quantity, sort order, role, valid-from) | the **table**, with an `InputSelector` in the relation column. Very common on join rows; the chips form has nowhere to put the scalars                                                                                                                                |
+| **files / pictures** on the entity                                                           | the `entity-attachments` slice in a tab: `FileDropZone` drop, offline add/rename/remove (`_deleted`), flush on save via `useAxios().upload` — never `FileHelper.send` — [recipe](entities.patterns.md#attachments-files--offline-add--rename--remove-confirm-on-save) |
+| a related entity displayed anywhere                                                          | that entity's **`FormModalButton`** (chip/badge that opens its form in a modal) — a bare label is the exception, not the default                                                                                                                                      |
+| "add related entity" controls                                                                | `InputSelector` with `:filter-defaults="{ exclude: currentIds }"` (hides already-added rows)                                                                                                                                                                          |
+| any save/remove path                                                                         | a rendered `<Feedback :feedback="feedback" />` — `useForm`'s own, or `useFeedback()` for custom calls                                                                                                                                                                 |
+| relation labels                                                                              | `fromPool(item.relation)?.$title` via the sibling store — not the raw DTO field                                                                                                                                                                                       |
+| tricky state while developing                                                                | `<Debug :modelValue="…" />` — self-gates on `$isDebug`, inert in production                                                                                                                                                                                           |
+| breakpoint-dependent layout                                                                  | CSS/flex first; `useScreen` when the structure itself changes (e.g. dropping a tab)                                                                                                                                                                                   |
+| any component you drop in                                                                    | **deliberate spacing** — wrap fields in `FormSection`, give each `mb-2`/`mb-3` + margins; scaffolded markup ships tight on purpose (overriding a Bootstrap `!important` utility needs `!important` back)                                                              |
 
 > **An owned collection is done only when it's editable.** If the parent's back-end `e.Related(...)` owns a
 > collection, its add/edit/remove editor (the chips or table row above) is **part of this slice** — shipping the
@@ -479,7 +504,8 @@ hand-rolling one is a deviation to declare (recipes: [entities.patterns.md](enti
 
 > **Never guess a composable's shape — the signatures are indexed (mind the module split).** Feedback, tabs,
 > breakpoints, loading and `DefaultModal` live in **`ui.signatures.md`** (`useFeedback` → `pending`/`success`/
-> `fail`/`reset` — there is no `loading()`; `Tab.create("form", { title: translate("form"), icon })` — the first
+> `fail`/`reset` — there is no `loading()`; `Tab.create("form", { title: translate("form"), icon })`, where
+> `translate` comes from `const { translate } = useLang()` in **`regira_modules/vue/lang`** — the first
 > arg seeds `key` _and_ `title`, and **`TabNavigation` renders `tab.title` verbatim, no `$t()`**, so always
 > supply a translated `title` in `values`; `useScreen` → `screen.isLarge`);
 > `useForm`/`useSearchView`/`useModal`/`FormModalButton`/`usePreloader` live in **`entities.signatures.md`**.

@@ -289,35 +289,38 @@ var me = { class: "loading list-group-item" }, he = ["onClick"], ge = { key: 0 }
 		"open",
 		"close"
 	],
-	setup(e, { emit: t }) {
-		let n = t, r = l(), i = N(!1);
-		function a() {
-			n("confirm"), c();
-		}
+	setup(e, { expose: t, emit: n }) {
+		let r = n, i = l(), a = N(!1);
 		function o() {
-			n("open"), i.value = !0;
+			r("confirm"), d();
 		}
 		function s() {
-			n("cancel"), c();
+			r("open"), a.value = !0;
 		}
 		function c() {
-			n("close"), i.value = !1;
+			r("cancel"), d();
 		}
-		return (t, n) => (M(), x("button", {
+		function d() {
+			r("close"), a.value = !1;
+		}
+		return t({
+			open: s,
+			close: d
+		}), (t, n) => (M(), x("button", {
 			type: "button",
 			class: "rg-confirm-button btn",
 			name: e.icon,
-			onClick: o
+			onClick: s
 		}, [F(t.$slots, "button-content", {}, () => [e.icon == null ? b("", !0) : (M(), y(u, {
 			key: 0,
 			name: e.icon
-		}, null, 8, ["name"])), e.buttonLabel ? (M(), x("span", be, z(e.buttonLabel), 1)) : b("", !0)]), (M(), y(_, { to: "#modals" }, [F(t.$slots, "modal", {}, () => [(M(), y(R(B(r)), {
-			"is-visible": i.value,
+		}, null, 8, ["name"])), e.buttonLabel ? (M(), x("span", be, z(e.buttonLabel), 1)) : b("", !0)]), (M(), y(_, { to: "#modals" }, [F(t.$slots, "modal", {}, () => [(M(), y(R(B(i)), {
+			"is-visible": a.value,
 			type: e.modalType,
 			title: e.modalTitle,
-			onSubmit: a,
-			onCancel: s,
-			onClose: c
+			onSubmit: o,
+			onCancel: c,
+			onClose: d
 		}, {
 			default: H(() => [F(t.$slots, "default")]),
 			_: 3
@@ -508,7 +511,7 @@ var me = { class: "loading list-group-item" }, he = ["onClick"], ge = { key: 0 }
 	__name: "NullableLabel",
 	props: { label: {} },
 	setup(e) {
-		return (t, n) => (M(), x("span", { class: A(["rg-nullable-label", { "italic-muted": !e.label }]) }, [e.label ? (M(), x(g, { key: 0 }, [C(z(e.label), 1)], 64)) : F(t.$slots, "default", { key: 1 })], 2));
+		return (t, n) => (M(), x("span", { class: A(["rg-nullable-label", { "italic-muted": !e.label }]) }, [e.label ? (M(), x(g, { key: 0 }, [C(z(e.label), 1)], 64)) : F(t.$slots, "default", {}, void 0, void 0, 1)], 2));
 	}
 }), Ve = { class: "form-section mb-3" }, He = { class: "form-section-title bg-body-secondary rounded-2 px-2 mb-2" }, Ue = { class: "row align-items-center" }, We = { class: "fs-6 fw-semibold py-2 mb-0" }, Ge = { class: "col-auto" }, Ke = /* @__PURE__ */ T({
 	__name: "FormSection",
@@ -546,14 +549,8 @@ var me = { class: "loading list-group-item" }, he = ["onClick"], ge = { key: 0 }
 			class: "btn btn-default my-1 px-2 py-1 opacity-50",
 			onClick: G(c, ["stop"])
 		}, [w(u, { name: a.value ? "maximize" : "minimize" }, null, 8, ["name"])])])])])]), U(S("div", { class: A(["form-section-body", s.value && e.summaryClass]) }, [
-			!t.$slots.summary || !s.value ? F(t.$slots, "default", {
-				key: 0,
-				collapsed: a.value
-			}) : b("", !0),
-			t.$slots.summary && s.value ? F(t.$slots, "summary", {
-				key: 1,
-				collapsed: a.value
-			}) : b("", !0),
+			!t.$slots.summary || !s.value ? F(t.$slots, "default", { collapsed: a.value }, void 0, void 0, 0) : b("", !0),
+			t.$slots.summary && s.value ? F(t.$slots, "summary", { collapsed: a.value }, void 0, void 0, 1) : b("", !0),
 			F(t.$slots, "always")
 		], 2), [[se, !a.value]])]));
 	}
@@ -683,7 +680,7 @@ var rt = ["disabled"], it = /* @__PURE__ */ T({
 			type: "button",
 			class: "rg-loading-button btn",
 			disabled: e.disabled || e.isLoading
-		}, [e.isLoading ? F(n.$slots, "loading", { key: 0 }, () => [(M(), y(R(B(t)), { style: { width: "1rem" } }))]) : F(n.$slots, "default", { key: 1 })], 8, rt));
+		}, [e.isLoading ? F(n.$slots, "loading", {}, () => [(M(), y(R(B(t)), { style: { width: "1rem" } }))], void 0, 0) : F(n.$slots, "default", {}, void 0, void 0, 1)], 8, rt));
 	}
 }), at = /* @__PURE__ */ T({
 	__name: "LoadingContainer",
