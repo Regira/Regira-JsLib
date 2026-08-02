@@ -5,8 +5,14 @@ browse, rename, remove, drag-to-reorder) and commits everything on the **parent 
 once per app, then bind it in a tab on every entity that owns files.
 
 ```bash
-node node_modules/regira_modules/_template/scaffold.mjs --attachments   # → src/entities/entity-attachments/
+node .../scaffold.mjs <Entity> --attachments   # the shared slice + the wiring, into a NEW <Entity> slice
+node .../scaffold.mjs --attachments            # the shared slice only → src/entities/entity-attachments/
 ```
+
+Name an entity and the generator writes three of the four edits below into that slice — the `attachments`
+field, the `insert`/`update` overrides and the `prepareItem` filter — leaving you the form tab. It only does
+so for a slice it is generating: against one that already exists, it scaffolds the shared slice and prints
+the same edits for you to apply, because those files are yours.
 
 It builds on shipped primitives — `FileDropZone` (`vue/ui`), `useAxios().upload`/`getFile` (`vue/http`,
 field name defaults to `"file"`, baseURL-aware), and `file-utility` — so **do not** reach for
@@ -355,10 +361,13 @@ export { default as Attachment } from "./attachments/Entity"
 
 ## Wire it into an owning entity
 
-Four edits in the owner's slice: the join field, the service overrides, the form tab, and — ⚠️ **the one
-documented exception to "you never touch the boilerplate files"** — `setup.ts`, because the owner's service
-must now be constructed with an `AxiosWithFilesInstance` instead of a plain `AxiosInstance`
-(see [entities.advanced.example.md](entities.advanced.example.md) §13).
+Three edits in the owner's slice: the join field, the service overrides, and the form tab.
+
+⚠️ **`setup.ts` needs nothing.** The helpers upload through `useAxios()`, so the service keeps its plain
+`AxiosInstance` constructor and the default registration stands. It is only when you add endpoints of your
+own — `getAttachments` / `addAttachment` calling `this.axios.upload` / `getFile`, as the Vehicle service in
+[entities.advanced.example.md](entities.advanced.example.md) §13 does — that the constructor takes an
+`AxiosWithFilesInstance` and `setup.ts` has to resolve one.
 
 The helper signatures (they live in **your** scaffolded slice, not in `regira_modules`):
 
@@ -405,7 +414,8 @@ protected override prepareItem(item: Owner): Owner {
 ```
 
 ```ts
-// setup.ts — the boilerplate exception: resolve axios as the file-capable instance
+// setup.ts — ONLY if the service gained getAttachments/addAttachment of its own (they call this.axios
+// .upload/.getFile). With just the overrides above, leave setup.ts and the constructor as generated.
 import type { AxiosWithFilesInstance } from "regira_modules/vue/http"
 serviceProvider.add(Entity.name, (sp) => new EntityService(sp.get<AxiosWithFilesInstance>("axios")!, config))
 ```

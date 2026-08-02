@@ -35,6 +35,8 @@ export type FormSectionSlots = {
 };
 export type NullableCheckBoxProps = {
     modelValue?: boolean | string | number;
+    /** renders a clickable label beside the box; associated via `for` when an `id` is passed */
+    label?: string;
 };
 export type NullableCheckBoxEmits = {
     (e: "update:modelValue", modelValue?: boolean): void;

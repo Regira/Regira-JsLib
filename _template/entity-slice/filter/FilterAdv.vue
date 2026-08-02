@@ -17,9 +17,10 @@
         <!-- TODO: one input per SearchObject filter field (placeholder `title` — keep in sync with SearchObject.ts).
              Native <input> → @change="handleUpdate". A custom component (InputSelector, NullableCheckBox,
              DateInput) emits Vue events only → @select="handleUpdate" / @update:modelValue="handleUpdate",
-             or the results and the count go stale. e.g.:
+             or the results and the count go stale. A checkbox filter needs its own label — pass `label`
+             (with an `id`, so clicking the text toggles the box). e.g.:
                  <BarInputSelector v-model="bar" v-model:idValue="searchObject.barId" @select="handleUpdate" />
-                 <NullableCheckBox v-model="searchObject.isActive" @update:modelValue="handleUpdate" /> -->
+                 <NullableCheckBox v-model="searchObject.isActive" id="isActive" :label="$t('isActive')" @update:modelValue="handleUpdate" /> -->
         <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" @change="handleUpdate" />
     </div>
 </template>

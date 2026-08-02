@@ -30,3 +30,9 @@
     opacity: 0.6;
     font-style: italic;
 }
+
+// NullableCheckBox's own label sits directly beside its box and is clickable.
+.rg-nullable-checkbox-label {
+    margin-left: 0.35rem;
+    cursor: pointer;
+}

@@ -14,8 +14,10 @@ node node_modules/regira_modules/_template/scaffold.mjs Product
 node node_modules/regira_modules/_template/scaffold.mjs Product --no-auth
 # owns a collection (back-end e.Related)? scaffold its editable table too (repeat --owns per child):
 node node_modules/regira_modules/_template/scaffold.mjs Order --owns OrderLine
-# a to-one relation shown in the overview? generate the pooled column (repeat --rel per relation):
+# a to-one relation? generate the pooled overview column AND its advanced filter (repeat --rel per relation):
 node node_modules/regira_modules/_template/scaffold.mjs Intervention --rel Vehicle
+# the entity owns files? scaffold the shared attachments slice and wire it into this one:
+node node_modules/regira_modules/_template/scaffold.mjs Intervention --attachments
 # server exposes the resource under a different name than the slice folder?
 node node_modules/regira_modules/_template/scaffold.mjs PartyRelationshipType --api relationship-types
 ```
@@ -26,14 +28,14 @@ Or copy by hand and replace the tokens:
 cp -r node_modules/regira_modules/_template/entity-slice src/entities/products
 ```
 
-| Token             | Replace with                            | Example         |
-| ----------------- | --------------------------------------- | --------------- |
-| `__Entity__`      | PascalCase class name                   | `ShoppingList`   |
-| `__entities__`    | folder + client route (kebab-case)      | `shopping-lists` |
-| `__entity__`      | singular route/id (kebab-case)          | `shopping-list`  |
-| `__api__`         | API resource path — must equal `[Route]`| `/shopping-lists`|
-| `__entitiesKey__` | plural **camelCase** i18n key           | `shoppingLists`  |
-| `__entityKey__`   | singular **camelCase** i18n key         | `shoppingList`   |
+| Token             | Replace with                             | Example           |
+| ----------------- | ---------------------------------------- | ----------------- |
+| `__Entity__`      | PascalCase class name                    | `ShoppingList`    |
+| `__entities__`    | folder + client route (kebab-case)       | `shopping-lists`  |
+| `__entity__`      | singular route/id (kebab-case)           | `shopping-list`   |
+| `__api__`         | API resource path — must equal `[Route]` | `/shopping-lists` |
+| `__entitiesKey__` | plural **camelCase** i18n key            | `shoppingLists`   |
+| `__entityKey__`   | singular **camelCase** i18n key          | `shoppingList`    |
 
 (`scaffold.mjs` fills these automatically; the camelCase i18n keys keep multi-word titles from rendering raw.)
 
@@ -75,16 +77,22 @@ entities setup guide → Install first.
 
 `entity-attachments/` is the shared offline file slice — an add / rename / remove list plus a drop zone
 (`useOwnedCollection` over `EntityAttachment` rows), committed on the parent's save. Scaffold it once per
-app, then wire it into each file-owning entity:
+app — naming an entity does that and wires the slice up in one go:
 
 ```bash
-node node_modules/regira_modules/_template/scaffold.mjs --attachments   # once per app (--force overwrites)
+node node_modules/regira_modules/_template/scaffold.mjs Product --attachments   # shared slice + wire it into a NEW Product slice
+node node_modules/regira_modules/_template/scaffold.mjs --attachments           # shared slice only (--force overwrites)
 ```
 
-It prints the lines that connect it to a parent: an `attachments?: Array<EntityAttachment>` field on the
-model, the `<EntityAttachments>` tab in the form, the `prepareItem` `_deleted` filter, and the
-`EntityService` registration with an `AxiosWithFilesInstance` (the default `axios` registration will not
-compile). Back-end: register the owner's files (`WithAttachments` + `HasAttachments<>`).
+Into a slice it generates, it writes the `attachments?: Array<EntityAttachment>` field, the
+`insert`/`update` overrides, and the `prepareItem` `_deleted` filter — that last one is what makes a file
+the user removed actually disappear on save, and it is the step that gets missed by hand. Against a slice
+that already exists it prints those edits instead, since those files are yours.
+
+Left to you either way: the `<EntityAttachments>` tab in the form — ⚠️ it renders its **own**
+`FormSection`, so it goes in a tab or beside the form's section, never inside one — the `files` /
+`addNewFile(s)` translations, and the back-end registration (`WithAttachments` + `HasAttachments<>`).
+`setup.ts` needs no change: the helpers upload through `useAxios()`.
 
 ## Ejected UI skins (`--ui <Component>`)
 

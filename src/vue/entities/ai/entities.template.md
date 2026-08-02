@@ -8,12 +8,13 @@ route prefix `foos`) — rename it to your entity throughout.
 class name (`InterventionType` → `intervention-types`), matching the conventional `[Route(...)]`. The first two
 flags generate what would otherwise be hand-written and are worth passing up front:
 
-| Flag                | Generates                                                                                                                                                                                                                                                                                            |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `--api <path>`      | a resource path that differs from the folder name (`--api relationship-types`)                                                                                                                                                                                                                       |
-| `--rel <Related>`   | an overview column for a to-one relation — the related entity's `FormModalButton` + a `fromPool` label, plus the FK and nested field on the model. Repeatable; the related slice must exist first. A differently-named FK takes a trailing `--as <field>` (`--rel Employee --as assignedToEmployee`) |
-| `--owns <Child>`    | an editable owned-collection sub-slice (`useOwnedCollection`, `_deleted`-marked rows) for a back-end `e.Related(...)` child. Repeatable; also works on an existing slice. Trailing `--as <field>` sets the JSON key                                                                                  |
-| `--overwrite-slice` | **re-scaffolds a slice that already exists**, customized `(c)` files included. `--force` deliberately does **not** apply to slices, so without this flag a re-run aborts with `already exists`                                                                                                       |
+| Flag                | Generates                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--api <path>`      | a resource path that differs from the folder name (`--api relationship-types`)                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `--rel <Related>`   | everything a to-one relation needs: an overview column (the related entity's `FormModalButton` + a `fromPool` label), the FK and nested field on the model, **and its advanced filter** — a scalar `<field>Id` on the `SearchObject` plus an `InputSelector` in `FilterAdv.vue`, with the backing ref and a `handleReset` that clears it. Repeatable; the related slice must exist first. A differently-named FK takes a trailing `--as <field>` (`--rel Employee --as assignedToEmployee`) |
+| `--owns <Child>`    | an editable owned-collection sub-slice (`useOwnedCollection`, `_deleted`-marked rows) for a back-end `e.Related(...)` child. Repeatable; also works on an existing slice. Trailing `--as <field>` sets the JSON key                                                                                                                                                                                                                                                                         |
+| `--attachments`     | with an entity named, that entity owns files: the shared `entity-attachments` slice is scaffolded (once per app) and wired into the slice — the `attachments` field, the `insert`/`update` overrides, and the `prepareItem` filter that drops rows the user marked for deletion. Alone, it scaffolds the shared slice only. The form tab stays yours to place                                                                                                                               |
+| `--overwrite-slice` | **re-scaffolds a slice that already exists**, customized `(c)` files included. `--force` deliberately does **not** apply to slices, so without this flag a re-run aborts with `already exists`                                                                                                                                                                                                                                                                                              |
 
 ⚠️ `--overwrite-slice` is destructive: it replaces your filled-in `(c)` files. To add an owned sub-slice to an
 existing slice, pass `--owns <Child>` alone — only the sub-slice is generated.
@@ -261,9 +262,10 @@ substitute: it refetches on every keystroke.
         <!-- TODO: one input per SearchObject filter field (placeholder `title` — keep in sync with SearchObject.ts).
              Native <input> → @change="handleUpdate". A custom component (InputSelector, NullableCheckBox,
              DateInput) emits Vue events only → @select="handleUpdate" / @update:modelValue="handleUpdate",
-             or the results and the count go stale. e.g.:
+             or the results and the count go stale. A checkbox filter needs its own label — pass `label`
+             (with an `id`, so clicking the text toggles the box). e.g.:
                  <BarInputSelector v-model="bar" v-model:idValue="searchObject.barId" @select="handleUpdate" />
-                 <NullableCheckBox v-model="searchObject.isActive" @update:modelValue="handleUpdate" /> -->
+                 <NullableCheckBox v-model="searchObject.isActive" id="isActive" :label="$t('isActive')" @update:modelValue="handleUpdate" /> -->
         <input v-model.lazy.trim="searchObject.title" class="form-control mb-2" :placeholder="$t('name')" @change="handleUpdate" />
     </div>
 </template>
@@ -482,6 +484,9 @@ const item = defineModel<Entity>({ required: true })
                  InputSelector + exclude; filter _deleted rows in EntityService.prepareItem. The multi-Selector
                  hard-removes — don't use it here. See entities.patterns.md → owned-m2m recipe. -->
             <!-- child collections go here, e.g. <ChildOverview v-model="item" /> (see entities.advanced.example.md) -->
+            <!-- ⚠️ but NOT a component that brings its own <FormSection>: it would render a titled panel
+                 inside this one. The attachments overview is exactly that — it owns the "files" section, so
+                 place it after </FormSection> below, or in its own <template #files> in a tabbed form. -->
         </FormSection>
 
         <!-- <Debug> dumps the live payload, self-gated on $isDebug (?debug=1) — inert in production; curate the payload. -->

@@ -183,6 +183,37 @@ list in with the shipped `.entity-list--scroll-x` class.
 The `Vehicle` slice in [entities.advanced.example.md](entities.advanced.example.md) §9–10 is the worked
 example (a multi-column list that stays inside the viewport).
 
+## Two presentations of one entity (public face + back office)
+
+A slice has exactly one `Overview`, so a storefront card grid and an admin table over the same `Product`
+cannot both be `List.vue`. Customising the slice into the public face costs the back office its list, which
+the functionality contract still requires — every entity stays manageable.
+
+**Keep the slice as the back office and add app-owned views for the public face.** The public view is a
+plain view under your own folder (`src/shop/views/CatalogView.vue`), routed by your own routes, and it
+reuses the slice's machinery rather than re-implementing it:
+
+```ts
+const service = get<EntityService>(Product.name) // the same registered service the slice uses
+const { items, pagingInfo, itemsCount, isLoading, searchHandler } = useSearchView<Product, SearchObject>({
+    service,
+    searchObject, // your own shape — facets, a slug from the path, whatever the page needs
+    defaultPageSize: 24,
+})
+```
+
+- **Share the service, not the components.** Resolve it from the container under `Entity.name` so both faces
+  read through one pooled cache — a save in the back office is visible to the storefront without a refetch.
+- **`useSearchView` carries over; `useRouteOverview` does not** (it assumes the slice's route names). Sync
+  your own URL and keep the fetch/paging/loading/feedback plumbing — see §Overview: `useListView` vs
+  `useSearchView` in the instructions.
+- **Reuse the kit directly** — `Paging`, `ResultSummary`, `LoadingContainer`, `Feedback` and `ConfirmButton`
+  are `regira_modules/vue/ui` exports and work anywhere; only `#modals` has to exist in `index.html`. The
+  slice's own generated components (`selecting/InputSelector.vue`, `details/FormModalButton.vue`) are app
+  source and carry no slice assumptions either — import them from their folder and they work in your view.
+- Leave the slice registered in `src/entities/index.ts` either way: that is what keeps the entity in the
+  config-driven navigation and gives the admin face its forms for free.
+
 ## Union search (OR across filters)
 
 `searchUnion` POSTs an **array** of search objects and returns the union as one `{ items, count }`:
@@ -651,7 +682,8 @@ marked-delete discipline of an owned collection, extended to the upload/rename r
 shared **`entity-attachments` slice** — scaffold it once, then bind it in a tab on every file-owning entity:
 
 ```bash
-node node_modules/regira_modules/_template/scaffold.mjs --attachments   # → src/entities/entity-attachments/
+node node_modules/regira_modules/_template/scaffold.mjs <Entity> --attachments   # the slice + its wiring
+node node_modules/regira_modules/_template/scaffold.mjs --attachments            # → src/entities/entity-attachments/
 ```
 
 The generated slice (full source: [entities.attachments.template.md](entities.attachments.template.md))

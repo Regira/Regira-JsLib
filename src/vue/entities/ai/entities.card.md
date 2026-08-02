@@ -9,6 +9,25 @@
 > params; find headings with `get_section_toc`) usually suffices — pull a whole section only when a
 > heading isn't enough.
 > Back-end counterpart: `get_package_card("Regira.Entities")`.
+>
+> **⚠️ Three sections are not summarised here, and their headings are listed so you can fetch _one_ by
+> name rather than gamble on the file size:**
+>
+> `"patterns"` (~65k chars) — Soft delete / archived rows · State toggle · Date hydration · Transient
+> client-only fields · Paging · Overview list layout · Two presentations of one entity · Union search ·
+> Custom endpoints on a service · Feedback for custom saves · Entity selector (relation picker) · Owned
+> (child) collections · Attachments · Form validation & error handling · Tabbed forms · Restyling &
+> overriding the built-ins · Hierarchical (tree) entities · Static / lookup data · Pooling & the shared
+> cache · Auth reload hooks · Navigation from the config map · Custom query params · Type the client from
+> OpenAPI · Debug panel
+>
+> `"blueprints"` (~19k chars) — Labels editor · Tenant switcher · Family tree view · Polymorphic entity
+>
+> `ui.signatures` on **`regira_modules.vue.ui`** (~20k chars) — Plugins · Feedback · Paging · Loading ·
+> Modal · Tabs · Icons · Screen · Autocomplete · Buttons & input components. This is where the kit's exact
+> prop contracts live, and extrapolating one from a similar component is the most common way to ship a
+> silently broken control: a prop that does not exist falls through as an HTML attribute, so it renders
+> nothing, logs nothing, and type-checks green.
 
 ## Build tier & scaffold
 

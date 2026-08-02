@@ -296,10 +296,15 @@ import {
 //   tree and call it through a ref: <ConfirmButton ref="confirm" … /> + confirm.value?.open()
 // DateInput contract (DateInputProps/Emits): { modelValue?: string | Date; culture?: string; readonly?: boolean } (v-model;
 //   `readonly` also refuses the emit — a native picker cannot write through it)
-// NullableCheckBox contract (NullableCheckBoxProps/Emits): { modelValue?: boolean | string | number } (v-model:
-//   true → false → undefined, rendered indeterminate). It has NO `label` prop — pair it with `NullableLabel`
-//   ({ label?: string }, falls back to its default slot) or a plain <label for>. In full:
-//     <NullableCheckBox v-model="so.isActive" id="isActive" /><NullableLabel for="isActive" label="Active" />
+// NullableCheckBox contract (NullableCheckBoxProps/Emits): { modelValue?: boolean | string | number; label?: string }
+//   (v-model: true → false → undefined, rendered indeterminate). `label` renders a clickable <label> beside the
+//   box — pass `id` too and it is associated via `for`:
+//     <NullableCheckBox v-model="so.isActive" id="isActive" :label="$t('isActive')" />
+//   Omit `label` and the component renders as the bare <input> (fallthrough attrs land on it either way), for a
+//   custom layout: <NullableCheckBox v-model="so.isActive" /> beside your own markup or a `NullableLabel`.
+//   ⚠️ Inside a Bootstrap `.form-check` keep the bare form: `label` emits `rg-nullable-checkbox-label`, not
+//   `form-check-label`, so it does not pick up Bootstrap's check alignment. Pair the bare input with your own
+//   <label class="form-check-label" for> there, and use the `label` prop everywhere else.
 // DescriptionInput contract (DescriptionInputProps): { label?: string; readonly?: boolean }   (v-model: string)
 // FileDropZone contract (FileDropZoneEmits/Slots): emits "drop-files" (files: Array<Blob>) ; default slot scoped { isDropping }
 // FormButtonsRow contract (FormButtonsRowProps/Emits/Slots): { item?: unknown; readonly?: boolean; feedback?: FeedbackOut; showDelete?: boolean; labels?: { save?: string; cancel?: string; delete?: string; restore?: string }; modalTitle?: string } (reads item.isArchived — truthy, 0/1 ok — to gate Restore, item.$title for the delete prompt; feedback busy-gates Save/Delete/Restore against double-submits; labels/modalTitle override the English defaults for i18n) ; emits: cancel | remove | restore ; slots: delete (delete-confirm body; defaults to "Delete {$title}?")

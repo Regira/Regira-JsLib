@@ -5,7 +5,8 @@
 //   node node_modules/regira_modules/_template/scaffold.mjs --shell [options]    # the app shell (once per app)
 //   node node_modules/regira_modules/_template/scaffold.mjs --ui <Component>     # eject a UI-kit reference skin
 //   node node_modules/regira_modules/_template/scaffold.mjs --ui list            # list the ejectable components
-//   node node_modules/regira_modules/_template/scaffold.mjs --attachments        # the shared offline file/attachments slice (once per app)
+//   node node_modules/regira_modules/_template/scaffold.mjs <Entity> --attachments  # a slice whose entity owns files
+//   node node_modules/regira_modules/_template/scaffold.mjs --attachments        # the shared offline file/attachments slice only
 //
 //   <Entity>            PascalCase class name, e.g. Product
 //   --plural <name>     slice folder + client route prefix (default: kebab-cased plural — Category →
@@ -36,8 +37,11 @@
 //   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard/navbar, layout, views) into the app root
 //   --ui <Component>    copy a UI-kit component's reference skin into the app for free restyling; the copy
 //                       imports only public regira_modules/... API, so behavior keeps flowing from the library
-//   --attachments       scaffold the shared entity-attachments slice (offline add/rename/remove + drop zone,
-//                       committed on the parent's save); then wire it into each file-owning entity (3 lines + a tab)
+//   --attachments       this entity owns files: scaffold the shared entity-attachments slice (offline
+//                       add/rename/remove + drop zone, committed on the parent's save) and wire it into the
+//                       slice — the attachments field, the insert/update overrides, and the prepareItem
+//                       filter that drops rows marked for deletion. Only the form tab is left to place.
+//                       Passed alone (no entity), it scaffolds the shared slice and stops.
 //   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI, the auth-only files + config.json keys)
 //   --force             overwrite files that already exist (--shell / --ui / --attachments only — never an
 //                       entity slice; slices hold hand-edited (c) files and need the explicit flag below)
@@ -63,6 +67,10 @@ const opt = (flag, fallback) => {
     const i = argv.indexOf(flag)
     return i >= 0 && argv[i + 1] ? argv[i + 1] : fallback
 }
+// The entity name is the first bare token — but a flag's VALUE is bare too, so `--dir src/modules` would
+// otherwise be read as the entity (and `--attachments --dir x` would die on "SrcModules is not PascalCase").
+const VALUE_FLAGS = new Set(["--dir", "--api", "--plural", "--singular", "--ui", "--rel", "--owns", "--as"])
+const firstBareArg = () => argv.find((a, i) => !a.startsWith("--") && !VALUE_FLAGS.has(argv[i - 1]))
 const noAuth = argv.includes("--no-auth")
 const force = argv.includes("--force")
 const overwriteSlice = argv.includes("--overwrite-slice")
@@ -88,8 +96,16 @@ if (argv.includes("--ui")) {
 }
 
 // -------------------------------------------------- shared attachments slice
-if (argv.includes("--attachments")) {
+// With an entity named, --attachments means "this entity owns files": the shared slice is scaffolded (once,
+// idempotently) and then wired into that entity's slice below. Alone, it scaffolds the shared slice only.
+// Before this branched, `scaffold.mjs Product --attachments` scaffolded the shared slice and silently ignored
+// Product — leaving the owner's prepareItem unwired, which submits rows the user marked for deletion.
+// With an owner the shared slice is scaffolded further down, AFTER the slice guard has had its say: doing it
+// here would announce a wiring the guard then refuses to perform, leaving nothing written and a non-zero exit.
+const attachmentsOwner = argv.includes("--attachments") ? firstBareArg() : undefined
+if (argv.includes("--attachments") && !attachmentsOwner) {
     scaffoldAttachments()
+    attachmentsManualSteps()
     process.exit(0)
 }
 
@@ -130,7 +146,7 @@ function scaffoldUi(component) {
 }
 
 // --------------------------------------------------------------- entity slice
-const name = argv.find((a) => !a.startsWith("--"))
+const name = firstBareArg()
 if (!name) {
     console.error("Usage: scaffold.mjs <Entity> [options] | --shell | --ui <Component> | --attachments   (run --help for all flags)")
     process.exit(1)
@@ -151,12 +167,35 @@ if (!/^[A-Z][A-Za-z0-9]*$/.test(name)) {
 // type-checks and usually works (module scope wins), but the failures it does cause are baffling: `(e: Event)`
 // in a handler silently resolves to the entity, and `new Location()` reaches the DOM constructor and throws
 // "Illegal constructor". The back-end guides already warn about the equivalent entity↔namespace collision.
-const DOM_GLOBALS = ["Event", "Location", "Text", "Image", "Range", "Selection", "Notification", "Request", "Response", "Screen", "History", "Node", "Element", "Comment", "Document", "Option", "Attr"]
+const DOM_GLOBALS = [
+    "Event",
+    "Location",
+    "Text",
+    "Image",
+    "Range",
+    "Selection",
+    "Notification",
+    "Request",
+    "Response",
+    "Screen",
+    "History",
+    "Node",
+    "Element",
+    "Comment",
+    "Document",
+    "Option",
+    "Attr",
+]
 if (DOM_GLOBALS.includes(name)) {
-    console.log(`! "${name}" is also a DOM global. The model class shadows window.${name} inside every module that imports this slice — a handler typed (e: ${name}) resolves to your entity, and new ${name}() can reach the DOM constructor and throw "Illegal constructor".`)
-    console.log(`  Prefer a suffixed class name (${name}Item, ${name}Record) and keep the resource, route and i18n keys as they are — renaming later needs --overwrite-slice, which REPLACES the 8 (c) files you authored by then.`)
+    console.log(
+        `! "${name}" is also a DOM global. The model class shadows window.${name} inside every module that imports this slice — a handler typed (e: ${name}) resolves to your entity, and new ${name}() can reach the DOM constructor and throw "Illegal constructor".`
+    )
+    console.log(
+        `  Prefer a suffixed class name (${name}Item, ${name}Record) and keep the resource, route and i18n keys as they are — renaming later needs --overwrite-slice, which REPLACES the 8 (c) files you authored by then.`
+    )
 }
 const lowerFirst = (s) => s.charAt(0).toLowerCase() + s.slice(1)
+const upperFirst = (s) => s.charAt(0).toUpperCase() + s.slice(1)
 const pluralize = (s) => (/(?:s|x|z|ch|sh)$/i.test(s) ? s + "es" : /[^aeiou]y$/i.test(s) ? s.slice(0, -1) + "ies" : s + "s")
 // Route/folder identifiers are kebab-case, matching the conventional controller route: InterventionType →
 // "intervention-types", which is what [Route("intervention-types")] serves. Flattening to one lowercase word
@@ -174,7 +213,9 @@ const api = opt("--api", `/${plural}`).replace(/^\/*/, "/")
 // A POSIX shell on Windows (Git Bash/MSYS) rewrites a leading-slash argument into a filesystem path, so
 // `--api /products` silently arrives as `/C:/Program Files/Git/products`. Catch it rather than emit it.
 if (/^\/[A-Za-z]:\//.test(api)) {
-    console.error(`✗ --api received "${api}" — a POSIX shell on Windows expanded the leading slash. Pass it without one: --api ${api.split("/").pop()}`)
+    console.error(
+        `✗ --api received "${api}" — a POSIX shell on Windows expanded the leading slash. Pass it without one: --api ${api.split("/").pop()}`
+    )
     process.exit(1)
 }
 // i18n keys are camelCase (derived from the PascalCase name), unlike the kebab-case route/folder/api
@@ -218,11 +259,15 @@ for (let i = 0; i < argv.length; i++) {
         pending = { set: (f) => (entry.field = f), kind: "--rel", valueIndex: i + 1 }
     } else if (flag === "--as") {
         if (!pending || pending.valueIndex !== i - 1) {
-            console.error("✗ --as must come directly after the --owns or --rel it renames (e.g. --owns OrderLine --as lines, --rel Employee --as assignedToEmployee).")
+            console.error(
+                "✗ --as must come directly after the --owns or --rel it renames (e.g. --owns OrderLine --as lines, --rel Employee --as assignedToEmployee)."
+            )
             process.exit(1)
         }
         if (!hasValue) {
-            console.error("✗ --as requires a field name — the back-end navigation's camelCase JSON key (e.g. --as orderLines, --as assignedToEmployee).")
+            console.error(
+                "✗ --as requires a field name — the back-end navigation's camelCase JSON key (e.g. --as orderLines, --as assignedToEmployee)."
+            )
             process.exit(1)
         }
         if (!/^[a-z][A-Za-z0-9]*$/.test(value)) {
@@ -231,7 +276,9 @@ for (let i = 0; i < argv.length; i++) {
         }
         if (pending.kind === "--rel" && /Id$/.test(value)) {
             const nav = value.replace(/Id$/, "")
-            console.error(`✗ --as after --rel takes the navigation property (${nav}), not its FK (${value}) — the scaffold derives the ${value} FK itself. Drop the trailing "Id".`)
+            console.error(
+                `✗ --as after --rel takes the navigation property (${nav}), not its FK (${value}) — the scaffold derives the ${value} FK itself. Drop the trailing "Id".`
+            )
             process.exit(1)
         }
         pending.set(value)
@@ -246,7 +293,10 @@ const ownedField = ({ child, field }) => field ?? lowerFirst(pluralize(child))
 
 // The import alias mirrors the target folder: `--dir src/modules` must emit "@/modules/...", not the
 // default "@/entities/...", or the generated slice cannot resolve its imports.
-const aliasRoot = baseDir.replace(/\\/g, "/").replace(/^\.?\/?src\//, "").replace(/\/+$/, "")
+const aliasRoot = baseDir
+    .replace(/\\/g, "/")
+    .replace(/^\.?\/?src\//, "")
+    .replace(/\/+$/, "")
 // A --rel's slice folder is looked UP, not re-derived: the related slice may have been scaffolded with its own
 // --plural (`Person --plural people` lives in "people"), and re-deriving it emits imports from a folder that
 // does not exist. Every generated config.ts carries `key: "<PascalCase class>"`, so the folder holding that
@@ -287,6 +337,17 @@ const relations = rels.map((r) => {
 const relEntities = [...new Map(relations.map((r) => [r.name, r])).values()]
 // Generated content is inserted after a stable line in the template rather than at a placeholder, so the
 // doc sources these templates are built from stay readable as worked examples.
+// Same as insertAfter, but a missing anchor is fatal. Generated content that silently fails to land ships a
+// control bound to a field nobody added — the consumer meets it as a type error in their app, not here.
+const insertAfterOrFail = (text, anchor, addition, file) => {
+    if (addition && !text.includes(anchor)) {
+        console.error(
+            `✗ ${file} no longer contains "${anchor}" — regenerate _template/entity-slice from the ai docs, or update the anchor in scaffold.mjs.`
+        )
+        process.exit(1)
+    }
+    return insertAfter(text, anchor, addition)
+}
 const insertAfter = (text, anchor, addition) => {
     if (!addition) return text
     const i = text.indexOf(anchor)
@@ -304,7 +365,10 @@ const relationBlocks = {
     cells: relations
         // both the button and the label take the pooled instance — a raw nested DTO has no $title, and an
         // edit made through the button's own modal must relabel this cell without a reload
-        .map((r, i) => `        <div class="col ${relationBreakpoint(i)} text-truncate">\n            <${r.name}Button :model-value="get${r.name}(item.${r.field})" /> {{ get${r.name}(item.${r.field})?.$title }}\n        </div>`)
+        .map(
+            (r, i) =>
+                `        <div class="col ${relationBreakpoint(i)} text-truncate">\n            <${r.name}Button :model-value="get${r.name}(item.${r.field})" /> {{ get${r.name}(item.${r.field})?.$title }}\n        </div>`
+        )
         .join("\n"),
     imports: relEntities
         .map((r) => `import { FormModalButton as ${r.name}Button, useEntityStore as use${r.name}Store } from "${r.alias}"`)
@@ -320,8 +384,37 @@ const relationBlocks = {
     // form costs nothing and cannot cycle. (The failure is dev-server-only; vue-tsc and the build stay green.)
     modelImports: relEntities.map((r) => `import type { Entity as ${r.name} } from "${r.alias}"`).join("\n"),
     fields: relations
-        .map((r) => `    ${r.field}Id?: number\n    ${r.field}?: ${r.name} // populated only when the API eager-loads it — e.Includes(...), not a client includes flag`)
+        .map(
+            (r) =>
+                `    ${r.field}Id?: number\n    ${r.field}?: ${r.name} // populated only when the API eager-loads it — e.Includes(...), not a client includes flag`
+        )
         .join("\n"),
+    // filter/SearchObject.ts — a filter per relation. SCALAR by design: an InputSelector speaks one id
+    // (`idValue?: number | string`), so widening this to an array is 9 TS2322s in FilterAdv.vue. The API's
+    // ICollection<TKey> binds one value or many, so widening later — behind a multi-select — is UI-only.
+    searchFields: relations.map((r) => `    ${r.field}Id?: number // filter on ${r.name}`).join("\n"),
+    // filter/FilterAdv.vue — the control, its entity ref, and the reset that clears it
+    filterImports: relEntities
+        .map((r) => `import { InputSelector as ${r.name}InputSelector } from "${r.alias}"\nimport type { Entity as ${r.name} } from "${r.alias}"`)
+        .join("\n"),
+    filterControls: relations
+        .map(
+            (r) =>
+                `        <div class="mb-2">\n` +
+                `            <${r.name}InputSelector\n` +
+                `                v-model="filter${upperFirst(r.field)}"\n` +
+                `                v-model:idValue="searchObject.${r.field}Id as number"\n` +
+                `                :canEdit="false"\n` +
+                `                :placeholder="$t('${r.key}')"\n` +
+                `                @select="handleUpdate"\n` +
+                `            />\n` +
+                `        </div>`
+        )
+        .join("\n"),
+    // Both v-models are bound on purpose: `idValue` is what filters, `modelValue` is what the control renders.
+    // Bind only idValue and InputSelector's own dev warning fires — it resolves the entity into nothing.
+    filterRefs: relations.map((r) => `const filter${upperFirst(r.field)} = ref<${r.name}>()`).join("\n"),
+    filterResets: relations.map((r) => `    filter${upperFirst(r.field)}.value = undefined`).join("\n"),
 }
 function applyRelations(relPath, text) {
     if (!relations.length) return text
@@ -341,9 +434,43 @@ function applyRelations(relPath, text) {
         case "data/Entity.ts":
             text = insertAfter(text, `import { EntityBase } from "regira_modules/vue/entities"`, relationBlocks.modelImports)
             return insertAfter(text, `title = ""`, relationBlocks.fields)
+        case "filter/SearchObject.ts":
+            return insertAfterOrFail(text, `title?: string`, relationBlocks.searchFields, "filter/SearchObject.ts")
+        case "filter/FilterAdv.vue": {
+            const at = (anchor, addition) => (text = insertAfterOrFail(text, anchor, addition, "filter/FilterAdv.vue"))
+            at(`<input v-model.lazy.trim="searchObject.title"`, relationBlocks.filterControls)
+            at(`import SearchObject from "./SearchObject"`, relationBlocks.filterImports)
+            at(`const searchObject = defineModel<SearchObject>({ required: true })`, relationBlocks.filterRefs)
+            // framework import first, as everywhere else in the templates — hence a prefix, not an insertAfter
+            text = text.replace(
+                `import { IconButton } from "regira_modules/vue/ui"`,
+                `import { ref } from "vue"\nimport { IconButton } from "regira_modules/vue/ui"`
+            )
+            return withFilterReset(text)
+        }
         default:
             return text
     }
+}
+
+// useFilter's own handleReset clears the SEARCH OBJECT; the entity refs behind the relation selectors are the
+// slice's, so a reset that leaves them set makes each control keep rendering the label of a filter that is no
+// longer applied. Wrap it rather than asking the reader to remember.
+const FILTER_RESET_ANCHOR = "const { handleReset, handleUpdate, filterIsActive } = useFilter({ searchObject, emit, Constructor: SearchObject })"
+function withFilterReset(text) {
+    if (!relations.length) return text
+    if (!text.includes(FILTER_RESET_ANCHOR)) {
+        console.error(
+            `✗ filter/FilterAdv.vue no longer carries the useFilter destructure this scaffolder rewrites — regenerate _template/entity-slice from the ai docs, or update FILTER_RESET_ANCHOR in scaffold.mjs.`
+        )
+        process.exit(1)
+    }
+    return text.replace(
+        FILTER_RESET_ANCHOR,
+        `const { handleReset: resetSearchObject, handleUpdate, filterIsActive } = useFilter({ searchObject, emit, Constructor: SearchObject })\n` +
+            `// Clear the selector-backing entities too — resetting the ids alone leaves each control showing a label.\n` +
+            `function handleReset() {\n    resetSearchObject()\n${relationBlocks.filterResets}\n}`
+    )
 }
 
 // data/EntityService.ts ships a TODO marker for the owned-collection filter — its source is the entities
@@ -370,11 +497,76 @@ function applyOwnedCollections(relPath, text) {
     )
 }
 
+// --------------------------------------------------- attachments host wiring
+// The four edits §Wire it into an owning entity prescribes. Hand-applied, step 2 is the one that gets missed,
+// and its failure is silent: without the prepareItem filter a row the user marked for deletion is submitted
+// unchanged, so the file comes back after a save with no error anywhere.
+const ATTACHMENT_ANCHORS = {
+    // the overrides go ABOVE this comment block, which documents prepareItem and has to stay against it
+    prepareDoc: "    // Owned child collections use the `_deleted` mark (never splice): removed rows are filtered out here so",
+    superPrepare: "        return super.prepareItem(item)",
+}
+function applyAttachments(relPath, text) {
+    if (!attachmentsOwner) return text
+    const path = relPath.replace(/\\/g, "/")
+    const need = (anchor, file) => {
+        if (text.includes(anchor)) return
+        console.error(
+            `✗ ${file} no longer carries "${anchor.trim()}" — regenerate _template/entity-slice from the ai docs, or update ATTACHMENT_ANCHORS in scaffold.mjs.`
+        )
+        process.exit(1)
+    }
+    switch (path) {
+        case "data/Entity.ts":
+            text = insertAfter(
+                text,
+                `import { EntityBase } from "regira_modules/vue/entities"`,
+                `import type { Entity as EntityAttachment } from "../../entity-attachments"`
+            )
+            return insertAfter(text, `title = ""`, `    attachments?: Array<EntityAttachment>`)
+        case "data/EntityService.ts":
+            need(ATTACHMENT_ANCHORS.prepareDoc, "data/EntityService.ts")
+            need(ATTACHMENT_ANCHORS.superPrepare, "data/EntityService.ts")
+            text = insertAfter(
+                text,
+                `import Entity from "./Entity"`,
+                `import { insertWithAttachments, updateWithAttachments } from "../../entity-attachments/data/functions"`
+            )
+            // insert stages the pending files against the id the FIRST save returns, hence the update callback
+            text = text.replace(
+                ATTACHMENT_ANCHORS.prepareDoc,
+                `    // Files are staged in memory until the owner has an id, so both write paths flush them. The helpers\n` +
+                    `    // upload through useAxios(); adding getAttachments/addAttachment of your own instead means typing the\n` +
+                    `    // constructor's axios as AxiosWithFilesInstance and resolving it as one in setup.ts.\n` +
+                    `    override async insert(item: Entity): Promise<Entity | undefined> {\n` +
+                    `        return await insertWithAttachments(this.config.api, item, () => super.insert(item), (saved) => super.update(saved))\n` +
+                    `    }\n` +
+                    `    override async update(item: Entity): Promise<Entity | undefined> {\n` +
+                    `        return await updateWithAttachments(this.config.api, item, () => super.update(item))\n` +
+                    `    }\n\n` +
+                    ATTACHMENT_ANCHORS.prepareDoc
+            )
+            // deleted by omission — the same contract as an owned collection, and the same trap if it is missed
+            return text.replace(
+                ATTACHMENT_ANCHORS.superPrepare,
+                `        item.attachments = item.attachments?.filter((x) => !x._deleted)\n` + ATTACHMENT_ANCHORS.superPrepare
+            )
+        default:
+            return text
+    }
+}
+
 const sliceExists = existsSync(destRoot)
-if (sliceExists && !overwriteSlice && !owns.length) {
-    console.error(`✗ ${destRoot} already exists — pass --owns <Child> to add an owned sub-slice to it, or --overwrite-slice to regenerate it (customized (c) files included; --force deliberately does NOT apply to slices).`)
+// "Product exists; now it should own files" is an ordinary request, not an error — so --attachments joins
+// --owns as a reason to proceed against an existing slice. Neither rewrites the (c) files: --owns adds a
+// sub-slice, and --attachments hands back its edits at the end (see the sliceGenerated branch below).
+if (sliceExists && !overwriteSlice && !owns.length && !attachmentsOwner) {
+    console.error(
+        `✗ ${destRoot} already exists — pass --owns <Child> to add an owned sub-slice to it, --attachments for the file-wiring steps, or --overwrite-slice to regenerate it (customized (c) files included; --force deliberately does NOT apply to slices).`
+    )
     process.exit(1)
 }
+if (attachmentsOwner) scaffoldAttachments(attachmentsOwner)
 
 // Replace the camelCase i18n-key placeholders before the kebab-case route placeholders (longest-match first).
 const subst = (s) =>
@@ -390,7 +582,12 @@ const subst = (s) =>
 const authLine = /useAuthStore|authStore\.\$onAction|no-auth app:/
 // Details.vue destructures `load` from useDetails only to feed that hook, so drop it too.
 const dropLoad = (line) => (line.includes("useDetails(") ? line.replace(/\bload\s*,\s*/, "").replace(/,\s*load\b/, "") : line)
-const stripAuth = (s) => s.split("\n").filter((line) => !authLine.test(line)).map(dropLoad).join("\n")
+const stripAuth = (s) =>
+    s
+        .split("\n")
+        .filter((line) => !authLine.test(line))
+        .map(dropLoad)
+        .join("\n")
 
 function copyDir(from, to, rootFrom = from) {
     mkdirSync(to, { recursive: true })
@@ -401,6 +598,9 @@ function copyDir(from, to, rootFrom = from) {
         else {
             let content = subst(readFileSync(src, "utf8"))
             if (noAuth) content = stripAuth(content)
+            // attachments first: both it and --rel insert at the same `title = ""` anchor, and the LAST
+            // writer ends up nearest it — this order puts the relation fields above the attachments field
+            content = applyAttachments(relative(rootFrom, src), content)
             content = applyRelations(relative(rootFrom, src), content)
             content = applyOwnedCollections(relative(rootFrom, src), content)
             writeFileSync(dst, content)
@@ -420,11 +620,31 @@ if (sliceGenerated) {
     copyDir(srcRoot, destRoot)
     console.log(`✓ Scaffolded ${name} → ${join(baseDir, plural)}${noAuth ? " (auth hooks stripped)" : ""}`)
     // The files you actually edit — everything else is vue-tsc-verified boilerplate you leave untouched.
-    const customize = ["data/Entity.ts", "config/config.ts", "filter/SearchObject.ts", "filter/FilterAdv.vue", "overview/List.vue", "overview/ListItem.vue", "details/Form.vue", "selecting/SelectorList.vue"]
+    const customize = [
+        "data/Entity.ts",
+        "config/config.ts",
+        "filter/SearchObject.ts",
+        "filter/FilterAdv.vue",
+        "overview/List.vue",
+        "overview/ListItem.vue",
+        "details/Form.vue",
+        "selecting/SelectorList.vue",
+    ]
     console.log(`  Customize these ${customize.length} (c) files (a lookup drops the overview trio List/ListItem/FilterAdv):`)
     for (const f of customize) console.log(`    · ${join(baseDir, plural, f)}`)
     console.log(`  Then register its plugin in ${join(baseDir, "index.ts")} (see the entities setup guide → Add entities).`)
-    console.log(`  Confirm api "${api}" equals the server route — [Route("${api.slice(1)}")] on ${name}Controller. A mismatch 404s every call; re-run with --api <path> to change it.`)
+    console.log(
+        `  Confirm api "${api}" equals the server route — [Route("${api.slice(1)}")] on ${name}Controller. A mismatch 404s every call; re-run with --api <path> to change it.`
+    )
+    if (attachmentsOwner) {
+        console.log(`  Files: the attachments field, the insert/update overrides and the prepareItem filter are written in.`)
+        attachmentsTodo()
+    }
+    for (const r of relations) {
+        console.log(
+            `  Filter for ${r.name}: searchObject.${r.field}Id + a ${r.name}InputSelector in FilterAdv.vue, cleared by handleReset. Add the "${r.key}" translation key; the API filters on it via its SearchObject.`
+        )
+    }
     for (const r of relations) {
         const relDir = join(baseDir, r.folder)
         console.log(
@@ -439,13 +659,21 @@ if (sliceGenerated) {
         )
     }
 } else {
-    console.log(`· ${join(baseDir, plural)} exists — leaving the slice as-is, adding owned sub-slice(s) only.`)
+    const adding = [owns.length ? "owned sub-slice(s)" : null, attachmentsOwner ? "the attachments wiring" : null].filter(Boolean).join(" + ")
+    console.log(`· ${join(baseDir, plural)} exists — leaving the slice as-is, adding ${adding} only.`)
 }
 
 // ------------------------------------------------------------- owned sub-slices
 // Each `--owns <Child>` scaffolds an editable owned-collection table under the parent slice.
 const ownedSrcRoot = resolve(here, "owned-slice")
 for (const { child, field } of owns) scaffoldOwned(child, field)
+
+// An existing slice keeps its own (c) files, so the three attachment edits cannot be written into it —
+// they are handed back instead. Printed last, after any owned sub-slice has had its say.
+if (attachmentsOwner && !sliceGenerated) {
+    console.log(`· ${join(baseDir, plural)} already exists, so its files are yours — the attachments wiring below is by hand.`)
+    attachmentsManualSteps()
+}
 
 function scaffoldOwned(childName, fieldName) {
     if (!/^[A-Z]/.test(childName)) {
@@ -484,8 +712,12 @@ function scaffoldOwned(childName, fieldName) {
     // Printed BEFORE the folder exists: once it does, correcting the key needs --overwrite-slice, so a hint
     // that only appears in the wiring list below is a hint you can no longer act on cheaply.
     if (fieldName == null) {
-        console.log(`! Owned ${childName}: defaulting its JSON key to "${childField}" — it must match the back-end navigation's camelCase key, which follows the C# property name, not the class name.`)
-        console.log(`  If they differ, stop here and re-run with --owns ${childName} --as <fieldName> — correcting it later needs --overwrite-slice, which REPLACES the 8 (c) files you authored by then.`)
+        console.log(
+            `! Owned ${childName}: defaulting its JSON key to "${childField}" — it must match the back-end navigation's camelCase key, which follows the C# property name, not the class name.`
+        )
+        console.log(
+            `  If they differ, stop here and re-run with --owns ${childName} --as <fieldName> — correcting it later needs --overwrite-slice, which REPLACES the 8 (c) files you authored by then.`
+        )
     }
     mkdirSync(childDest, { recursive: true })
     for (const entry of readdirSync(ownedSrcRoot, { withFileTypes: true })) {
@@ -496,8 +728,12 @@ function scaffoldOwned(childName, fieldName) {
     const filterLine = `item.${childField} = item.${childField}?.filter((x) => !x._deleted)`
     console.log(`✓ Owned collection ${childName} → ${join(baseDir, plural, childFolder)} (editable table)`)
     console.log(`  Wire it into the ${name} slice (the editor is generated; these ${sliceGenerated ? "two" : "three"} lines connect it):`)
-    console.log(`    1. ${p("data/Entity.ts")}         field   ${childField}?: Array<${childName}>   // import type { Entity as ${childName} } from "../${childFolder}"`)
-    console.log(`    2. ${p("details/Form.vue")}       render  <${childName}Overview v-model="item.${childField}" />   // import { ${childName}Overview } from "../${childFolder}"`)
+    console.log(
+        `    1. ${p("data/Entity.ts")}         field   ${childField}?: Array<${childName}>   // import type { Entity as ${childName} } from "../${childFolder}"`
+    )
+    console.log(
+        `    2. ${p("details/Form.vue")}       render  <${childName}Overview v-model="item.${childField}" />   // import { ${childName}Overview } from "../${childFolder}"`
+    )
     console.log(
         sliceGenerated
             ? `    ✓ ${p("data/EntityService.ts")}  prepareItem   ${filterLine}   // already written by this run — it type-checks as soon as step 1 declares the field`
@@ -562,7 +798,40 @@ function scaffoldShell() {
 }
 
 // ---------------------------------------------------- attachments slice impl
-function scaffoldAttachments() {
+// What the generator cannot decide for you: where the tab goes, the translations, and the back-end.
+function attachmentsTodo() {
+    console.log(`  Still yours to place: the form tab.`)
+    console.log(
+        `    details/Form.vue   <template #files><EntityAttachments v-model="item.attachments" :readonly="readonly" /></template>   // import { Overview as EntityAttachments } from "../../entity-attachments"`
+    )
+    console.log(
+        `    ⚠️ It renders its OWN <FormSection> — put it in a tab or beside the form's section, never inside one, or you get a titled panel within a titled panel.`
+    )
+    console.log(
+        `    public/data/translations.json  the shell ships "files" and "addNewFile(s)" (literal key, parentheses included) in English — add the other languages from config.json → langs`
+    )
+    console.log(`    back-end: register the owner's files (WithAttachments + HasAttachments<>).`)
+    console.log(
+        `    Adding getAttachments/addAttachment of your own? Those call this.axios.upload/getFile, so type the ctor as AxiosWithFilesInstance and resolve it as one in setup.ts.`
+    )
+}
+
+// The three edits the generator makes when it owns the slice's files — printed when it cannot: no entity
+// named, or a slice that already exists and whose (c) files are the user's.
+function attachmentsManualSteps() {
+    console.log(`  Wire it into each entity that owns files (3 edits + the tab):`)
+    console.log(
+        `    1. data/Entity.ts         field    attachments?: Array<EntityAttachment>   // import type { Entity as EntityAttachment } from "../../entity-attachments"`
+    )
+    console.log(
+        `    2. data/EntityService.ts  override insert/update via insertWithAttachments/updateWithAttachments; ⚠️ prepareItem must drop _deleted rows — without it a file the user removed is submitted unchanged and comes back after the save, with no error`
+    )
+    console.log(`    3. setup.ts               nothing to change — the helpers upload through useAxios(), so the default axios registration stands`)
+    console.log(`  A NEW slice gets edits 1 and 2 written for it: scaffold.mjs <Entity> --attachments`)
+    attachmentsTodo()
+}
+
+function scaffoldAttachments(owner) {
     const attRoot = resolve(here, "entity-attachments")
     if (!existsSync(attRoot)) {
         console.error(`✗ ${attRoot} not found — regira_modules is missing the entity-attachments template.`)
@@ -571,6 +840,12 @@ function scaffoldAttachments() {
     const baseDir = opt("--dir", "src/entities")
     const dest = resolve(process.cwd(), baseDir, "entity-attachments")
     if (existsSync(dest) && !force) {
+        // The shared slice is one per app, so the second owner finds it already there — that is the normal
+        // path, not an error. Without an owner to wire, an existing slice means the command had nothing to do.
+        if (owner) {
+            console.log(`· ${join(baseDir, "entity-attachments")} already exists — reusing it for ${owner}.`)
+            return
+        }
         console.error(`✗ ${dest} already exists — pass --force to overwrite, or wire the existing slice.`)
         process.exit(1)
     }
@@ -586,13 +861,6 @@ function scaffoldAttachments() {
     }
     copyPlain(attRoot, dest)
     console.log(`✓ Scaffolded the attachments slice → ${join(baseDir, "entity-attachments")}`)
-    console.log("  Wire it into each entity that owns files (3 lines + a tab + the service registration):")
-    console.log(`    1. data/Entity.ts         field    attachments?: Array<EntityAttachment>   // import type { Entity as EntityAttachment } from "../../entity-attachments"`)
-    console.log(`    2. data/EntityService.ts  override insert/update via insertWithAttachments/updateWithAttachments; prepareItem drops _deleted attachments`)
-    console.log(`    3. details/Form.vue       tab      <template #files><EntityAttachments v-model="item.attachments" /></template>   // import { Overview as EntityAttachments } from "../../entity-attachments"`)
-    console.log(`    4. setup.ts               register new EntityService(useAxios(), config)   // import { useAxios } from "regira_modules/vue/http" — the file-owning service requires an AxiosWithFilesInstance; the default sp.get<AxiosInstance>("axios") registration will not compile`)
-    console.log(`    5. public/data/translations.json  the shell template ships "files" and "addNewFile(s)" (literal key, parentheses included) in English — add the other languages from config.json → langs; apps scaffolded before these keys existed must add both`)
-    console.log(`    back-end: register the owner's files (WithAttachments + HasAttachments<>); the service ctor takes an AxiosWithFilesInstance.`)
 }
 
 // public/config.json is DATA, not code: applyShellVariant is comment-marker driven and JSON has no comment
@@ -616,9 +884,7 @@ function stripAuthConfigKeys(json, file) {
     if (!present.length) return json
     const expected = { ...parsed }
     for (const key of present) delete expected[key]
-    const stripped = json
-        .replace(new RegExp(`^[^\\S\\r\\n]*"(?:${present.join("|")})"\\s*:.*\\r?\\n`, "gm"), "")
-        .replace(/,(\s*[}\]])/g, "$1") // dropping what happened to be the LAST key leaves a dangling comma
+    const stripped = json.replace(new RegExp(`^[^\\S\\r\\n]*"(?:${present.join("|")})"\\s*:.*\\r?\\n`, "gm"), "").replace(/,(\s*[}\]])/g, "$1") // dropping what happened to be the LAST key leaves a dangling comma
     let after
     try {
         after = JSON.parse(stripped)
@@ -668,7 +934,8 @@ Usage:
   scaffold.mjs <Entity> [options]     scaffold an entity slice
   scaffold.mjs --shell [--no-auth]    scaffold the app shell (once per app)
   scaffold.mjs --ui <Component>       eject a UI-kit reference skin  (--ui list to list them)
-  scaffold.mjs --attachments          scaffold the shared file/attachments slice (once per app)
+  scaffold.mjs <Entity> --attachments scaffold a slice whose entity owns files (wires the shared slice into it)
+  scaffold.mjs --attachments          scaffold the shared file/attachments slice only
 
 Entity slice:
   <Entity>            PascalCase class name, e.g. Product
@@ -691,7 +958,8 @@ Owned collections (a back-end e.Related(...) child):
 Modes & shared flags:
   --shell             scaffold the app shell (toolchain, main.ts, App.vue, config, router, dashboard, layout, views)
   --ui <Component>    copy a UI-kit component's reference skin for free restyling (--ui list lists them)
-  --attachments       scaffold the shared entity-attachments slice, then wire it into each file-owning entity
+  --attachments       this entity owns files — scaffold the shared slice (once per app) and wire it in;
+                      alone, it scaffolds the shared slice and stops
   --no-auth           strip the auth wiring (slice: reload hooks; shell: auth plugins/UI, the auth-only files + config.json keys)
   --force             overwrite files that already exist (--shell / --ui / --attachments only — never a slice)
   --overwrite-slice   overwrite an existing entity slice or owned sub-slice, customized (c) files included
