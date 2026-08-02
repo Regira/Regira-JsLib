@@ -62,6 +62,3 @@ developer docs never cross-reference).
 `https://mcp.regira.com/mcp` serves these modules; its knowledge builder reads each `ai/*.md` + the
 committed `.d.ts`. Stale `ai/*.md`/`module.json` degrades what every agent sees — hence §1.
 
-## 7. Review code
-
-After reviewing, write a report that is accessible. Present the content in markdown as one block that is easy to copy.
